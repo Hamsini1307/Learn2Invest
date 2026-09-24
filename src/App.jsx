@@ -20,9 +20,17 @@ import LandingJourney from './screens/LandingJourney.jsx'
 import AiAvatarSelector from './components/AiAvatarSelector.jsx'
 import SavedSimulationsManager from './screens/SavedSimulationsManager.jsx'
 import ThemeVaultModal, { THEME_CATALOG } from './components/ThemeVaultModal.jsx'
+import MarketDataTicker from './components/MarketDataTicker.jsx'
+import EducationalDisclaimer from './components/EducationalDisclaimer.jsx'
+import LeaderboardModal from './components/LeaderboardModal.jsx'
+import BadgesModal from './components/BadgesModal.jsx'
+import PerformanceReportModal from './components/PerformanceReportModal.jsx'
+import UserProfileModal from './components/UserProfileModal.jsx'
+import { TRANSLATIONS } from './data/translations.js'
+
 
 const INITIAL_STATE = {
-  user: null, xp: 30, lessonsWatched: ['video4'],
+  user: null, xp: 0, lessonsWatched: [],
   completedModules: [],
   correctCount: 0, quizScore: 0,
   intermediateUnlocked: false, advancedUnlocked: false,
@@ -56,6 +64,28 @@ export default function App() {
   })
   const [themeVaultOpen, setThemeVaultOpen] = useState(false)
   const [themeToast, setThemeToast] = useState(null)
+
+  const [lang, setLangState] = useState(() => localStorage.getItem('l2i_lang') || 'en')
+  const [parentChildMode, setParentChildModeState] = useState(() => localStorage.getItem('l2i_parentChildMode') === 'true')
+
+  const setLang = (l) => {
+    setLangState(l)
+    localStorage.setItem('l2i_lang', l)
+  }
+
+  const toggleParentChildMode = () => {
+    setParentChildModeState(prev => {
+      const next = !prev
+      localStorage.setItem('l2i_parentChildMode', String(next))
+      return next
+    })
+  }
+
+  const [leaderboardOpen, setLeaderboardOpen] = useState(false)
+  const [badgesOpen, setBadgesOpen] = useState(false)
+  const [reportOpen, setReportOpen] = useState(false)
+  const [profileOpen, setProfileOpen] = useState(false)
+
 
   // Saved Simulations States
   const [savedSimulations, setSavedSimulations] = useState(() => {
@@ -269,7 +299,7 @@ export default function App() {
 
   const openAvatarModal = () => setAvatarModalOpen(true)
 
-  const p = { go, goBack, canGoBack, state, update, addXP, aiGuideAvatar, aiGuideName, openAvatarModal, themeMode, toggleTheme }
+  const p = { go, goBack, canGoBack, state, update, addXP, aiGuideAvatar, aiGuideName, openAvatarModal, themeMode, toggleTheme, lang, setLang, parentChildMode, toggleParentChildMode }
 
 
   const screens = {
@@ -368,10 +398,20 @@ export default function App() {
                 themeMode={themeMode}
                 toggleTheme={toggleTheme}
                 openThemeVault={() => setThemeVaultOpen(true)}
+                openLeaderboard={() => setLeaderboardOpen(true)}
+                openBadges={() => setBadgesOpen(true)}
+                openReport={() => setReportOpen(true)}
+                openProfile={() => setProfileOpen(true)}
+                lang={lang}
+                setLang={setLang}
+                parentChildMode={parentChildMode}
+                toggleParentChildMode={toggleParentChildMode}
               />
               <div key={screen} className="anim-fade" style={{ flex: 1 }}>
                 {screens[screen] || <LandingJourney {...p} />}
               </div>
+
+              <EducationalDisclaimer lang={lang} />
 
               <Chatbot
                 open={chatOpen}
@@ -402,6 +442,38 @@ export default function App() {
             onSelectTheme={handleSelectTheme}
             xp={state.xp || 0}
           />
+
+          {leaderboardOpen && (
+            <LeaderboardModal
+              user={state.user}
+              userXp={state.xp}
+              onClose={() => setLeaderboardOpen(false)}
+            />
+          )}
+
+          {badgesOpen && (
+            <BadgesModal
+              state={state}
+              onClose={() => setBadgesOpen(false)}
+            />
+          )}
+
+          {reportOpen && (
+            <PerformanceReportModal
+              user={state.user}
+              state={state}
+              onClose={() => setReportOpen(false)}
+            />
+          )}
+
+          {profileOpen && (
+            <UserProfileModal
+              user={state.user}
+              state={state}
+              update={update}
+              onClose={() => setProfileOpen(false)}
+            />
+          )}
 
           {themeToast && (
             <div style={{

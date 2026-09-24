@@ -1,7 +1,29 @@
 import React from 'react'
 import { AI_AVATARS } from './AiAvatarSelector.jsx'
 
-export default function Navbar({ user, xp, currentScreen, onChatToggle, go, goBack, canGoBack, aiGuideAvatar = 'female', aiGuideName, openAvatarModal, themeMode = 'dark', toggleTheme, openThemeVault }) {
+export default function Navbar({
+  user,
+  xp,
+  currentScreen,
+  onChatToggle,
+  go,
+  goBack,
+  canGoBack,
+  aiGuideAvatar = 'female',
+  aiGuideName,
+  openAvatarModal,
+  themeMode = 'dark',
+  toggleTheme,
+  openThemeVault,
+  openLeaderboard,
+  openBadges,
+  openReport,
+  openProfile,
+  lang = 'en',
+  setLang,
+  parentChildMode = false,
+  toggleParentChildMode,
+}) {
   const activeAvatar = AI_AVATARS[aiGuideAvatar] || AI_AVATARS.female
   const guideName = aiGuideName || activeAvatar.name
   const [showHelpModal, setShowHelpModal] = React.useState(false)
@@ -98,40 +120,18 @@ export default function Navbar({ user, xp, currentScreen, onChatToggle, go, goBa
             </div>
           </div>
 
-          {/* Navigation & Breadcrumb Group */}
+          {/* Navigation Items Group */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-            <div style={{
-              background: 'rgba(255, 255, 255, 0.08)',
-              border: '1px solid var(--border-light, rgba(255, 255, 255, 0.15))',
-              borderRadius: '999px',
-              padding: '4px 14px',
-              fontSize: '11px',
-              fontWeight: 800,
-              color: 'var(--text-main, #fef3c7)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6
-            }}>
-              <span>🏠</span>
-              <span>
-                {currentScreen === 'landing' ? 'Main Page (All 3 Levels)' :
-                 currentScreen === 'dashboard' ? 'Campus Dashboard' :
-                 currentScreen === 'saved-simulations' ? 'Saved Simulations Vault' :
-                 ['beginner','video','quiz','beg-complete'].includes(currentScreen) ? 'Level 1 > Beginner' :
-                 ['intermediate','simulation','int-complete'].includes(currentScreen) ? 'Level 2 > Intermediate' :
-                 ['advanced','unlock-adv','adv-result'].includes(currentScreen) ? 'Level 3 > Advanced' : 'Main Page'}
-              </span>
-            </div>
-
-            {/* MAIN PAGE BUTTON */}
             <button
               onClick={() => go('landing')}
               style={{
-                background: currentScreen === 'landing' ? 'var(--gold-bg, rgba(245, 158, 11, 0.25))' : 'rgba(255, 255, 255, 0.06)',
-                border: `1.5px solid ${currentScreen === 'landing' ? 'var(--gold-primary, #f59e0b)' : 'var(--border-light, rgba(255, 255, 255, 0.15))'}`,
-                color: currentScreen === 'landing' ? 'var(--gold-amber, #fbbf24)' : 'var(--text-main, #e2e8f0)',
+                background: currentScreen === 'landing' 
+                  ? 'var(--gold-bg, rgba(245, 158, 11, 0.25))' 
+                  : (themeMode === 'light' ? '#ffedd5' : 'rgba(255, 255, 255, 0.06)'),
+                border: `1.5px solid ${currentScreen === 'landing' ? 'var(--gold-primary, #f59e0b)' : (themeMode === 'light' ? 'rgba(234, 88, 12, 0.3)' : 'rgba(255, 255, 255, 0.15)')}`,
+                color: currentScreen === 'landing' ? 'var(--gold-amber, #ea580c)' : (themeMode === 'light' ? '#7c2d12' : '#e2e8f0'),
                 borderRadius: '999px',
-                padding: '4px 14px',
+                padding: '6px 14px',
                 fontSize: '11px',
                 fontWeight: 800,
                 cursor: 'pointer',
@@ -139,20 +139,20 @@ export default function Navbar({ user, xp, currentScreen, onChatToggle, go, goBa
                 alignItems: 'center',
                 gap: 5,
                 transition: 'all 0.2s',
-                boxShadow: currentScreen === 'landing' ? '0 0 10px var(--gold-bg)' : 'none'
               }}
-              title="Return to Main Page (Contains All 3 Levels: School, Lab, Tower)"
             >
-              <span>🏠</span>
-              <span>Main Page</span>
+              <span>✨</span>
+              <span>Journey</span>
             </button>
 
             <button
               onClick={() => go('dashboard')}
               style={{
-                background: currentScreen === 'dashboard' ? 'var(--gold-bg, rgba(245, 158, 11, 0.25))' : 'rgba(255, 255, 255, 0.06)',
-                border: `1px solid ${currentScreen === 'dashboard' ? 'var(--gold-primary, #f59e0b)' : 'var(--border-light, rgba(255, 255, 255, 0.15))'}`,
-                color: currentScreen === 'dashboard' ? 'var(--gold-amber, #fbbf24)' : 'var(--text-main, #e2e8f0)',
+                background: currentScreen === 'dashboard' 
+                  ? 'var(--gold-bg, rgba(245, 158, 11, 0.25))' 
+                  : (themeMode === 'light' ? '#ffedd5' : 'rgba(255, 255, 255, 0.06)'),
+                border: `1px solid ${currentScreen === 'dashboard' ? 'var(--gold-primary, #f59e0b)' : (themeMode === 'light' ? 'rgba(234, 88, 12, 0.3)' : 'rgba(255, 255, 255, 0.15)')}`,
+                color: currentScreen === 'dashboard' ? 'var(--gold-amber, #ea580c)' : (themeMode === 'light' ? '#7c2d12' : '#e2e8f0'),
                 borderRadius: '999px',
                 padding: '4px 14px',
                 fontSize: '11px',
@@ -171,9 +171,11 @@ export default function Navbar({ user, xp, currentScreen, onChatToggle, go, goBa
             <button
               onClick={() => go('level-map')}
               style={{
-                background: currentScreen === 'level-map' ? 'var(--gold-bg, rgba(245, 158, 11, 0.25))' : 'rgba(255, 255, 255, 0.06)',
-                border: `1px solid ${currentScreen === 'level-map' ? 'var(--gold-primary, #f59e0b)' : 'var(--border-light, rgba(255, 255, 255, 0.15))'}`,
-                color: currentScreen === 'level-map' ? 'var(--gold-amber, #fbbf24)' : 'var(--text-main, #e2e8f0)',
+                background: currentScreen === 'level-map' 
+                  ? 'var(--gold-bg, rgba(245, 158, 11, 0.25))' 
+                  : (themeMode === 'light' ? '#ffedd5' : 'rgba(255, 255, 255, 0.06)'),
+                border: `1px solid ${currentScreen === 'level-map' ? 'var(--gold-primary, #f59e0b)' : (themeMode === 'light' ? 'rgba(234, 88, 12, 0.3)' : 'rgba(255, 255, 255, 0.15)')}`,
+                color: currentScreen === 'level-map' ? 'var(--gold-amber, #ea580c)' : (themeMode === 'light' ? '#7c2d12' : '#e2e8f0'),
                 borderRadius: '999px',
                 padding: '4px 14px',
                 fontSize: '11px',
@@ -192,9 +194,11 @@ export default function Navbar({ user, xp, currentScreen, onChatToggle, go, goBa
             <button
               onClick={() => go('saved-simulations')}
               style={{
-                background: currentScreen === 'saved-simulations' ? 'var(--gold-bg, rgba(245, 158, 11, 0.25))' : 'rgba(255, 255, 255, 0.06)',
-                border: `1px solid ${currentScreen === 'saved-simulations' ? 'var(--gold-primary, #f59e0b)' : 'var(--border-light, rgba(255, 255, 255, 0.15))'}`,
-                color: currentScreen === 'saved-simulations' ? 'var(--gold-amber, #fbbf24)' : 'var(--text-main, #e2e8f0)',
+                background: currentScreen === 'saved-simulations' 
+                  ? 'var(--gold-bg, rgba(245, 158, 11, 0.25))' 
+                  : (themeMode === 'light' ? '#ffedd5' : 'rgba(255, 255, 255, 0.06)'),
+                border: `1px solid ${currentScreen === 'saved-simulations' ? 'var(--gold-primary, #f59e0b)' : (themeMode === 'light' ? 'rgba(234, 88, 12, 0.3)' : 'rgba(255, 255, 255, 0.15)')}`,
+                color: currentScreen === 'saved-simulations' ? 'var(--gold-amber, #ea580c)' : (themeMode === 'light' ? '#7c2d12' : '#e2e8f0'),
                 borderRadius: '999px',
                 padding: '4px 14px',
                 fontSize: '11px',
@@ -216,13 +220,13 @@ export default function Navbar({ user, xp, currentScreen, onChatToggle, go, goBa
             <button
               onClick={onChatToggle}
               style={{
-                background: 'linear-gradient(135deg, #38bdf8, #818cf8)',
-                color: '#080705',
-                border: '1.5px solid #a5f3fc',
+                background: 'linear-gradient(135deg, #0284c7, #2563eb)',
+                color: '#ffffff',
+                border: '1.5px solid #38bdf8',
                 borderRadius: 999, padding: '6px 16px',
                 fontSize: 12, fontWeight: 900, cursor: 'pointer',
                 display: 'flex', alignItems: 'center', gap: 8,
-                boxShadow: '0 0 16px rgba(56, 189, 248, 0.4)',
+                boxShadow: '0 0 16px rgba(2, 132, 199, 0.4)',
                 transition: 'transform 0.2s'
               }}
             >
@@ -235,9 +239,9 @@ export default function Navbar({ user, xp, currentScreen, onChatToggle, go, goBa
               <button
                 onClick={toggleTheme}
                 style={{
-                  background: themeMode === 'light' ? 'rgba(217, 119, 6, 0.15)' : 'rgba(255, 255, 255, 0.1)',
-                  border: `1.5px solid ${themeMode === 'light' ? '#d97706' : 'rgba(255, 255, 255, 0.25)'}`,
-                  color: themeMode === 'light' ? '#b45309' : '#fbbf24',
+                  background: themeMode === 'light' ? '#ea580c' : 'rgba(255, 255, 255, 0.1)',
+                  border: `1.5px solid ${themeMode === 'light' ? '#c2410c' : 'rgba(255, 255, 255, 0.25)'}`,
+                  color: themeMode === 'light' ? '#ffffff' : '#fbbf24',
                   borderRadius: 999,
                   padding: '6px 14px',
                   fontSize: 12,
@@ -247,7 +251,7 @@ export default function Navbar({ user, xp, currentScreen, onChatToggle, go, goBa
                   alignItems: 'center',
                   gap: 6,
                   transition: 'all 0.2s ease',
-                  boxShadow: themeMode === 'light' ? '0 2px 10px rgba(217, 119, 6, 0.2)' : '0 0 14px rgba(255, 255, 255, 0.1)'
+                  boxShadow: themeMode === 'light' ? '0 2px 10px rgba(234, 88, 12, 0.3)' : '0 0 14px rgba(255, 255, 255, 0.1)'
                 }}
                 title={`Switch to ${themeMode === 'light' ? 'Dark' : 'Light'} Mode`}
               >
@@ -256,13 +260,13 @@ export default function Navbar({ user, xp, currentScreen, onChatToggle, go, goBa
               </button>
             )}
 
-            {openThemeVault && (
+            {openLeaderboard && (
               <button
-                onClick={openThemeVault}
+                onClick={openLeaderboard}
                 style={{
-                  background: 'var(--gold-bg, rgba(245, 158, 11, 0.15))',
-                  border: '1.5px solid var(--gold-primary, #f59e0b)',
-                  color: 'var(--gold-amber, #fbbf24)',
+                  background: themeMode === 'light' ? '#ffedd5' : 'rgba(245, 158, 11, 0.15)',
+                  border: '1.5px solid #f59e0b',
+                  color: themeMode === 'light' ? '#92400e' : '#fbbf24',
                   borderRadius: 999,
                   padding: '6px 12px',
                   fontSize: 12,
@@ -270,13 +274,108 @@ export default function Navbar({ user, xp, currentScreen, onChatToggle, go, goBa
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 6,
-                  transition: 'all 0.2s ease',
+                  gap: 5
                 }}
-                title="Open Theme Vault (Unlock themes with XP)"
+                title="View Campus Leaderboard (Req 3.1.4 FR16)"
               >
-                <span>🎨</span>
-                <span>THEMES</span>
+                <span>🏆</span>
+                <span>RANKS</span>
+              </button>
+            )}
+
+            {openBadges && (
+              <button
+                onClick={openBadges}
+                style={{
+                  background: themeMode === 'light' ? '#d1fae5' : 'rgba(16, 185, 129, 0.15)',
+                  border: '1.5px solid #10b981',
+                  color: themeMode === 'light' ? '#047857' : '#6ee7b7',
+                  borderRadius: 999,
+                  padding: '6px 12px',
+                  fontSize: 12,
+                  fontWeight: 900,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 5
+                }}
+                title="View Achievements & Badges (Req 3.1.4 FR14)"
+              >
+                <span>🎖️</span>
+                <span>BADGES</span>
+              </button>
+            )}
+
+            {openReport && (
+              <button
+                onClick={openReport}
+                style={{
+                  background: themeMode === 'light' ? '#e0f2fe' : 'rgba(56, 189, 248, 0.15)',
+                  border: '1.5px solid #38bdf8',
+                  color: themeMode === 'light' ? '#0369a1' : '#a5f3fc',
+                  borderRadius: 999,
+                  padding: '6px 12px',
+                  fontSize: 12,
+                  fontWeight: 900,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 5
+                }}
+                title="View Performance Report & Progress Trends (Req 3.1.5 FR18, FR19, FR20)"
+              >
+                <span>📊</span>
+                <span>REPORT</span>
+              </button>
+            )}
+
+            {setLang && (
+              <select
+                value={lang}
+                onChange={e => setLang(e.target.value)}
+                style={{
+                  background: themeMode === 'light' ? '#ffffff' : '#0f172a',
+                  border: '2px solid #ea580c',
+                  color: themeMode === 'light' ? '#c2410c' : '#fbbf24',
+                  borderRadius: 999,
+                  padding: '6px 12px',
+                  fontSize: 12,
+                  fontWeight: 900,
+                  cursor: 'pointer',
+                  outline: 'none',
+                  boxShadow: '0 4px 14px rgba(0,0,0,0.25)',
+                  fontFamily: "'Space Grotesk', sans-serif"
+                }}
+                title="Select Language (Req 3.7.2 Multilingual)"
+              >
+                <option value="en" style={{ background: '#0f172a', color: '#ffffff', fontSize: '13px', fontWeight: 'bold', padding: '10px' }}>🇬🇧 English</option>
+                <option value="hi" style={{ background: '#0f172a', color: '#ffffff', fontSize: '13px', fontWeight: 'bold', padding: '10px' }}>🇮🇳 हिंदी (Hindi)</option>
+                <option value="kn" style={{ background: '#0f172a', color: '#ffffff', fontSize: '13px', fontWeight: 'bold', padding: '10px' }}>🌾 ಕನ್ನಡ (Kannada)</option>
+                <option value="ta" style={{ background: '#0f172a', color: '#ffffff', fontSize: '13px', fontWeight: 'bold', padding: '10px' }}>🏛️ தமிழ் (Tamil)</option>
+                <option value="ml" style={{ background: '#0f172a', color: '#ffffff', fontSize: '13px', fontWeight: 'bold', padding: '10px' }}>🌴 മലയാളം (Malayalam)</option>
+              </select>
+            )}
+
+            {toggleParentChildMode && (
+              <button
+                onClick={toggleParentChildMode}
+                style={{
+                  background: parentChildMode ? 'rgba(168, 85, 247, 0.25)' : 'rgba(255, 255, 255, 0.08)',
+                  border: `1.5px solid ${parentChildMode ? '#a855f7' : 'rgba(255, 255, 255, 0.2)'}`,
+                  color: parentChildMode ? '#c084fc' : '#d1d5db',
+                  borderRadius: 999,
+                  padding: '6px 12px',
+                  fontSize: 11,
+                  fontWeight: 900,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 5
+                }}
+                title="Toggle Parent-Child Co-Learning Mode (Req 3.7.2)"
+              >
+                <span>👨‍👩‍👧</span>
+                <span>{parentChildMode ? 'PARENT MODE' : 'STUDENT'}</span>
               </button>
             )}
           </div>
@@ -295,7 +394,7 @@ export default function Navbar({ user, xp, currentScreen, onChatToggle, go, goBa
               <span style={{ fontSize: 16 }}>⭐</span>
               <div>
                 <span style={{ fontSize: 9, color: 'var(--text-muted, #94a3b8)', display: 'block', lineHeight: 1 }}>XP POINTS</span>
-                <span>{xp || 120}</span>
+                <span>{xp !== undefined && xp !== null ? xp : 0}</span>
               </div>
             </div>
 
@@ -426,6 +525,29 @@ export default function Navbar({ user, xp, currentScreen, onChatToggle, go, goBa
                         <span>🏠</span>
                         <span>Main Page (All 3 Levels)</span>
                       </button>
+
+                      {openProfile && (
+                        <button
+                          onClick={() => { setShowAccountMenu(false); openProfile(); }}
+                          style={{
+                            background: 'rgba(245, 158, 11, 0.12)',
+                            border: '1px solid #f59e0b',
+                            borderRadius: 8,
+                            padding: '8px 12px',
+                            color: '#fbbf24',
+                            fontSize: 11,
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 8,
+                            textAlign: 'left'
+                          }}
+                        >
+                          <span>👤</span>
+                          <span>Edit Profile & Backup Data</span>
+                        </button>
+                      )}
 
                       <button
                         onClick={() => { setShowAccountMenu(false); openAvatarModal(); }}

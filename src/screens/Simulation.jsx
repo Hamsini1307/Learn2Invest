@@ -15,6 +15,7 @@ function calcFV(monthly, rate, years) {
 
 export default function Simulation({
   go,
+  goBack,
   state,
   update,
   addXP,
@@ -205,8 +206,8 @@ export default function Simulation({
     <div className="content-area" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
       {/* Top Nav Row */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
-        <button className="btn-outline" onClick={() => go('intermediate')}>
-          ← BACK TO INTERMEDIATE
+        <button className="btn-outline" onClick={goBack || (() => go('intermediate'))}>
+          ⬅ BACK TO PREVIOUS PAGE
         </button>
 
         {/* View Switcher: Simulator vs. Saved Simulations */}
@@ -444,6 +445,43 @@ export default function Simulation({
                   RETURNS (PROFIT): <strong style={{ color: '#10b981' }}>{returnsPct.toFixed(1)}%</strong> ({fmt(gain)})
                 </span>
               </div>
+            </div>
+          </div>
+
+          {/* FR11 & FR13: AI Guided Justification & Recommendation Engine */}
+          <div style={{
+            background: 'var(--bg-main, rgba(18, 16, 12, 0.95))',
+            border: '1.5px solid #f59e0b',
+            borderRadius: 16,
+            padding: 16,
+            marginBottom: 24,
+            boxShadow: '0 8px 24px rgba(0,0,0,0.5)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+              <span style={{ fontSize: 22 }}>🤖</span>
+              <div style={{ fontSize: 13, fontWeight: 900, color: '#fbbf24', textTransform: 'uppercase' }}>
+                AI GUIDED SIMULATION & JUSTIFICATION (REQ 3.1.3 FR11 & FR13)
+              </div>
+            </div>
+
+            <div style={{ fontSize: 12, color: '#ffffff', lineHeight: 1.5, marginBottom: 10 }}>
+              <strong>AI Recommendation:</strong> Investing <strong>{fmt(monthly)}/mo</strong> at <strong>{rate}% p.a.</strong> over <strong>{years} years</strong> generates a net returns profit of <strong>{fmt(gain)}</strong> ({gainPct}% growth on principal).
+            </div>
+
+            <div style={{
+              background: 'rgba(245, 158, 11, 0.1)',
+              borderLeft: '3px solid #f59e0b',
+              padding: '10px 14px',
+              borderRadius: 8,
+              fontSize: 11,
+              color: '#d1d5db'
+            }}>
+              <strong>💡 Investment Justification:</strong>{' '}
+              {rate >= 10
+                ? 'High wealth-creation potential. Ideal for long-term goals (>7 years) to beat inflation (5.1%), though subject to short-term market fluctuation.'
+                : years >= 15
+                ? 'Sovereign zero-risk guaranteed option with EEE tax exemption under Section 80C. Strongly justified for risk-averse long-term retirement capital.'
+                : 'Excellent liquidity & principal safety for short-term goals (<5 years), but rejected for aggressive wealth building due to post-tax real returns matching inflation.'}
             </div>
           </div>
 

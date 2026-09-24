@@ -13,6 +13,7 @@ export default function LevelMap({ go, goBack, state, aiGuideAvatar = 'female', 
   const [playerPos, setPlayerPos] = useState({ x: 20, y: 55 })
   const [activeNodes, setActiveNodes] = useState([])
   const [transitioningText, setTransitioningText] = useState('')
+  const [isFullscreen, setIsFullscreen] = useState(false)
 
   const isUnlocked = (id) => {
     if (id === 'beginner' || id === 'quiz') return true
@@ -159,16 +160,47 @@ export default function LevelMap({ go, goBack, state, aiGuideAvatar = 'female', 
 
       {/* ─── INTERACTIVE CAMERA WORLD MAP SCENE ─── */}
       <div style={{
-        position: 'relative',
-        width: '100%',
-        height: '420px',
-        borderRadius: 24,
+        position: isFullscreen ? 'fixed' : 'relative',
+        top: isFullscreen ? 0 : 'auto',
+        left: isFullscreen ? 0 : 'auto',
+        right: isFullscreen ? 0 : 'auto',
+        bottom: isFullscreen ? 0 : 'auto',
+        zIndex: isFullscreen ? 9999 : 1,
+        width: isFullscreen ? '100vw' : '100%',
+        height: isFullscreen ? '100vh' : '75vh',
+        minHeight: isFullscreen ? '100vh' : '580px',
+        borderRadius: isFullscreen ? 0 : 24,
         overflow: 'hidden',
-        border: '2px solid rgba(217, 119, 6, 0.4)',
+        border: isFullscreen ? 'none' : '2px solid rgba(217, 119, 6, 0.4)',
         boxShadow: 'var(--card-shadow, 0 20px 50px rgba(0,0,0,0.8))',
-        marginBottom: 28,
-        background: 'var(--bg-main, #0a0907)'
+        marginBottom: isFullscreen ? 0 : 28,
+        background: 'var(--bg-main, #0a0907)',
+        transition: 'all 0.3s ease-in-out'
       }}>
+        {/* Fullscreen Toggle Button */}
+        <button
+          onClick={() => setIsFullscreen(prev => !prev)}
+          style={{
+            position: 'absolute', top: 16, right: 16, zIndex: 50,
+            background: 'rgba(8, 7, 5, 0.85)',
+            border: '1.5px solid #f59e0b',
+            color: '#fbbf24',
+            borderRadius: 999,
+            padding: '8px 16px',
+            fontSize: 12,
+            fontWeight: 900,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            boxShadow: '0 4px 15px rgba(0,0,0,0.6)',
+            backdropFilter: 'blur(10px)',
+          }}
+          title="Toggle Fullscreen Map View"
+        >
+          <span>{isFullscreen ? '↙ EXIT FULLSCREEN' : '⛶ FULLSCREEN MAP'}</span>
+        </button>
+
         {/* Animated Camera Viewport */}
         <motion.div
           animate={{

@@ -76,7 +76,10 @@ app.post('/api/register', async (req, res) => {
     res.status(201).json({ message: 'Registration successful' })
   } catch (err) {
     console.error('Registration error:', err)
-    res.status(500).json({ error: 'Internal server error during registration' })
+    if (err.message && (err.message.includes('already exists') || err.message.includes('duplicate'))) {
+      return res.status(400).json({ error: 'This email is already registered. Please click "SIGN IN" to log in.' })
+    }
+    res.status(500).json({ error: err.message || 'Internal server error during registration' })
   }
 })
 

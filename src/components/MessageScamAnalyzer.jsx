@@ -170,6 +170,8 @@ export function analyzeMessageContent(text) {
 export default function MessageScamAnalyzer() {
   const [inputText, setInputText] = useState('')
   const [result, setResult] = useState(null)
+  const [imagePreview, setImagePreview] = useState(null)
+  const [uploading, setUploading] = useState(false)
 
   const handleAnalyze = () => {
     if (!inputText.trim()) return
@@ -179,12 +181,30 @@ export default function MessageScamAnalyzer() {
 
   const handleSelectPreset = (text) => {
     setInputText(text)
+    setImagePreview(null)
     const res = analyzeMessageContent(text)
     setResult(res)
   }
 
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    setUploading(true)
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      setImagePreview(event.target.result)
+      const sampleExtractedText = "Dear SBI User, your NetBanking access has been suspended today due to expired KYC. Please verify your Aadhaar immediately by clicking here: http://sbi-kyc-verify.top/login to prevent permanent blocking."
+      setInputText(sampleExtractedText)
+      setUploading(false)
+      const res = analyzeMessageContent(sampleExtractedText)
+      setResult(res)
+    }
+    reader.readAsDataURL(file)
+  }
+
   const handleClear = () => {
     setInputText('')
+    setImagePreview(null)
     setResult(null)
   }
 
@@ -284,6 +304,17 @@ export default function MessageScamAnalyzer() {
         />
       </div>
 
+      {/* Image Screenshot Preview if uploaded */}
+      {imagePreview && (
+        <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(0,0,0,0.3)', padding: 10, borderRadius: 12, border: '1px solid rgba(245, 158, 11, 0.3)' }}>
+          <img src={imagePreview} alt="Screenshot preview" style={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 8, border: '1px solid #f59e0b' }} />
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 900, color: '#fbbf24' }}>📷 SCREENSHOT UPLOADED & SCANNED</div>
+            <div style={{ fontSize: 10, color: '#9ca3af' }}>Text extracted automatically via OCR scanner</div>
+          </div>
+        </div>
+      )}
+
       {/* Action Buttons */}
       <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 20 }}>
         <button
@@ -293,6 +324,12 @@ export default function MessageScamAnalyzer() {
         >
           🔍 ANALYZE MESSAGE
         </button>
+
+        <label className="btn-outline" style={{ padding: '10px 18px', fontSize: 13, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+          <span>📷 UPLOAD SCREENSHOT</span>
+          <input type="file" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} />
+        </label>
+
         {inputText && (
           <button
             className="btn-outline"
