@@ -188,6 +188,37 @@ app.get('/api/state/load', authenticateToken, async (req, res) => {
   }
 })
 
+// 6. Live Leaderboard: Fetch actual registered users from database sorted by XP
+app.get('/api/leaderboard', async (req, res) => {
+  try {
+    const allUsers = await dbUser.find({}, 'name email')
+    const allStates = await dbUserState.find({})
+
+    const userMap = new Map()
+    allUsers.forEach(u => userMap.set(u.email, u.name))
+
+    const leaderboard = allStates.map(st => {
+      const userName = userMap.get(st.email) || 'Learner'
+      const levelLabel = st.advancedUnlocked ? 'Portfolio Tower (L3)' : st.intermediateUnlocked ? 'Investment Lab (L2)' : 'School (L1)'
+      const badgeLabel = st.advancedUnlocked ? '🏆 Legend' : st.intermediateUnlocked ? '🚀 SIP Wizard' : '🌱 Early Saver'
+      return {
+        email: st.email,
+        name: userName,
+        xp: st.xp || 0,
+        level: levelLabel,
+        badge: badgeLabel,
+        avatar: st.advancedUnlocked ? '👩‍💼' : st.intermediateUnlocked ? '👨‍🎓' : '👦'
+      }
+    })
+
+    leaderboard.sort((a, b) => b.xp - a.xp)
+    res.json({ leaderboard })
+  } catch (err) {
+    console.error('Leaderboard error:', err)
+    res.status(500).json({ error: 'Failed to fetch leaderboard' })
+  }
+})
+
 // 5. Secure Gemini API Proxy
 app.post('/api/chat', async (req, res) => {
   const { contents, systemInstruction, apiKey } = req.body

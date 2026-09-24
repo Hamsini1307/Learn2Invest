@@ -401,6 +401,7 @@ export default function App() {
                 setLang={setLang}
                 parentChildMode={parentChildMode}
                 toggleParentChildMode={toggleParentChildMode}
+                state={state}
               />
               <div key={screen} className="anim-fade" style={{ flex: 1 }}>
                 {screens[screen] || <LandingJourney {...p} />}
@@ -410,6 +411,7 @@ export default function App() {
 
               <Chatbot
                 open={chatOpen}
+                onToggle={() => setChatOpen(o => !o)}
                 onClose={() => setChatOpen(false)}
                 user={state.user}
                 xp={state.xp}
@@ -442,6 +444,7 @@ export default function App() {
             <LeaderboardModal
               user={state.user}
               userXp={state.xp}
+              themeMode={themeMode}
               onClose={() => setLeaderboardOpen(false)}
             />
           )}
@@ -449,6 +452,7 @@ export default function App() {
           {badgesOpen && (
             <BadgesModal
               state={state}
+              themeMode={themeMode}
               onClose={() => setBadgesOpen(false)}
             />
           )}
@@ -457,6 +461,7 @@ export default function App() {
             <PerformanceReportModal
               user={state.user}
               state={state}
+              themeMode={themeMode}
               onClose={() => setReportOpen(false)}
             />
           )}

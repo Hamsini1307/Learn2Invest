@@ -92,15 +92,11 @@ export default function LandingJourney({ go, goBack, canGoBack, state, aiGuideAv
           </div>
 
           <h1 style={{
-            fontSize: '38px',
+            fontSize: '40px',
             fontWeight: 900,
-            lineHeight: 1.05,
+            lineHeight: 1.1,
             fontFamily: "'Space Grotesk', sans-serif",
-            background: isLight 
-              ? 'linear-gradient(180deg, #0f172a 20%, #1e293b 60%, #b45309 100%)' 
-              : 'var(--brand-title-gradient, linear-gradient(180deg, #ffffff 20%, #fef3c7 60%, #f59e0b 100%))',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
+            color: isLight ? '#7c2d12' : '#fbbf24',
             letterSpacing: '0.5px',
             marginBottom: '12px'
           }}>

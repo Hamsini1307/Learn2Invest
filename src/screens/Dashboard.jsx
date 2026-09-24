@@ -50,15 +50,15 @@ export default function Dashboard({ go, goBack, state, addXP, aiGuideAvatar = 'f
     {
       id: 'intermediate', type: 'lab', title: `🧪 ${getText('lab', lang)}`, screen: 'intermediate',
       desc: getText('labDesc', lang),
-      pct: state.intermediateUnlocked ? (state.startingLevel === 'intermediate' && state.quizScore < 60 ? 0 : (state.advancedUnlocked ? 100 : intPct)) : 0,
-      locked: !state.intermediateUnlocked,
-      buttonText: state.startingLevel === 'intermediate' && state.quizScore < 60 ? 'Take Entry Quiz' : `${getText('enterLab', lang)} →`,
+      pct: intPct,
+      locked: false,
+      buttonText: `${getText('enterLab', lang)} →`,
     },
     {
       id: 'advanced', type: 'tower', title: `🏦 ${getText('tower', lang)}`, screen: 'advanced',
       desc: getText('towerDesc', lang),
-      pct: state.advancedUnlocked ? 20 : 0,
-      locked: !state.advancedUnlocked,
+      pct: 100,
+      locked: false,
       buttonText: `${getText('enterTower', lang)} →`,
     },
   ]
@@ -105,23 +105,25 @@ export default function Dashboard({ go, goBack, state, addXP, aiGuideAvatar = 'f
             </p>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-            <button
-              className="btn-secondary"
-              onClick={() => go('saved-simulations')}
-              style={{
-                fontSize: 13,
-                padding: '10px 18px',
-                background: 'rgba(217, 119, 6, 0.15)',
-                border: '1.5px solid #d97706',
-                color: 'var(--text-main, #ffffff)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6
-              }}
-            >
-              <span>📁</span>
-              <span>{getText('savedSimulationsBtn', lang)}</span>
-            </button>
+            {state?.intermediateUnlocked && (
+              <button
+                className="btn-secondary"
+                onClick={() => go('saved-simulations')}
+                style={{
+                  fontSize: 13,
+                  padding: '10px 18px',
+                  background: 'rgba(217, 119, 6, 0.15)',
+                  border: '1.5px solid #d97706',
+                  color: 'var(--text-main, #ffffff)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6
+                }}
+              >
+                <span>📁</span>
+                <span>{getText('savedSimulationsBtn', lang)}</span>
+              </button>
+            )}
             <button
               className="btn-primary"
               onClick={() => go('quiz')}

@@ -73,7 +73,7 @@ const SCHEME_NAMES = {
   MIS: 'Post Office Monthly Income Scheme'
 }
 
-export default function Intermediate({ go, state, update, addXP, aiGuideAvatar = 'female', aiGuideName, openAvatarModal }) {
+export default function Intermediate({ go, goBack, canGoBack, state, update, addXP, aiGuideAvatar = 'female', aiGuideName, openAvatarModal }) {
   const activeAvatar = AI_AVATARS[aiGuideAvatar] || AI_AVATARS.female
   const guideName = aiGuideName || activeAvatar.name
   const modulesDone = state.completedModules || []
@@ -118,32 +118,7 @@ export default function Intermediate({ go, state, update, addXP, aiGuideAvatar =
     setNewGoalYears(5)
   }
 
-  const isSkipStart = state.startingLevel === 'intermediate'
-  const needsGatekeeper = isSkipStart && state.quizScore < 60
 
-  if (needsGatekeeper) {
-    return (
-      <div className="content-area" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '80vh', fontFamily: "'Space Grotesk', sans-serif" }}>
-        <div className="glass-card-deep anim-scale" style={{ padding: 40, maxWidth: 500, textAlign: 'center', width: '100%', background: 'var(--bg-card-deep, #12100c)', border: '2px solid #d97706' }}>
-          <div style={{ fontSize: 64, marginBottom: 16 }}>📝</div>
-          <h2 className="font-display" style={{ fontSize: 32, color: 'var(--heading-color, #ffffff)', marginBottom: 8 }}>
-            ENTRY EVALUATION REQUIRED
-          </h2>
-          <p style={{ fontSize: 14, color: 'var(--text-sub, #d1d5db)', fontWeight: 600, lineHeight: 1.6, marginBottom: 28 }}>
-            Since you chose to skip the Beginner lessons and start directly at the **Intermediate Level**, you must pass a quick entry quiz on basic money & financial topics to unlock the Intermediate simulators!
-          </p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <button className="btn-primary" onClick={() => go('quiz')} style={{ fontSize: 15 }}>
-              📝 START BASIC FINANCIAL QUIZ
-            </button>
-            <button className="btn-outline" onClick={() => go('level-map')}>
-              🗺️ BACK TO LEVEL MAP
-            </button>
-          </div>
-        </div>
-      </div>
-    )
-  }
 
   const handleModule = (mod) => {
     update({ currentModule: mod })

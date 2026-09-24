@@ -10,8 +10,9 @@ export const ALL_BADGES = [
   { id: 'b_legend', title: '🏆 Financial Legend', desc: 'Accumulated 500+ XP in Learn2Invest', reqXp: 500, icon: '🏆', category: 'legend' },
 ]
 
-export default function BadgesModal({ state, onClose }) {
+export default function BadgesModal({ state, onClose, themeMode = 'dark' }) {
   const currentXp = state.xp || 0
+  const isLight = themeMode === 'light'
 
   return (
     <div style={{
@@ -20,14 +21,14 @@ export default function BadgesModal({ state, onClose }) {
       display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20
     }} className="anim-fade" onClick={onClose}>
       <div style={{
-        background: 'var(--bg-card-deep, #12100c)',
-        border: '2px solid #f59e0b',
+        background: isLight ? '#ffffff' : 'var(--bg-card-deep, #12100c)',
+        border: '2px solid #ea580c',
         borderRadius: 24,
         padding: '28px',
         maxWidth: 540,
         width: '100%',
-        color: '#fef3c7',
-        boxShadow: '0 0 50px rgba(245, 158, 11, 0.3)',
+        color: isLight ? '#0f172a' : '#fef3c7',
+        boxShadow: isLight ? '0 10px 40px rgba(234, 88, 12, 0.15)' : '0 0 50px rgba(245, 158, 11, 0.3)',
         fontFamily: "'Space Grotesk', sans-serif"
       }} className="anim-scale" onClick={e => e.stopPropagation()}>
         
@@ -36,15 +37,15 @@ export default function BadgesModal({ state, onClose }) {
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <span style={{ fontSize: 32 }}>🎖️</span>
             <div>
-              <h2 className="font-display" style={{ fontSize: 24, color: '#ffffff', lineHeight: 1 }}>
+              <h2 className="font-display" style={{ fontSize: 24, color: isLight ? '#0f172a' : '#ffffff', lineHeight: 1 }}>
                 ACHIEVEMENT BADGES
               </h2>
-              <span style={{ fontSize: 11, color: '#fbbf24', fontWeight: 800 }}>
+              <span style={{ fontSize: 11, color: isLight ? '#c2410c' : '#fbbf24', fontWeight: 800 }}>
                 Earn badges as you master financial concepts!
               </span>
             </div>
           </div>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#fbbf24', fontSize: 22, cursor: 'pointer' }}>✕</button>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', color: isLight ? '#0f172a' : '#fbbf24', fontSize: 22, cursor: 'pointer' }}>✕</button>
         </div>
 
         {/* Badges Grid */}
@@ -53,11 +54,13 @@ export default function BadgesModal({ state, onClose }) {
             const unlocked = currentXp >= badge.reqXp || (badge.id === 'b_scholar' && (state.quizScore || 0) >= 60)
             return (
               <div key={badge.id} style={{
-                background: unlocked ? 'rgba(245, 158, 11, 0.12)' : 'rgba(255, 255, 255, 0.03)',
-                border: `1.5px solid ${unlocked ? '#f59e0b' : 'rgba(255, 255, 255, 0.1)'}`,
+                background: unlocked 
+                  ? (isLight ? '#fff7ed' : 'rgba(245, 158, 11, 0.12)')
+                  : (isLight ? '#f8fafc' : 'rgba(255, 255, 255, 0.03)'),
+                border: `1.5px solid ${unlocked ? '#ea580c' : (isLight ? '#cbd5e1' : 'rgba(255, 255, 255, 0.1)')}`,
                 borderRadius: 16,
                 padding: '14px',
-                opacity: unlocked ? 1 : 0.55,
+                opacity: unlocked ? 1 : 0.65,
                 transition: 'all 0.2s',
                 display: 'flex',
                 alignItems: 'flex-start',
@@ -70,13 +73,13 @@ export default function BadgesModal({ state, onClose }) {
                   {badge.icon}
                 </div>
                 <div>
-                  <div style={{ fontSize: 13, fontWeight: 900, color: unlocked ? '#ffffff' : '#9ca3af' }}>
+                  <div style={{ fontSize: 13, fontWeight: 900, color: unlocked ? (isLight ? '#0f172a' : '#ffffff') : (isLight ? '#64748b' : '#9ca3af') }}>
                     {badge.title}
                   </div>
-                  <div style={{ fontSize: 10, color: '#d1d5db', fontWeight: 600, marginTop: 2 }}>
+                  <div style={{ fontSize: 10, color: isLight ? '#334155' : '#d1d5db', fontWeight: 600, marginTop: 2 }}>
                     {badge.desc}
                   </div>
-                  <div style={{ fontSize: 9, fontWeight: 800, marginTop: 6, color: unlocked ? '#10b981' : '#f59e0b' }}>
+                  <div style={{ fontSize: 9, fontWeight: 800, marginTop: 6, color: unlocked ? (isLight ? '#047857' : '#10b981') : (isLight ? '#c2410c' : '#f59e0b') }}>
                     {unlocked ? '✓ UNLOCKED' : `🔒 REQ: ${badge.reqXp} XP`}
                   </div>
                 </div>

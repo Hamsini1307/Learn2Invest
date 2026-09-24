@@ -14,12 +14,7 @@ export default function LevelMap({ go, goBack, state, aiGuideAvatar = 'female', 
   const [activeNodes, setActiveNodes] = useState([])
   const [transitioningText, setTransitioningText] = useState('')
 
-  const isUnlocked = (id) => {
-    if (id === 'beginner' || id === 'quiz') return true
-    if (id === 'intermediate') return state.intermediateUnlocked
-    if (id === 'advanced') return state.advancedUnlocked
-    return true
-  }
+  const isUnlocked = () => true
 
   const currentLevel = state.advancedUnlocked ? 'advanced'
     : state.intermediateUnlocked ? 'intermediate' : 'beginner'

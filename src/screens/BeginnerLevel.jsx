@@ -85,23 +85,23 @@ function TakeawayModal({ video, onClose }) {
           }}>✕</button>
         </div>
         <div style={{ padding:24, background:'var(--bg-card-deep, #12100c)' }}>
-          <p style={{ fontSize:14,color:'#fbbf24',marginBottom:16,fontWeight:800,textAlign:'center' }}>
+          <p style={{ fontSize:14,color:'var(--gold-amber, #fbbf24)',marginBottom:16,fontWeight:800,textAlign:'center' }}>
             🎉 MASTER THESE KEY LESSON TERMS:
           </p>
           <div style={{ display:'flex',flexDirection:'column',gap:12, maxHeight:'340px', overflowY:'auto', paddingRight:6 }}>
             {video.takeaways.map((t,i)=>(
               <div key={i} style={{
-                background: 'rgba(255,255,255,0.03)',
+                background: 'var(--bg-card, rgba(255,255,255,0.04))',
                 borderRadius:14, padding:'14px 16px',
-                border:`1.5px solid rgba(217, 119, 6, 0.3)`,
+                border:`1.5px solid var(--border-light, rgba(217, 119, 6, 0.3))`,
                 display:'flex', gap:12, alignItems:'flex-start',
               }}>
                 <div style={{ fontSize:26, marginTop:2 }}>{emojiMap[t.term] || '⭐'}</div>
                 <div>
-                  <div style={{ fontWeight:900,color:'#ffffff',fontSize:15,marginBottom:3 }}>
+                  <div style={{ fontWeight:900,color:'var(--heading-color, #ffffff)',fontSize:15,marginBottom:3 }}>
                     {t.term}
                   </div>
-                  <div style={{ fontSize:13,color:'#d1d5db',fontWeight:600,lineHeight:1.4 }}>
+                  <div style={{ fontSize:13,color:'var(--text-sub, #d1d5db)',fontWeight:600,lineHeight:1.4 }}>
                     {t.def}
                   </div>
                 </div>
@@ -353,18 +353,12 @@ function VideoCard({ v, watched, onWatch, delay, activeAvatar, guideName }) {
   )
 }
 
-export default function BeginnerLevel({ go, state, update, addXP, aiGuideAvatar = 'female', aiGuideName, onChatToggle }) {
+export default function BeginnerLevel({ go, goBack, state, update, addXP, aiGuideAvatar = 'female', aiGuideName, onChatToggle }) {
   const activeAvatar = AI_AVATARS[aiGuideAvatar] || AI_AVATARS.female
   const guideName = aiGuideName || activeAvatar.name
   const watched = state.lessonsWatched || []
   const total = VIDEO_FILES.length
   const [activeTab, setActiveTab] = useState('classroom') // 'classroom' | 'lessons' | 'takeaways'
-
-  useEffect(() => {
-    if (!watched.includes('video4')) {
-      update({ lessonsWatched: Array.from(new Set([...watched, 'video4'])) })
-    }
-  }, [watched])
 
   const isIntermediateStart = state.startingLevel === 'intermediate'
   const begCleared = (isIntermediateStart && (state.quizScore || 0) >= 60) || ((state.lessonsWatched || []).length >= 4 && (state.quizScore || 0) >= 60)

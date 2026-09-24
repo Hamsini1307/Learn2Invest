@@ -106,7 +106,7 @@ async function getGeminiReply(message, history, systemInstruction, apiKey) {
   }
 }
 
-export default function Chatbot({ open, onClose, user, xp, currentScreen, aiGuideAvatar = 'female', aiGuideName }) {
+export default function Chatbot({ open, onToggle, onClose, user, xp, currentScreen, aiGuideAvatar = 'female', aiGuideName }) {
   const activeAvatar = AI_AVATARS[aiGuideAvatar] || AI_AVATARS.female
   const guideName = aiGuideName || activeAvatar.name
 
@@ -118,7 +118,29 @@ export default function Chatbot({ open, onClose, user, xp, currentScreen, aiGuid
   const [typing, setTyping] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
   const [apiKey, setApiKey] = useState(() => localStorage.getItem('gemini_api_key') || '')
+  const [speakingIdx, setSpeakingIdx] = useState(null)
   const bottomRef = useRef(null)
+
+  const speakText = (text, idx) => {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return
+    if (speakingIdx === idx) {
+      window.speechSynthesis.cancel()
+      setSpeakingIdx(null)
+      return
+    }
+    window.speechSynthesis.cancel()
+    const cleanText = text
+      .replace(/[*#_~`]/g, '')
+      .replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '')
+      .trim()
+    const utterance = new SpeechSynthesisUtterance(cleanText)
+    utterance.rate = 1.0
+    utterance.pitch = 1.0
+    utterance.onend = () => setSpeakingIdx(null)
+    utterance.onerror = () => setSpeakingIdx(null)
+    setSpeakingIdx(idx)
+    window.speechSynthesis.speak(utterance)
+  }
 
   useEffect(() => {
     if (open) {
@@ -150,6 +172,10 @@ export default function Chatbot({ open, onClose, user, xp, currentScreen, aiGuid
   }, [open, onClose])
 
   const clearChat = () => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel()
+      setSpeakingIdx(null)
+    }
     setMsgs([{
       from: 'bot',
       text: user
@@ -249,7 +275,59 @@ export default function Chatbot({ open, onClose, user, xp, currentScreen, aiGuid
 
   const currentPrompts = getQuickPrompts(currentScreen)
 
-  if (!open) return null
+  if (!open) {
+    return (
+      <div style={{
+        position: 'fixed', bottom: 24, right: 24, zIndex: 9999,
+        display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 10,
+        fontFamily: "'Space Grotesk', sans-serif"
+      }}>
+        {/* Floating Welcome Teaser Bubble */}
+        <div
+          onClick={onToggle || onClose}
+          className="anim-fade"
+          style={{
+            background: 'var(--bg-card, #12100c)',
+            border: '2px solid #ea580c',
+            borderRadius: '18px 18px 4px 18px',
+            padding: '12px 16px',
+            maxWidth: 280,
+            boxShadow: '0 10px 30px rgba(0,0,0,0.6)',
+            cursor: 'pointer',
+            backdropFilter: 'blur(16px)',
+            color: 'var(--text-main, #ffffff)',
+            fontSize: 12,
+            fontWeight: 700,
+            lineHeight: 1.4,
+            transition: 'transform 0.2s',
+          }}
+        >
+          👋 Hi! I'm {guideName}, your AI Mentor. How can I help you with investing today?
+          <div style={{ fontSize: 10, color: 'var(--gold-amber, #fbbf24)', fontWeight: 900, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
+            <span>💬 Tap to ask a question →</span>
+          </div>
+        </div>
+
+        {/* Launcher Floating Circular Button */}
+        <button
+          onClick={onToggle || onClose}
+          style={{
+            width: 56, height: 56, borderRadius: '50%',
+            background: 'linear-gradient(135deg, #0284c7, #2563eb)',
+            border: '2.5px solid #38bdf8',
+            color: '#ffffff', fontSize: 26,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer',
+            boxShadow: '0 8px 24px rgba(2, 132, 199, 0.6)',
+            transition: 'transform 0.2s',
+          }}
+          title={`Chat with ${guideName}`}
+        >
+          {activeAvatar.icon}
+        </button>
+      </div>
+    )
+  }
 
   return (
     <div style={{
@@ -356,7 +434,7 @@ export default function Chatbot({ open, onClose, user, xp, currentScreen, aiGuid
           <div style={{ fontWeight: 800, color: '#fbbf24', marginBottom: 4 }}>
             🔑 GOOGLE GEMINI API KEY INTEGRATION
           </div>
-          <div style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)', marginBottom: 8 }}>
+          <div style={{ fontSize: 11, color: 'var(--text-muted, #9ca3af)', marginBottom: 8 }}>
             Paste your Google Gemini API Key below to power responses directly from Google's Gemini models (`gemini-1.5-flash`):
           </div>
           <div style={{ display: 'flex', gap: 6 }}>
@@ -424,6 +502,30 @@ export default function Chatbot({ open, onClose, user, xp, currentScreen, aiGuid
               border: m.from === 'bot' ? '1.5px solid rgba(217,119,6,0.25)' : 'none',
             }}>
               {m.from === 'bot' ? formatText(m.text) : m.text}
+
+              {m.from === 'bot' && (
+                <div style={{ marginTop: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <button
+                    onClick={() => speakText(m.text, i)}
+                    style={{
+                      background: speakingIdx === i ? '#ea580c' : 'rgba(245, 158, 11, 0.15)',
+                      border: `1px solid ${speakingIdx === i ? '#c2410c' : '#f59e0b'}`,
+                      borderRadius: 8,
+                      padding: '3px 8px',
+                      color: speakingIdx === i ? '#ffffff' : 'var(--gold-amber, #fbbf24)',
+                      fontSize: 10,
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 4
+                    }}
+                    title="Listen to AI Voice Assistant"
+                  >
+                    <span>{speakingIdx === i ? '🔊 Speaking...' : '🔊 Voice Assistant'}</span>
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         ))}

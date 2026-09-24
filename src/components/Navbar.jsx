@@ -23,6 +23,7 @@ export default function Navbar({
   setLang,
   parentChildMode = false,
   toggleParentChildMode,
+  state,
 }) {
   const activeAvatar = AI_AVATARS[aiGuideAvatar] || AI_AVATARS.female
   const guideName = aiGuideName || activeAvatar.name
@@ -191,28 +192,30 @@ export default function Navbar({
               <span>Campus Map</span>
             </button>
 
-            <button
-              onClick={() => go('saved-simulations')}
-              style={{
-                background: currentScreen === 'saved-simulations' 
-                  ? 'var(--gold-bg, rgba(245, 158, 11, 0.25))' 
-                  : (themeMode === 'light' ? '#ffedd5' : 'rgba(255, 255, 255, 0.06)'),
-                border: `1px solid ${currentScreen === 'saved-simulations' ? 'var(--gold-primary, #f59e0b)' : (themeMode === 'light' ? 'rgba(234, 88, 12, 0.3)' : 'rgba(255, 255, 255, 0.15)')}`,
-                color: currentScreen === 'saved-simulations' ? 'var(--gold-amber, #ea580c)' : (themeMode === 'light' ? '#7c2d12' : '#e2e8f0'),
-                borderRadius: '999px',
-                padding: '4px 14px',
-                fontSize: '11px',
-                fontWeight: 800,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 5,
-                transition: 'all 0.2s'
-              }}
-            >
-              <span>📁</span>
-              <span>Saved Sims</span>
-            </button>
+            {state?.intermediateUnlocked && (
+              <button
+                onClick={() => go('saved-simulations')}
+                style={{
+                  background: currentScreen === 'saved-simulations' 
+                    ? 'var(--gold-bg, rgba(245, 158, 11, 0.25))' 
+                    : (themeMode === 'light' ? '#ffedd5' : 'rgba(255, 255, 255, 0.06)'),
+                  border: `1px solid ${currentScreen === 'saved-simulations' ? 'var(--gold-primary, #f59e0b)' : (themeMode === 'light' ? 'rgba(234, 88, 12, 0.3)' : 'rgba(255, 255, 255, 0.15)')}`,
+                  color: currentScreen === 'saved-simulations' ? 'var(--gold-amber, #ea580c)' : (themeMode === 'light' ? '#7c2d12' : '#e2e8f0'),
+                  borderRadius: '999px',
+                  padding: '4px 14px',
+                  fontSize: '11px',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 5,
+                  transition: 'all 0.2s'
+                }}
+              >
+                <span>📁</span>
+                <span>Saved Sims</span>
+              </button>
+            )}
           </div>
 
           {/* Center-Right: Ask AI & Theme Toggle Buttons */}
@@ -346,13 +349,10 @@ export default function Navbar({
                   boxShadow: '0 4px 14px rgba(0,0,0,0.25)',
                   fontFamily: "'Space Grotesk', sans-serif"
                 }}
-                title="Select Language (Req 3.7.2 Multilingual)"
+                title="Select Language (English or Kannada)"
               >
                 <option value="en" style={{ background: '#0f172a', color: '#ffffff', fontSize: '13px', fontWeight: 'bold', padding: '10px' }}>🇬🇧 English</option>
-                <option value="hi" style={{ background: '#0f172a', color: '#ffffff', fontSize: '13px', fontWeight: 'bold', padding: '10px' }}>🇮🇳 हिंदी (Hindi)</option>
                 <option value="kn" style={{ background: '#0f172a', color: '#ffffff', fontSize: '13px', fontWeight: 'bold', padding: '10px' }}>🌾 ಕನ್ನಡ (Kannada)</option>
-                <option value="ta" style={{ background: '#0f172a', color: '#ffffff', fontSize: '13px', fontWeight: 'bold', padding: '10px' }}>🏛️ தமிழ் (Tamil)</option>
-                <option value="ml" style={{ background: '#0f172a', color: '#ffffff', fontSize: '13px', fontWeight: 'bold', padding: '10px' }}>🌴 മലയാളം (Malayalam)</option>
               </select>
             )}
 
