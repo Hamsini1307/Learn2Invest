@@ -1,14 +1,41 @@
 import React from 'react'
 import { AI_AVATARS } from '../components/AiAvatarSelector.jsx'
+import { getText } from '../data/translations.js'
 
-export default function LandingJourney({ go, state, aiGuideAvatar = 'female', openAvatarModal }) {
+export default function LandingJourney({ go, goBack, canGoBack, state, aiGuideAvatar = 'female', openAvatarModal, themeMode, lang = 'en' }) {
   const activeAvatar = AI_AVATARS[aiGuideAvatar] || AI_AVATARS.female
   const { xp = 0, lessonsWatched = [], intermediateUnlocked, advancedUnlocked } = state || {}
 
   const completedCount = lessonsWatched.length
+  const isLight = themeMode === 'light'
 
   return (
     <div className="content-area" style={{ minHeight: '100%' }}>
+      {canGoBack && (
+        <div style={{ marginBottom: 16 }}>
+          <button
+            onClick={goBack}
+            style={{
+              background: 'var(--bg-card, rgba(18, 16, 12, 0.9))',
+              border: '1.5px solid rgba(217, 119, 6, 0.4)',
+              color: 'var(--gold-amber, #fbbf24)',
+              borderRadius: 999,
+              padding: '8px 18px',
+              fontSize: 12,
+              fontWeight: 900,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              boxShadow: '0 4px 14px rgba(0,0,0,0.2)',
+              transition: 'all 0.2s'
+            }}
+          >
+            <span>⬅</span>
+            <span>{getText('backToPrev', lang)}</span>
+          </button>
+        </div>
+      )}
       
       {/* ─── SECTION 1: HERO HEADER ─── */}
       <section style={{
@@ -20,7 +47,9 @@ export default function LandingJourney({ go, state, aiGuideAvatar = 'female', op
         padding: '30px 16px 40px',
         position: 'relative',
         borderRadius: '24px',
-        background: 'var(--bg-gradient-radial, radial-gradient(ellipse at 50% 30%, rgba(245, 158, 11, 0.18) 0%, rgba(18, 16, 12, 0.95) 70%))',
+        background: isLight 
+          ? 'radial-gradient(ellipse at 50% 30%, rgba(245, 158, 11, 0.12) 0%, rgba(255, 255, 255, 0.95) 70%)' 
+          : 'var(--bg-gradient-radial, radial-gradient(ellipse at 50% 30%, rgba(245, 158, 11, 0.18) 0%, rgba(18, 16, 12, 0.95) 70%))',
         marginBottom: '28px'
       }}>
         {/* Ambient Gold Glow */}
@@ -31,7 +60,7 @@ export default function LandingJourney({ go, state, aiGuideAvatar = 'female', op
           transform: 'translateX(-50%)',
           width: '320px',
           height: '320px',
-          background: 'radial-gradient(circle, rgba(217, 119, 6, 0.28) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(217, 119, 6, 0.2) 0%, transparent 70%)',
           filter: 'blur(50px)',
           pointerEvents: 'none'
         }} />
@@ -46,7 +75,7 @@ export default function LandingJourney({ go, state, aiGuideAvatar = 'female', op
               style={{
                 background: 'rgba(245, 158, 11, 0.15)',
                 border: '1px solid #f59e0b',
-                color: '#fbbf24',
+                color: isLight ? '#b45309' : '#fbbf24',
                 padding: '4px 10px',
                 borderRadius: '999px',
                 fontSize: '11px',
@@ -63,17 +92,15 @@ export default function LandingJourney({ go, state, aiGuideAvatar = 'female', op
           </div>
 
           <h1 style={{
-            fontSize: '38px',
+            fontSize: '40px',
             fontWeight: 900,
-            lineHeight: 1.05,
+            lineHeight: 1.1,
             fontFamily: "'Space Grotesk', sans-serif",
-            background: 'var(--brand-title-gradient, linear-gradient(180deg, #ffffff 20%, #fef3c7 60%, #f59e0b 100%))',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
+            color: isLight ? '#7c2d12' : '#fbbf24',
             letterSpacing: '0.5px',
             marginBottom: '12px'
           }}>
-            LEARN2INVEST
+            {getText('appName', lang)}
           </h1>
 
           <p style={{
@@ -84,17 +111,17 @@ export default function LandingJourney({ go, state, aiGuideAvatar = 'female', op
             letterSpacing: '2px',
             marginBottom: '16px'
           }}>
-            LEARN. INVEST. GROW.
+            {getText('taglineSub', lang)}
           </p>
 
           <p style={{
             fontSize: '13px',
-            color: 'var(--text-sub, #d1d5db)',
+            color: 'var(--text-sub, #334155)',
             margin: '0 auto 24px',
             lineHeight: 1.5,
             maxWidth: '640px'
           }}>
-            Step into the luxury financial arena. Master stock markets, simulate live SIP portfolios, and conquer risk with interactive simulations.
+            {getText('heroDesc', lang)}
           </p>
 
           <div style={{ display: 'flex', gap: '12px', width: '100%', maxWidth: '640px', margin: '0 auto', flexWrap: 'wrap', justifyContent: 'center' }}>
@@ -109,7 +136,7 @@ export default function LandingJourney({ go, state, aiGuideAvatar = 'female', op
                 fontWeight: 900
               }}
             >
-              EXPLORE WORLD MAP →
+              {getText('exploreWorldMap', lang)}
             </button>
             <button
               onClick={() => go('level-map')}
@@ -117,7 +144,7 @@ export default function LandingJourney({ go, state, aiGuideAvatar = 'female', op
               style={{
                 flex: '1 1 180px',
                 borderColor: 'var(--gold-primary, #10b981)',
-                color: 'var(--gold-amber, #6ee7b7)',
+                color: isLight ? '#047857' : 'var(--gold-amber, #6ee7b7)',
                 fontSize: '14px',
                 padding: '12px 20px',
                 borderRadius: '999px',
@@ -132,7 +159,7 @@ export default function LandingJourney({ go, state, aiGuideAvatar = 'female', op
               style={{
                 flex: '1 1 180px',
                 borderColor: 'var(--gold-dark, #d97706)',
-                color: 'var(--gold-amber, #fbbf24)',
+                color: isLight ? '#92400e' : 'var(--gold-amber, #fbbf24)',
                 fontSize: '14px',
                 padding: '12px 20px',
                 borderRadius: '999px',
@@ -141,7 +168,7 @@ export default function LandingJourney({ go, state, aiGuideAvatar = 'female', op
                 display: 'block'
               }}
             >
-              EXPLORE LEVELS ↓
+              {getText('exploreLevels', lang)}
             </a>
           </div>
         </div>
@@ -154,12 +181,12 @@ export default function LandingJourney({ go, state, aiGuideAvatar = 'female', op
           gap: '10px',
           width: '100%',
           maxWidth: '640px',
-          background: 'var(--card-bg-gradient, linear-gradient(135deg, rgba(22, 19, 14, 0.92) 0%, rgba(14, 12, 9, 0.95) 100%))',
+          background: isLight ? '#ffffff' : 'var(--card-bg-gradient, linear-gradient(135deg, rgba(22, 19, 14, 0.92) 0%, rgba(14, 12, 9, 0.95) 100%))',
           border: '1px solid var(--border-light, rgba(217, 119, 6, 0.3))',
           borderRadius: '20px',
           padding: '16px 14px',
           textAlign: 'center',
-          boxShadow: 'var(--card-shadow, 0 10px 30px rgba(0,0,0,0.4))'
+          boxShadow: isLight ? '0 4px 20px rgba(0,0,0,0.06)' : 'var(--card-shadow, 0 10px 30px rgba(0,0,0,0.4))'
         }}>
           <div>
             <div style={{ fontSize: '18px', fontWeight: 800, color: 'var(--gold-primary, #f59e0b)' }}>3 LEVELS</div>
@@ -167,7 +194,7 @@ export default function LandingJourney({ go, state, aiGuideAvatar = 'female', op
           </div>
           <div>
             <div style={{ fontSize: '18px', fontWeight: 800, color: 'var(--gold-primary, #f59e0b)' }}>{xp} XP</div>
-            <div style={{ fontSize: '10px', color: 'var(--text-muted, #94a3b8)', fontWeight: 700 }}>Earned XP</div>
+            <div style={{ fontSize: '10px', color: 'var(--text-muted, #94a3b8)', fontWeight: 700 }}>{getText('totalXp', lang)}</div>
           </div>
           <div>
             <div style={{ fontSize: '18px', fontWeight: 800, color: 'var(--gold-primary, #f59e0b)' }}>{activeAvatar.icon}</div>
@@ -180,13 +207,13 @@ export default function LandingJourney({ go, state, aiGuideAvatar = 'female', op
       <section id="journey" style={{ padding: '12px 0' }}>
         <div style={{ textAlign: 'center', marginBottom: '28px' }}>
           <span className="sticker-badge sticker-yellow" style={{ marginBottom: '8px' }}>
-            🗺️ STEP-BY-STEP PROGRESSION
+            🗺️ {getText('stepProgression', lang)}
           </span>
           <h2 style={{ fontSize: '28px', color: 'var(--heading-color, #fff)', margin: '4px 0 8px 0' }}>
-            THE LEARNING JOURNEY
+            {getText('learningJourney', lang)}
           </h2>
           <p style={{ color: 'var(--text-sub, #d1d5db)', fontSize: '13px' }}>
-            Progress sequentially through interactive classrooms, real-time lab tools, and portfolio management.
+            {getText('learningJourneySub', lang)}
           </p>
         </div>
 
@@ -194,10 +221,15 @@ export default function LandingJourney({ go, state, aiGuideAvatar = 'female', op
         <div className="level-cards-grid">
           
           {/* STEP 1 ROADMAP CARD */}
-          <div className="glass-card-sm" style={{ padding: '24px' }}>
+          <div className="glass-card-sm" style={{ 
+            padding: '24px',
+            background: isLight ? '#ffffff' : undefined,
+            border: isLight ? '1.5px solid rgba(234, 88, 12, 0.35)' : undefined,
+            boxShadow: isLight ? '0 10px 30px rgba(194, 65, 12, 0.08)' : undefined
+          }}>
             <div style={{
               background: 'var(--gold-primary, #f59e0b)',
-              color: '#080705',
+              color: '#ffffff',
               fontSize: '10px',
               fontWeight: 900,
               padding: '3px 10px',
@@ -205,25 +237,28 @@ export default function LandingJourney({ go, state, aiGuideAvatar = 'female', op
               display: 'inline-block',
               marginBottom: '10px'
             }}>
-              LEVEL 01
+              {getText('level01', lang)}
             </div>
-            <h3 style={{ fontSize: '20px', color: 'var(--heading-color, #ffffff)', margin: '0 0 6px 0', fontFamily: 'Space Grotesk' }}>🌱 LEARN2INVEST SCHOOL</h3>
-            <p style={{ fontSize: '12px', color: 'var(--text-muted, #94a3b8)', lineHeight: 1.5, marginBottom: '16px' }}>
-              Master financial fundamentals: Inflation, Compounding, Stock Markets, Mutual Funds, and Asset Classes.
+            <h3 style={{ fontSize: '20px', color: isLight ? '#0f172a' : 'var(--heading-color, #ffffff)', margin: '0 0 6px 0', fontFamily: 'Space Grotesk' }}>🌱 {getText('school', lang)}</h3>
+            <p style={{ fontSize: '12px', color: isLight ? '#334155' : 'var(--text-muted, #94a3b8)', lineHeight: 1.5, marginBottom: '16px' }}>
+              {getText('schoolDesc', lang)}
             </p>
-            <div style={{ fontSize: '11px', color: 'var(--gold-amber, #f59e0b)', fontWeight: 800 }}>
-              STATUS: {completedCount > 0 ? 'IN PROGRESS' : 'READY TO START'}
+            <div style={{ fontSize: '11px', color: isLight ? '#c2410c' : 'var(--gold-amber, #f59e0b)', fontWeight: 800 }}>
+              {getText('status', lang)}: {completedCount > 0 ? getText('inProgress', lang) : getText('readyToStart', lang)}
             </div>
           </div>
 
           {/* STEP 2 ROADMAP CARD */}
           <div className="glass-card-sm" style={{
             padding: '24px',
-            opacity: intermediateUnlocked ? 1 : 0.85
+            opacity: intermediateUnlocked ? 1 : 0.85,
+            background: isLight ? '#ffffff' : undefined,
+            border: isLight ? '1.5px solid rgba(234, 88, 12, 0.35)' : undefined,
+            boxShadow: isLight ? '0 10px 30px rgba(194, 65, 12, 0.08)' : undefined
           }}>
             <div style={{
-              background: intermediateUnlocked ? 'var(--gold-primary, #f59e0b)' : 'rgba(255,255,255,0.08)',
-              color: intermediateUnlocked ? '#080705' : '#94a3b8',
+              background: intermediateUnlocked ? 'var(--gold-primary, #f59e0b)' : 'rgba(128,128,128,0.2)',
+              color: intermediateUnlocked ? '#ffffff' : (isLight ? '#475569' : 'var(--text-muted, #94a3b8)'),
               fontSize: '10px',
               fontWeight: 900,
               padding: '3px 10px',
@@ -231,25 +266,28 @@ export default function LandingJourney({ go, state, aiGuideAvatar = 'female', op
               display: 'inline-block',
               marginBottom: '10px'
             }}>
-              LEVEL 02
+              {getText('level02', lang)}
             </div>
-            <h3 style={{ fontSize: '20px', color: 'var(--heading-color, #ffffff)', margin: '0 0 6px 0', fontFamily: 'Space Grotesk' }}>🧪 INVESTMENT LAB</h3>
-            <p style={{ fontSize: '12px', color: 'var(--text-muted, #94a3b8)', lineHeight: 1.5, marginBottom: '16px' }}>
-              Simulate investment scenarios: Test SIP calculators, blend assets in the Mixer, and analyze risk safety scores.
+            <h3 style={{ fontSize: '20px', color: isLight ? '#0f172a' : 'var(--heading-color, #ffffff)', margin: '0 0 6px 0', fontFamily: 'Space Grotesk' }}>🧪 {getText('lab', lang)}</h3>
+            <p style={{ fontSize: '12px', color: isLight ? '#334155' : 'var(--text-muted, #94a3b8)', lineHeight: 1.5, marginBottom: '16px' }}>
+              {getText('labDesc', lang)}
             </p>
-            <div style={{ fontSize: '11px', color: intermediateUnlocked ? 'var(--gold-amber, #f59e0b)' : 'var(--text-muted, #94a3b8)', fontWeight: 800 }}>
-              STATUS: {intermediateUnlocked ? 'UNLOCKED ✅' : 'REQUIRES LEVEL 1 PASS'}
+            <div style={{ fontSize: '11px', color: intermediateUnlocked ? (isLight ? '#c2410c' : 'var(--gold-amber, #f59e0b)') : (isLight ? '#64748b' : 'var(--text-muted, #94a3b8)'), fontWeight: 800 }}>
+              {getText('status', lang)}: {intermediateUnlocked ? getText('unlockedBadge', lang) : getText('reqLvl1', lang)}
             </div>
           </div>
 
           {/* STEP 3 ROADMAP CARD */}
           <div className="glass-card-sm" style={{
             padding: '24px',
-            opacity: advancedUnlocked ? 1 : 0.85
+            opacity: advancedUnlocked ? 1 : 0.85,
+            background: isLight ? '#ffffff' : undefined,
+            border: isLight ? '1.5px solid rgba(234, 88, 12, 0.35)' : undefined,
+            boxShadow: isLight ? '0 10px 30px rgba(194, 65, 12, 0.08)' : undefined
           }}>
             <div style={{
-              background: advancedUnlocked ? 'var(--gold-primary, #f59e0b)' : 'rgba(255,255,255,0.08)',
-              color: advancedUnlocked ? '#080705' : 'var(--text-muted, #94a3b8)',
+              background: advancedUnlocked ? 'var(--gold-primary, #f59e0b)' : 'rgba(128,128,128,0.2)',
+              color: advancedUnlocked ? '#ffffff' : (isLight ? '#475569' : 'var(--text-muted, #94a3b8)'),
               fontSize: '10px',
               fontWeight: 900,
               padding: '3px 10px',
@@ -257,14 +295,14 @@ export default function LandingJourney({ go, state, aiGuideAvatar = 'female', op
               display: 'inline-block',
               marginBottom: '10px'
             }}>
-              LEVEL 03
+              {getText('level03', lang)}
             </div>
-            <h3 style={{ fontSize: '20px', color: 'var(--heading-color, #ffffff)', margin: '0 0 6px 0', fontFamily: 'Space Grotesk' }}>🏦 PORTFOLIO TOWER</h3>
-            <p style={{ fontSize: '12px', color: 'var(--text-muted, #94a3b8)', lineHeight: 1.5, marginBottom: '16px' }}>
-              Construct your custom portfolio: Allocate PPF, FD, NSC, SSY, and RD to optimize total expected return.
+            <h3 style={{ fontSize: '20px', color: isLight ? '#0f172a' : 'var(--heading-color, #ffffff)', margin: '0 0 6px 0', fontFamily: 'Space Grotesk' }}>🏦 {getText('tower', lang)}</h3>
+            <p style={{ fontSize: '12px', color: isLight ? '#334155' : 'var(--text-muted, #94a3b8)', lineHeight: 1.5, marginBottom: '16px' }}>
+              {getText('towerDesc', lang)}
             </p>
             <div style={{ fontSize: '11px', color: advancedUnlocked ? 'var(--gold-amber, #f59e0b)' : 'var(--text-muted, #94a3b8)', fontWeight: 800 }}>
-              STATUS: {advancedUnlocked ? 'UNLOCKED ✅' : 'REQUIRES LEVEL 2 PASS'}
+              {getText('status', lang)}: {advancedUnlocked ? getText('unlockedBadge', lang) : getText('reqLvl2', lang)}
             </div>
           </div>
 
@@ -288,34 +326,40 @@ export default function LandingJourney({ go, state, aiGuideAvatar = 'female', op
       </div>
 
       {/* ─── SECTION 3: LEVEL 1 SCHOOL SHOWCASE ─── */}
-      <section style={{ padding: '32px 16px', background: 'var(--bg-card-deep, rgba(18, 16, 12, 0.6))', borderTop: '1px solid rgba(217, 119, 6, 0.15)' }}>
+      <section style={{ 
+        padding: '32px 16px', 
+        background: isLight ? '#ffffff' : 'var(--bg-card-deep, rgba(18, 16, 12, 0.6))', 
+        borderTop: '1px solid rgba(217, 119, 6, 0.15)',
+        borderRadius: '20px',
+        marginBottom: '24px'
+      }}>
         <div>
           <span className="sticker-badge sticker-yellow" style={{ marginBottom: '8px' }}>
-            LEVEL 01 • THE FOUNDATION
+            {getText('level01', lang)} • THE FOUNDATION
           </span>
           <h2 style={{ fontSize: '28px', color: 'var(--heading-color, #fff)', margin: '4px 0 12px', lineHeight: 1.2 }}>
-            🌱 LEARN2INVEST SCHOOL
+            🌱 {getText('school', lang)}
           </h2>
           <p style={{ color: 'var(--text-sub, #d1d5db)', fontSize: '13px', lineHeight: 1.5, marginBottom: '20px' }}>
-            "Start with the basics." Experience structured video lessons presented on an interactive classroom projector screen.
+            {getText('schoolDesc', lang)}
           </p>
 
           {/* Interactive Smartphone Screen Mockup */}
           <div style={{
             width: '100%',
-            background: 'var(--bg-card-deep, #12100c)',
-            border: '3px solid #d97706',
+            background: isLight ? '#f8fafc' : 'var(--bg-card-deep, #12100c)',
+            border: '2px solid #d97706',
             borderRadius: '24px',
             padding: '14px',
-            boxShadow: 'var(--card-shadow, 0 15px 40px rgba(0,0,0,0.8))',
+            boxShadow: isLight ? '0 10px 30px rgba(0,0,0,0.05)' : 'var(--card-shadow, 0 15px 40px rgba(0,0,0,0.8))',
             marginBottom: '20px'
           }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '8px', marginBottom: '12px' }}>
-              <div style={{ fontSize: '11px', fontWeight: 800, color: '#fbbf24' }}>📹 CLASSROOM SCREEN</div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(217, 119, 6, 0.2)', paddingBottom: '8px', marginBottom: '12px' }}>
+              <div style={{ fontSize: '11px', fontWeight: 800, color: 'var(--gold-amber, #fbbf24)' }}>📹 CLASSROOM SCREEN</div>
               <div style={{ fontSize: '10px', color: 'var(--text-muted, #9ca3af)' }}>{completedCount}/5 Lessons</div>
             </div>
             <div style={{
-              background: 'var(--bg-main, #000)',
+              background: isLight ? '#ffffff' : 'var(--bg-main, #000)',
               borderRadius: '12px',
               height: '150px',
               display: 'flex',
@@ -334,57 +378,62 @@ export default function LandingJourney({ go, state, aiGuideAvatar = 'female', op
               className="btn-primary"
               style={{ width: '100%', padding: '12px', fontSize: '13px' }}
             >
-              ENTER SCHOOL →
+              {getText('enterSchool', lang)} →
             </button>
           </div>
         </div>
       </section>
 
       {/* ─── SECTION 4: LEVEL 2 LAB SHOWCASE ─── */}
-      <section style={{ padding: '32px 16px' }}>
+      <section style={{ 
+        padding: '32px 16px',
+        background: isLight ? '#ffffff' : 'transparent',
+        borderRadius: '20px',
+        marginBottom: '24px' 
+      }}>
         <div>
           <span className="sticker-badge sticker-yellow" style={{ marginBottom: '8px' }}>
-            LEVEL 02 • THE LAB
+            {getText('level02', lang)} • THE LAB
           </span>
           <h2 style={{ fontSize: '28px', color: 'var(--heading-color, #fff)', margin: '4px 0 12px', lineHeight: 1.2 }}>
-            🧪 INVESTMENT LAB
+            🧪 {getText('lab', lang)}
           </h2>
           <p style={{ color: 'var(--text-sub, #d1d5db)', fontSize: '13px', lineHeight: 1.5, marginBottom: '20px' }}>
-            "Don't just learn it. Try it." Experiment safely with monthly SIP compounding calculators, portfolio asset mixers, and financial safety scoring.
+            {getText('labDesc', lang)}
           </p>
 
           <div style={{
             width: '100%',
-            background: 'var(--bg-card-deep, #12100c)',
-            border: '3px solid #d97706',
+            background: isLight ? '#f8fafc' : 'var(--bg-card-deep, #12100c)',
+            border: '2px solid #d97706',
             borderRadius: '24px',
             padding: '14px',
-            boxShadow: 'var(--card-shadow, 0 15px 40px rgba(0,0,0,0.8))',
+            boxShadow: isLight ? '0 10px 30px rgba(0,0,0,0.05)' : 'var(--card-shadow, 0 15px 40px rgba(0,0,0,0.8))',
             marginBottom: '20px'
           }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '8px', marginBottom: '12px' }}>
-              <div style={{ fontSize: '11px', fontWeight: 800, color: '#fbbf24' }}>🧪 SIMULATION CANVAS</div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(217, 119, 6, 0.2)', paddingBottom: '8px', marginBottom: '12px' }}>
+              <div style={{ fontSize: '11px', fontWeight: 800, color: 'var(--gold-amber, #fbbf24)' }}>🧪 SIMULATION CANVAS</div>
               <div style={{ fontSize: '10px', color: intermediateUnlocked ? '#10b981' : '#f59e0b' }}>
-                {intermediateUnlocked ? 'UNLOCKED' : 'LOCKED'}
+                {intermediateUnlocked ? getText('unlockedBadge', lang) : getText('status', lang)}
               </div>
             </div>
             <div style={{
-              background: 'var(--input-bg, #1a1610)',
+              background: isLight ? '#ffffff' : 'var(--input-bg, #1a1610)',
               borderRadius: '12px',
               padding: '14px',
               border: '1px solid rgba(245,158,11,0.2)',
               marginBottom: '12px'
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                <span style={{ fontSize: '11px', color: 'var(--text-sub, #d1d5db)' }}>SIP Monthly Investment:</span>
-                <span style={{ fontSize: '12px', fontWeight: 800, color: '#f59e0b' }}>₹5,000 / mo</span>
+                <span style={{ fontSize: '11px', color: 'var(--text-sub, #334155)' }}>SIP Monthly Investment:</span>
+                <span style={{ fontSize: '12px', fontWeight: 800, color: 'var(--gold-primary, #f59e0b)' }}>₹5,000 / mo</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                <span style={{ fontSize: '11px', color: 'var(--text-sub, #d1d5db)' }}>Expected Return (CAGR):</span>
-                <span style={{ fontSize: '12px', fontWeight: 800, color: '#f59e0b' }}>12.5%</span>
+                <span style={{ fontSize: '11px', color: 'var(--text-sub, #334155)' }}>Expected Return (CAGR):</span>
+                <span style={{ fontSize: '12px', fontWeight: 800, color: 'var(--gold-primary, #f59e0b)' }}>12.5%</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: '11px', color: 'var(--text-sub, #d1d5db)' }}>Est. 10-Year Corpus:</span>
+                <span style={{ fontSize: '11px', color: 'var(--text-sub, #334155)' }}>Est. 10-Year Corpus:</span>
                 <span style={{ fontSize: '14px', fontWeight: 900, color: '#10b981' }}>₹11,61,695</span>
               </div>
             </div>
@@ -393,14 +442,20 @@ export default function LandingJourney({ go, state, aiGuideAvatar = 'female', op
               className="btn-primary"
               style={{ width: '100%', padding: '12px', fontSize: '13px' }}
             >
-              LAUNCH INVESTMENT LAB →
+              {getText('enterLab', lang)} →
             </button>
           </div>
         </div>
       </section>
 
       {/* ─── SECTION 5: LUNA / AI GUIDE FEATURE ─── */}
-      <section style={{ padding: '32px 16px', textAlign: 'center', background: 'var(--bg-card-deep, rgba(18, 16, 12, 0.6))' }}>
+      <section style={{ 
+        padding: '32px 16px', 
+        textAlign: 'center', 
+        background: isLight ? '#ffffff' : 'var(--bg-card-deep, rgba(18, 16, 12, 0.6))',
+        borderRadius: '20px',
+        marginBottom: '24px'
+      }}>
         <div style={{
           fontSize: '44px',
           marginBottom: '8px',
@@ -425,7 +480,7 @@ export default function LandingJourney({ go, state, aiGuideAvatar = 'female', op
           style={{
             width: '100%',
             borderColor: '#f59e0b',
-            color: '#fbbf24',
+            color: isLight ? '#b45309' : '#fbbf24',
             padding: '12px',
             fontSize: '13px'
           }}
@@ -438,8 +493,11 @@ export default function LandingJourney({ go, state, aiGuideAvatar = 'female', op
       <section style={{
         padding: '48px 16px',
         textAlign: 'center',
-        background: 'var(--bg-gradient-radial, radial-gradient(ellipse at 50% 50%, rgba(245, 158, 11, 0.2) 0%, rgba(8, 7, 5, 1) 75%))',
-        borderTop: '1px solid rgba(217, 119, 6, 0.3)'
+        background: isLight 
+          ? 'radial-gradient(ellipse at 50% 50%, rgba(245, 158, 11, 0.15) 0%, rgba(255, 255, 255, 1) 75%)' 
+          : 'var(--bg-gradient-radial, radial-gradient(ellipse at 50% 50%, rgba(245, 158, 11, 0.2) 0%, rgba(8, 7, 5, 1) 75%))',
+        borderTop: '1px solid rgba(217, 119, 6, 0.3)',
+        borderRadius: '24px'
       }}>
         <h2 style={{
           fontSize: '32px',
@@ -448,7 +506,7 @@ export default function LandingJourney({ go, state, aiGuideAvatar = 'female', op
           margin: '0 0 12px 0',
           fontFamily: 'Space Grotesk'
         }}>
-          READY TO LEVEL UP?
+          {getText('readyToLevelUp', lang)}
         </h2>
         <p style={{ color: 'var(--text-sub, #d1d5db)', fontSize: '14px', marginBottom: '24px' }}>
           Take full control of your financial destiny today. Start Level 1 School now!
@@ -465,10 +523,10 @@ export default function LandingJourney({ go, state, aiGuideAvatar = 'female', op
             padding: '16px',
             border: 'none',
             fontWeight: 900,
-            boxShadow: '0 0 30px rgba(245, 158, 11, 0.5)'
+            boxShadow: '0 0 30px rgba(245, 158, 11, 0.4)'
           }}
         >
-          START LEARNING NOW →
+          {getText('startLearningNow', lang)}
         </button>
       </section>
 

@@ -14,12 +14,7 @@ export default function LevelMap({ go, goBack, state, aiGuideAvatar = 'female', 
   const [activeNodes, setActiveNodes] = useState([])
   const [transitioningText, setTransitioningText] = useState('')
 
-  const isUnlocked = (id) => {
-    if (id === 'beginner' || id === 'quiz') return true
-    if (id === 'intermediate') return state.intermediateUnlocked
-    if (id === 'advanced') return state.advancedUnlocked
-    return true
-  }
+  const isUnlocked = () => true
 
   const currentLevel = state.advancedUnlocked ? 'advanced'
     : state.intermediateUnlocked ? 'intermediate' : 'beginner'
@@ -161,13 +156,14 @@ export default function LevelMap({ go, goBack, state, aiGuideAvatar = 'female', 
       <div style={{
         position: 'relative',
         width: '100%',
-        height: '420px',
+        height: 'calc(100vh - 120px)',
+        minHeight: '650px',
         borderRadius: 24,
         overflow: 'hidden',
         border: '2px solid rgba(217, 119, 6, 0.4)',
         boxShadow: 'var(--card-shadow, 0 20px 50px rgba(0,0,0,0.8))',
         marginBottom: 28,
-        background: 'var(--bg-main, #0a0907)'
+        background: 'var(--bg-main, #0a0907)',
       }}>
         {/* Animated Camera Viewport */}
         <motion.div

@@ -76,7 +76,10 @@ app.post('/api/register', async (req, res) => {
     res.status(201).json({ message: 'Registration successful' })
   } catch (err) {
     console.error('Registration error:', err)
-    res.status(500).json({ error: 'Internal server error during registration' })
+    if (err.message && (err.message.includes('already exists') || err.message.includes('duplicate'))) {
+      return res.status(400).json({ error: 'This email is already registered. Please click "SIGN IN" to log in.' })
+    }
+    res.status(500).json({ error: err.message || 'Internal server error during registration' })
   }
 })
 
@@ -182,6 +185,37 @@ app.get('/api/state/load', authenticateToken, async (req, res) => {
   } catch (err) {
     console.error('Load state error:', err)
     res.status(500).json({ error: 'Failed to load progress' })
+  }
+})
+
+// 6. Live Leaderboard: Fetch actual registered users from database sorted by XP
+app.get('/api/leaderboard', async (req, res) => {
+  try {
+    const allUsers = await dbUser.find({}, 'name email')
+    const allStates = await dbUserState.find({})
+
+    const userMap = new Map()
+    allUsers.forEach(u => userMap.set(u.email, u.name))
+
+    const leaderboard = allStates.map(st => {
+      const userName = userMap.get(st.email) || 'Learner'
+      const levelLabel = st.advancedUnlocked ? 'Portfolio Tower (L3)' : st.intermediateUnlocked ? 'Investment Lab (L2)' : 'School (L1)'
+      const badgeLabel = st.advancedUnlocked ? '🏆 Legend' : st.intermediateUnlocked ? '🚀 SIP Wizard' : '🌱 Early Saver'
+      return {
+        email: st.email,
+        name: userName,
+        xp: st.xp || 0,
+        level: levelLabel,
+        badge: badgeLabel,
+        avatar: st.advancedUnlocked ? '👩‍💼' : st.intermediateUnlocked ? '👨‍🎓' : '👦'
+      }
+    })
+
+    leaderboard.sort((a, b) => b.xp - a.xp)
+    res.json({ leaderboard })
+  } catch (err) {
+    console.error('Leaderboard error:', err)
+    res.status(500).json({ error: 'Failed to fetch leaderboard' })
   }
 })
 

@@ -18,9 +18,16 @@ import OverworldCity from './screens/OverworldCity.jsx'
 import LandingJourney from './screens/LandingJourney.jsx'
 import AiAvatarSelector from './components/AiAvatarSelector.jsx'
 import SavedSimulationsManager from './screens/SavedSimulationsManager.jsx'
+import MarketDataTicker from './components/MarketDataTicker.jsx'
+import EducationalDisclaimer from './components/EducationalDisclaimer.jsx'
+import LeaderboardModal from './components/LeaderboardModal.jsx'
+import BadgesModal from './components/BadgesModal.jsx'
+import PerformanceReportModal from './components/PerformanceReportModal.jsx'
+import UserProfileModal from './components/UserProfileModal.jsx'
+import { TRANSLATIONS } from './data/translations.js'
 
 const INITIAL_STATE = {
-  user: null, xp: 30, lessonsWatched: ['video4'],
+  user: null, xp: 0, lessonsWatched: [],
   completedModules: [],
   correctCount: 0, quizScore: 0,
   intermediateUnlocked: false, advancedUnlocked: false,
@@ -64,6 +71,28 @@ export default function App() {
     document.documentElement.setAttribute('data-theme', 'dark')
     document.body.setAttribute('data-theme', 'dark')
   }, [screen])
+
+  const [lang, setLangState] = useState(() => localStorage.getItem('l2i_lang') || 'en')
+  const [parentChildMode, setParentChildModeState] = useState(() => localStorage.getItem('l2i_parentChildMode') === 'true')
+
+  const setLang = (l) => {
+    setLangState(l)
+    localStorage.setItem('l2i_lang', l)
+  }
+
+  const toggleParentChildMode = () => {
+    setParentChildModeState(prev => {
+      const next = !prev
+      localStorage.setItem('l2i_parentChildMode', String(next))
+      return next
+    })
+  }
+
+  const [leaderboardOpen, setLeaderboardOpen] = useState(false)
+  const [badgesOpen, setBadgesOpen] = useState(false)
+  const [reportOpen, setReportOpen] = useState(false)
+  const [profileOpen, setProfileOpen] = useState(false)
+
 
   // Saved Simulations States
   const [savedSimulations, setSavedSimulations] = useState(() => {
@@ -156,9 +185,7 @@ export default function App() {
     if (isLoggedIn === 'true' && token) {
       apiRequest('/api/state/load', 'GET')
         .then(data => {
-          // Ensure video4 is always included in lessonsWatched so Quiz Hall is accessible
-          const watchedList = Array.from(new Set([...(data.state?.lessonsWatched || []), 'video4']))
-          const loadedState = { ...data.state, lessonsWatched: watchedList, user: data.user }
+          const loadedState = { ...data.state, lessonsWatched: data.state?.lessonsWatched || [], user: data.user }
           setState(s => ({ ...s, ...loadedState }))
           setScreen('landing')
           setCurrentBg(getBgClass('landing'))
@@ -169,9 +196,6 @@ export default function App() {
           localStorage.removeItem('l2i_currentUser')
           setScreen('auth')
         })
-    } else {
-      // Ensure video4 is marked in initial offline state
-      setState(s => ({ ...s, lessonsWatched: Array.from(new Set([...s.lessonsWatched, 'video4'])) }))
     }
   }, [])
 
@@ -240,7 +264,7 @@ export default function App() {
 
   const openAvatarModal = () => setAvatarModalOpen(true)
 
-  const p = { go, goBack, canGoBack, state, update, addXP, aiGuideAvatar, aiGuideName, openAvatarModal, themeMode }
+  const p = { go, goBack, canGoBack, state, update, addXP, aiGuideAvatar, aiGuideName, openAvatarModal, themeMode, lang, setLang, parentChildMode, toggleParentChildMode }
 
 
   const screens = {
@@ -336,13 +360,25 @@ export default function App() {
                 aiGuideAvatar={aiGuideAvatar}
                 aiGuideName={aiGuideName}
                 openAvatarModal={openAvatarModal}
+                openLeaderboard={() => setLeaderboardOpen(true)}
+                openBadges={() => setBadgesOpen(true)}
+                openReport={() => setReportOpen(true)}
+                openProfile={() => setProfileOpen(true)}
+                lang={lang}
+                setLang={setLang}
+                parentChildMode={parentChildMode}
+                toggleParentChildMode={toggleParentChildMode}
+                state={state}
               />
               <div key={screen} className="anim-fade" style={{ flex: 1 }}>
                 {screens[screen] || <LandingJourney {...p} />}
               </div>
 
+              <EducationalDisclaimer lang={lang} />
+
               <Chatbot
                 open={chatOpen}
+                onToggle={() => setChatOpen(o => !o)}
                 onClose={() => setChatOpen(false)}
                 user={state.user}
                 xp={state.xp}
@@ -362,6 +398,41 @@ export default function App() {
               setAiGuideAvatar(avatarId, customName)
             }}
           />
+
+          {leaderboardOpen && (
+            <LeaderboardModal
+              user={state.user}
+              userXp={state.xp}
+              themeMode={themeMode}
+              onClose={() => setLeaderboardOpen(false)}
+            />
+          )}
+
+          {badgesOpen && (
+            <BadgesModal
+              state={state}
+              themeMode={themeMode}
+              onClose={() => setBadgesOpen(false)}
+            />
+          )}
+
+          {reportOpen && (
+            <PerformanceReportModal
+              user={state.user}
+              state={state}
+              themeMode={themeMode}
+              onClose={() => setReportOpen(false)}
+            />
+          )}
+
+          {profileOpen && (
+            <UserProfileModal
+              user={state.user}
+              state={state}
+              update={update}
+              onClose={() => setProfileOpen(false)}
+            />
+          )}
         </div>
       </div>
     </div>

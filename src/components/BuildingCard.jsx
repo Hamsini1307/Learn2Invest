@@ -48,12 +48,12 @@ export default function BuildingCard({ type = 'school', title, subtitle, locked 
   return (
     <div
       className="glass-card-sm"
-      onClick={!locked ? onClick : undefined}
+      onClick={onClick}
       style={{
         padding: '24px',
         minHeight: '280px',
-        cursor: locked ? 'not-allowed' : 'pointer',
-        opacity: locked ? 0.75 : 1,
+        cursor: 'pointer',
+        opacity: locked ? 0.85 : 1,
         transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
         position: 'relative', overflow: 'hidden',
         background: 'var(--card-bg-gradient, linear-gradient(135deg, rgba(22, 19, 14, 0.92) 0%, rgba(14, 12, 9, 0.95) 100%))',

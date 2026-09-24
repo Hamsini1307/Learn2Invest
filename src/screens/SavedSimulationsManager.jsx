@@ -8,6 +8,7 @@ function fmt(n) {
 
 export default function SavedSimulationsManager({
   go,
+  goBack,
   savedSimulations = [],
   savedPortfolioSimulations = [],
   onUpdateSavedSimulation,
@@ -146,8 +147,8 @@ export default function SavedSimulationsManager({
     <div className="content-area" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
       {/* Top Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
-        <button className="btn-outline" onClick={() => go('level-map')} style={{ padding: '8px 18px', fontSize: 13 }}>
-          ← Back to Campus Map
+        <button className="btn-outline" onClick={goBack || (() => go('level-map'))} style={{ padding: '8px 18px', fontSize: 13 }}>
+          ⬅ Back to Previous Page
         </button>
         <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', fontWeight: 800 }}>
           📂 SAVED SIMULATIONS HUB
