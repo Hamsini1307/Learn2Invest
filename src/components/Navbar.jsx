@@ -18,7 +18,6 @@ export default function Navbar({ user, xp, currentScreen, onChatToggle, go, goBa
   const navItems = [
     { label: 'Journey', icon: '✨', screen: 'landing' },
     { label: 'Campus', icon: '🗺️', screen: 'level-map' },
-    { label: 'Stats', icon: '📊', screen: 'dashboard' },
   ]
 
   return (

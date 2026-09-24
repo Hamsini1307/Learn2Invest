@@ -204,10 +204,7 @@ export function AdvancedResult({ go, state }) {
 
         <div style={{ display: 'flex', gap: 12 }}>
           <button className="btn-primary" onClick={() => go('level-map')} style={{ flex: 1 }}>
-            🗺️ LEVEL MAP
-          </button>
-          <button className="btn-outline" onClick={() => go('dashboard')} style={{ flex: 1 }}>
-            📊 DASHBOARD
+            🗺️ BACK TO CAMPUS MAP
           </button>
         </div>
       </div>

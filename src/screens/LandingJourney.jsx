@@ -112,7 +112,7 @@ export default function LandingJourney({ go, state, aiGuideAvatar = 'female', op
               EXPLORE WORLD MAP →
             </button>
             <button
-              onClick={() => go('dashboard')}
+              onClick={() => go('level-map')}
               className="btn-outline"
               style={{
                 flex: '1 1 180px',
@@ -124,7 +124,7 @@ export default function LandingJourney({ go, state, aiGuideAvatar = 'female', op
                 background: 'var(--gold-bg, rgba(16, 185, 129, 0.12))'
               }}
             >
-              📊 VIEW DASHBOARD
+              🗺️ VIEW CAMPUS MAP
             </button>
             <a
               href="#journey"

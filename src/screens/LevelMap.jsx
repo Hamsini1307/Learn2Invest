@@ -411,9 +411,6 @@ export default function LevelMap({ go, goBack, state, aiGuideAvatar = 'female', 
 
       {/* Action Buttons */}
       <div style={{ display: 'flex', justifyContent: 'center', gap: 16, flexWrap: 'wrap', marginTop: 24 }}>
-        <button className="btn-primary" onClick={() => go('dashboard')} style={{ padding: '14px 32px' }}>
-          📊 VIEW DASHBOARD ANALYTICS
-        </button>
         <button className="btn-outline" onClick={() => go('landing')} style={{ padding: '14px 32px' }}>
           ✨ EXPLORE JOURNEY OVERVIEW
         </button>

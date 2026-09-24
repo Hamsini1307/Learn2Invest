@@ -602,7 +602,7 @@ export default function BeginnerLevel({ go, goBack, state, update, addXP, aiGuid
 
           {/* ACHIEVEMENTS */}
           <button
-            onClick={() => go('dashboard')}
+            onClick={() => go('level-map')}
             style={{
               width: 80, height: 80, borderRadius: '50%',
               background: 'rgba(18, 16, 12, 0.9)',
@@ -614,7 +614,7 @@ export default function BeginnerLevel({ go, goBack, state, update, addXP, aiGuid
             }}
           >
             <span style={{ fontSize: 24 }}>🏆</span>
-            <span style={{ fontSize: 9, fontWeight: 900, marginTop: 2 }}>PROGRESS</span>
+            <span style={{ fontSize: 9, fontWeight: 900, marginTop: 2 }}>MAP</span>
           </button>
         </div>
       </div>
@@ -665,8 +665,7 @@ export default function BeginnerLevel({ go, goBack, state, update, addXP, aiGuid
       </div>
 
       <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
-        <button className="btn-outline" onClick={() => go('level-map')}>← BACK TO MAP</button>
-        <button className="btn-outline" onClick={() => go('dashboard')}>📊 DASHBOARD</button>
+        <button className="btn-outline" onClick={() => go('level-map')}>← BACK TO CAMPUS MAP</button>
       </div>
     </div>
   )

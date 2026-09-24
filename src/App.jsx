@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { apiRequest } from './api.js'
 import Onboarding from './screens/Onboarding.jsx'
 import Auth from './screens/Auth.jsx'
-import Dashboard from './screens/Dashboard.jsx'
 import LevelMap from './screens/LevelMap.jsx'
 import BeginnerLevel from './screens/BeginnerLevel.jsx'
 import VideoPlayer from './screens/VideoPlayer.jsx'
@@ -248,7 +247,7 @@ export default function App() {
     landing: <LandingJourney {...p} />,
     'level-map': <LevelMap {...p} />,
     overworld: <OverworldCity {...p} />,
-    dashboard: <Dashboard {...p} />,
+    dashboard: <LevelMap {...p} />,
     beginner: <BeginnerLevel {...p} />,
     video: <VideoPlayer {...p} />,
     quiz: <Quiz {...p} />,
