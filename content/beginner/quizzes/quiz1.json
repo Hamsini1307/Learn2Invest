@@ -1,0 +1,122 @@
+[
+  {
+    "id": "q1",
+    "question": "What is financial literacy mainly about?",
+    "options": [ "Earning a lot of money",
+        "Understanding how to manage money",
+        "Avoiding banks",
+        "Spending money quickly"
+],
+    "answer": 1,
+    "hint": "Think about managing money, not just earning it.",
+    "explanation": "Financial literacy means understanding how to earn, save, spend, and invest money effectively.",
+    "emoji": "🏦"
+  },
+  {
+    "id": "q2",
+          "question": "Which of the following is NOT a part of financial literacy?",
+      "options": [
+        "Saving money",
+        "Investing money",
+        "Ignoring expenses",
+        "Managing income"
+      ],
+      "answer": 2,
+      "hint": "Financial literacy requires awareness, not ignorance.",
+      "explaination": "Ignoring expenses is not part of financial literacy. Managing income, saving, and investing are essential.",
+    "emoji": "⏳"
+  },
+  {
+    "question": "What does 'investment' mean?",
+      "options": [
+        "Spending money for fun",
+        "Keeping money idle",
+        "Using money to earn more money",
+        "Borrowing money"
+      ],
+      "answer": 2,
+      "hint": "Money should grow, not stay idle.",
+      "explaination": "Investment means putting money into assets or instruments so it grows over time.",
+    "emoji": "📈"
+  },
+  {
+    "id": "q4",
+    "questions": "Why is starting investment early beneficial?",
+      "options": [
+        "You can spend more",
+        "Money gets more time to grow",
+        "Banks give free money",
+        "No taxes are applied"
+      ],
+      "answer": 1,
+      "hint": "Time plays a key role in growth.",
+      "explaination": "Starting early allows compounding, where money grows over time.",
+  
+    "emoji": "📮"
+  },
+  {
+    "id": "q5",
+     "question": "Why are government bonds considered very safe?",
+      "options": [
+        "They give high returns",
+        "They are backed by the government",
+        "They are digital",
+        "They change daily"
+      ],
+      "answer": 1,
+      "hint": "Who is guaranteeing the money?",
+      "explaination": "Government bonds are safe because they are backed by the government.",
+    "emoji": "💸"
+  },
+  {
+    "id": "q6",
+    "question": "What does SIP stand for in mutual funds?",
+    "options": ["Systematic Investment Plan", "Savings Interest Plan", "Secure Income Portfolio", "Standard Investment Policy"],
+    "answer": 0,
+    "hint": "You invest a fixed amount regularly — monthly or weekly.",
+    "explanation": "SIP = Systematic Investment Plan — a method of investing fixed amounts regularly in mutual funds.",
+    "emoji": "🔄"
+  },
+  {
+    "id": "q7",
+    "question": "Under which section of Income Tax can you claim deduction for PPF investments?",
+    "options": ["Section 80D", "Section 80C", "Section 24B", "Section 10(14)"],
+    "answer": 1,
+    "hint": "This section covers most popular saving instruments like PPF, ELSS, LIC.",
+    "explanation": "Section 80C allows deduction of up to ₹1.5 lakh per year for PPF, NSC, SSY and other investments.",
+    "emoji": "📋"
+  },
+  {
+    "id": "q8",
+     "question": "Which of the following is a liability?",
+      "options": [
+        "Savings",
+        "Property investment",
+        "Loan",
+        "Mutual fund"
+      ],
+      "answer": 2,
+      "hint": "Think about money you owe.",
+      "explaination": "Liabilities are obligations like loans that reduce your wealth.",
+
+    "emoji": "💰"
+  },
+  {
+    "id": "q9",
+    "question": "Sukanya Samriddhi Yojana can be opened for a girl child below what age?",
+    "options": ["5 years", "8 years", "10 years", "12 years"],
+    "answer": 2,
+    "hint": "The account must be opened before the girl turns double digits in age.",
+    "explanation": "SSY account can be opened for a girl child below 10 years of age.",
+    "emoji": "👧"
+  },
+  {
+    "id": "q10",
+    "question": "Which of these is considered the SAFEST investment option?",
+    "options": ["Stock Market", "Cryptocurrency", "Government Bonds / PPF", "Real Estate"],
+    "answer": 2,
+    "hint": "It is backed by the Government of India — zero risk of default.",
+    "explanation": "Government bonds and PPF are 100% safe as they are backed by the Government of India with guaranteed returns.",
+    "emoji": "🛡️"
+  }
+]

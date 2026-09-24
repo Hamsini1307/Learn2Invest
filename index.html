@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Learn2Invest 🚀</title>
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#ccff00" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&family=Outfit:wght@400;600;700;800;900&family=Poppins:wght@700;800;900&family=Space+Grotesk:wght@500;700&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(reg => console.log('Service Worker registered successfully:', reg.scope))
+            .catch(err => console.error('Service Worker registration failed:', err));
+        });
+      }
+    </script>
+    <script>
+      window.addEventListener('error', function(e) {
+        var root = document.getElementById('root');
+        var errDiv = document.createElement('div');
+        errDiv.style.color = '#dc2626';
+        errDiv.style.padding = '24px';
+        errDiv.style.background = '#fef2f2';
+        errDiv.style.border = '2px solid #f87171';
+        errDiv.style.margin = '20px';
+        errDiv.style.borderRadius = '12px';
+        errDiv.style.fontFamily = 'monospace';
+        errDiv.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)';
+        errDiv.innerHTML = '<h2 style="margin:0 0 10px 0;font-size:18px;">❌ Client Runtime Error</h2>' +
+                           '<p style="margin:0 0 10px 0;font-weight:bold;">' + e.message + '</p>' +
+                           '<pre style="margin:0;white-space:pre-wrap;font-size:12px;color:#4b5563;">Source: ' + e.filename + ':' + e.lineno + ':' + e.colno + '</pre>';
+        document.body.appendChild(errDiv);
+      });
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

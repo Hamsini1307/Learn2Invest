@@ -1,0 +1,673 @@
+import { useState, useEffect } from 'react'
+import { AI_AVATARS } from '../components/AiAvatarSelector.jsx'
+
+const VIDEO_FILES = [
+  { id: 'video1', title: 'Introduction to Investing', subtitle: 'Why investing matters for your financial future', emoji: '💰', duration: '5 min', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.12)', src: '/content/beginner/videos/video1.mp4',
+    takeaways: [
+      { term: 'Investment', def: '🌱 Like planting a seed that grows into a big Money Tree! You put some pocket money away, and it grows bigger over time.' },
+      { term: 'Interest', def: '🎁 Free bonus candy! The bank gives you small cash gifts just for keeping your savings safe with them.' },
+      { term: 'Risk', def: '🎢 The rollercoaster ride! Sometimes your money goes up and down. You have to be careful not to make risky moves!' },
+      { term: 'Returns', def: '🍎 The sweet apples you pick! This is the actual profit you earn from your money tree.' },
+    ]
+  },
+  { id: 'video2', title: 'Understanding Mutual Funds', subtitle: 'How SIP and lump sum investments work', emoji: '📈', duration: '6 min', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.12)', src: '/content/beginner/videos/video2.mp4',
+    takeaways: [
+      { term: 'SIP', def: '🗓️ A magical piggy bank! You drop a few coins in it every single month to build a huge treasure.' },
+      { term: 'Mutual Fund', def: '🧺 A giant shared picnic basket! Many kids pool their coins together to buy a huge mix of all the best stocks.' },
+      { term: 'NAV', def: '🏷️ The price tag! It shows how much one unit of the shared basket costs today.' },
+      { term: 'Diversification', def: '🍭 Don\'t buy only one flavor! Spreading your money across different investments so if one goes down, others save you.' },
+    ]
+  },
+  { id: 'video3', title: 'Fixed Deposits & PPF', subtitle: 'Safe government-backed investment options', emoji: '🏦', duration: '5 min', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.12)', src: '/content/beginner/videos/video3.mp4',
+    takeaways: [
+      { term: 'Fixed Deposit', def: '🔒 A locked treasure chest! You promise the bank not to touch your money for a while, and they reward you with guaranteed interest.' },
+      { term: 'PPF', def: '🏰 The super safe fortress! A special government-backed piggy bank that locks your money safely and pays you tax-free rewards.' },
+      { term: 'Compounding', def: '❄️ The snowball effect! Your interest earns interest, making your money grow faster and faster like a rolling snowball.' },
+      { term: 'Liquidity', def: '💧 How fast it flows! How quickly and easily you can turn an investment back into cash.' },
+    ]
+  },
+  { id: 'video4', title: 'Stock Market Basics', subtitle: 'Understanding equity and market fundamentals', emoji: '📊', duration: '7 min', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.12)', src: '/content/beginner/videos/video4.mp4', isDraft: true,
+    takeaways: [
+      { term: 'Equity', def: '🎫 A tiny ownership ticket! Buying a stock means you own a super small slice of a real company.' },
+      { term: 'Market Cap', def: '🏷️ The company\'s giant scale! The total value of all tickets for a company put together.' },
+      { term: 'Dividend', def: '🍰 A slice of the cake! A share of the company\'s profits sent straight to you as a reward.' },
+      { term: 'Bull/Bear Market', def: '🐂 Bull = rising market charging forward! 🐻 Bear = sleeping market resting peacefully.' },
+    ]
+  },
+]
+
+function TakeawayModal({ video, onClose }) {
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [onClose])
+
+  const emojiMap = {
+    'Investment': '🌱', 'Interest': '🎁', 'Risk': '🎢', 'Returns': '🍎',
+    'SIP': '🗓️', 'Mutual Fund': '🧺', 'NAV': '🏷️', 'Diversification': '🍭',
+    'Fixed Deposit': '🔒', 'PPF': '🏰', 'Compounding': '❄️', 'Liquidity': '💧',
+    'Equity': '🎫', 'Market Cap': '🏷️', 'Dividend': '🍰', 'Bull/Bear Market': '🐂',
+    'Section 80C': '🛡️', 'TDS': '✂️', 'ELSS': '🚀', 'EEE Status': '✨'
+  };
+
+  return (
+    <div style={{
+      position:'fixed',inset:0,background:'rgba(8, 7, 5, 0.85)',
+      zIndex:1000,display:'flex',alignItems:'center',justifyContent:'center',
+      padding:20,backdropFilter:'blur(12px)',
+      fontFamily: "'Space Grotesk', sans-serif",
+    }} onClick={onClose}>
+      <div className="glass-card-deep" style={{
+        borderRadius:20, overflow:'hidden',
+        maxWidth:520,width:'100%',
+        background: 'var(--bg-card-deep, #12100c)',
+        border: `2px solid #d97706`,
+        animation: 'scaleIn 0.25s ease both',
+        boxShadow: `var(--card-shadow, 0 20px 40px rgba(0,0,0,0.8))`,
+        color: 'var(--text-main, #fef3c7)'
+      }} onClick={e=>e.stopPropagation()}>
+        <div style={{
+          padding:'18px 24px',
+          background: 'linear-gradient(135deg, #d97706 0%, #f59e0b 100%)',
+          color: '#080705',
+          display:'flex',justifyContent:'space-between',alignItems:'center',
+        }}>
+          <div style={{ fontWeight:900,fontSize:17,display:'flex',alignItems:'center',gap:8,textTransform:'uppercase' }}>
+            <span>🌟</span> INVEST CLUB: KEY TAKEAWAYS!
+          </div>
+          <button onClick={onClose} style={{
+            background:'#080705',border:'none',borderRadius:8,
+            width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color:'#fbbf24',cursor:'pointer',fontWeight:900,fontSize: 14,
+          }}>✕</button>
+        </div>
+        <div style={{ padding:24, background:'var(--bg-card-deep, #12100c)' }}>
+          <p style={{ fontSize:14,color:'#fbbf24',marginBottom:16,fontWeight:800,textAlign:'center' }}>
+            🎉 MASTER THESE KEY LESSON TERMS:
+          </p>
+          <div style={{ display:'flex',flexDirection:'column',gap:12, maxHeight:'340px', overflowY:'auto', paddingRight:6 }}>
+            {video.takeaways.map((t,i)=>(
+              <div key={i} style={{
+                background: 'rgba(255,255,255,0.03)',
+                borderRadius:14, padding:'14px 16px',
+                border:`1.5px solid rgba(217, 119, 6, 0.3)`,
+                display:'flex', gap:12, alignItems:'flex-start',
+              }}>
+                <div style={{ fontSize:26, marginTop:2 }}>{emojiMap[t.term] || '⭐'}</div>
+                <div>
+                  <div style={{ fontWeight:900,color:'#ffffff',fontSize:15,marginBottom:3 }}>
+                    {t.term}
+                  </div>
+                  <div style={{ fontSize:13,color:'#d1d5db',fontWeight:600,lineHeight:1.4 }}>
+                    {t.def}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <button onClick={onClose} className="btn-primary" style={{ width:'100%',marginTop:20,background:'linear-gradient(135deg, #d97706, #f59e0b)',color:'#080705' }}>
+            GOT IT! BACK TO CLASSROOM 🚀
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function VideoCard({ v, watched, onWatch, delay, activeAvatar, guideName }) {
+  const [showPlayer, setShowPlayer] = useState(false)
+  const [showTakeaway, setShowTakeaway] = useState(false)
+  const [canMarkWatched, setCanMarkWatched] = useState(false)
+  const [hovered, setHovered] = useState(false)
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && showPlayer) {
+        setShowPlayer(false)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [showPlayer])
+
+  const isDraft = !v.src || v.src.includes('README.md') || v.src.includes('draft')
+
+  const handleOpenPlayer = () => {
+    setShowPlayer(true)
+    setCanMarkWatched(isDraft)
+  }
+
+  const handleTimeUpdate = (e) => {
+    const videoElem = e.target
+    if (videoElem.duration && (videoElem.currentTime / videoElem.duration >= 0.85)) {
+      setCanMarkWatched(true)
+    }
+  }
+
+  const handleVideoEnd = () => {
+    setCanMarkWatched(true)
+  }
+
+  const handleMarkWatched = () => {
+    onWatch(v.id)
+    setShowPlayer(false)
+    setShowTakeaway(true)
+  }
+
+  return (
+    <>
+      <div
+        className={`glass-card-sm anim-fade delay-${delay}`}
+        onClick={handleOpenPlayer}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        style={{
+          padding: '18px',
+          background: 'var(--bg-card-deep, #12100c)',
+          border: `1.5px solid ${watched ? '#f59e0b' : 'rgba(217, 119, 6, 0.25)'}`,
+          cursor: 'pointer',
+          borderRadius: 16,
+          transition: 'all 0.25s ease',
+          boxShadow: hovered ? '0 10px 24px rgba(245,158,11,0.2)' : 'var(--card-shadow, 0 4px 12px rgba(0,0,0,0.4))',
+        }}
+      >
+        <div style={{
+          width: '100%', height: 105, borderRadius: 12, marginBottom: 12,
+          background: v.bg,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 40, position: 'relative', border: `1.5px solid rgba(245, 158, 11, 0.4)`,
+        }}>
+          {watched ? '✅' : <span>{v.emoji}</span>}
+          <div className="sticker-badge sticker-yellow" style={{
+            position: 'absolute', top: 6, left: 6, fontSize: 9, padding: '2px 6px',
+          }}>{v.duration}</div>
+          {watched ? (
+            <div style={{
+              position: 'absolute', bottom: 6, right: 6,
+              background: '#f59e0b', color: '#080705',
+              fontSize: 10, fontWeight: 900, padding: '2px 8px', borderRadius: 999
+            }}>
+              ✅ WATCHED
+            </div>
+          ) : (
+            <div style={{
+              position: 'absolute', bottom: 6, right: 6,
+              width: 30, height: 30, borderRadius: '50%',
+              background: '#d97706', border: '1.5px solid #fbbf24',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 12, color: '#080705', fontWeight: 900,
+            }}>▶</div>
+          )}
+        </div>
+        <h3 style={{ fontWeight: 800, fontSize: 14, color: 'var(--heading-color, #ffffff)', marginBottom: 3, lineHeight: 1.3 }}>{v.title}</h3>
+        <p style={{ fontSize: 11, color: 'var(--text-sub, #d1d5db)', fontWeight: 600, marginBottom: 10 }}>{v.subtitle}</p>
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+          <div className="sticker-badge sticker-yellow" style={{ fontSize: 10, padding: '2px 8px' }}>
+            {watched ? '⭐ +30 XP EARNED' : '⭐ +30 XP REWARD'}
+          </div>
+          {watched && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                setShowTakeaway(true)
+              }}
+              style={{
+                background: 'rgba(245, 158, 11, 0.15)',
+                border: '1px solid #f59e0b',
+                color: '#fbbf24',
+                fontSize: 10,
+                fontWeight: 800,
+                borderRadius: 8,
+                padding: '2px 8px',
+                cursor: 'pointer'
+              }}
+            >
+              📖 NOTES
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Projector Video Player Modal */}
+      {showPlayer && (
+        <div style={{
+          position: 'fixed', inset: 0, background: 'rgba(8, 7, 5, 0.88)',
+          zIndex: 999, display: 'flex', flexDirection: 'column',
+          backdropFilter: 'blur(16px)',
+          fontFamily: "'Space Grotesk', sans-serif",
+        }} onClick={() => setShowPlayer(false)}>
+          
+          {/* Header */}
+          <div style={{
+            padding: '16px 24px',
+            background: '#12100c',
+            borderBottom: '1.5px solid rgba(217, 119, 6, 0.3)',
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          }} onClick={e => e.stopPropagation()}>
+            <div style={{ color: '#ffffff', fontWeight: 800, fontSize: 17, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontSize: 22 }}>{v.emoji}</span>
+              {v.title}
+            </div>
+            <button onClick={() => setShowPlayer(false)} className="btn-outline" style={{ padding: '6px 16px', fontSize: 12 }}>
+              ✕ CLOSE CLASSROOM
+            </button>
+          </div>
+          
+          {/* Main Classroom Area */}
+          <div style={{
+            flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            backgroundImage: "url('/scenes/classroom.png')",
+            backgroundSize: 'cover', backgroundPosition: 'center',
+            padding: '20px', position: 'relative',
+          }} onClick={e => e.stopPropagation()}>
+            <div style={{ position: 'absolute', inset: 0, background: 'rgba(8, 7, 5, 0.6)' }} />
+            
+            {/* NPC Speech Bubble with active AI Guide */}
+            <div style={{
+              position: 'relative', zIndex: 10, marginBottom: 12,
+              background: '#12100c', border: '2px solid #f59e0b',
+              borderRadius: 16, padding: '12px 20px', maxWidth: 640, width: '100%',
+              boxShadow: '0 10px 25px rgba(0,0,0,0.6)',
+              display: 'flex', alignItems: 'center', gap: 14,
+            }}>
+              <div style={{ fontSize: 32 }}>{activeAvatar?.icon || '👩‍🏫'}</div>
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 900, color: '#fbbf24', textTransform: 'uppercase' }}>
+                  CLASSROOM MENTOR · {guideName.toUpperCase()}
+                </div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#ffffff' }}>
+                  "Welcome class! Watch this projector lesson on <strong>{v.title}</strong> to earn +30 XP!"
+                </div>
+              </div>
+            </div>
+
+            {/* Framed Projector Screen */}
+            <div style={{
+              position: 'relative', zIndex: 10,
+              maxWidth: '920px', width: '100%',
+              background: '#000000', borderRadius: 20,
+              border: '4px solid #d97706',
+              boxShadow: '0 20px 50px rgba(0,0,0,0.8), 0 0 30px rgba(245,158,11,0.3)',
+              overflow: 'hidden',
+            }}>
+              {isDraft ? (
+                <div style={{
+                  padding: 50, color: 'white', textAlign: 'center',
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14,
+                }}>
+                  <span style={{ fontSize: 64 }}>🚀</span>
+                  <h3 className="font-display" style={{ fontSize: 28, color: '#f59e0b', margin: 0 }}>LESSON IN PRODUCTION!</h3>
+                  <p style={{ fontSize: 13, color: '#d1d5db', maxWidth: 400, fontWeight: 600 }}>
+                    This video lesson is being crafted. Click below to claim +30 XP and unlock your quiz!
+                  </p>
+                </div>
+              ) : (
+                <video
+                  key={v.id}
+                  src={v.src}
+                  controls
+                  autoPlay
+                  preload="auto"
+                  style={{ width: '100%', maxHeight: '60vh', display: 'block' }}
+                  onEnded={handleVideoEnd}
+                  onTimeUpdate={handleTimeUpdate}
+                />
+              )}
+            </div>
+          </div>
+
+          {/* Footer CTA */}
+          <div style={{
+            padding: '16px 24px',
+            background: '#12100c',
+            borderTop: '1.5px solid rgba(217, 119, 6, 0.3)',
+            display: 'flex', justifyContent: 'center', alignItems: 'center'
+          }} onClick={e => e.stopPropagation()}>
+            {!watched && (
+              <button
+                disabled={!canMarkWatched}
+                onClick={handleMarkWatched}
+                className={canMarkWatched ? 'btn-primary' : 'btn-outline'}
+                style={{
+                  fontSize: 14, padding: '12px 32px',
+                  opacity: canMarkWatched ? 1 : 0.6,
+                  cursor: canMarkWatched ? 'pointer' : 'not-allowed',
+                }}
+              >
+                {canMarkWatched 
+                  ? (isDraft ? '⏭️ SKIP DRAFT LESSON & CLAIM +30 XP' : '✅ MARK AS WATCHED & CLAIM +30 XP')
+                  : '⏳ WATCH 85% OF VIDEO TO COMPLETE'
+                }
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Takeaway Modal */}
+      {showTakeaway && <TakeawayModal video={v} onClose={() => setShowTakeaway(false)} />}
+    </>
+  )
+}
+
+export default function BeginnerLevel({ go, state, update, addXP, aiGuideAvatar = 'female', aiGuideName, onChatToggle }) {
+  const activeAvatar = AI_AVATARS[aiGuideAvatar] || AI_AVATARS.female
+  const guideName = aiGuideName || activeAvatar.name
+  const watched = state.lessonsWatched || []
+  const total = VIDEO_FILES.length
+  const [activeTab, setActiveTab] = useState('classroom') // 'classroom' | 'lessons' | 'takeaways'
+
+  useEffect(() => {
+    if (!watched.includes('video4')) {
+      update({ lessonsWatched: Array.from(new Set([...watched, 'video4'])) })
+    }
+  }, [watched])
+
+  const isIntermediateStart = state.startingLevel === 'intermediate'
+  const begCleared = (isIntermediateStart && (state.quizScore || 0) >= 60) || ((state.lessonsWatched || []).length >= 4 && (state.quizScore || 0) >= 60)
+  const progress = begCleared ? total : Math.min(watched.length, total)
+  const progressPct = begCleared ? 100 : Math.min(100, Math.round((progress / total) * 100))
+
+  const handleWatch = (id) => {
+    if (!watched.includes(id)) {
+      const newWatched = [...watched, id]
+      update({ lessonsWatched: newWatched })
+      addXP(30)
+    }
+  }
+
+  return (
+    <div className="content-area" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+      
+      {/* Top Back Action Bar */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+        <button
+          onClick={goBack || (() => go('landing'))}
+          style={{
+            background: 'var(--bg-card, rgba(18, 16, 12, 0.9))',
+            border: '1.5px solid rgba(217, 119, 6, 0.4)',
+            color: 'var(--gold-amber, #fbbf24)',
+            borderRadius: 999,
+            padding: '8px 18px',
+            fontSize: 12,
+            fontWeight: 900,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            boxShadow: '0 4px 14px rgba(0,0,0,0.4)',
+            transition: 'all 0.2s'
+          }}
+        >
+          <span>⬅</span>
+          <span>Back to Main Page</span>
+        </button>
+      </div>
+
+      {/* ─── 3D SCHOOL ENTRANCE BUILDING BACKGROUND SCENE ─── */}
+      <div style={{
+        position: 'relative',
+        width: '100%',
+        minHeight: '520px',
+        borderRadius: 24,
+        overflow: 'hidden',
+        border: '2px solid rgba(217, 119, 6, 0.4)',
+        boxShadow: 'var(--card-shadow, 0 20px 50px rgba(0,0,0,0.8))',
+        marginBottom: 24,
+        backgroundImage: "url('/scenes/classroom.png')",
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        display: 'flex',
+        flexDirection: 'column',
+        justify: 'space-between',
+        padding: '24px'
+      }}>
+        {/* Ambient Dark Overlay */}
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(8, 7, 5, 0.45)', pointerEvents: 'none' }} />
+
+        {/* Top Floating Row: Left AI Guide Card & Right Task Panel */}
+        <div style={{ position: 'relative', zIndex: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 16 }}>
+          
+          {/* Left AI Guide Dialog Box */}
+          <div style={{
+            background: 'var(--bg-card, rgba(18, 16, 12, 0.92))',
+            backdropFilter: 'blur(16px)',
+            border: '2px solid #f59e0b',
+            borderRadius: 20,
+            padding: '16px 20px',
+            maxWidth: 280,
+            boxShadow: '0 12px 32px rgba(0,0,0,0.6)',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+              <div style={{
+                width: 44, height: 44, borderRadius: '50%',
+                background: 'linear-gradient(135deg, #10b981, #0284c7)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 22, border: '2px solid #ffffff'
+              }}>
+                {activeAvatar.icon}
+              </div>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 900, color: 'var(--heading-color, #ffffff)' }}>
+                  Hi {state.user?.name || 'Kavya'}! 👋
+                </div>
+                <div style={{ fontSize: 10, fontWeight: 800, color: '#fbbf24' }}>
+                  Welcome to Learn2Invest School!
+                </div>
+              </div>
+            </div>
+            <p style={{ fontSize: 11, color: 'var(--text-sub, #d1d5db)', lineHeight: 1.4, marginBottom: 12 }}>
+              Here you will learn the basics of investing through fun video lessons and quizzes.
+            </p>
+            <button
+              onClick={onChatToggle}
+              style={{
+                width: '100%', background: 'linear-gradient(135deg, #38bdf8, #818cf8)',
+                color: '#080705', border: 'none', borderRadius: 999,
+                padding: '8px 14px', fontSize: 11, fontWeight: 900, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6
+              }}
+            >
+              <span>💬 Chat with {guideName}</span>
+            </button>
+          </div>
+
+          {/* Right Panel: Level 1 Progress & Task List */}
+          <div style={{
+            background: 'var(--bg-card, rgba(18, 16, 12, 0.92))',
+            backdropFilter: 'blur(16px)',
+            border: '1.5px solid rgba(217, 119, 6, 0.35)',
+            borderRadius: 20,
+            padding: '18px 22px',
+            width: 280,
+            boxShadow: '0 12px 32px rgba(0,0,0,0.6)'
+          }}>
+            <div style={{ fontSize: 10, fontWeight: 900, color: '#38bdf8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 8 }}>
+              LEVEL 1 PROGRESS
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 14 }}>
+              <div style={{
+                width: 54, height: 54, borderRadius: '50%',
+                background: 'conic-gradient(#10b981 0% ' + progressPct + '%, rgba(255,255,255,0.1) ' + progressPct + '% 100%)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                padding: 4
+              }}>
+                <div style={{
+                  width: '100%', height: '100%', borderRadius: '50%',
+                  background: 'var(--bg-main, #080705)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 12, fontWeight: 900, color: '#10b981'
+                }}>
+                  {progressPct}%
+                </div>
+              </div>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 900, color: 'var(--heading-color, #ffffff)' }}>
+                  {progress} of {total} Lessons
+                </div>
+                <div style={{ fontSize: 10, color: 'var(--text-muted, #94a3b8)', fontWeight: 700 }}>
+                  Completed
+                </div>
+              </div>
+            </div>
+
+            <div style={{ fontSize: 11, fontWeight: 800, color: '#fbbf24', marginBottom: 6 }}>YOUR TASKS:</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 11 }}>
+              {VIDEO_FILES.map((v, idx) => {
+                const isW = begCleared || watched.includes(v.id)
+                return (
+                  <div key={v.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: isW ? '#6ee7b7' : 'var(--text-muted, #94a3b8)' }}>
+                    <span>{v.emoji} {v.title}</span>
+                    <span>{isW ? '✓' : '🔒'}</span>
+                  </div>
+                )
+              })}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: state.quizScore >= 60 ? '#6ee7b7' : 'var(--text-muted, #94a3b8)', marginTop: 4, paddingTop: 4, borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                <span>🎯 Quiz Hall</span>
+                <span>{state.quizScore >= 60 ? '✓' : '🔒'}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Center Building Banner */}
+        <div style={{ position: 'relative', zIndex: 10, textAlign: 'center', margin: '20px 0' }}>
+          <div className="sticker-badge sticker-yellow" style={{ marginBottom: 6 }}>
+            LEARN • UNDERSTAND • GROW
+          </div>
+          <h1 className="font-display" style={{ fontSize: 38, color: '#ffffff', textShadow: '0 4px 20px rgba(0,0,0,0.8)' }}>
+            LEARN2INVEST SCHOOL
+          </h1>
+        </div>
+
+        {/* Bottom Floating Interactive Circular Buttons */}
+        <div style={{
+          position: 'relative', zIndex: 10,
+          display: 'flex', justifyContent: 'center', alignItems: 'center',
+          gap: 16, flexWrap: 'wrap'
+        }}>
+          {/* CLASSROOM */}
+          <button
+            onClick={() => setActiveTab('classroom')}
+            style={{
+              width: 80, height: 80, borderRadius: '50%',
+              background: activeTab === 'classroom' ? 'linear-gradient(135deg, #10b981, #0284c7)' : 'rgba(18, 16, 12, 0.9)',
+              border: activeTab === 'classroom' ? '3px solid #ffffff' : '2px solid #10b981',
+              color: '#ffffff', cursor: 'pointer',
+              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+              boxShadow: activeTab === 'classroom' ? '0 0 24px #10b981' : '0 8px 20px rgba(0,0,0,0.5)',
+              transition: 'all 0.25s'
+            }}
+          >
+            <span style={{ fontSize: 24 }}>🎓</span>
+            <span style={{ fontSize: 9, fontWeight: 900, marginTop: 2 }}>CLASSROOM</span>
+          </button>
+
+          {/* LESSONS */}
+          <button
+            onClick={() => setActiveTab('lessons')}
+            style={{
+              width: 80, height: 80, borderRadius: '50%',
+              background: activeTab === 'lessons' ? 'linear-gradient(135deg, #d97706, #f59e0b)' : 'rgba(18, 16, 12, 0.9)',
+              border: activeTab === 'lessons' ? '3px solid #ffffff' : '2px solid #f59e0b',
+              color: '#ffffff', cursor: 'pointer',
+              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+              boxShadow: activeTab === 'lessons' ? '0 0 24px #f59e0b' : '0 8px 20px rgba(0,0,0,0.5)',
+              transition: 'all 0.25s'
+            }}
+          >
+            <span style={{ fontSize: 24 }}>📖</span>
+            <span style={{ fontSize: 9, fontWeight: 900, marginTop: 2 }}>LESSONS</span>
+          </button>
+
+          {/* QUIZ ROOM */}
+          <button
+            onClick={() => go('quiz')}
+            style={{
+              width: 80, height: 80, borderRadius: '50%',
+              background: 'linear-gradient(135deg, #ec4899, #8b5cf6)',
+              border: '3px solid #ffffff',
+              color: '#ffffff', cursor: 'pointer',
+              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 0 24px #ec4899',
+              transition: 'all 0.25s'
+            }}
+          >
+            <span style={{ fontSize: 24 }}>❓</span>
+            <span style={{ fontSize: 9, fontWeight: 900, marginTop: 2 }}>QUIZ ROOM</span>
+          </button>
+
+          {/* ACHIEVEMENTS */}
+          <button
+            onClick={() => go('dashboard')}
+            style={{
+              width: 80, height: 80, borderRadius: '50%',
+              background: 'rgba(18, 16, 12, 0.9)',
+              border: '2px solid #38bdf8',
+              color: '#ffffff', cursor: 'pointer',
+              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 8px 20px rgba(0,0,0,0.5)',
+              transition: 'all 0.25s'
+            }}
+          >
+            <span style={{ fontSize: 24 }}>🏆</span>
+            <span style={{ fontSize: 9, fontWeight: 900, marginTop: 2 }}>PROGRESS</span>
+          </button>
+        </div>
+      </div>
+
+      {/* ─── ACTIVE TAB CONTENT (LESSONS GRID / CLASSROOM) ─── */}
+      <div style={{ marginBottom: 24 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <h2 style={{ fontSize: 22, color: 'var(--heading-color, #ffffff)', margin: 0, fontWeight: 900 }}>
+            {activeTab === 'lessons' ? '📖 ALL SCHOOL LESSONS' : '🎓 INTERACTIVE CLASSROOM LESSONS'}
+          </h2>
+          <div className="sticker-badge sticker-yellow">
+            ⭐ {state.xp} XP EARNED
+          </div>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 18 }}>
+          {VIDEO_FILES.map((v, i) => (
+            <VideoCard
+              key={v.id}
+              v={v}
+              watched={watched.includes(v.id)}
+              onWatch={handleWatch}
+              delay={i + 1}
+              activeAvatar={activeAvatar}
+              guideName={guideName}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Quiz Hall CTA Card */}
+      <div className="glass-card anim-fade" style={{
+        padding: '28px', textAlign: 'center',
+        background: 'var(--bg-card-deep, #12100c)',
+        border: '2px solid #f59e0b',
+        borderRadius: 24
+      }}>
+        <div style={{ fontSize: 44, marginBottom: 8 }}>🎯</div>
+        <h3 className="font-display" style={{ fontSize: 28, color: 'var(--heading-color, #ffffff)', marginBottom: 4 }}>
+          QUIZ HALL AVAILABLE!
+        </h3>
+        <p style={{ color: 'var(--text-sub, #d1d5db)', fontSize: 14, fontWeight: 600, marginBottom: 18 }}>
+          Test your basic financial knowledge! Score 60%+ to unlock Level 2 Investment Lab!
+        </p>
+        <button className="btn-primary" onClick={() => go('quiz')} style={{ fontSize: 15, padding: '14px 32px' }}>
+          🎯 START QUIZ HALL TEST NOW →
+        </button>
+      </div>
+
+      <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
+        <button className="btn-outline" onClick={() => go('level-map')}>← BACK TO MAP</button>
+        <button className="btn-outline" onClick={() => go('dashboard')}>📊 DASHBOARD</button>
+      </div>
+    </div>
+  )
+}
