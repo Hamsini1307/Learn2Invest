@@ -129,6 +129,29 @@ export default function Dashboard({ go, goBack, state, addXP, aiGuideAvatar = 'f
             >
               {getText('takeQuiz', lang)}
             </button>
+            <button
+              className="btn-outline"
+              onClick={() => {
+                localStorage.removeItem('l2i_isLoggedIn')
+                localStorage.removeItem('l2i_currentUser')
+                localStorage.removeItem('l2i_token')
+                window.location.reload()
+              }}
+              style={{
+                fontSize: 13,
+                padding: '10px 18px',
+                borderColor: '#e11d48',
+                color: isLight ? '#be123c' : '#fda4af',
+                background: isLight ? '#fee2e2' : 'rgba(225, 29, 72, 0.15)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6
+              }}
+              title="Log out and return to Login / Registration page"
+            >
+              <span>🚪</span>
+              <span>{getText('logout', lang)}</span>
+            </button>
           </div>
         </div>
       </div>

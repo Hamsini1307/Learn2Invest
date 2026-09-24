@@ -398,6 +398,30 @@ export default function Navbar({
               </div>
             </div>
 
+            {/* Direct Top Header LOG OUT Button */}
+            <button
+              onClick={() => setShowLogoutConfirm(true)}
+              style={{
+                background: themeMode === 'light' ? '#fee2e2' : 'rgba(225, 29, 72, 0.15)',
+                border: '1.5px solid #e11d48',
+                color: themeMode === 'light' ? '#be123c' : '#fda4af',
+                borderRadius: 999,
+                padding: '6px 14px',
+                fontSize: 12,
+                fontWeight: 900,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 5,
+                transition: 'all 0.2s',
+                boxShadow: themeMode === 'light' ? '0 2px 8px rgba(225, 29, 72, 0.15)' : 'none'
+              }}
+              title="Log Out & Return to Login / Register Screen"
+            >
+              <span>🚪</span>
+              <span>LOG OUT</span>
+            </button>
+
             {/* Corner User Account Details with Dropdown & Logout Option */}
             <div style={{ position: 'relative' }}>
               <div
