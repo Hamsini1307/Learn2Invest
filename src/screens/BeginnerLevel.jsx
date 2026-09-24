@@ -353,7 +353,7 @@ function VideoCard({ v, watched, onWatch, delay, activeAvatar, guideName }) {
   )
 }
 
-export default function BeginnerLevel({ go, state, update, addXP, aiGuideAvatar = 'female', aiGuideName, onChatToggle }) {
+export default function BeginnerLevel({ go, goBack, state, update, addXP, aiGuideAvatar = 'female', aiGuideName, onChatToggle }) {
   const activeAvatar = AI_AVATARS[aiGuideAvatar] || AI_AVATARS.female
   const guideName = aiGuideName || activeAvatar.name
   const watched = state.lessonsWatched || []

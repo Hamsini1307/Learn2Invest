@@ -73,7 +73,7 @@ const SCHEME_NAMES = {
   MIS: 'Post Office Monthly Income Scheme'
 }
 
-export default function Intermediate({ go, state, update, addXP, aiGuideAvatar = 'female', aiGuideName, openAvatarModal }) {
+export default function Intermediate({ go, goBack, state, update, addXP, aiGuideAvatar = 'female', aiGuideName, openAvatarModal }) {
   const activeAvatar = AI_AVATARS[aiGuideAvatar] || AI_AVATARS.female
   const guideName = aiGuideName || activeAvatar.name
   const modulesDone = state.completedModules || []

@@ -19,7 +19,6 @@ import OverworldCity from './screens/OverworldCity.jsx'
 import LandingJourney from './screens/LandingJourney.jsx'
 import AiAvatarSelector from './components/AiAvatarSelector.jsx'
 import SavedSimulationsManager from './screens/SavedSimulationsManager.jsx'
-import ThemeVaultModal, { THEME_CATALOG } from './components/ThemeVaultModal.jsx'
 
 const INITIAL_STATE = {
   user: null, xp: 30, lessonsWatched: ['video4'],
@@ -39,6 +38,13 @@ const getBgClass = (screen) => {
   return 'bg-intermediate'
 }
 
+const getColorThemeForScreen = (screenName) => {
+  if (['beginner', 'video', 'quiz', 'beg-complete'].includes(screenName)) return 'emerald'
+  if (['intermediate', 'simulation', 'int-complete'].includes(screenName)) return 'amethyst'
+  if (['advanced', 'unlock-adv', 'adv-result'].includes(screenName)) return 'sunset'
+  return 'classic'
+}
+
 export default function App() {
   const [screen, setScreen] = useState('onboarding')
   const [state, setState] = useState(INITIAL_STATE)
@@ -47,15 +53,18 @@ export default function App() {
   const [prevBg, setPrevBg] = useState('')
   const [currentBg, setCurrentBg] = useState('bg-auth')
   
-  const [themeMode, setThemeMode] = useState(() => {
-    return localStorage.getItem('l2i_themeMode') || 'dark'
-  })
+  const [themeMode] = useState('dark')
+  const [colorTheme, setColorTheme] = useState(() => getColorThemeForScreen('onboarding'))
 
-  const [colorTheme, setColorTheme] = useState(() => {
-    return localStorage.getItem('l2i_colorTheme') || 'classic'
-  })
-  const [themeVaultOpen, setThemeVaultOpen] = useState(false)
-  const [themeToast, setThemeToast] = useState(null)
+  // Automatic Theme Color Change on Level Entry
+  useEffect(() => {
+    const autoTheme = getColorThemeForScreen(screen)
+    setColorTheme(autoTheme)
+    document.documentElement.setAttribute('data-color-theme', autoTheme)
+    document.body.setAttribute('data-color-theme', autoTheme)
+    document.documentElement.setAttribute('data-theme', 'dark')
+    document.body.setAttribute('data-theme', 'dark')
+  }, [screen])
 
   // Saved Simulations States
   const [savedSimulations, setSavedSimulations] = useState(() => {
@@ -73,43 +82,6 @@ export default function App() {
       return []
     }
   })
-
-  const toggleTheme = () => {
-    setThemeMode(prev => {
-      const next = prev === 'dark' ? 'light' : 'dark'
-      localStorage.setItem('l2i_themeMode', next)
-      return next
-    })
-  }
-
-  const handleSelectTheme = (themeId) => {
-    setColorTheme(themeId)
-    localStorage.setItem('l2i_colorTheme', themeId)
-  }
-
-  useEffect(() => {
-    document.documentElement.setAttribute('data-color-theme', colorTheme)
-    document.body.setAttribute('data-color-theme', colorTheme)
-  }, [colorTheme])
-
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', themeMode)
-    document.body.setAttribute('data-theme', themeMode)
-  }, [themeMode])
-
-  // XP Milestone Unlock Notification (+300 XP)
-  useEffect(() => {
-    const currentXp = state.xp || 0
-    const unlockedThemes = THEME_CATALOG.filter(t => t.minXp > 0 && currentXp >= t.minXp)
-    unlockedThemes.forEach(t => {
-      const key = `l2i_toast_${t.id}`
-      if (!localStorage.getItem(key)) {
-        localStorage.setItem(key, 'true')
-        setThemeToast(`🎉 NEW THEME UNLOCKED: ${t.name}! Click 'THEMES' in the header to activate.`)
-        setTimeout(() => setThemeToast(null), 7000)
-      }
-    })
-  }, [state.xp])
 
   // Handlers for Lab Simulations
   const handleSaveSimulation = (sim) => {
@@ -269,7 +241,7 @@ export default function App() {
 
   const openAvatarModal = () => setAvatarModalOpen(true)
 
-  const p = { go, goBack, canGoBack, state, update, addXP, aiGuideAvatar, aiGuideName, openAvatarModal, themeMode, toggleTheme }
+  const p = { go, goBack, canGoBack, state, update, addXP, aiGuideAvatar, aiGuideName, openAvatarModal, themeMode }
 
 
   const screens = {
@@ -365,9 +337,6 @@ export default function App() {
                 aiGuideAvatar={aiGuideAvatar}
                 aiGuideName={aiGuideName}
                 openAvatarModal={openAvatarModal}
-                themeMode={themeMode}
-                toggleTheme={toggleTheme}
-                openThemeVault={() => setThemeVaultOpen(true)}
               />
               <div key={screen} className="anim-fade" style={{ flex: 1 }}>
                 {screens[screen] || <LandingJourney {...p} />}
@@ -394,52 +363,6 @@ export default function App() {
               setAiGuideAvatar(avatarId, customName)
             }}
           />
-
-          <ThemeVaultModal
-            isOpen={themeVaultOpen}
-            onClose={() => setThemeVaultOpen(false)}
-            currentTheme={colorTheme}
-            onSelectTheme={handleSelectTheme}
-            xp={state.xp || 0}
-          />
-
-          {themeToast && (
-            <div style={{
-              position: 'fixed',
-              bottom: 24,
-              right: 24,
-              zIndex: 9999,
-              background: 'linear-gradient(135deg, #10b981, #059669)',
-              color: '#ffffff',
-              padding: '14px 22px',
-              borderRadius: 14,
-              boxShadow: '0 12px 30px rgba(0,0,0,0.35)',
-              fontWeight: 700,
-              fontSize: '0.92rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 12,
-              animation: 'bounceIn 0.3s ease-out'
-            }}>
-              <span>{themeToast}</span>
-              <button
-                onClick={() => setThemeToast(null)}
-                style={{
-                  background: 'rgba(255,255,255,0.2)',
-                  border: 'none',
-                  color: '#fff',
-                  cursor: 'pointer',
-                  width: 24,
-                  height: 24,
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontWeight: 900
-                }}
-              >✕</button>
-            </div>
-          )}
         </div>
       </div>
     </div>

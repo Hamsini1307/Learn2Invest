@@ -1,7 +1,7 @@
 import React from 'react'
 import { AI_AVATARS } from './AiAvatarSelector.jsx'
 
-export default function Navbar({ user, xp, currentScreen, onChatToggle, go, goBack, canGoBack, aiGuideAvatar = 'female', aiGuideName, openAvatarModal, themeMode = 'dark', toggleTheme, openThemeVault }) {
+export default function Navbar({ user, xp, currentScreen, onChatToggle, go, goBack, canGoBack, aiGuideAvatar = 'female', aiGuideName, openAvatarModal }) {
   const activeAvatar = AI_AVATARS[aiGuideAvatar] || AI_AVATARS.female
   const guideName = aiGuideName || activeAvatar.name
   const [showHelpModal, setShowHelpModal] = React.useState(false)
@@ -230,55 +230,6 @@ export default function Navbar({ user, xp, currentScreen, onChatToggle, go, goBa
               <span>Ask {guideName}</span>
               <span>→</span>
             </button>
-
-            {toggleTheme && (
-              <button
-                onClick={toggleTheme}
-                style={{
-                  background: themeMode === 'light' ? 'rgba(217, 119, 6, 0.15)' : 'rgba(255, 255, 255, 0.1)',
-                  border: `1.5px solid ${themeMode === 'light' ? '#d97706' : 'rgba(255, 255, 255, 0.25)'}`,
-                  color: themeMode === 'light' ? '#b45309' : '#fbbf24',
-                  borderRadius: 999,
-                  padding: '6px 14px',
-                  fontSize: 12,
-                  fontWeight: 900,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 6,
-                  transition: 'all 0.2s ease',
-                  boxShadow: themeMode === 'light' ? '0 2px 10px rgba(217, 119, 6, 0.2)' : '0 0 14px rgba(255, 255, 255, 0.1)'
-                }}
-                title={`Switch to ${themeMode === 'light' ? 'Dark' : 'Light'} Mode`}
-              >
-                <span>{themeMode === 'light' ? '☀️' : '🌙'}</span>
-                <span>{themeMode === 'light' ? 'LIGHT' : 'DARK'}</span>
-              </button>
-            )}
-
-            {openThemeVault && (
-              <button
-                onClick={openThemeVault}
-                style={{
-                  background: 'var(--gold-bg, rgba(245, 158, 11, 0.15))',
-                  border: '1.5px solid var(--gold-primary, #f59e0b)',
-                  color: 'var(--gold-amber, #fbbf24)',
-                  borderRadius: 999,
-                  padding: '6px 12px',
-                  fontSize: 12,
-                  fontWeight: 900,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 6,
-                  transition: 'all 0.2s ease',
-                }}
-                title="Open Theme Vault (Unlock themes with XP)"
-              >
-                <span>🎨</span>
-                <span>THEMES</span>
-              </button>
-            )}
           </div>
 
           {/* Right Game Stats HUD Bar: XP, Corner User Account */}
@@ -447,29 +398,6 @@ export default function Navbar({ user, xp, currentScreen, onChatToggle, go, goBa
                         <span>⚙️</span>
                         <span>Customize Avatar / Profile</span>
                       </button>
-
-                      {openThemeVault && (
-                        <button
-                          onClick={() => { setShowAccountMenu(false); openThemeVault(); }}
-                          style={{
-                            background: 'var(--gold-bg, rgba(245, 158, 11, 0.1))',
-                            border: '1px solid var(--gold-primary, #f59e0b)',
-                            borderRadius: 8,
-                            padding: '8px 12px',
-                            color: 'var(--gold-amber, #fbbf24)',
-                            fontSize: 11,
-                            fontWeight: 700,
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 8,
-                            textAlign: 'left'
-                          }}
-                        >
-                          <span>🎨</span>
-                          <span>Open Theme Vault</span>
-                        </button>
-                      )}
                     </div>
 
                     <div style={{ height: 1, background: 'var(--border-light, rgba(255,255,255,0.1))' }} />
