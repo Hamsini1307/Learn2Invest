@@ -276,7 +276,13 @@ export default function App() {
     video: <VideoPlayer {...p} />,
     quiz: <Quiz {...p} />,
     'beg-complete': <BeginnerComplete {...p} />,
-    intermediate: <Intermediate {...p} />,
+    intermediate: (
+      <Intermediate
+        {...p}
+        savedPortfolioSimulations={savedPortfolioSimulations}
+        onSavePortfolio={handleSavePortfolio}
+      />
+    ),
     simulation: (
       <Simulation
         {...p}

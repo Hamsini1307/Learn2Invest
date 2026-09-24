@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { modules } from '../data.js'
+import { modules, advRates } from '../data.js'
 import { AI_AVATARS } from '../components/AiAvatarSelector.jsx'
 import MessageScamAnalyzer from '../components/MessageScamAnalyzer.jsx'
 
@@ -73,7 +73,46 @@ const SCHEME_NAMES = {
   MIS: 'Post Office Monthly Income Scheme'
 }
 
-export default function Intermediate({ go, goBack, canGoBack, state, update, addXP, aiGuideAvatar = 'female', aiGuideName, openAvatarModal }) {
+const SCHEMES = Object.keys(advRates)
+
+const SCHEME_TENURES = { PPF: 15, FD: 5, GOLD: 8, NSC: 5, SSY: 21, RD: 3 }
+
+const COLORS = { PPF: '#f59e0b', FD: '#d97706', GOLD: '#eab308', NSC: '#fbbf24', SSY: '#ec4899', RD: '#10b981' }
+const EMOJIS = { PPF: '🏦', FD: '💳', GOLD: '🪙', NSC: '📮', SSY: '👧', RD: '📅' }
+
+const DESCRIPTIONS = {
+  PPF: 'Government-backed 15-year tax-free savings. Ideal for long term wealth creation.',
+  FD: 'Safe & steady bank deposits. Highly flexible tenures but interest is taxable.',
+  GOLD: 'Sovereign Gold Bonds & Digital Gold with market appreciation and fixed annual yield.',
+  NSC: 'Post Office 5-year certificate with guaranteed compounded annual returns.',
+  SSY: 'High interest savings scheme dedicated for the girl child. Completely tax-free.',
+  RD: 'Disciplined monthly savings plan with bank compounded interest payouts.',
+}
+
+const DETAILS = {
+  PPF: '🔒 15-Year Lock-in · 🍀 EEE Tax Free',
+  FD: '🔒 7 Days-10 Yrs · 💸 Taxable Interest',
+  GOLD: '🔒 8-Year Maturity · 📈 Capital Appreciation + 2.5% p.a.',
+  NSC: '🔒 5-Year Lock-in · 📝 80C Tax Benefit',
+  SSY: '🔒 21-Year Lock-in · 🍀 EEE Tax Free',
+  RD: '🔒 1-10 Yrs Tenure · 💸 Taxable Interest',
+}
+
+const PORTFOLIO_OPTIONS = [
+  { id: 'ppf', name: 'Public Provident Fund (PPF)', emoji: '🏛️', rate: 7.1, years: 15, monthly: 5000 },
+  { id: 'fd', name: 'Fixed Deposit (FD)', emoji: '🏦', rate: 7.25, years: 5, monthly: 5000 },
+  { id: 'gold', name: 'Sovereign Gold Bonds (SGB / Gold)', emoji: '🪙', rate: 9.5, years: 8, monthly: 3000 },
+  { id: 'nsc', name: 'National Savings Certificate (NSC)', emoji: '📜', rate: 7.7, years: 5, monthly: 3000 },
+  { id: 'ssy', name: 'Sukanya Samriddhi Yojana (SSY)', emoji: '👧', rate: 8.2, years: 15, monthly: 4000 },
+  { id: 'rd', name: 'Recurring Deposit (RD)', emoji: '🔄', rate: 6.5, years: 3, monthly: 2000 },
+  { id: 'mis', name: 'Post Office MIS', emoji: '📮', rate: 7.4, years: 5, monthly: 3000 }
+]
+
+export default function Intermediate({
+  go, goBack, canGoBack, state, update, addXP,
+  aiGuideAvatar = 'female', aiGuideName, openAvatarModal,
+  savedPortfolioSimulations = [], onSavePortfolio
+}) {
   const activeAvatar = AI_AVATARS[aiGuideAvatar] || AI_AVATARS.female
   const guideName = aiGuideName || activeAvatar.name
   const modulesDone = state.completedModules || []
@@ -103,6 +142,269 @@ export default function Intermediate({ go, goBack, canGoBack, state, update, add
   const [selectedOpt, setSelectedOpt] = useState(null)
   const [cyberGameCompleted, setCyberGameCompleted] = useState(false)
   const [selectedVideo, setSelectedVideo] = useState('upi_working')
+
+  // Portfolio Tower / Combined Wealth Metrics 2-Step State Variables
+  const [portfolioStep, setPortfolioStep] = useState('select') // 'select' | 'simulate'
+  const [selectedSchemes, setSelectedSchemes] = useState(['PPF', 'FD', 'GOLD', 'NSC'])
+  const [portfolioAlloc, setPortfolioAlloc] = useState({ PPF: 25, FD: 25, GOLD: 25, NSC: 25 })
+  const [monthlyTotal, setMonthlyTotal] = useState(10000)
+  const [portfolioYears, setPortfolioYears] = useState(10)
+  const [simDone, setSimDone] = useState(false)
+
+  const [portfolioItems, setPortfolioItems] = useState([
+    { uid: 1, id: 'fd', name: 'Fixed Deposit (FD)', emoji: '🏦', rate: 7.25, years: 5, monthly: 5000 },
+    { uid: 2, id: 'gold', name: 'Sovereign Gold Bonds (SGB / Gold)', emoji: '🪙', rate: 9.5, years: 8, monthly: 3000 },
+    { uid: 3, id: 'ppf', name: 'Public Provident Fund (PPF)', emoji: '🏛️', rate: 7.1, years: 15, monthly: 5000 }
+  ])
+  const [allocationMode, setAllocationMode] = useState('manual')
+  const [hasRunSim, setHasRunSim] = useState(false)
+  const [portfolioResults, setPortfolioResults] = useState(null)
+  const [showSaveModal, setShowSaveModal] = useState(false)
+  const [portfolioName, setPortfolioName] = useState('My Multi-Asset Portfolio')
+
+  const toggleScheme = (k) => {
+    if (selectedSchemes.includes(k)) {
+      if (selectedSchemes.length === 1) return
+      setSelectedSchemes(prev => prev.filter(s => s !== k))
+    } else {
+      setSelectedSchemes(prev => [...prev, k])
+    }
+  }
+
+  const handleStartPortfolioSimulation = () => {
+    if (selectedSchemes.length === 0) return
+
+    const n = selectedSchemes.length
+    const share = Math.floor(100 / n)
+    const newAlloc = {}
+    
+    selectedSchemes.forEach((s, idx) => {
+      newAlloc[s] = idx === 0 ? share + (100 - share * n) : share
+    })
+
+    setPortfolioAlloc(newAlloc)
+    setPortfolioStep('simulate')
+  }
+
+  const setSchemeAlloc = (k, v) => {
+    const activeSchemes = selectedSchemes
+    const others = activeSchemes.filter(s => s !== k)
+    
+    if (others.length === 0) {
+      setPortfolioAlloc({ [k]: 100 })
+      return
+    }
+
+    const remaining = 100 - v
+    const otherTotal = others.reduce((sum, s) => sum + (portfolioAlloc[s] || 0), 0)
+    const ratio = otherTotal > 0 ? remaining / otherTotal : 1 / others.length
+    
+    const newAlloc = { ...portfolioAlloc, [k]: v }
+    others.forEach(s => {
+      newAlloc[s] = Math.max(0, Math.round((portfolioAlloc[s] || 0) * ratio))
+    })
+
+    const sum = activeSchemes.reduce((acc, s) => acc + (newAlloc[s] || 0), 0)
+    if (sum !== 100) {
+      newAlloc[others[0]] = Math.max(0, (newAlloc[others[0]] || 0) + (100 - sum))
+    }
+
+    setPortfolioAlloc(newAlloc)
+  }
+
+  const handleRunPortfolioAllocSim = () => {
+    if (addXP) addXP(100)
+    update({ allocations: portfolioAlloc })
+    setSimDone(true)
+
+    let totalInvestedAcc = 0
+    let totalReturnsAcc = 0
+    let maxHorizonAcc = 0
+
+    const itemSummaries = selectedSchemes.map(k => {
+      const rate = advRates[k] || 7.0
+      const years = SCHEME_TENURES[k] || portfolioYears
+      const monthly = Math.round(((portfolioAlloc[k] || 0) / 100) * monthlyTotal)
+      const mRate = (rate / 100) / 12
+      const tMonths = years * 12
+      const inv = monthly * tMonths
+      const ret = mRate > 0
+        ? Math.round(monthly * ((Math.pow(1 + mRate, tMonths) - 1) / mRate) * (1 + mRate))
+        : inv
+      totalInvestedAcc += inv
+      totalReturnsAcc += ret
+      if (years > maxHorizonAcc) maxHorizonAcc = years
+      return {
+        id: k.toLowerCase(),
+        name: SCHEME_NAMES[k] || k,
+        emoji: EMOJIS[k] || '🔒',
+        rate,
+        years,
+        monthly,
+        invested: inv,
+        returns: ret,
+        profit: Math.max(0, ret - inv)
+      }
+    })
+
+    const totalProfitAcc = Math.max(0, totalReturnsAcc - totalInvestedAcc)
+    const profitPctAcc = totalInvestedAcc > 0 ? ((totalProfitAcc / totalInvestedAcc) * 100).toFixed(1) : 0
+
+    const gapPeriods = itemSummaries
+      .filter(item => item.years < maxHorizonAcc)
+      .map(item => {
+        const gapYears = maxHorizonAcc - item.years
+        let smartTip = ''
+        if (gapYears >= 10) {
+          smartTip = `You can redeploy this matured ${fmt(item.returns)} into equity index mutual funds, multi-asset allocation funds, or 10-year Sovereign Gold Bonds to maximize compounding returns over the long ${gapYears}-year window!`
+        } else if (gapYears >= 5) {
+          smartTip = `You can redeploy this matured ${fmt(item.returns)} into corporate FDs, hybrid conservative mutual funds, or high-yield bonds for steady, low-volatility growth over ${gapYears} gap years!`
+        } else {
+          smartTip = `You can park this matured ${fmt(item.returns)} into short-term liquid funds, arbitrage funds, or high-yield savings to preserve capital for immediate life goals maturing in ${gapYears} years!`
+        }
+        return {
+          name: item.name,
+          emoji: item.emoji || '🔒',
+          maturesAt: item.years,
+          gapYears: gapYears,
+          maturedCorpus: item.returns,
+          smartTip
+        }
+      })
+      .sort((a, b) => a.maturesAt - b.maturesAt)
+
+    setPortfolioResults({
+      totalInvested: totalInvestedAcc,
+      totalReturns: totalReturnsAcc,
+      totalProfit: totalProfitAcc,
+      profitPct: profitPctAcc,
+      maxHorizon: maxHorizonAcc,
+      itemSummaries,
+      gapPeriods
+    })
+    setHasRunSim(true)
+  }
+
+  const fmt = (num) => {
+    const val = Math.round(num || 0)
+    if (Math.abs(val) >= 10000000) {
+      return '₹' + (val / 10000000).toFixed(2) + ' Cr'
+    }
+    if (Math.abs(val) >= 100000) {
+      return '₹' + (val / 100000).toFixed(2) + ' L'
+    }
+    return '₹' + val.toLocaleString('en-IN')
+  }
+
+  const handleAddPortfolioOption = (opt) => {
+    const newItem = {
+      ...opt,
+      uid: Date.now() + Math.random()
+    }
+    setPortfolioItems([...portfolioItems, newItem])
+  }
+
+  const handleRemovePortfolioOption = (uid) => {
+    setPortfolioItems(portfolioItems.filter(item => item.uid !== uid))
+  }
+
+  const handleUpdatePortfolioItem = (uid, key, value) => {
+    setPortfolioItems(portfolioItems.map(item => {
+      if (item.uid === uid) {
+        return { ...item, [key]: value }
+      }
+      return item
+    }))
+  }
+
+  const handleSmartAllocation = () => {
+    setAllocationMode('smart')
+    if (portfolioItems.length === 0) return
+    const totalCurrentMonthly = portfolioItems.reduce((sum, item) => sum + (item.monthly || 0), 0) || 10000
+    const sumRates = portfolioItems.reduce((sum, item) => sum + (item.rate || 0), 0) || 1
+    const updated = portfolioItems.map(item => {
+      const weight = (item.rate || 1) / sumRates
+      const allocatedMonthly = Math.round(totalCurrentMonthly * weight)
+      return { ...item, monthly: allocatedMonthly }
+    })
+    setPortfolioItems(updated)
+  }
+
+  const runPortfolioSimulation = () => {
+    if (portfolioItems.length === 0) return
+
+    let totalInvested = 0
+    let totalReturns = 0
+    let maxHorizon = 0
+
+    const itemSummaries = portfolioItems.map(item => {
+      const mRate = (item.rate / 100) / 12
+      const tMonths = item.years * 12
+      const inv = item.monthly * tMonths
+      const ret = mRate > 0
+        ? Math.round(item.monthly * ((Math.pow(1 + mRate, tMonths) - 1) / mRate) * (1 + mRate))
+        : inv
+      totalInvested += inv
+      totalReturns += ret
+      if (item.years > maxHorizon) maxHorizon = item.years
+      return {
+        ...item,
+        invested: inv,
+        returns: ret,
+        profit: Math.max(0, ret - inv)
+      }
+    })
+
+    const totalProfit = Math.max(0, totalReturns - totalInvested)
+    const profitPct = totalInvested > 0 ? ((totalProfit / totalInvested) * 100).toFixed(1) : 0
+
+    const gapPeriods = itemSummaries
+      .filter(item => item.years < maxHorizon)
+      .map(item => {
+        const gapYears = maxHorizon - item.years
+        let smartTip = ''
+        if (gapYears >= 10) {
+          smartTip = `You can redeploy this matured ${fmt(item.returns)} into equity index mutual funds, multi-asset allocation funds, or 10-year Sovereign Gold Bonds to maximize compounding returns over the long ${gapYears}-year window!`
+        } else if (gapYears >= 5) {
+          smartTip = `You can redeploy this matured ${fmt(item.returns)} into corporate FDs, hybrid conservative mutual funds, or high-yield bonds for steady, low-volatility growth over ${gapYears} gap years!`
+        } else {
+          smartTip = `You can park this matured ${fmt(item.returns)} into short-term liquid funds, arbitrage funds, or high-yield savings to preserve capital for immediate life goals maturing in ${gapYears} years!`
+        }
+        return {
+          name: item.name,
+          emoji: item.emoji || '🔒',
+          maturesAt: item.years,
+          gapYears: gapYears,
+          maturedCorpus: item.returns,
+          smartTip
+        }
+      })
+      .sort((a, b) => a.maturesAt - b.maturesAt)
+
+    setPortfolioResults({
+      totalInvested,
+      totalReturns,
+      totalProfit,
+      profitPct,
+      maxHorizon,
+      itemSummaries,
+      gapPeriods
+    })
+    setHasRunSim(true)
+  }
+
+  const handleConfirmSavePortfolio = () => {
+    if (onSavePortfolio && portfolioResults) {
+      onSavePortfolio({
+        id: Date.now(),
+        name: portfolioName.trim() || 'My Multi-Asset Portfolio',
+        date: new Date().toLocaleDateString('en-IN'),
+        results: portfolioResults,
+        items: portfolioItems
+      })
+    }
+    setShowSaveModal(false)
+  }
 
   const handleAddGoal = () => {
     if (!newGoalName.trim() || !newGoalAmount) return
@@ -263,7 +565,7 @@ export default function Intermediate({ go, goBack, canGoBack, state, update, add
             transition: 'all 0.2s'
           }}
         >
-          <span>⬅</span>
+          <span>☑</span>
           <span>Back to Main Page</span>
         </button>
       </div>
@@ -285,11 +587,11 @@ export default function Intermediate({ go, goBack, canGoBack, state, update, add
           💼 SAVINGS MIXER 🌟
         </button>
         <button
-          onClick={() => setActiveTab('digital')}
-          className={activeTab === 'digital' ? 'btn-primary' : 'btn-outline'}
+          onClick={() => setActiveTab('portfolio')}
+          className={activeTab === 'portfolio' ? 'btn-primary' : 'btn-outline'}
           style={{ flex: '1 1 180px', fontSize: 13, padding: '12px 18px' }}
         >
-          🌐 DIGITAL BANKING & SAFETY 🛡️
+          📊 COMBINED WEALTH METRICS 📈
         </button>
       </div>
 
@@ -425,7 +727,7 @@ export default function Intermediate({ go, goBack, canGoBack, state, update, add
                   <button className={done ? 'btn-outline' : 'btn-primary'} style={{
                     width:'100%',padding:10,fontSize:13,marginTop:'auto',
                   }}>
-                    {done ? '🔁 REVISIT' : '▶ OPEN SIMULATOR'}
+                    {done ? '🔄 REVISIT' : '▶ OPEN SIMULATOR'}
                   </button>
                 </div>
               )
@@ -458,7 +760,7 @@ export default function Intermediate({ go, goBack, canGoBack, state, update, add
                     animation: 'fadeUp 0.5s ease both'
                   }}>
                     <div style={{ fontSize: 32, marginBottom: 6 }}>🔓</div>
-                    <div className="font-display" style={{ color: '#fbbf24', fontSize: 24 }}>PORTFOLIO TOWER UNLOCKED! 🏢</div>
+                    <div className="font-display" style={{ color: '#fbbf24', fontSize: 24 }}>PORTFOLIO TOWER UNLOCKED! 🏰</div>
                     <div style={{ color: 'var(--text-sub, #d1d5db)', fontSize: 13, fontWeight: 700, marginTop: 4 }}>
                       +200 XP Awarded! Premium portfolio strategies & advanced tactics await!
                     </div>
@@ -467,7 +769,7 @@ export default function Intermediate({ go, goBack, canGoBack, state, update, add
                   <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
                     <button className="btn-primary" onClick={() => go('advanced')}
                       style={{ fontSize: 15, padding: '14px 28px' }}>
-                      🏢 ENTER PORTFOLIO TOWER →
+                      🏰 ENTER PORTFOLIO TOWER →
                     </button>
                     <button className="btn-outline" onClick={() => go('level-map')}
                       style={{ fontSize: 15, padding: '14px 28px' }}>
@@ -535,7 +837,7 @@ export default function Intermediate({ go, goBack, canGoBack, state, update, add
                   💧 EASY CASH FLOW
                 </button>
                 <button onClick={() => applyPreset('balanced')} className="btn-outline" style={{ padding: '10px', fontSize: 11 }}>
-                  🍭 BALANCED PORTFOLIO
+                  ⚖️ BALANCED PORTFOLIO
                 </button>
               </div>
 
@@ -811,114 +1113,401 @@ export default function Intermediate({ go, goBack, canGoBack, state, update, add
         </div>
       )}
 
-      {activeTab === 'digital' && (
-        <div className="anim-scale glass-card-deep" style={{ padding: '32px', marginBottom: 24, background: 'var(--bg-card-deep, #12100c)', border: '2px solid rgba(217,119,6,0.4)' }}>
-          <div style={{ textAlign: 'center', marginBottom: 28 }}>
-            <div className="sticker-badge sticker-yellow" style={{ marginBottom: 10 }}>
-              🌐 CYBER SAFETY ARENA
-            </div>
-            <h2 className="font-display" style={{ fontSize: 36, color: 'var(--heading-color, #ffffff)', marginBottom: 4 }}>
-              DIGITAL BANKING & SAFETY 🛡️
-            </h2>
-            <p style={{ color: 'var(--text-sub, #d1d5db)', fontSize: 13, fontWeight: 600 }}>
-              Defend your bank account against real-world phishing traps and cyber scams!
-            </p>
-          </div>
 
-          {!cyberGameCompleted ? (
-            <div className="glass-card" style={{ padding: 24, border: '2px solid #f59e0b', background: 'var(--bg-card-deep, #12100c)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-                <span style={{ fontSize: 13, fontWeight: 900, color: '#ffffff' }}>
-                  SCENARIO {digitalScenarioIdx + 1} OF {CYBER_SCENARIOS.length}
-                </span>
-                <div className="sticker-badge sticker-yellow">
-                  🛡️ SHIELD HEALTH: {shieldScore}%
-                </div>
-              </div>
-
-              <div style={{
-                background: 'rgba(245, 158, 11, 0.12)', borderRadius: 16, padding: 20,
-                border: '1.5px solid #d97706', marginBottom: 20
-              }}>
-                <h3 style={{ fontWeight: 900, fontSize: 16, color: '#ffffff', marginBottom: 8 }}>
-                  {CYBER_SCENARIOS[digitalScenarioIdx].title}
-                </h3>
-                <p style={{ fontSize: 14, color: '#d1d5db', lineHeight: 1.5 }}>
-                  {CYBER_SCENARIOS[digitalScenarioIdx].scenario}
+      {activeTab === 'portfolio' && (
+        <div className="anim-fade">
+          {portfolioStep === 'select' ? (
+            <div className="anim-fade">
+              {/* Step 1: Scheme Selector */}
+              <div className="glass-card-deep" style={{ padding: 28, marginBottom: 24, background: '#12100c', border: '2px solid rgba(217,119,6,0.3)', borderRadius: 24 }}>
+                <h2 className="font-display" style={{ fontSize: 24, color: '#ffffff', marginBottom: 6 }}>
+                  STEP 1: CHOOSE ASSET CLASSES
+                </h2>
+                <p style={{ fontSize: 13, color: '#d1d5db', fontWeight: 600, marginBottom: 20 }}>
+                  Select the assets you want to include in your portfolio simulator. We recommend selecting at least <strong>two</strong> different schemes to diversify your risk.
                 </p>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 24 }}>
+                  {SCHEMES.map(k => {
+                    const selected = selectedSchemes.includes(k)
+                    return (
+                      <div
+                        key={k}
+                        onClick={() => toggleScheme(k)}
+                        style={{
+                          padding: '16px 20px', borderRadius: 18, cursor: 'pointer',
+                          background: selected ? 'rgba(245,158,11,0.12)' : 'rgba(255,255,255,0.03)',
+                          border: selected ? `2.5px solid #f59e0b` : '1.5px solid rgba(217,119,6,0.2)',
+                          boxShadow: selected ? `0 0 20px rgba(245,158,11,0.2)` : 'none',
+                          transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                          display: 'flex', alignItems: 'center', gap: 14,
+                        }}
+                      >
+                        <div style={{
+                          width: 26, height: 26, borderRadius: '50%',
+                          border: `2px solid ${selected ? '#f59e0b' : '#71717a'}`,
+                          background: selected ? '#f59e0b' : 'transparent',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          color: '#080705', fontWeight: 900, fontSize: 13,
+                        }}>
+                          {selected ? '✓' : ''}
+                        </div>
+
+                        <div style={{
+                          width: 46, height: 46, borderRadius: 14,
+                          background: `rgba(255,255,255,0.05)`,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontSize: 22, border: `2px solid ${COLORS[k]}`,
+                        }}>{EMOJIS[k]}</div>
+
+                        <div style={{ flex: 1 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <span style={{ fontWeight: 900, color: '#ffffff', fontSize: 15 }}>{k}</span>
+                            <span className="sticker-badge sticker-yellow" style={{ fontSize: 10, padding: '2px 6px' }}>
+                              {advRates[k]}% P.A.
+                            </span>
+                          </div>
+                          <div style={{ fontSize: 12, color: '#d1d5db', fontWeight: 600, marginTop: 4 }}>
+                            {DESCRIPTIONS[k]}
+                          </div>
+                          <div style={{ fontSize: 10, color: COLORS[k], fontWeight: 800, marginTop: 4 }}>
+                            {DETAILS[k]}
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+
+                <button
+                  onClick={handleStartPortfolioSimulation}
+                  disabled={selectedSchemes.length === 0}
+                  className="btn-primary"
+                  style={{
+                    width: '100%', fontSize: 15, padding: '16px', fontWeight: 900,
+                    opacity: selectedSchemes.length === 0 ? 0.5 : 1,
+                    cursor: selectedSchemes.length === 0 ? 'not-allowed' : 'pointer',
+                  }}
+                >
+                  🚀 CONFIGURE PORTFOLIO ALLOCATION ({selectedSchemes.length} SELECTED)
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="anim-fade">
+              {/* Step 2: Allocation & Simulation */}
+              <button className="btn-outline" onClick={() => setPortfolioStep('select')} style={{ marginBottom: 20 }}>
+                ← MODIFY INVESTMENT TYPES
+              </button>
+
+              {/* Global settings */}
+              <div className="glass-card-sm anim-fade delay-1" style={{ padding: '22px', marginBottom: 20, background: '#12100c', border: '1.5px solid rgba(217,119,6,0.3)', borderRadius: 20 }}>
+                <h3 style={{ fontWeight: 900, color: '#ffffff', fontSize: 14, marginBottom: 16 }}>⚙️ PORTFOLIO SETTINGS</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 20 }}>
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                      <span style={{ fontSize: 12, fontWeight: 800, color: '#d1d5db' }}>MONTHLY BUDGET</span>
+                      <span style={{ fontWeight: 900, color: '#fbbf24', fontSize: 13 }}>₹{monthlyTotal.toLocaleString('en-IN')}</span>
+                    </div>
+                    <input type="range" min={1000} max={100000} step={1000} value={monthlyTotal}
+                      onChange={e => setMonthlyTotal(Number(e.target.value))}
+                      style={{ width: '100%', accentColor: '#f59e0b' }} />
+                  </div>
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                      <span style={{ fontSize: 12, fontWeight: 800, color: '#d1d5db' }}>DURATION</span>
+                      <span style={{ fontWeight: 900, color: '#fbbf24', fontSize: 13 }}>{portfolioYears} YEARS</span>
+                    </div>
+                    <input type="range" min={1} max={30} step={1} value={portfolioYears}
+                      onChange={e => setPortfolioYears(Number(e.target.value))}
+                      style={{ width: '100%', accentColor: '#f59e0b' }} />
+                  </div>
+                </div>
+
+                {/* Total allocation check */}
+                {(() => {
+                  const totalPct = selectedSchemes.reduce((acc, s) => acc + (portfolioAlloc[s] || 0), 0)
+                  return (
+                    <div style={{ marginTop: 16, display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <div className="progress-track" style={{ flex: 1 }}>
+                        <div className="progress-fill" style={{
+                          width: `${Math.min(totalPct, 100)}%`,
+                          background: totalPct === 100
+                            ? '#f59e0b'
+                            : totalPct > 100
+                            ? '#e11d48'
+                            : '#d97706',
+                        }} />
+                      </div>
+                      <span style={{ fontWeight: 900, fontSize: 13,
+                        color: totalPct === 100 ? '#fbbf24' : totalPct > 100 ? '#e11d48' : '#d97706'
+                      }}>{totalPct}%</span>
+                    </div>
+                  )
+                })()}
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 20 }}>
-                {CYBER_SCENARIOS[digitalScenarioIdx].opts.map((opt, i) => (
-                  <button
-                    key={i}
-                    onClick={() => handleCyberAnswer(i)}
-                    className={selectedOpt === i ? (opt.correct ? 'btn-primary' : 'btn-pink') : 'btn-outline'}
-                    style={{ textAlign: 'left', fontSize: 13, padding: '14px 18px', width: '100%' }}
-                  >
-                    {opt.text}
-                  </button>
+              {/* Allocation Sliders */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 24 }}>
+                {selectedSchemes.map((k, i) => (
+                  <div key={k} className={`glass-card-sm anim-fade delay-${i+2}`} style={{ padding: '20px 22px', background: '#12100c', border: '1.5px solid rgba(217,119,6,0.25)', borderRadius: 18 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
+                      <div style={{
+                        width: 42, height: 42, borderRadius: 14,
+                        background: `rgba(255,255,255,0.05)`,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: 20, border: `2px solid ${COLORS[k]}`,
+                      }}>{EMOJIS[k]}</div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <span style={{ fontWeight: 900, color: '#ffffff', fontSize: 14 }}>{k}</span>
+                          <span style={{ fontWeight: 900, color: COLORS[k], fontSize: 14 }}>{portfolioAlloc[k] || 0}%</span>
+                        </div>
+                        <div style={{ fontSize: 11, color: '#d1d5db', fontWeight: 600 }}>
+                          ₹{Math.round(((portfolioAlloc[k] || 0)/100)*monthlyTotal).toLocaleString('en-IN')}/mo · {advRates[k]}% p.a.
+                        </div>
+                      </div>
+                    </div>
+                    <input type="range" min={0} max={100} step={1} value={portfolioAlloc[k] || 0}
+                      onChange={e => setSchemeAlloc(k, Number(e.target.value))}
+                      style={{ width: '100%', accentColor: COLORS[k], height: 6 }} />
+
+                    <div style={{ marginTop: 10, fontSize: 12, color: '#d1d5db', fontWeight: 700 }}>
+                      Projected after {portfolioYears}yr: <strong style={{ color: COLORS[k] }}>
+                        {fmt((((portfolioAlloc[k] || 0)/100)*monthlyTotal) > 0 ? ((((portfolioAlloc[k] || 0)/100)*monthlyTotal) * ((Math.pow(1 + (advRates[k]/100/12), portfolioYears*12) - 1) / (advRates[k]/100/12)) * (1 + (advRates[k]/100/12))) : 0)}
+                      </strong>
+                    </div>
+                  </div>
                 ))}
               </div>
 
-              {digitalFeedback && (
-                <div className="anim-fade" style={{
-                  background: 'rgba(245,158,11,0.12)', border: '1.5px solid #f59e0b',
-                  borderRadius: 14, padding: 16, marginBottom: 20, color: '#fef3c7', fontSize: 13, lineHeight: 1.5
-                }}>
-                  💡 {digitalFeedback}
-                </div>
-              )}
+              {/* Summary Card */}
+              {(() => {
+                const totalPct = selectedSchemes.reduce((acc, s) => acc + (portfolioAlloc[s] || 0), 0)
+                const totalInvestedVal = monthlyTotal * 12 * portfolioYears
+                const schemeResults = selectedSchemes.map(k => {
+                  const monthly = ((portfolioAlloc[k] || 0) / 100) * monthlyTotal
+                  const r = (advRates[k] || 7) / 100 / 12
+                  const n = portfolioYears * 12
+                  const fv = r > 0 ? monthly * ((Math.pow(1 + r, n) - 1) / r) * (1 + r) : monthly * n
+                  return { k, fv }
+                })
+                const totalFVVal = schemeResults.reduce((acc, item) => acc + item.fv, 0)
+                const totalGainVal = Math.max(0, totalFVVal - totalInvestedVal)
 
-              {selectedOpt !== null && (
-                <button className="btn-primary" onClick={handleNextScenario} style={{ width: '100%', fontSize: 14 }}>
-                  {digitalScenarioIdx < CYBER_SCENARIOS.length - 1 ? 'NEXT SCENARIO →' : '🏆 FINISH CHALLENGE (+50 XP)'}
-                </button>
-              )}
-            </div>
-          ) : (
-            <div style={{ textAlign: 'center', padding: 32, background: 'var(--bg-card-deep, #12100c)' }} className="glass-card">
-              <div style={{ fontSize: 56, marginBottom: 12 }}>🛡️</div>
-              <h3 className="font-display" style={{ fontSize: 32, color: '#fbbf24', marginBottom: 8 }}>
-                CHALLENGE PASSED!
-              </h3>
-              <p style={{ color: 'var(--text-sub, #d1d5db)', fontSize: 14, fontWeight: 600, marginBottom: 20 }}>
-                Shield Health: {shieldScore}% • You earned +50 XP and mastered digital bank safety!
-              </p>
-              <button className="btn-primary" onClick={() => setCyberGameCompleted(false)}>
-                🔄 REPLAY SAFETY ARENA
-              </button>
+                return (
+                  <div className="glass-card-deep anim-fade" style={{ padding: '28px 32px', marginBottom: 24, background: '#12100c', border: '2px solid rgba(217,119,6,0.4)', borderRadius: 24 }}>
+                    <h3 className="font-display" style={{ fontSize: 24, color: '#ffffff', marginBottom: 20 }}>
+                      📊 PORTFOLIO SUMMARY
+                    </h3>
+
+                    {/* Allocation Bar */}
+                    <div style={{ display: 'flex', height: 16, borderRadius: 999, overflow: 'hidden', marginBottom: 12, border: '1.5px solid rgba(217,119,6,0.3)' }}>
+                      {selectedSchemes.map(k => (
+                        (portfolioAlloc[k] || 0) > 0 && (
+                          <div key={k} style={{
+                            width: `${portfolioAlloc[k]}%`, background: COLORS[k],
+                            transition: 'width 0.3s ease',
+                          }} />
+                        )
+                      ))}
+                    </div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginBottom: 24 }}>
+                      {selectedSchemes.map(k => (
+                        <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                          <div style={{ width: 10, height: 10, borderRadius: 2, background: COLORS[k] }} />
+                          <span style={{ fontSize: 11, fontWeight: 800, color: '#d1d5db' }}>{k} {portfolioAlloc[k] || 0}%</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, marginBottom: 24 }}>
+                      {[
+                        { label: 'TOTAL INVESTED', value: fmt(totalInvestedVal), color: '#ffffff' },
+                        { label: 'TOTAL VALUE', value: fmt(totalFVVal), color: '#fbbf24' },
+                        { label: 'WEALTH GAINED', value: fmt(totalGainVal), color: '#10b981' },
+                      ].map(c => (
+                        <div key={c.label} style={{
+                          background: '#080705', borderRadius: 14, padding: '14px 10px',
+                          textAlign: 'center', border: `1.5px solid rgba(217,119,6,0.3)`,
+                        }}>
+                          <div className="font-display" style={{ fontSize: 20, color: c.color, lineHeight: 1 }}>{c.value}</div>
+                          <div style={{ fontSize: 10, color: '#9ca3af', fontWeight: 800, marginTop: 4 }}>{c.label}</div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {simDone ? (
+                      <div style={{
+                        textAlign: 'center', padding: '18px',
+                        background: 'rgba(245,158,11,0.12)',
+                        borderRadius: 16, border: '2px solid #f59e0b',
+                        marginBottom: 20
+                      }}>
+                        <div style={{ fontSize: 32, marginBottom: 6 }}>🎊</div>
+                        <div style={{ fontWeight: 900, color: '#fbbf24', fontSize: 16 }}>+100 XP EARNED! AMAZING WORK!</div>
+                      </div>
+                    ) : (
+                      <button
+                        className="btn-primary"
+                        onClick={handleRunPortfolioAllocSim}
+                        disabled={totalPct !== 100}
+                        style={{
+                          width: '100%', fontSize: 15, padding: '16px', fontWeight: 900, marginBottom: 20,
+                          opacity: totalPct !== 100 ? 0.5 : 1,
+                          cursor: totalPct !== 100 ? 'not-allowed' : 'pointer',
+                        }}
+                      >
+                        {totalPct !== 100 ? `ALLOCATIONS MUST TOTAL 100% (${totalPct}%)` : '🚀 RUN PORTFOLIO SIMULATION (+100 XP)'}
+                      </button>
+                    )}
+                  </div>
+                )
+              })()}
             </div>
           )}
 
-          {/* Phone SMS & Phishing Message Analyzer */}
-          <MessageScamAnalyzer />
+          {/* COMBINED WEALTH METRICS REPORT BOX */}
+          {hasRunSim && portfolioResults && (() => {
+            const totalRet = portfolioResults.totalReturns || 1
+            const invPctVal = ((portfolioResults.totalInvested / totalRet) * 100).toFixed(1)
+            const profPctVal = ((portfolioResults.totalProfit / totalRet) * 100).toFixed(1)
+            return (
+              <div className="glass-card-deep anim-scale" style={{ padding: 28, borderRadius: 24, marginBottom: 24, background: 'rgba(8, 20, 36, 0.95)', border: '2px solid #0284c7', boxShadow: '0 0 30px rgba(2, 132, 199, 0.25)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 10 }}>
+                  <div>
+                    <div className="sticker-badge" style={{ marginBottom: 6, background: 'rgba(2, 132, 199, 0.2)', color: '#38bdf8', border: '1px solid #0284c7', padding: '4px 12px', fontSize: 10, fontWeight: 900, borderRadius: 999 }}>
+                      OVERALL PORTFOLIO REPORT
+                    </div>
+                    <h2 className="font-display" style={{ fontSize: 26, color: '#ffffff', margin: 0 }}>
+                      COMBINED WEALTH METRICS
+                    </h2>
+                  </div>
+                  <div style={{ fontSize: 12, fontWeight: 900, color: '#fbbf24', background: 'rgba(245, 158, 11, 0.15)', padding: '6px 14px', borderRadius: 999, border: '1px solid #f59e0b' }}>
+                    Longest Investment Horizon: {portfolioResults.maxHorizon} Years
+                  </div>
+                </div>
 
-          {/* Video Tutorials Section */}
-          <div style={{ marginTop: 32 }}>
-            <h3 className="font-display" style={{ fontSize: 24, color: '#ffffff', marginBottom: 16 }}>
-              🎬 DIGITAL BANKING TUTORIALS
-            </h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14, marginBottom: 20 }}>
-              {Object.keys(VIDEOS_DB).map(vKey => (
+                {/* 4 Cards Grid */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 14, marginBottom: 24 }}>
+                  <div style={{ background: 'rgba(2, 132, 199, 0.15)', border: '1.5px solid #0284c7', padding: 18, borderRadius: 16, textAlign: 'center' }}>
+                    <div style={{ fontSize: 11, fontWeight: 800, color: '#38bdf8', textTransform: 'uppercase', marginBottom: 4 }}>TOTAL INVESTMENT</div>
+                    <div style={{ fontSize: 22, fontWeight: 900, color: '#38bdf8' }}>{fmt(portfolioResults.totalInvested)}</div>
+                  </div>
+
+                  <div style={{ background: 'rgba(255, 255, 255, 0.06)', border: '1.5px solid rgba(255, 255, 255, 0.2)', padding: 18, borderRadius: 16, textAlign: 'center' }}>
+                    <div style={{ fontSize: 11, fontWeight: 800, color: '#d1d5db', textTransform: 'uppercase', marginBottom: 4 }}>TOTAL RETURNS</div>
+                    <div style={{ fontSize: 22, fontWeight: 900, color: '#ffffff' }}>{fmt(portfolioResults.totalReturns)}</div>
+                  </div>
+
+                  <div style={{ background: 'rgba(16, 185, 129, 0.15)', border: '1.5px solid #10b981', padding: 18, borderRadius: 16, textAlign: 'center' }}>
+                    <div style={{ fontSize: 11, fontWeight: 800, color: '#6ee7b7', textTransform: 'uppercase', marginBottom: 4 }}>TOTAL PROFIT</div>
+                    <div style={{ fontSize: 22, fontWeight: 900, color: '#10b981' }}>+{fmt(portfolioResults.totalProfit)}</div>
+                  </div>
+
+                  <div style={{ background: 'rgba(16, 185, 129, 0.15)', border: '1.5px solid #10b981', padding: 18, borderRadius: 16, textAlign: 'center' }}>
+                    <div style={{ fontSize: 11, fontWeight: 800, color: '#6ee7b7', textTransform: 'uppercase', marginBottom: 4 }}>PROFIT PERCENTAGE</div>
+                    <div style={{ fontSize: 22, fontWeight: 900, color: '#10b981' }}>+{portfolioResults.profitPct}%</div>
+                  </div>
+                </div>
+
+                {/* Combined Invested vs Returns Breakdown Bar */}
+                <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1.5px solid rgba(2, 132, 199, 0.3)', padding: 18, borderRadius: 16, marginBottom: 24 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, fontWeight: 800, marginBottom: 10 }}>
+                    <span style={{ color: '#ffffff' }}>COMBINED INVESTED VS RETURNS BREAKDOWN</span>
+                    <span style={{ color: '#94a3b8' }}>Portfolio Value: {fmt(portfolioResults.totalReturns)} (100%)</span>
+                  </div>
+                  <div style={{ height: 26, background: '#10b981', borderRadius: 999, overflow: 'hidden', display: 'flex', marginBottom: 12, fontWeight: 900, fontSize: 11, color: '#ffffff' }}>
+                    <div style={{ width: `${invPctVal}%`, background: '#0284c7', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      {invPctVal}%
+                    </div>
+                    <div style={{ width: `${profPctVal}%`, background: '#10b981', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      {profPctVal}%
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10, fontSize: 11, fontWeight: 800 }}>
+                    <span style={{ color: '#38bdf8' }}>🟦 TOTAL INVESTED: {invPctVal}% ({fmt(portfolioResults.totalInvested)})</span>
+                    <span style={{ color: '#6ee7b7' }}>🟩 TOTAL RETURNS (PROFIT): {profPctVal}% ({fmt(portfolioResults.totalProfit)})</span>
+                  </div>
+                </div>
+
+                {/* Gap Periods & Reinvestment Analysis */}
+                {portfolioResults.gapPeriods && portfolioResults.gapPeriods.length > 0 && (
+                  <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1.5px solid rgba(245, 158, 11, 0.3)', padding: 20, borderRadius: 18, marginBottom: 20 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+                      <span style={{ fontSize: 22 }}>⌛</span>
+                      <div>
+                        <h4 style={{ fontSize: 16, fontWeight: 900, color: '#ffffff', margin: 0 }}>
+                          GAP PERIODS & REINVESTMENT ANALYSIS
+                        </h4>
+                        <p style={{ fontSize: 11, color: '#9ca3af', margin: '2px 0 0' }}>
+                          Understand when earlier investments mature and how to put the matured corpus to work during the remaining gap years.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                      {portfolioResults.gapPeriods.map((gap, gIdx) => (
+                        <div key={gIdx} style={{ background: 'rgba(18, 16, 12, 0.9)', border: '1.5px solid #f59e0b', padding: 16, borderRadius: 14 }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, flexWrap: 'wrap', gap: 8 }}>
+                            <span style={{ fontWeight: 900, color: '#ffffff', fontSize: 14 }}>
+                              {gap.emoji || '🔒'} {gap.name} matures at Year {gap.maturesAt}
+                            </span>
+                            <span style={{ fontSize: 10, fontWeight: 900, color: '#fbbf24', background: 'rgba(245, 158, 11, 0.2)', padding: '4px 10px', borderRadius: 999, border: '1px solid #f59e0b' }}>
+                              {gap.gapYears} YEARS GAP AVAILABLE
+                            </span>
+                          </div>
+                          <p style={{ fontSize: 12, color: '#d1d5db', lineHeight: 1.5, margin: 0 }}>
+                            At <strong>Year {gap.maturesAt}</strong>, <strong>{gap.name}</strong> will fully mature with an estimated payout corpus of <strong style={{ color: '#10b981' }}>{fmt(gap.maturedCorpus)}</strong>. Because your overall portfolio horizon runs for <strong>{portfolioResults.maxHorizon} years</strong>, you have a <strong>{gap.gapYears}-year gap period</strong> before longer-term investments conclude.
+                          </p>
+                          <div style={{ marginTop: 10, fontSize: 11, color: '#fbbf24', fontWeight: 700, background: 'rgba(245, 158, 11, 0.1)', padding: '10px 14px', borderRadius: 10, border: '1px solid rgba(245, 158, 11, 0.2)' }}>
+                            💡 <strong>Smart Utilization Tip:</strong> {gap.smartTip}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <button
-                  key={vKey}
-                  onClick={() => setSelectedVideo(vKey)}
-                  className={selectedVideo === vKey ? 'btn-primary' : 'btn-outline'}
-                  style={{ fontSize: 12, padding: '12px' }}
+                  className="btn-primary"
+                  onClick={() => setShowSaveModal(true)}
+                  style={{ width: '100%', fontSize: 14, padding: '12px 20px', fontWeight: 900 }}
                 >
-                  {VIDEOS_DB[vKey].title}
+                  💾 SAVE PORTFOLIO SIMULATION
                 </button>
-              ))}
+              </div>
+            )
+          })()}
+        </div>
+      )}
+
+      {/* Save Portfolio Modal */}
+      {showSaveModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(8, 7, 5, 0.85)', backdropFilter: 'blur(8px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <div className="glass-card-deep anim-scale" style={{ maxWidth: 460, width: '100%', borderRadius: 20, padding: 24, background: 'var(--bg-card-deep, #12100c)', border: '2px solid #10b981' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+              <span style={{ fontSize: 24 }}>💾</span>
+              <div>
+                <h3 style={{ fontSize: 18, fontWeight: 900, color: '#ffffff', margin: 0 }}>SAVE PORTFOLIO SIMULATION</h3>
+                <p style={{ fontSize: 11, color: '#9ca3af', margin: '2px 0 0' }}>Name this overall portfolio model</p>
+              </div>
             </div>
 
-            <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden', borderRadius: 16, border: '2px solid rgba(217,119,6,0.3)' }}>
-              <iframe
-                src={VIDEOS_DB[selectedVideo].url}
-                title={VIDEOS_DB[selectedVideo].title}
-                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
-                allowFullScreen
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ fontSize: 11, fontWeight: 800, color: '#9ca3af', display: 'block', marginBottom: 6 }}>PORTFOLIO SIMULATION NAME</label>
+              <input
+                type="text"
+                className="input-light"
+                value={portfolioName}
+                onChange={e => setPortfolioName(e.target.value)}
+                style={{ width: '100%', padding: '10px 14px', fontSize: 13, fontWeight: 700 }}
               />
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+              <button className="btn-outline" onClick={() => setShowSaveModal(false)} style={{ padding: '8px 18px', fontSize: 12 }}>Cancel</button>
+              <button className="btn-primary" onClick={handleConfirmSavePortfolio} style={{ padding: '8px 22px', fontSize: 12, fontWeight: 900 }}>Save Portfolio</button>
             </div>
           </div>
         </div>

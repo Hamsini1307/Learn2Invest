@@ -144,7 +144,7 @@ export const chatResponses = [
   { keys: ['quiz', 'test', 'exam'], reply: 'The quiz has 5 questions. Score 60% or above to unlock the Intermediate level. You can retry if needed! 📝' },
 ]
 
-export const advRates = { PPF: 7.1, FD: 7.25, NSC: 7.7, SSY: 8.2, RD: 6.5 }
+export const advRates = { PPF: 7.1, FD: 7.25, GOLD: 9.5, NSC: 7.7, SSY: 8.2, RD: 6.5 }
 
 export const onboardingSlides = [
   {

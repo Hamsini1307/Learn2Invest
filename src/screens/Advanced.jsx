@@ -1,5 +1,67 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { INSTITUTIONS, FORM_CATEGORIES, BANK_TEMPLATES_CONFIG } from '../config/bankTemplates'
+import MessageScamAnalyzer from '../components/MessageScamAnalyzer.jsx'
+
+const CYBER_SCENARIOS = [
+  {
+    id: 1,
+    title: "📱 The Phishing SMS Trap",
+    scenario: "You receive an SMS from a number claiming to be your bank: 'Dear user, your bank account will be blocked. Click here to verify now: block-sbi.org'",
+    opts: [
+      { text: "Click the link immediately to verify and avoid getting blocked.", correct: false },
+      { text: "Ignore the SMS. Banks never send warning links from random phone numbers.", correct: true }
+    ],
+    explain: "Banks never send SMS containing verification web links. Entering your password on unknown links leaks your credentials."
+  },
+  {
+    id: 2,
+    title: "📞 The Fake Customer Support Call",
+    scenario: "A person claiming to be a bank manager calls asking for the 6-digit OTP sent to your phone to 'upgrade your KYC status' and prevent card suspension.",
+    opts: [
+      { text: "Share the OTP since it is from a customer support manager.", correct: false },
+      { text: "Never share the OTP. Bank officials will never ask for PINs or OTPs.", correct: true }
+    ],
+    explain: "An OTP is a secret one-time password. Sharing it allows attackers to bypass security and transfer your funds."
+  },
+  {
+    id: 3,
+    title: "💸 The UPI Payment Trap",
+    scenario: "Someone wants to buy your old bicycle online and sends a UPI 'Collect Request' asking for your UPI PIN to transfer the cash to you.",
+    opts: [
+      { text: "Enter your PIN to receive the payment.", correct: false },
+      { text: "Decline the request. A UPI PIN is only needed to SEND money, never to receive it.", correct: true }
+    ],
+    explain: "This is a common UPI scam. PINs are only entered when debited. Receiving money requires no PIN."
+  },
+  {
+    id: 4,
+    title: "📶 Public Wi-Fi Danger",
+    scenario: "You are at a coffee shop and want to check your bank balance. The shop has a free public Wi-Fi network.",
+    opts: [
+      { text: "Connect to the public Wi-Fi and complete the net banking transfer.", correct: false },
+      { text: "Use cellular data (4G/5G) or a secure VPN, as public Wi-Fi can leak bank credentials.", correct: true }
+    ],
+    explain: "Public Wi-Fi networks can be sniffed or spoofed by hackers to capture passwords. Always use private networks for banking."
+  }
+]
+
+const VIDEOS_DB = {
+  upi_working: {
+    title: "🏦 Part 1: Digital Banking Overview",
+    url: "https://www.youtube.com/embed/zvPyqN-FEPQ?rel=0",
+    desc: "An overview of digital banking and mobile channels."
+  },
+  safety_phishing: {
+    title: "🛡️ Spam & Phishing Safety",
+    url: "https://www.youtube.com/embed/NI37JI7KnSc?rel=0",
+    desc: "An animated guide explaining email spam and password protection."
+  },
+  card_basics: {
+    title: "💳 Debit & Credit Cards Guide",
+    url: "https://www.youtube.com/embed/mllbYh0DFMc?rel=0",
+    desc: "A breakdown of Credit vs Debit cards and interest calculation."
+  }
+}
 
 // Helper to convert numeric amount to Indian Rupees in Words
 function numberToWords(num) {
@@ -24,9 +86,42 @@ function numberToWords(num) {
   return result ? `${result} RUPEES ONLY` : ''
 }
 
-export default function Advanced({ go, goBack, state, themeMode = 'dark' }) {
+export default function Advanced({ go, goBack, state, update, addXP, themeMode = 'dark' }) {
   const isLight = themeMode === 'light'
   const registeredUserName = state?.user?.name || 'Niyathi'
+
+  const [activeMainTab, setActiveMainTab] = useState('slips') // 'slips' | 'digital'
+
+  // Digital Banking & Security Game state variables
+  const [digitalScenarioIdx, setDigitalScenarioIdx] = useState(0)
+  const [shieldScore, setShieldScore] = useState(100)
+  const [digitalFeedback, setDigitalFeedback] = useState('')
+  const [selectedOpt, setSelectedOpt] = useState(null)
+  const [cyberGameCompleted, setCyberGameCompleted] = useState(false)
+  const [selectedVideo, setSelectedVideo] = useState('upi_working')
+
+  const handleCyberAnswer = (optIndex) => {
+    setSelectedOpt(optIndex)
+    const currentScen = CYBER_SCENARIOS[digitalScenarioIdx]
+    const isCorrect = currentScen.opts[optIndex].correct
+
+    if (!isCorrect) {
+      setShieldScore(prev => Math.max(0, prev - 25))
+    }
+
+    setDigitalFeedback(currentScen.explain)
+  }
+
+  const handleNextScenario = () => {
+    setSelectedOpt(null)
+    setDigitalFeedback('')
+    if (digitalScenarioIdx < CYBER_SCENARIOS.length - 1) {
+      setDigitalScenarioIdx(prev => prev + 1)
+    } else {
+      setCyberGameCompleted(true)
+      if (addXP) addXP(50)
+    }
+  }
 
   // Selected Bank & Form Category
   const [selectedBankId, setSelectedBankId] = useState('canara')
@@ -356,13 +451,49 @@ export default function Advanced({ go, goBack, state, themeMode = 'dark' }) {
         </div>
       </div>
 
-      {/* Title Banner */}
-      <div className="glass-card-deep anim-scale" style={{
-        padding: '24px',
-        borderRadius: 24,
-        marginBottom: 20,
-        background: isLight ? '#ffffff' : 'var(--bg-card-deep, #12100c)',
-        border: '2px solid #ea580c',
+      {/* High Energy Top Level Switcher Bar */}
+      <div style={{ display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
+        <button
+          onClick={() => setActiveMainTab('slips')}
+          className={activeMainTab === 'slips' ? 'btn-primary' : 'btn-outline'}
+          style={{
+            flex: '1 1 220px',
+            fontSize: 13,
+            padding: '12px 20px',
+            fontWeight: 900,
+            background: activeMainTab === 'slips' ? '#ea580c' : (isLight ? '#ffffff' : 'rgba(255,255,255,0.05)'),
+            border: activeMainTab === 'slips' ? '2px solid #f59e0b' : '1.5px solid rgba(234,88,12,0.3)',
+            color: activeMainTab === 'slips' ? '#ffffff' : (isLight ? '#0f172a' : '#fbbf24')
+          }}
+        >
+          📜 REAL BANK SLIPS & 15 FORM TEMPLATES
+        </button>
+        <button
+          onClick={() => setActiveMainTab('digital')}
+          className={activeMainTab === 'digital' ? 'btn-primary' : 'btn-outline'}
+          style={{
+            flex: '1 1 220px',
+            fontSize: 13,
+            padding: '12px 20px',
+            fontWeight: 900,
+            background: activeMainTab === 'digital' ? '#ea580c' : (isLight ? '#ffffff' : 'rgba(255,255,255,0.05)'),
+            border: activeMainTab === 'digital' ? '2px solid #f59e0b' : '1.5px solid rgba(234,88,12,0.3)',
+            color: activeMainTab === 'digital' ? '#ffffff' : (isLight ? '#0f172a' : '#fbbf24')
+          }}
+        >
+          🛡️ DIGITAL BANKING & SAFETY ARENA
+        </button>
+      </div>
+
+      {activeMainTab === 'slips' && (
+        <div className="anim-fade">
+          {/* Title Banner */}
+          <div className="glass-card-deep anim-scale" style={{
+            padding: '24px',
+            borderRadius: 24,
+            marginBottom: 20,
+            background: isLight ? '#ffffff' : 'var(--bg-card-deep, #12100c)',
+            border: '2px solid #ea580c',
         boxShadow: isLight ? '0 10px 30px rgba(234, 88, 12, 0.12)' : '0 0 40px rgba(245, 158, 11, 0.25)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
@@ -659,6 +790,161 @@ export default function Advanced({ go, goBack, state, themeMode = 'dark' }) {
           </button>
         </div>
       </div>
+    </div>
+  )}
+
+      {activeMainTab === 'digital' && (
+        <div className="anim-fade" style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+          {/* Header Banner */}
+          <div className="glass-card-deep" style={{ padding: 24, borderRadius: 24, background: isLight ? '#ffffff' : '#12100c', border: '2px solid #ea580c' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+              <span style={{ fontSize: 36 }}>🛡️</span>
+              <div>
+                <div className="sticker-badge sticker-yellow" style={{ marginBottom: 4 }}>
+                  LEVEL 3 • DIGITAL BANKING & SAFETY ARENA
+                </div>
+                <h2 className="font-display" style={{ fontSize: 26, color: isLight ? '#0f172a' : '#ffffff', margin: 0 }}>
+                  DIGITAL BANKING & CYBER SAFETY
+                </h2>
+                <p style={{ color: isLight ? '#475569' : '#d1d5db', fontSize: 13, margin: '4px 0 0', fontWeight: 600 }}>
+                  Master net banking security, analyze suspicious messages, and watch interactive video guides.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Cyber Security Challenge */}
+          <div className="glass-card-deep" style={{ padding: 24, borderRadius: 24, background: isLight ? '#ffffff' : '#12100c', border: '1.5px solid rgba(245, 158, 11, 0.4)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 10 }}>
+              <div>
+                <h3 className="font-display" style={{ fontSize: 18, color: isLight ? '#0f172a' : '#ffffff', margin: 0 }}>
+                  🛡️ CYBER SECURITY SCENARIO CHALLENGE ({digitalScenarioIdx + 1}/{CYBER_SCENARIOS.length})
+                </h3>
+                <p style={{ fontSize: 11, color: isLight ? '#64748b' : '#9ca3af', margin: '2px 0 0' }}>
+                  Test your banking fraud awareness and protect your account score
+                </p>
+              </div>
+              <div style={{ background: 'rgba(16, 185, 129, 0.15)', border: '1.5px solid #10b981', padding: '6px 14px', borderRadius: 999, fontWeight: 900, fontSize: 12, color: '#10b981' }}>
+                🛡️ SHIELD HEALTH: {shieldScore}%
+              </div>
+            </div>
+
+            {/* Scenario Card */}
+            {(() => {
+              const scen = CYBER_SCENARIOS[digitalScenarioIdx]
+              return (
+                <div style={{ background: 'rgba(255, 255, 255, 0.04)', border: '1.5px solid rgba(255, 255, 255, 0.1)', padding: 20, borderRadius: 16 }}>
+                  <h4 style={{ fontSize: 15, fontWeight: 900, color: '#fbbf24', marginTop: 0, marginBottom: 8 }}>
+                    {scen.title}
+                  </h4>
+                  <p style={{ fontSize: 13, color: isLight ? '#334155' : '#e2e8f0', lineHeight: 1.6, marginBottom: 16 }}>
+                    {scen.scenario}
+                  </p>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 16 }}>
+                    {scen.opts.map((opt, oIdx) => (
+                      <button
+                        key={oIdx}
+                        onClick={() => handleCyberAnswer(oIdx)}
+                        style={{
+                          textAlign: 'left',
+                          padding: '12px 16px',
+                          borderRadius: 12,
+                          fontSize: 13,
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                          background: selectedOpt === oIdx
+                            ? (opt.correct ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)')
+                            : (isLight ? '#f8fafc' : 'rgba(255,255,255,0.05)'),
+                          border: `1.5px solid ${
+                            selectedOpt === oIdx
+                              ? (opt.correct ? '#10b981' : '#ef4444')
+                              : (isLight ? '#cbd5e1' : 'rgba(255,255,255,0.1)')
+                          }`,
+                          color: isLight ? '#0f172a' : '#ffffff'
+                        }}
+                      >
+                        {opt.text}
+                      </button>
+                    ))}
+                  </div>
+
+                  {digitalFeedback && (
+                    <div style={{ background: 'rgba(245, 158, 11, 0.15)', border: '1.5px solid #f59e0b', padding: 14, borderRadius: 12, marginBottom: 16, fontSize: 12, color: '#fbbf24', lineHeight: 1.5 }}>
+                      💡 <strong>Explanation:</strong> {digitalFeedback}
+                    </div>
+                  )}
+
+                  {selectedOpt !== null && (
+                    <button
+                      className="btn-primary"
+                      onClick={handleNextScenario}
+                      style={{ width: '100%', fontSize: 13, padding: '10px 18px', fontWeight: 900 }}
+                    >
+                      {digitalScenarioIdx < CYBER_SCENARIOS.length - 1 ? 'NEXT SCENARIO ➔' : 'COMPLETE CYBER CHALLENGE 🎉'}
+                    </button>
+                  )}
+                </div>
+              )
+            })()}
+          </div>
+
+          {/* Message Scam Analyzer */}
+          <div className="glass-card-deep" style={{ padding: 24, borderRadius: 24, background: isLight ? '#ffffff' : '#12100c', border: '1.5px solid rgba(234, 88, 12, 0.4)' }}>
+            <MessageScamAnalyzer />
+          </div>
+
+          {/* Video Tutorials Section */}
+          <div className="glass-card-deep" style={{ padding: 24, borderRadius: 24, background: isLight ? '#ffffff' : '#12100c', border: '1.5px solid rgba(245, 158, 11, 0.4)' }}>
+            <div style={{ fontSize: 12, fontWeight: 900, color: '#fbbf24', textTransform: 'uppercase', marginBottom: 12 }}>
+              🎥 DIGITAL BANKING VIDEO TUTORIALS
+            </div>
+
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 18 }}>
+              {Object.keys(VIDEOS_DB).map(vKey => {
+                const vid = VIDEOS_DB[vKey]
+                return (
+                  <button
+                    key={vKey}
+                    onClick={() => setSelectedVideo(vKey)}
+                    style={{
+                      padding: '8px 16px',
+                      borderRadius: 999,
+                      fontSize: 12,
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                      background: selectedVideo === vKey ? '#f59e0b' : 'rgba(255,255,255,0.06)',
+                      color: selectedVideo === vKey ? '#000000' : '#d1d5db',
+                      border: '1px solid #f59e0b'
+                    }}
+                  >
+                    {vid.title}
+                  </button>
+                )
+              })}
+            </div>
+
+            {(() => {
+              const vid = VIDEOS_DB[selectedVideo]
+              return (
+                <div style={{ background: 'rgba(0,0,0,0.4)', padding: 16, borderRadius: 16, border: '1px solid rgba(255,255,255,0.1)' }}>
+                  <h4 style={{ fontSize: 16, fontWeight: 900, color: '#ffffff', margin: '0 0 6px' }}>{vid.title}</h4>
+                  <p style={{ fontSize: 12, color: '#9ca3af', margin: '0 0 14px' }}>{vid.desc}</p>
+                  <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden', borderRadius: 12 }}>
+                    <iframe
+                      src={vid.url}
+                      title={vid.title}
+                      style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+                </div>
+              )
+            })()}
+          </div>
+        </div>
+      )}
 
       {/* ─── FINAL VERIFICATION MODAL ─── */}
       {showVerifyModal && (
