@@ -225,10 +225,15 @@ export default function LandingJourney({ go, goBack, canGoBack, state, aiGuideAv
         <div className="level-cards-grid">
           
           {/* STEP 1 ROADMAP CARD */}
-          <div className="glass-card-sm" style={{ padding: '24px' }}>
+          <div className="glass-card-sm" style={{ 
+            padding: '24px',
+            background: isLight ? '#ffffff' : undefined,
+            border: isLight ? '1.5px solid rgba(234, 88, 12, 0.35)' : undefined,
+            boxShadow: isLight ? '0 10px 30px rgba(194, 65, 12, 0.08)' : undefined
+          }}>
             <div style={{
               background: 'var(--gold-primary, #f59e0b)',
-              color: '#080705',
+              color: '#ffffff',
               fontSize: '10px',
               fontWeight: 900,
               padding: '3px 10px',
@@ -238,11 +243,11 @@ export default function LandingJourney({ go, goBack, canGoBack, state, aiGuideAv
             }}>
               {getText('level01', lang)}
             </div>
-            <h3 style={{ fontSize: '20px', color: 'var(--heading-color, #ffffff)', margin: '0 0 6px 0', fontFamily: 'Space Grotesk' }}>🌱 {getText('school', lang)}</h3>
-            <p style={{ fontSize: '12px', color: 'var(--text-muted, #94a3b8)', lineHeight: 1.5, marginBottom: '16px' }}>
+            <h3 style={{ fontSize: '20px', color: isLight ? '#0f172a' : 'var(--heading-color, #ffffff)', margin: '0 0 6px 0', fontFamily: 'Space Grotesk' }}>🌱 {getText('school', lang)}</h3>
+            <p style={{ fontSize: '12px', color: isLight ? '#334155' : 'var(--text-muted, #94a3b8)', lineHeight: 1.5, marginBottom: '16px' }}>
               {getText('schoolDesc', lang)}
             </p>
-            <div style={{ fontSize: '11px', color: 'var(--gold-amber, #f59e0b)', fontWeight: 800 }}>
+            <div style={{ fontSize: '11px', color: isLight ? '#c2410c' : 'var(--gold-amber, #f59e0b)', fontWeight: 800 }}>
               {getText('status', lang)}: {completedCount > 0 ? getText('inProgress', lang) : getText('readyToStart', lang)}
             </div>
           </div>
@@ -250,11 +255,14 @@ export default function LandingJourney({ go, goBack, canGoBack, state, aiGuideAv
           {/* STEP 2 ROADMAP CARD */}
           <div className="glass-card-sm" style={{
             padding: '24px',
-            opacity: intermediateUnlocked ? 1 : 0.85
+            opacity: intermediateUnlocked ? 1 : 0.85,
+            background: isLight ? '#ffffff' : undefined,
+            border: isLight ? '1.5px solid rgba(234, 88, 12, 0.35)' : undefined,
+            boxShadow: isLight ? '0 10px 30px rgba(194, 65, 12, 0.08)' : undefined
           }}>
             <div style={{
               background: intermediateUnlocked ? 'var(--gold-primary, #f59e0b)' : 'rgba(128,128,128,0.2)',
-              color: intermediateUnlocked ? '#080705' : 'var(--text-muted, #94a3b8)',
+              color: intermediateUnlocked ? '#ffffff' : (isLight ? '#475569' : 'var(--text-muted, #94a3b8)'),
               fontSize: '10px',
               fontWeight: 900,
               padding: '3px 10px',
@@ -264,11 +272,11 @@ export default function LandingJourney({ go, goBack, canGoBack, state, aiGuideAv
             }}>
               {getText('level02', lang)}
             </div>
-            <h3 style={{ fontSize: '20px', color: 'var(--heading-color, #ffffff)', margin: '0 0 6px 0', fontFamily: 'Space Grotesk' }}>🧪 {getText('lab', lang)}</h3>
-            <p style={{ fontSize: '12px', color: 'var(--text-muted, #94a3b8)', lineHeight: 1.5, marginBottom: '16px' }}>
+            <h3 style={{ fontSize: '20px', color: isLight ? '#0f172a' : 'var(--heading-color, #ffffff)', margin: '0 0 6px 0', fontFamily: 'Space Grotesk' }}>🧪 {getText('lab', lang)}</h3>
+            <p style={{ fontSize: '12px', color: isLight ? '#334155' : 'var(--text-muted, #94a3b8)', lineHeight: 1.5, marginBottom: '16px' }}>
               {getText('labDesc', lang)}
             </p>
-            <div style={{ fontSize: '11px', color: intermediateUnlocked ? 'var(--gold-amber, #f59e0b)' : 'var(--text-muted, #94a3b8)', fontWeight: 800 }}>
+            <div style={{ fontSize: '11px', color: intermediateUnlocked ? (isLight ? '#c2410c' : 'var(--gold-amber, #f59e0b)') : (isLight ? '#64748b' : 'var(--text-muted, #94a3b8)'), fontWeight: 800 }}>
               {getText('status', lang)}: {intermediateUnlocked ? getText('unlockedBadge', lang) : getText('reqLvl1', lang)}
             </div>
           </div>
@@ -276,11 +284,14 @@ export default function LandingJourney({ go, goBack, canGoBack, state, aiGuideAv
           {/* STEP 3 ROADMAP CARD */}
           <div className="glass-card-sm" style={{
             padding: '24px',
-            opacity: advancedUnlocked ? 1 : 0.85
+            opacity: advancedUnlocked ? 1 : 0.85,
+            background: isLight ? '#ffffff' : undefined,
+            border: isLight ? '1.5px solid rgba(234, 88, 12, 0.35)' : undefined,
+            boxShadow: isLight ? '0 10px 30px rgba(194, 65, 12, 0.08)' : undefined
           }}>
             <div style={{
               background: advancedUnlocked ? 'var(--gold-primary, #f59e0b)' : 'rgba(128,128,128,0.2)',
-              color: advancedUnlocked ? '#080705' : 'var(--text-muted, #94a3b8)',
+              color: advancedUnlocked ? '#ffffff' : (isLight ? '#475569' : 'var(--text-muted, #94a3b8)'),
               fontSize: '10px',
               fontWeight: 900,
               padding: '3px 10px',
@@ -290,8 +301,8 @@ export default function LandingJourney({ go, goBack, canGoBack, state, aiGuideAv
             }}>
               {getText('level03', lang)}
             </div>
-            <h3 style={{ fontSize: '20px', color: 'var(--heading-color, #ffffff)', margin: '0 0 6px 0', fontFamily: 'Space Grotesk' }}>🏦 {getText('tower', lang)}</h3>
-            <p style={{ fontSize: '12px', color: 'var(--text-muted, #94a3b8)', lineHeight: 1.5, marginBottom: '16px' }}>
+            <h3 style={{ fontSize: '20px', color: isLight ? '#0f172a' : 'var(--heading-color, #ffffff)', margin: '0 0 6px 0', fontFamily: 'Space Grotesk' }}>🏦 {getText('tower', lang)}</h3>
+            <p style={{ fontSize: '12px', color: isLight ? '#334155' : 'var(--text-muted, #94a3b8)', lineHeight: 1.5, marginBottom: '16px' }}>
               {getText('towerDesc', lang)}
             </p>
             <div style={{ fontSize: '11px', color: advancedUnlocked ? 'var(--gold-amber, #f59e0b)' : 'var(--text-muted, #94a3b8)', fontWeight: 800 }}>

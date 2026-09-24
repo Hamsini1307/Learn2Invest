@@ -215,9 +215,7 @@ export default function App() {
     if (isLoggedIn === 'true' && token) {
       apiRequest('/api/state/load', 'GET')
         .then(data => {
-          // Ensure video4 is always included in lessonsWatched so Quiz Hall is accessible
-          const watchedList = Array.from(new Set([...(data.state?.lessonsWatched || []), 'video4']))
-          const loadedState = { ...data.state, lessonsWatched: watchedList, user: data.user }
+          const loadedState = { ...data.state, lessonsWatched: data.state?.lessonsWatched || [], user: data.user }
           setState(s => ({ ...s, ...loadedState }))
           setScreen('landing')
           setCurrentBg(getBgClass('landing'))
@@ -228,9 +226,6 @@ export default function App() {
           localStorage.removeItem('l2i_currentUser')
           setScreen('auth')
         })
-    } else {
-      // Ensure video4 is marked in initial offline state
-      setState(s => ({ ...s, lessonsWatched: Array.from(new Set([...s.lessonsWatched, 'video4'])) }))
     }
   }, [])
 
