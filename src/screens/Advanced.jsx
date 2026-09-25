@@ -24,6 +24,35 @@ function numberToWords(num) {
   return result ? `${result} RUPEES ONLY` : ''
 }
 
+const BankLogo = ({ id }) => {
+  switch (id) {
+    case 'canara':
+      return <img src="/logos/canara.png" alt="Canara Bank" style={{ height: 75, maxWidth: '100%', objectFit: 'contain', borderRadius: 8 }} />
+    case 'karnataka':
+      return <img src="/logos/karnataka.png" alt="Karnataka Bank" style={{ height: 75, maxWidth: '100%', objectFit: 'contain', borderRadius: 8 }} />
+    case 'postoffice':
+      return <img src="/logos/postoffice.png" alt="India Post" style={{ height: 75, maxWidth: '100%', objectFit: 'contain', borderRadius: 8 }} />
+    case 'pnb':
+      return (
+        <svg width="64" height="64" viewBox="0 0 100 100" fill="none">
+          <rect width="100" height="100" rx="18" fill="#A00037" />
+          <circle cx="50" cy="50" r="32" fill="#FFC20E" />
+          <text x="50" y="62" fontSize="36" fontWeight="bold" textAnchor="middle" fill="#A00037" fontFamily="sans-serif">PNB</text>
+        </svg>
+      )
+    case 'sbi':
+      return (
+        <svg width="64" height="64" viewBox="0 0 100 100" fill="none">
+          <circle cx="50" cy="50" r="46" fill="#00A5EC" />
+          <circle cx="50" cy="38" r="18" fill="#ffffff" />
+          <rect x="42" y="38" width="16" height="42" fill="#ffffff" />
+        </svg>
+      )
+    default:
+      return <span style={{ fontSize: 48 }}>🏦</span>
+  }
+}
+
 export default function Advanced({ go, goBack, state, themeMode = 'dark' }) {
   const isLight = themeMode === 'light'
   const registeredUserName = state?.user?.name || 'Niyathi'
@@ -37,9 +66,84 @@ export default function Advanced({ go, goBack, state, themeMode = 'dark' }) {
   const [cityInput, setCityInput] = useState('')
   const [branchInput, setBranchInput] = useState('')
   const [ifscInput, setIfscInput] = useState('')
-  const [searchResults, setSearchResults] = useState([])
   const [searchLoading, setSearchLoading] = useState(false)
-  const [selectedBranchInfo, setSelectedBranchInfo] = useState(null)
+  const [searchResult, setSearchResult] = useState(null)
+
+  const handlePerformSearch = async () => {
+    setSearchLoading(true)
+    setSearchResult(null)
+
+    if (searchMode === 'ifsc') {
+      const code = ifscInput.trim().toUpperCase()
+      if (!code) {
+        alert('Please enter an IFSC code to search.')
+        setSearchLoading(false)
+        return
+      }
+      try {
+        const res = await fetch(`https://ifsc.razorpay.com/${code}`)
+        if (res.ok) {
+          const data = await res.json()
+          const matched = {
+            bankName: data.BANK,
+            branchName: data.BRANCH,
+            city: data.CITY,
+            ifsc: code,
+            address: `${data.ADDRESS}, ${data.CITY}, ${data.STATE}`
+          }
+          setSearchResult(matched)
+        } else {
+          const currentInst = INSTITUTIONS.find(b => b.id === selectedBankId)
+          const matched = {
+            bankName: currentInst?.name || 'Bank',
+            branchName: 'Main Branch',
+            city: 'City Branch',
+            ifsc: code,
+            address: `Main Branch, ${currentInst?.name || 'Bank'}`
+          }
+          setSearchResult(matched)
+        }
+      } catch (err) {
+        const currentInst = INSTITUTIONS.find(b => b.id === selectedBankId)
+        const matched = {
+          bankName: currentInst?.name || 'Bank',
+          branchName: 'Main Branch',
+          city: 'City Branch',
+          ifsc: code,
+          address: `Main Branch, ${currentInst?.name || 'Bank'}`
+        }
+        setSearchResult(matched)
+      }
+    } else {
+      const cityQ = cityInput.trim()
+      const branchQ = branchInput.trim()
+      if (!cityQ && !branchQ) {
+        alert('Please enter a City or Branch Name.')
+        setSearchLoading(false)
+        return
+      }
+      const currentInst = INSTITUTIONS.find(b => b.id === selectedBankId)
+      const mockIfsc = currentInst ? currentInst.code : 'CNRB0001001'
+      const matched = {
+        bankName: currentInst?.name || 'Canara Bank',
+        branchName: branchQ || 'Main Branch',
+        city: cityQ || 'City',
+        ifsc: mockIfsc,
+        address: `${branchQ || 'Main'} Branch, ${cityQ || 'City'}`
+      }
+      setSearchResult(matched)
+    }
+    setSearchLoading(false)
+  }
+
+  const applySearchResultToForm = () => {
+    if (!searchResult) return
+    setUserData(prev => ({
+      ...prev,
+      branch: `${searchResult.branchName}, ${searchResult.city}`,
+      ifsc: searchResult.ifsc
+    }))
+  }
 
   // Single Master User Data Object (User enters ONCE, mapped everywhere)
   const [userData, setUserData] = useState({
@@ -48,28 +152,20 @@ export default function Advanced({ go, goBack, state, themeMode = 'dark' }) {
     mobileNumber: '',
     email: '',
     branch: '',
-    ifsc: '',
+    ifsc: 'CNRB0001001',
     date: new Date().toISOString().split('T')[0],
     amount: '',
     accountType: 'SB',
     pan: '',
     chequeNumber: '',
     bankName: '',
-    notes500: 0,
-    notes200: 0,
-    notes100: 0,
-    notes50: 0,
-    signature: null // base64 string or uploaded image URL
+    signature: null
   })
 
   const [hasCompletedSlip, setHasCompletedSlip] = useState(false)
 
-  // Calculate live total amount from note counts if deposit slip
-  const cashTotal = (userData.notes500 * 500) + (userData.notes200 * 200) + (userData.notes100 * 100) + (userData.notes50 * 50)
-  const directAmount = Number(userData.amount || 0)
-  const effectiveAmount = docType === 'deposit' 
-    ? (cashTotal > 0 ? cashTotal : directAmount)
-    : directAmount
+  // Calculate live amount
+  const effectiveAmount = Number(userData.amount || 0)
   const amountWords = numberToWords(effectiveAmount)
 
   // Certificate & Verification Modals
@@ -104,57 +200,7 @@ export default function Advanced({ go, goBack, state, themeMode = 'dark' }) {
     }
   }
 
-  // Handle Branch Search
-  const handlePerformSearch = async () => {
-    setSearchLoading(true)
-    setSearchResults([])
 
-    if (searchMode === 'ifsc') {
-      const code = ifscInput.trim().toUpperCase()
-      if (!code) {
-        alert('Please enter an IFSC code to search.')
-        setSearchLoading(false)
-        return
-      }
-      try {
-        const res = await fetch(`https://ifsc.razorpay.com/${code}`)
-        if (res.ok) {
-          const data = await res.json()
-          const matched = {
-            bankName: data.BANK,
-            branchName: data.BRANCH,
-            city: data.CITY,
-            ifsc: code,
-            address: `${data.ADDRESS}, ${data.CITY}, ${data.STATE}`
-          }
-          setSelectedBranchInfo(matched)
-          setUserData(prev => ({ ...prev, branch: `${data.BRANCH}, ${data.CITY}`, ifsc: code }))
-        } else {
-          alert(`IFSC Code "${code}" not found. Please enter branch details manually.`)
-        }
-      } catch (err) {
-        alert(`Could not fetch IFSC data.`)
-      }
-    } else {
-      const cityQ = cityInput.trim()
-      const branchQ = branchInput.trim()
-      if (!cityQ && !branchQ) {
-        alert('Please enter a City or Branch Name.')
-        setSearchLoading(false)
-        return
-      }
-      const matched = {
-        bankName: INSTITUTIONS.find(b => b.id === selectedBankId)?.name || 'Canara Bank',
-        branchName: branchQ || 'Main Branch',
-        city: cityQ || 'City',
-        ifsc: 'CNRB0001001',
-        address: `${branchQ || 'Main'} Branch, ${cityQ || 'City'}`
-      }
-      setSelectedBranchInfo(matched)
-      setUserData(prev => ({ ...prev, branch: `${matched.branchName}, ${matched.city}` }))
-    }
-    setSearchLoading(false)
-  }
 
   // Calibration Slider Field Adjuster
   const updateFieldCoord = (fieldId, prop, value) => {
@@ -329,28 +375,6 @@ export default function Advanced({ go, goBack, state, themeMode = 'dark' }) {
           <span>BACK TO MAIN PAGE</span>
         </button>
 
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button
-            onClick={handleClaimCertificate}
-            style={{
-              background: 'linear-gradient(135deg, #10b981, #059669)',
-              border: '1.5px solid #6ee7b7',
-              color: '#ffffff',
-              borderRadius: 999,
-              padding: '8px 20px',
-              fontSize: 12,
-              fontWeight: 900,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-              boxShadow: '0 0 16px rgba(16, 185, 129, 0.4)'
-            }}
-          >
-            <span>🎓</span>
-            <span>CLAIM BANKING CERTIFICATE</span>
-          </button>
-        </div>
       </div>
 
       {/* Title Banner */}
@@ -376,53 +400,167 @@ export default function Advanced({ go, goBack, state, themeMode = 'dark' }) {
               LEVEL 3
             </div>
             <h1 className="font-display" style={{ fontSize: 26, color: isLight ? '#0f172a' : '#ffffff', margin: 0 }}>
-              INDIAN BANK BRANCH FINDER & REAL PAPER SLIP WRITER
+              REAL INDIAN BANK PAPER SLIP WRITER
             </h1>
-            <p style={{ color: isLight ? '#475569' : '#d1d5db', fontSize: 12, margin: '4px 0 0', fontWeight: 600 }}>
-              Select from 5 top Indian financial institutions and write inside authentic paper deposit slips, withdrawal forms, and cheque leaves!
-            </p>
           </div>
         </div>
       </div>
 
-      {/* ─── SECTION 1: BANK & FORM SELECTION TABS ─── */}
+      {/* ─── SECTION 1: BANK SELECTION TABS ─── */}
       <div className="glass-card-deep" style={{ padding: 20, borderRadius: 20, marginBottom: 20, background: isLight ? '#ffffff' : '#12100c', border: '1.5px solid #ea580c' }}>
         <div style={{ fontSize: 11, fontWeight: 900, color: '#ea580c', textTransform: 'uppercase', marginBottom: 12 }}>
           🏛️ SELECT FINANCIAL INSTITUTION (5 BANKS)
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: 10, marginBottom: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14 }}>
           {INSTITUTIONS.map(inst => (
             <div
               key={inst.id}
-              onClick={() => setSelectedBankId(inst.id)}
+              onClick={() => {
+                setSelectedBankId(inst.id)
+                setUserData(prev => ({ ...prev, ifsc: inst.code }))
+              }}
               style={{
                 background: selectedBankId === inst.id ? (isLight ? '#fff7ed' : 'rgba(245, 158, 11, 0.2)') : (isLight ? '#f8fafc' : 'rgba(255,255,255,0.04)'),
-                border: `2px solid ${selectedBankId === inst.id ? '#ea580c' : (isLight ? '#cbd5e1' : 'rgba(255,255,255,0.1)')}`,
-                borderRadius: 14, padding: 12, cursor: 'pointer', textAlign: 'center', transition: 'all 0.2s'
+                border: `2.5px solid ${selectedBankId === inst.id ? '#ea580c' : (isLight ? '#cbd5e1' : 'rgba(255,255,255,0.1)')}`,
+                borderRadius: 18, padding: '18px 16px', cursor: 'pointer',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                gap: 10, transition: 'all 0.2s',
+                boxShadow: selectedBankId === inst.id ? '0 8px 24px rgba(234, 88, 12, 0.35)' : 'none'
               }}
             >
-              <div style={{ fontSize: 20, marginBottom: 2 }}>{inst.emoji || '🏦'}</div>
-              <div style={{ fontSize: 13, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff' }}>{inst.name}</div>
-              <div style={{ fontSize: 10, color: '#ea580c', fontWeight: 700, marginTop: 2 }}>IFSC: {inst.code}</div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 80, width: '100%' }}>
+                <BankLogo id={inst.id} />
+              </div>
+              <div style={{ fontSize: 15, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff', textAlign: 'center' }}>{inst.name}</div>
+              <div style={{ fontSize: 12, color: '#ea580c', fontWeight: 900 }}>IFSC: {inst.code}</div>
             </div>
           ))}
         </div>
+      </div>
 
-        <div style={{ fontSize: 11, fontWeight: 900, color: '#ea580c', textTransform: 'uppercase', marginBottom: 8 }}>
+      {/* ─── SECTION 2: FIND YOUR IFSC CODE USING BRANCH NAME AND CITY & VICE VERSA ─── */}
+      <div className="glass-card-deep" style={{ padding: 20, borderRadius: 20, marginBottom: 20, background: isLight ? '#ffffff' : '#12100c', border: '1.5px solid #ea580c' }}>
+        <div style={{ fontSize: 12, fontWeight: 900, color: '#ea580c', textTransform: 'uppercase', marginBottom: 12 }}>
+          🔍 FIND YOUR IFSC CODE USING BRANCH NAME & CITY (AND VICE VERSA)
+        </div>
+
+        <div style={{ display: 'flex', gap: 10, marginBottom: 14, flexWrap: 'wrap' }}>
+          <button
+            onClick={() => setSearchMode('city_branch')}
+            style={{
+              padding: '7px 14px', borderRadius: 999, fontSize: 11, fontWeight: 900, cursor: 'pointer',
+              background: searchMode === 'city_branch' ? '#ea580c' : (isLight ? '#ffedd5' : 'rgba(255,255,255,0.06)'),
+              color: searchMode === 'city_branch' ? '#ffffff' : (isLight ? '#7c2d12' : '#fbbf24'),
+              border: `1.5px solid ${searchMode === 'city_branch' ? '#c2410c' : 'rgba(234, 88, 12, 0.3)'}`
+            }}
+          >
+            🏢 SEARCH BY CITY & BRANCH NAME
+          </button>
+          <button
+            onClick={() => setSearchMode('ifsc')}
+            style={{
+              padding: '7px 14px', borderRadius: 999, fontSize: 11, fontWeight: 900, cursor: 'pointer',
+              background: searchMode === 'ifsc' ? '#ea580c' : (isLight ? '#ffedd5' : 'rgba(255,255,255,0.06)'),
+              color: searchMode === 'ifsc' ? '#ffffff' : (isLight ? '#7c2d12' : '#fbbf24'),
+              border: `1.5px solid ${searchMode === 'ifsc' ? '#c2410c' : 'rgba(234, 88, 12, 0.3)'}`
+            }}
+          >
+            ⚡ SEARCH BRANCH BY IFSC CODE
+          </button>
+        </div>
+
+        {searchMode === 'city_branch' ? (
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+            <input
+              type="text"
+              value={cityInput}
+              onChange={e => setCityInput(e.target.value)}
+              placeholder="Enter City Name (e.g. Mangaluru)"
+              className="input-light"
+              style={{ flex: 1, minWidth: 160, padding: '8px 12px', fontSize: 12, fontWeight: 700 }}
+            />
+            <input
+              type="text"
+              value={branchInput}
+              onChange={e => setBranchInput(e.target.value)}
+              placeholder="Enter Branch Name (e.g. Pandeshwar)"
+              className="input-light"
+              style={{ flex: 1, minWidth: 160, padding: '8px 12px', fontSize: 12, fontWeight: 700 }}
+            />
+            <button
+              onClick={handlePerformSearch}
+              disabled={searchLoading}
+              className="btn-primary"
+              style={{ padding: '8px 18px', fontSize: 12, fontWeight: 900 }}
+            >
+              {searchLoading ? 'SEARCHING...' : 'FIND IFSC CODE'}
+            </button>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+            <input
+              type="text"
+              value={ifscInput}
+              onChange={e => setIfscInput(e.target.value)}
+              placeholder="Enter 11-Digit IFSC Code (e.g. CNRB0001001)"
+              className="input-light"
+              style={{ flex: 1, minWidth: 220, padding: '8px 12px', fontSize: 12, fontWeight: 700, textTransform: 'uppercase' }}
+            />
+            <button
+              onClick={handlePerformSearch}
+              disabled={searchLoading}
+              className="btn-primary"
+              style={{ padding: '8px 18px', fontSize: 12, fontWeight: 900 }}
+            >
+              {searchLoading ? 'SEARCHING...' : 'FIND BRANCH DETAILS'}
+            </button>
+          </div>
+        )}
+
+        {searchResult && (
+          <div style={{ marginTop: 14, background: isLight ? '#fff7ed' : 'rgba(234, 88, 12, 0.15)', padding: 14, borderRadius: 12, border: '1.5px solid #ea580c', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff' }}>
+                🏛️ {searchResult.bankName} — {searchResult.branchName} ({searchResult.city})
+              </div>
+              <div style={{ fontSize: 12, fontWeight: 800, color: '#ea580c', marginTop: 2 }}>
+                IFSC CODE: <span style={{ fontFamily: 'monospace', fontSize: 13, fontWeight: 900 }}>{searchResult.ifsc}</span>
+              </div>
+              <div style={{ fontSize: 11, color: isLight ? '#475569' : '#9ca3af', marginTop: 2 }}>
+                📍 {searchResult.address}
+              </div>
+            </div>
+            <button
+              onClick={applySearchResultToForm}
+              style={{
+                padding: '8px 16px', borderRadius: 10, background: '#10b981', color: '#ffffff',
+                border: 'none', fontWeight: 900, fontSize: 11, cursor: 'pointer', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)'
+              }}
+            >
+              ✓ APPLY IFSC & BRANCH TO FORM
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* ─── SECTION 3: SELECT FORM CATEGORY TABS ─── */}
+      <div className="glass-card-deep" style={{ padding: 20, borderRadius: 20, marginBottom: 20, background: isLight ? '#ffffff' : '#12100c', border: '1.5px solid #ea580c' }}>
+        <div style={{ fontSize: 11, fontWeight: 900, color: '#ea580c', textTransform: 'uppercase', marginBottom: 12 }}>
           📜 SELECT FORM CATEGORY
         </div>
 
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
           {FORM_CATEGORIES.map(cat => (
             <button
               key={cat.id}
               onClick={() => setDocType(cat.id)}
               style={{
-                padding: '8px 18px', borderRadius: 999, fontSize: 12, fontWeight: 900, cursor: 'pointer',
+                padding: '10px 22px', borderRadius: 999, fontSize: 13, fontWeight: 900, cursor: 'pointer',
                 background: docType === cat.id ? '#ea580c' : (isLight ? '#ffedd5' : 'rgba(255,255,255,0.06)'),
                 color: docType === cat.id ? '#ffffff' : (isLight ? '#7c2d12' : '#fbbf24'),
-                border: `1.5px solid ${docType === cat.id ? '#c2410c' : 'rgba(234, 88, 12, 0.3)'}`
+                border: `2px solid ${docType === cat.id ? '#c2410c' : 'rgba(234, 88, 12, 0.3)'}`,
+                boxShadow: docType === cat.id ? '0 4px 14px rgba(234, 88, 12, 0.3)' : 'none'
               }}
             >
               {cat.label}
@@ -431,13 +569,13 @@ export default function Advanced({ go, goBack, state, themeMode = 'dark' }) {
         </div>
       </div>
 
-      {/* ─── SECTION 2: SINGLE MASTER USER INPUT FORM ─── */}
+      {/* ─── SECTION 3: SINGLE MASTER USER INPUT FORM ─── */}
       <div className="glass-card-deep" style={{ padding: 24, borderRadius: 20, marginBottom: 20, background: isLight ? '#ffffff' : '#12100c', border: '1.5px solid #ea580c' }}>
         <div style={{ fontSize: 12, fontWeight: 900, color: '#ea580c', textTransform: 'uppercase', marginBottom: 12 }}>
           ✍️ ENTER YOUR INFORMATION ONCE ({docType === 'deposit' ? 'SYSTEM RENDERS IT ON CASH DEPOSIT SLIP' : docType === 'withdrawal' ? 'SYSTEM RENDERS IT ON WITHDRAWAL SLIP' : 'SYSTEM RENDERS IT ON CHEQUE LEAF'})
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12, marginBottom: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12 }}>
           <div>
             <label style={{ fontSize: 10, fontWeight: 800, color: isLight ? '#475569' : '#9ca3af', display: 'block', marginBottom: 4 }}>
               {docType === 'cheque' ? 'PAY TO (PAYEE NAME / SELF)' : 'ACCOUNT HOLDER / PAYEE NAME'}
@@ -461,6 +599,18 @@ export default function Advanced({ go, goBack, state, themeMode = 'dark' }) {
               placeholder="e.g. 10984523910"
               className="input-light"
               style={{ padding: '9px 12px', fontSize: 12, fontWeight: 800 }}
+            />
+          </div>
+
+          <div>
+            <label style={{ fontSize: 10, fontWeight: 800, color: isLight ? '#475569' : '#9ca3af', display: 'block', marginBottom: 4 }}>IFSC CODE</label>
+            <input
+              type="text"
+              value={userData.ifsc}
+              onChange={e => setUserData({ ...userData, ifsc: e.target.value })}
+              placeholder="e.g. CNRB0001001"
+              className="input-light"
+              style={{ padding: '9px 12px', fontSize: 12, fontWeight: 800, textTransform: 'uppercase' }}
             />
           </div>
 
@@ -538,40 +688,6 @@ export default function Advanced({ go, goBack, state, themeMode = 'dark' }) {
             />
           </div>
         </div>
-
-        {/* Cash Denomination Notes Counter for Deposit Slips */}
-        {docType === 'deposit' && (
-          <div style={{ background: isLight ? '#ffffff' : 'rgba(0,0,0,0.3)', padding: 14, borderRadius: 14, border: '1px solid rgba(234, 88, 12, 0.2)' }}>
-            <div style={{ fontSize: 10, fontWeight: 800, color: '#ea580c', marginBottom: 8, textTransform: 'uppercase' }}>
-              💵 CASH DENOMINATION COUNTER (ENTER NOTE COUNTS):
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 10 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ fontSize: 11, fontWeight: 800, color: isLight ? '#0f172a' : '#ffffff' }}>₹500 ×</span>
-                <input type="number" min="0" value={userData.notes500 || ''} onChange={e => setUserData({ ...userData, notes500: Math.max(0, Number(e.target.value)) })} placeholder="0" className="input-light" style={{ width: 55, padding: '4px', textAlign: 'center', fontSize: 11, fontWeight: 800 }} />
-                <span style={{ fontSize: 11, fontWeight: 800, color: '#10b981' }}>= ₹{userData.notes500 * 500}</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ fontSize: 11, fontWeight: 800, color: isLight ? '#0f172a' : '#ffffff' }}>₹200 ×</span>
-                <input type="number" min="0" value={userData.notes200 || ''} onChange={e => setUserData({ ...userData, notes200: Math.max(0, Number(e.target.value)) })} placeholder="0" className="input-light" style={{ width: 55, padding: '4px', textAlign: 'center', fontSize: 11, fontWeight: 800 }} />
-                <span style={{ fontSize: 11, fontWeight: 800, color: '#10b981' }}>= ₹{userData.notes200 * 200}</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ fontSize: 11, fontWeight: 800, color: isLight ? '#0f172a' : '#ffffff' }}>₹100 ×</span>
-                <input type="number" min="0" value={userData.notes100 || ''} onChange={e => setUserData({ ...userData, notes100: Math.max(0, Number(e.target.value)) })} placeholder="0" className="input-light" style={{ width: 55, padding: '4px', textAlign: 'center', fontSize: 11, fontWeight: 800 }} />
-                <span style={{ fontSize: 11, fontWeight: 800, color: '#10b981' }}>= ₹{userData.notes100 * 100}</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ fontSize: 11, fontWeight: 800, color: isLight ? '#0f172a' : '#ffffff' }}>₹50 ×</span>
-                <input type="number" min="0" value={userData.notes50 || ''} onChange={e => setUserData({ ...userData, notes50: Math.max(0, Number(e.target.value)) })} placeholder="0" className="input-light" style={{ width: 55, padding: '4px', textAlign: 'center', fontSize: 11, fontWeight: 800 }} />
-                <span style={{ fontSize: 11, fontWeight: 800, color: '#10b981' }}>= ₹{userData.notes50 * 50}</span>
-              </div>
-            </div>
-            <div style={{ marginTop: 8, fontSize: 12, fontWeight: 900, color: '#ea580c', textAlign: 'right' }}>
-              TOTAL CALCULATED AMOUNT: {effectiveAmount > 0 ? `₹${effectiveAmount.toLocaleString('en-IN')} (${amountWords})` : 'Enter amount or note counts above'}
-            </div>
-          </div>
-        )}
       </div>
 
       {/* ─── DEVELOPER CALIBRATION PANEL ─── */}
@@ -631,9 +747,6 @@ export default function Advanced({ go, goBack, state, themeMode = 'dark' }) {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, flexWrap: 'wrap', gap: 10 }}>
           <div style={{ fontSize: 12, fontWeight: 900, color: '#ea580c', textTransform: 'uppercase' }}>
             📸 ORIGINAL TEMPLATE PREVIEW ({currentTemplate.institution} • {docType.toUpperCase()})
-          </div>
-          <div style={{ fontSize: 11, color: '#10b981', fontWeight: 900 }}>
-            🖊️ BLUE PEN INK OVERLAY ACTIVE
           </div>
         </div>
 
@@ -766,7 +879,7 @@ export default function Advanced({ go, goBack, state, themeMode = 'dark' }) {
             </div>
 
             <p style={{ fontSize: 13, color: isLight ? '#334155' : '#d1d5db', lineHeight: 1.6, maxWidth: 480, margin: '0 auto 20px' }}>
-              For successfully mastering Indian Bank Branch Location search, Pay-in Cash Deposit Slips, Withdrawal Slips, and Cheque Book Writing across major Indian Banks and Post Office Savings Banks.
+              For successfully mastering Pay-in Cash Deposit Slips, Withdrawal Slips, and Cheque Book Writing across major Indian Banks and Post Office Savings Banks.
             </p>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: `1px dashed ${isLight ? '#cbd5e1' : 'rgba(255,255,255,0.2)'}`, paddingTop: 16, fontSize: 11, color: isLight ? '#475569' : '#9ca3af' }}>

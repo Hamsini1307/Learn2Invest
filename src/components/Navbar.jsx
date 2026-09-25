@@ -359,31 +359,7 @@ export default function Navbar({
               </select>
             )}
 
-            {toggleParentChildMode && (
-              <button
-                onClick={toggleParentChildMode}
-                style={{
-                  background: parentChildMode 
-                    ? (themeMode === 'light' ? '#f3e8ff' : 'rgba(168, 85, 247, 0.25)') 
-                    : (themeMode === 'light' ? '#ffffff' : 'rgba(255, 255, 255, 0.08)'),
-                  border: `1.5px solid ${parentChildMode ? '#a855f7' : (themeMode === 'light' ? '#c084fc' : 'rgba(255, 255, 255, 0.2)')}`,
-                  color: parentChildMode ? '#6b21a8' : (themeMode === 'light' ? '#6b21a8' : '#d1d5db'),
-                  borderRadius: 999,
-                  padding: '6px 12px',
-                  fontSize: 11,
-                  fontWeight: 900,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 5,
-                  boxShadow: themeMode === 'light' ? '0 2px 8px rgba(168, 85, 247, 0.15)' : 'none'
-                }}
-                title="Toggle Parent-Child Co-Learning Mode"
-              >
-                <span>👨‍👩‍👧</span>
-                <span>{parentChildMode ? 'PARENT MODE' : 'STUDENT'}</span>
-              </button>
-            )}
+
           </div>
 
           {/* Right Game Stats HUD Bar: XP, Corner User Account */}

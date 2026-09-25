@@ -4,10 +4,14 @@ import { getText } from '../data/translations.js'
 
 export default function LandingJourney({ go, goBack, canGoBack, state, aiGuideAvatar = 'female', openAvatarModal, themeMode, lang = 'en' }) {
   const activeAvatar = AI_AVATARS[aiGuideAvatar] || AI_AVATARS.female
-  const { xp = 0, lessonsWatched = [], intermediateUnlocked, advancedUnlocked } = state || {}
+  const { xp = 0, lessonsWatched = [], intermediateUnlocked, advancedUnlocked, completedModules = [], startingLevel } = state || {}
 
   const completedCount = lessonsWatched.length
   const isLight = themeMode === 'light'
+
+  const isIntermediateStart = startingLevel === 'intermediate'
+  const isInterUnlocked = intermediateUnlocked || isIntermediateStart || (completedCount >= 5 && (state?.quizScore || 0) >= 60)
+  const isAdvUnlocked = advancedUnlocked || completedModules.length > 0 || isIntermediateStart
 
   return (
     <div className="content-area" style={{ minHeight: '100%' }}>
@@ -221,12 +225,18 @@ export default function LandingJourney({ go, goBack, canGoBack, state, aiGuideAv
         <div className="level-cards-grid">
           
           {/* STEP 1 ROADMAP CARD */}
-          <div className="glass-card-sm" style={{ 
-            padding: '24px',
-            background: isLight ? '#ffffff' : undefined,
-            border: isLight ? '1.5px solid rgba(234, 88, 12, 0.35)' : undefined,
-            boxShadow: isLight ? '0 10px 30px rgba(194, 65, 12, 0.08)' : undefined
-          }}>
+          <div 
+            onClick={() => go('beginner')}
+            className="glass-card-sm" 
+            style={{ 
+              padding: '24px',
+              background: isLight ? '#ffffff' : undefined,
+              border: isLight ? '1.5px solid rgba(234, 88, 12, 0.35)' : undefined,
+              boxShadow: isLight ? '0 10px 30px rgba(194, 65, 12, 0.08)' : undefined,
+              cursor: 'pointer',
+              transition: 'all 0.2s ease-in-out'
+            }}
+          >
             <div style={{
               background: 'var(--gold-primary, #f59e0b)',
               color: '#ffffff',
@@ -243,22 +253,33 @@ export default function LandingJourney({ go, goBack, canGoBack, state, aiGuideAv
             <p style={{ fontSize: '12px', color: isLight ? '#334155' : 'var(--text-muted, #94a3b8)', lineHeight: 1.5, marginBottom: '16px' }}>
               {getText('schoolDesc', lang)}
             </p>
-            <div style={{ fontSize: '11px', color: isLight ? '#c2410c' : 'var(--gold-amber, #f59e0b)', fontWeight: 800 }}>
-              {getText('status', lang)}: {completedCount > 0 ? getText('inProgress', lang) : getText('readyToStart', lang)}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+              <div style={{ fontSize: '11px', color: isLight ? '#c2410c' : 'var(--gold-amber, #f59e0b)', fontWeight: 800 }}>
+                {getText('status', lang)}: {completedCount > 0 ? getText('inProgress', lang) : getText('readyToStart', lang)}
+              </div>
+              <button className="btn-primary" style={{ padding: '6px 14px', fontSize: '12px', borderRadius: '999px', fontWeight: 800 }}>
+                Enter Level 1 →
+              </button>
             </div>
           </div>
 
           {/* STEP 2 ROADMAP CARD */}
-          <div className="glass-card-sm" style={{
-            padding: '24px',
-            opacity: intermediateUnlocked ? 1 : 0.85,
-            background: isLight ? '#ffffff' : undefined,
-            border: isLight ? '1.5px solid rgba(234, 88, 12, 0.35)' : undefined,
-            boxShadow: isLight ? '0 10px 30px rgba(194, 65, 12, 0.08)' : undefined
-          }}>
+          <div 
+            onClick={() => go('intermediate')}
+            className="glass-card-sm" 
+            style={{
+              padding: '24px',
+              opacity: isInterUnlocked ? 1 : 0.85,
+              background: isLight ? '#ffffff' : undefined,
+              border: isLight ? '1.5px solid rgba(234, 88, 12, 0.35)' : undefined,
+              boxShadow: isLight ? '0 10px 30px rgba(194, 65, 12, 0.08)' : undefined,
+              cursor: 'pointer',
+              transition: 'all 0.2s ease-in-out'
+            }}
+          >
             <div style={{
-              background: intermediateUnlocked ? 'var(--gold-primary, #f59e0b)' : 'rgba(128,128,128,0.2)',
-              color: intermediateUnlocked ? '#ffffff' : (isLight ? '#475569' : 'var(--text-muted, #94a3b8)'),
+              background: isInterUnlocked ? 'var(--gold-primary, #f59e0b)' : 'rgba(128,128,128,0.2)',
+              color: isInterUnlocked ? '#ffffff' : (isLight ? '#475569' : 'var(--text-muted, #94a3b8)'),
               fontSize: '10px',
               fontWeight: 900,
               padding: '3px 10px',
@@ -272,22 +293,33 @@ export default function LandingJourney({ go, goBack, canGoBack, state, aiGuideAv
             <p style={{ fontSize: '12px', color: isLight ? '#334155' : 'var(--text-muted, #94a3b8)', lineHeight: 1.5, marginBottom: '16px' }}>
               {getText('labDesc', lang)}
             </p>
-            <div style={{ fontSize: '11px', color: intermediateUnlocked ? (isLight ? '#c2410c' : 'var(--gold-amber, #f59e0b)') : (isLight ? '#64748b' : 'var(--text-muted, #94a3b8)'), fontWeight: 800 }}>
-              {getText('status', lang)}: {intermediateUnlocked ? getText('unlockedBadge', lang) : getText('reqLvl1', lang)}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+              <div style={{ fontSize: '11px', color: isInterUnlocked ? (isLight ? '#c2410c' : 'var(--gold-amber, #f59e0b)') : (isLight ? '#64748b' : 'var(--text-muted, #94a3b8)'), fontWeight: 800 }}>
+                {getText('status', lang)}: {isInterUnlocked ? getText('unlockedBadge', lang) : getText('reqLvl1', lang)}
+              </div>
+              <button className="btn-primary" style={{ padding: '6px 14px', fontSize: '12px', borderRadius: '999px', fontWeight: 800 }}>
+                Enter Level 2 →
+              </button>
             </div>
           </div>
 
           {/* STEP 3 ROADMAP CARD */}
-          <div className="glass-card-sm" style={{
-            padding: '24px',
-            opacity: advancedUnlocked ? 1 : 0.85,
-            background: isLight ? '#ffffff' : undefined,
-            border: isLight ? '1.5px solid rgba(234, 88, 12, 0.35)' : undefined,
-            boxShadow: isLight ? '0 10px 30px rgba(194, 65, 12, 0.08)' : undefined
-          }}>
+          <div 
+            onClick={() => go(isAdvUnlocked ? 'advanced' : 'unlock-adv')}
+            className="glass-card-sm" 
+            style={{
+              padding: '24px',
+              opacity: isAdvUnlocked ? 1 : 0.85,
+              background: isLight ? '#ffffff' : undefined,
+              border: isLight ? '1.5px solid rgba(234, 88, 12, 0.35)' : undefined,
+              boxShadow: isLight ? '0 10px 30px rgba(194, 65, 12, 0.08)' : undefined,
+              cursor: 'pointer',
+              transition: 'all 0.2s ease-in-out'
+            }}
+          >
             <div style={{
-              background: advancedUnlocked ? 'var(--gold-primary, #f59e0b)' : 'rgba(128,128,128,0.2)',
-              color: advancedUnlocked ? '#ffffff' : (isLight ? '#475569' : 'var(--text-muted, #94a3b8)'),
+              background: isAdvUnlocked ? 'var(--gold-primary, #f59e0b)' : 'rgba(128,128,128,0.2)',
+              color: isAdvUnlocked ? '#ffffff' : (isLight ? '#475569' : 'var(--text-muted, #94a3b8)'),
               fontSize: '10px',
               fontWeight: 900,
               padding: '3px 10px',
@@ -301,8 +333,13 @@ export default function LandingJourney({ go, goBack, canGoBack, state, aiGuideAv
             <p style={{ fontSize: '12px', color: isLight ? '#334155' : 'var(--text-muted, #94a3b8)', lineHeight: 1.5, marginBottom: '16px' }}>
               {getText('towerDesc', lang)}
             </p>
-            <div style={{ fontSize: '11px', color: advancedUnlocked ? 'var(--gold-amber, #f59e0b)' : 'var(--text-muted, #94a3b8)', fontWeight: 800 }}>
-              {getText('status', lang)}: {advancedUnlocked ? getText('unlockedBadge', lang) : getText('reqLvl2', lang)}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+              <div style={{ fontSize: '11px', color: isAdvUnlocked ? (isLight ? '#c2410c' : 'var(--gold-amber, #f59e0b)') : (isLight ? '#64748b' : 'var(--text-muted, #94a3b8)'), fontWeight: 800 }}>
+                {getText('status', lang)}: {isAdvUnlocked ? getText('unlockedBadge', lang) : getText('reqLvl2', lang)}
+              </div>
+              <button className="btn-primary" style={{ padding: '6px 14px', fontSize: '12px', borderRadius: '999px', fontWeight: 800 }}>
+                {isAdvUnlocked ? 'Enter Level 3 →' : 'Unlock Level 3 🔒'}
+              </button>
             </div>
           </div>
 
@@ -313,7 +350,7 @@ export default function LandingJourney({ go, goBack, canGoBack, state, aiGuideAv
 
 
       {/* ─── SECTION 6: FINAL CTA (ONLY RENDERED IF ADVANCED LEVEL IS NOT UNLOCKED) ─── */}
-      {!advancedUnlocked && (
+      {!isAdvUnlocked && (
         <section style={{
           padding: '48px 16px',
           textAlign: 'center',

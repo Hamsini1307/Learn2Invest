@@ -503,15 +503,15 @@ export default function Intermediate({ go, goBack, canGoBack, state, update, add
       )}
 
       {activeTab === 'mixer' && (
-        <div className="anim-scale glass-card-deep" style={{ padding: '32px', marginBottom: 24, background: 'var(--bg-card-deep, #12100c)', border: '2px solid rgba(217,119,6,0.4)' }}>
+        <div className="anim-scale glass-card-deep" style={{ padding: '32px', marginBottom: 24, background: isLight ? '#ffffff' : 'var(--bg-card-deep, #12100c)', border: '2px solid rgba(217,119,6,0.4)', color: isLight ? '#0f172a' : '#fef3c7' }}>
           <div style={{ textAlign: 'center', marginBottom: 28 }}>
             <div className="sticker-badge sticker-yellow" style={{ marginBottom: 10 }}>
               💼 PORTFOLIO MIXER
             </div>
-            <h2 className="font-display" style={{ fontSize: 36, color: 'var(--heading-color, #ffffff)', marginBottom: 4 }}>
+            <h2 className="font-display" style={{ fontSize: 36, color: isLight ? '#0f172a' : 'var(--heading-color, #ffffff)', marginBottom: 4 }}>
               SAVINGS PORTFOLIO MIXER 🌟
             </h2>
-            <p style={{ color: 'var(--text-sub, #d1d5db)', fontSize: 13, fontWeight: 600 }}>
+            <p style={{ color: isLight ? '#475569' : 'var(--text-sub, #d1d5db)', fontSize: 13, fontWeight: 600 }}>
               Mix and match safe government savings assets to build your optimal Indian portfolio!
             </p>
           </div>
@@ -519,22 +519,22 @@ export default function Intermediate({ go, goBack, canGoBack, state, update, add
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 32 }}>
             {/* Left Column: Sliders & Presets */}
             <div>
-              <h3 style={{ fontSize: 15, fontWeight: 900, color: '#fbbf24', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <h3 style={{ fontSize: 15, fontWeight: 900, color: isLight ? '#ea580c' : '#fbbf24', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
                 ⚙️ ADJUST ASSET ALLOCATIONS
               </h3>
               
               {/* Presets Grid */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10, marginBottom: 24 }}>
-                <button onClick={() => applyPreset('safe')} className="btn-outline" style={{ padding: '10px', fontSize: 11 }}>
+                <button onClick={() => applyPreset('safe')} className="btn-outline" style={{ padding: '10px', fontSize: 11, borderColor: isLight ? '#ea580c' : undefined, color: isLight ? '#7c2d12' : undefined }}>
                   🏰 SAFE FORTRESS
                 </button>
-                <button onClick={() => applyPreset('growth')} className="btn-outline" style={{ padding: '10px', fontSize: 11 }}>
+                <button onClick={() => applyPreset('growth')} className="btn-outline" style={{ padding: '10px', fontSize: 11, borderColor: isLight ? '#ea580c' : undefined, color: isLight ? '#7c2d12' : undefined }}>
                   🚀 GROWTH FOCUS
                 </button>
-                <button onClick={() => applyPreset('cash')} className="btn-outline" style={{ padding: '10px', fontSize: 11 }}>
+                <button onClick={() => applyPreset('cash')} className="btn-outline" style={{ padding: '10px', fontSize: 11, borderColor: isLight ? '#ea580c' : undefined, color: isLight ? '#7c2d12' : undefined }}>
                   💧 EASY CASH FLOW
                 </button>
-                <button onClick={() => applyPreset('balanced')} className="btn-outline" style={{ padding: '10px', fontSize: 11 }}>
+                <button onClick={() => applyPreset('balanced')} className="btn-outline" style={{ padding: '10px', fontSize: 11, borderColor: isLight ? '#ea580c' : undefined, color: isLight ? '#7c2d12' : undefined }}>
                   🍭 BALANCED PORTFOLIO
                 </button>
               </div>
@@ -547,19 +547,19 @@ export default function Intermediate({ go, goBack, canGoBack, state, update, add
                   const color = colors[key]
                   return (
                     <div key={key} style={{
-                      background: 'rgba(255,255,255,0.03)', borderRadius: 16, padding: '12px 16px',
-                      border: '1.5px solid rgba(217, 119, 6, 0.25)',
+                      background: isLight ? '#f8fafc' : 'rgba(255,255,255,0.03)', borderRadius: 16, padding: '12px 16px',
+                      border: `1.5px solid ${isLight ? 'rgba(234,88,12,0.3)' : 'rgba(217, 119, 6, 0.25)'}`,
                     }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                           <span style={{ width: 10, height: 10, borderRadius: '50%', background: color, display: 'inline-block' }}/>
                           <div>
-                            <span style={{ fontWeight: 900, fontSize: 14, color: '#ffffff' }} title={SCHEME_NAMES[key]}>{key}</span>
-                            <div style={{ fontSize: 10, color: '#9ca3af', fontWeight: 600 }}>{SCHEME_NAMES[key]}</div>
+                            <span style={{ fontWeight: 900, fontSize: 14, color: isLight ? '#0f172a' : '#ffffff' }} title={SCHEME_NAMES[key]}>{key}</span>
+                            <div style={{ fontSize: 10, color: isLight ? '#475569' : '#9ca3af', fontWeight: 700 }}>{SCHEME_NAMES[key]}</div>
                           </div>
                           
                           <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginLeft: 8 }}>
-                            <span style={{ fontSize: 10, color: '#9ca3af', fontWeight: 800 }}>RATE:</span>
+                            <span style={{ fontSize: 10, color: isLight ? '#475569' : '#9ca3af', fontWeight: 800 }}>RATE:</span>
                             <input
                               type="number"
                               min="0" max="25" step="0.05"
@@ -567,11 +567,11 @@ export default function Intermediate({ go, goBack, canGoBack, state, update, add
                               onChange={(e) => setCustomRates({ ...customRates, [key]: parseFloat(e.target.value) || 0 })}
                               style={{
                                 width: 50, padding: '2px 4px', fontSize: 11, fontWeight: 900,
-                                background: '#1a1610', border: `1.5px solid ${color}`,
-                                borderRadius: 6, textAlign: 'center', color: '#fef3c7', outline: 'none'
+                                background: isLight ? '#ffffff' : '#1a1610', border: `1.5px solid ${color}`,
+                                borderRadius: 6, textAlign: 'center', color: isLight ? '#0f172a' : '#fef3c7', outline: 'none'
                               }}
                             />
-                            <span style={{ fontSize: 10, color: '#9ca3af', fontWeight: 800 }}>%</span>
+                            <span style={{ fontSize: 10, color: isLight ? '#475569' : '#9ca3af', fontWeight: 800 }}>%</span>
                           </div>
                         </div>
                         <span style={{ fontWeight: 900, color: color, fontSize: 14 }}>{val}%</span>
@@ -594,13 +594,13 @@ export default function Intermediate({ go, goBack, canGoBack, state, update, add
             <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
               {/* Donut Chart */}
               <div style={{
-                background: 'rgba(255,255,255,0.03)', borderRadius: 24, padding: 24,
-                border: '1.5px solid rgba(217, 119, 6, 0.25)',
+                background: isLight ? '#f8fafc' : 'rgba(255,255,255,0.03)', borderRadius: 24, padding: 24,
+                border: `1.5px solid ${isLight ? 'rgba(234,88,12,0.3)' : 'rgba(217, 119, 6, 0.25)'}`,
                 display: 'flex', alignItems: 'center', justifyContent: 'space-around', flexWrap: 'wrap', gap: 16
               }}>
                 <div style={{ position: 'relative', width: 130, height: 130 }}>
                   <svg width="130" height="130" viewBox="0 0 120 120" style={{ transform: 'rotate(-90deg)' }}>
-                    <circle cx="60" cy="60" r={radius} fill="transparent" stroke="rgba(255,255,255,0.08)" strokeWidth="14" />
+                    <circle cx="60" cy="60" r={radius} fill="transparent" stroke={isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.08)'} strokeWidth="14" />
                     {Object.keys(alloc).map((key) => {
                       const val = alloc[key]
                       const color = colors[key]
@@ -626,8 +626,8 @@ export default function Intermediate({ go, goBack, canGoBack, state, update, add
                     position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column',
                     alignItems: 'center', justifyContent: 'center', pointerEvents: 'none'
                   }}>
-                    <span style={{ fontSize: 18, fontWeight: 900, color: '#fbbf24', lineHeight: 1 }}>{yieldRate}%</span>
-                    <span style={{ fontSize: 9, color: '#9ca3af', fontWeight: 800, marginTop: 2 }}>EST. YIELD</span>
+                    <span style={{ fontSize: 18, fontWeight: 900, color: isLight ? '#ea580c' : '#fbbf24', lineHeight: 1 }}>{yieldRate}%</span>
+                    <span style={{ fontSize: 9, color: isLight ? '#475569' : '#9ca3af', fontWeight: 800, marginTop: 2 }}>EST. YIELD</span>
                   </div>
                 </div>
 
@@ -635,7 +635,7 @@ export default function Intermediate({ go, goBack, canGoBack, state, update, add
                   {Object.keys(alloc).map((key) => (
                     <div key={key} style={{
                       display: 'flex', alignItems: 'center', gap: 8, fontSize: 11,
-                      fontWeight: 800, color: alloc[key] > 0 ? '#ffffff' : '#71717a',
+                      fontWeight: 800, color: alloc[key] > 0 ? (isLight ? '#0f172a' : '#ffffff') : (isLight ? '#94a3b8' : '#71717a'),
                     }}>
                       <span style={{ width: 8, height: 8, borderRadius: '50%', background: colors[key] }}/>
                       <span>{key}: {alloc[key]}%</span>
@@ -646,18 +646,18 @@ export default function Intermediate({ go, goBack, canGoBack, state, update, add
 
               {/* Compound Growth Projector */}
               <div style={{
-                background: 'rgba(255,255,255,0.03)', borderRadius: 24, padding: 24,
-                border: '1.5px solid rgba(217, 119, 6, 0.25)',
+                background: isLight ? '#f8fafc' : 'rgba(255,255,255,0.03)', borderRadius: 24, padding: 24,
+                border: `1.5px solid ${isLight ? 'rgba(234,88,12,0.3)' : 'rgba(217, 119, 6, 0.25)'}`,
               }}>
-                <h3 style={{ fontSize: 14, fontWeight: 900, color: '#fbbf24', marginBottom: 16 }}>
+                <h3 style={{ fontSize: 14, fontWeight: 900, color: isLight ? '#ea580c' : '#fbbf24', marginBottom: 16 }}>
                   🔮 GROWTH PROJECTOR
                 </h3>
                 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 20 }}>
                   <div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, fontWeight: 800, color: '#ffffff', marginBottom: 6 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, fontWeight: 800, color: isLight ? '#0f172a' : '#ffffff', marginBottom: 6 }}>
                       <span>MONTHLY SAVINGS</span>
-                      <span style={{ color: '#fbbf24' }}>₹{monthlySavings.toLocaleString('en-IN')}</span>
+                      <span style={{ color: isLight ? '#ea580c' : '#fbbf24' }}>₹{monthlySavings.toLocaleString('en-IN')}</span>
                     </div>
                     <input
                       type="range" min="1000" max="50000" step="1000" value={monthlySavings}
@@ -666,9 +666,9 @@ export default function Intermediate({ go, goBack, canGoBack, state, update, add
                     />
                   </div>
                   <div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, fontWeight: 800, color: '#ffffff', marginBottom: 6 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, fontWeight: 800, color: isLight ? '#0f172a' : '#ffffff', marginBottom: 6 }}>
                       <span>TIME HORIZON</span>
-                      <span style={{ color: '#fbbf24' }}>{years} YEARS</span>
+                      <span style={{ color: isLight ? '#ea580c' : '#fbbf24' }}>{years} YEARS</span>
                     </div>
                     <input
                       type="range" min="1" max="15" step="1" value={years}
@@ -678,21 +678,21 @@ export default function Intermediate({ go, goBack, canGoBack, state, update, add
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(105px, 1fr))', gap: 10, textAlign: 'center', background: 'var(--bg-main, #080705)', padding: 14, borderRadius: 16 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(105px, 1fr))', gap: 10, textAlign: 'center', background: isLight ? '#ffffff' : 'var(--bg-main, #080705)', padding: 14, borderRadius: 16, border: `1px solid ${isLight ? '#cbd5e1' : 'transparent'}` }}>
                   <div>
-                    <div style={{ fontSize: 9, color: 'var(--text-muted, #9ca3af)', fontWeight: 800 }}>TOTAL INVESTED</div>
+                    <div style={{ fontSize: 9, color: isLight ? '#475569' : 'var(--text-muted, #9ca3af)', fontWeight: 800 }}>TOTAL INVESTED</div>
                     <div style={{ fontSize: 13, fontWeight: 900, color: '#0284c7', marginTop: 3 }}>₹{totalInvested.toLocaleString('en-IN')}</div>
                   </div>
                   <div>
-                    <div style={{ fontSize: 9, color: 'var(--text-muted, #9ca3af)', fontWeight: 800 }}>TOTAL RETURNS</div>
+                    <div style={{ fontSize: 9, color: isLight ? '#475569' : 'var(--text-muted, #9ca3af)', fontWeight: 800 }}>TOTAL RETURNS</div>
                     <div style={{ fontSize: 13, fontWeight: 900, color: '#10b981', marginTop: 3 }}>₹{projectedValue.toLocaleString('en-IN')}</div>
                   </div>
                   <div>
-                    <div style={{ fontSize: 9, color: 'var(--text-muted, #9ca3af)', fontWeight: 800 }}>PROFIT AMOUNT</div>
-                    <div style={{ fontSize: 13, fontWeight: 900, color: '#fbbf24', marginTop: 3 }}>+₹{interestEarned.toLocaleString('en-IN')}</div>
+                    <div style={{ fontSize: 9, color: isLight ? '#475569' : 'var(--text-muted, #9ca3af)', fontWeight: 800 }}>PROFIT AMOUNT</div>
+                    <div style={{ fontSize: 13, fontWeight: 900, color: isLight ? '#d97706' : '#fbbf24', marginTop: 3 }}>+₹{interestEarned.toLocaleString('en-IN')}</div>
                   </div>
                   <div>
-                    <div style={{ fontSize: 9, color: 'var(--text-muted, #9ca3af)', fontWeight: 800 }}>PROFIT %</div>
+                    <div style={{ fontSize: 9, color: isLight ? '#475569' : 'var(--text-muted, #9ca3af)', fontWeight: 800 }}>PROFIT %</div>
                     <div style={{ fontSize: 13, fontWeight: 900, color: '#e11d48', marginTop: 3 }}>
                       +{totalInvested > 0 ? ((interestEarned / totalInvested) * 100).toFixed(1) : '0.0'}%
                     </div>
@@ -700,14 +700,14 @@ export default function Intermediate({ go, goBack, canGoBack, state, update, add
                 </div>
 
                 <div style={{
-                  marginTop: 12, background: 'rgba(245, 158, 11, 0.12)',
-                  border: '1.5px solid #d97706', borderRadius: 16, padding: '10px 14px',
+                  marginTop: 12, background: isLight ? '#ffedd5' : 'rgba(245, 158, 11, 0.12)',
+                  border: `1.5px solid ${isLight ? '#ea580c' : '#d97706'}`, borderRadius: 16, padding: '10px 14px',
                   display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 11
                 }}>
-                  <span style={{ color: '#d1d5db', fontWeight: 800 }}>
+                  <span style={{ color: isLight ? '#7c2d12' : '#d1d5db', fontWeight: 800 }}>
                     📉 Simple Yield: <strong>₹{(totalInvested + simpleInterestEarned).toLocaleString('en-IN')}</strong>
                   </span>
-                  <span style={{ color: '#fbbf24', fontWeight: 900 }}>
+                  <span style={{ color: isLight ? '#c2410c' : '#fbbf24', fontWeight: 900 }}>
                     ✨ Bonus: <strong>+₹{compoundingBonus.toLocaleString('en-IN')}! 🚀</strong>
                   </span>
                 </div>
@@ -715,20 +715,20 @@ export default function Intermediate({ go, goBack, canGoBack, state, update, add
 
               {/* Multi-Goal Savings Planner */}
               <div style={{
-                background: 'rgba(255,255,255,0.03)', borderRadius: 24, padding: 24,
-                border: '2px solid rgba(217, 119, 6, 0.3)',
+                background: isLight ? '#f8fafc' : 'rgba(255,255,255,0.03)', borderRadius: 24, padding: 24,
+                border: `2px solid ${isLight ? 'rgba(234,88,12,0.3)' : 'rgba(217, 119, 6, 0.3)'}`,
                 display: 'flex', flexDirection: 'column', gap: 16
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
-                  <h3 style={{ fontSize: 14, fontWeight: 900, color: '#fbbf24', margin: 0 }}>
+                  <h3 style={{ fontSize: 14, fontWeight: 900, color: isLight ? '#ea580c' : '#fbbf24', margin: 0 }}>
                     🎯 SAVINGS GOAL PLANNER
                   </h3>
                   
                   <label style={{
                     display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer',
-                    background: inflationActive ? 'rgba(245,158,11,0.2)' : 'rgba(255,255,255,0.06)',
+                    background: inflationActive ? (isLight ? '#ffedd5' : 'rgba(245,158,11,0.2)') : (isLight ? '#ffffff' : 'rgba(255,255,255,0.06)'),
                     padding: '6px 12px', borderRadius: 12,
-                    border: `1.5px solid ${inflationActive ? '#f59e0b' : 'rgba(255,255,255,0.15)'}`,
+                    border: `1.5px solid ${inflationActive ? '#f59e0b' : (isLight ? '#cbd5e1' : 'rgba(255,255,255,0.15)')}`,
                     userSelect: 'none'
                   }}>
                     <input
@@ -737,40 +737,40 @@ export default function Intermediate({ go, goBack, canGoBack, state, update, add
                       onChange={(e) => setInflationActive(e.target.checked)}
                       style={{ cursor: 'pointer', accentColor: '#f59e0b' }}
                     />
-                    <span style={{ fontSize: 11, fontWeight: 800, color: inflationActive ? '#fbbf24' : '#9ca3af' }}>
+                    <span style={{ fontSize: 11, fontWeight: 800, color: inflationActive ? (isLight ? '#c2410c' : '#fbbf24') : (isLight ? '#475569' : '#9ca3af') }}>
                       👾 INFLATION TIME MACHINE {inflationActive ? 'ON (6% 🇮🇳)' : 'OFF'}
                     </span>
                   </label>
                 </div>
 
                 <div style={{
-                  background: '#080705', borderRadius: 16, padding: 14,
-                  border: '1.5px solid rgba(217,119,6,0.2)',
+                  background: isLight ? '#ffffff' : '#080705', borderRadius: 16, padding: 14,
+                  border: `1.5px solid ${isLight ? '#ea580c' : 'rgba(217,119,6,0.2)'}`,
                   display: 'flex', flexDirection: 'column', gap: 10
                 }}>
-                  <span style={{ fontSize: 11, fontWeight: 800, color: '#9ca3af', textTransform: 'uppercase' }}>
+                  <span style={{ fontSize: 11, fontWeight: 800, color: isLight ? '#ea580c' : '#9ca3af', textTransform: 'uppercase' }}>
                     ➕ ADD TARGET GOAL
                   </span>
                   <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 0.8fr', gap: 10 }}>
                     <div>
                       <input
-                        type="text" className="input-light" placeholder="e.g. Laptop"
+                        type="text" placeholder="e.g. Laptop"
                         value={newGoalName} onChange={(e) => setNewGoalName(e.target.value)}
-                        style={{ padding: '8px 12px', fontSize: 12 }}
+                        style={{ padding: '8px 12px', fontSize: 12, borderRadius: 8, border: `1.5px solid ${isLight ? '#ea580c' : '#d97706'}`, background: isLight ? '#f8fafc' : '#1a1610', color: isLight ? '#0f172a' : '#fef3c7', outline: 'none', width: '100%', fontWeight: 700 }}
                       />
                     </div>
                     <div>
                       <input
-                        type="number" className="input-light" placeholder="Target ₹"
+                        type="number" placeholder="Target ₹"
                         value={newGoalAmount} onChange={(e) => setNewGoalAmount(e.target.value)}
-                        style={{ padding: '8px 12px', fontSize: 12 }}
+                        style={{ padding: '8px 12px', fontSize: 12, borderRadius: 8, border: `1.5px solid ${isLight ? '#ea580c' : '#d97706'}`, background: isLight ? '#f8fafc' : '#1a1610', color: isLight ? '#0f172a' : '#fef3c7', outline: 'none', width: '100%', fontWeight: 700 }}
                       />
                     </div>
                     <div>
                       <input
-                        type="number" className="input-light" placeholder="Years"
+                        type="number" placeholder="Years"
                         value={newGoalYears} onChange={(e) => setNewGoalYears(e.target.value)}
-                        style={{ padding: '8px 12px', fontSize: 12 }}
+                        style={{ padding: '8px 12px', fontSize: 12, borderRadius: 8, border: `1.5px solid ${isLight ? '#ea580c' : '#d97706'}`, background: isLight ? '#f8fafc' : '#1a1610', color: isLight ? '#0f172a' : '#fef3c7', outline: 'none', width: '100%', fontWeight: 700 }}
                       />
                     </div>
                   </div>
@@ -787,17 +787,17 @@ export default function Intermediate({ go, goBack, canGoBack, state, update, add
                       const reqMonthly = Math.round(effectiveTarget / (g.years * 12))
                       return (
                         <div key={g.id} style={{
-                          background: 'rgba(255,255,255,0.04)', padding: '12px 14px', borderRadius: 14,
-                          border: '1px solid rgba(217,119,6,0.2)', display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+                          background: isLight ? '#ffffff' : 'rgba(255,255,255,0.04)', padding: '12px 14px', borderRadius: 14,
+                          border: `1px solid ${isLight ? 'rgba(234,88,12,0.3)' : 'rgba(217,119,6,0.2)'}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center'
                         }}>
                           <div>
-                            <div style={{ fontWeight: 900, color: '#ffffff', fontSize: 13 }}>{g.name}</div>
-                            <div style={{ fontSize: 11, color: '#9ca3af' }}>
+                            <div style={{ fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff', fontSize: 13 }}>{g.name}</div>
+                            <div style={{ fontSize: 11, color: isLight ? '#475569' : '#9ca3af', fontWeight: 600 }}>
                               Target: ₹{effectiveTarget.toLocaleString('en-IN')} in {g.years} yrs
                             </div>
                           </div>
                           <div style={{ textAlign: 'right' }}>
-                            <div style={{ fontWeight: 900, color: '#fbbf24', fontSize: 13 }}>₹{reqMonthly.toLocaleString('en-IN')}/mo</div>
+                            <div style={{ fontWeight: 900, color: isLight ? '#ea580c' : '#fbbf24', fontSize: 13 }}>₹{reqMonthly.toLocaleString('en-IN')}/mo</div>
                             <button onClick={() => setGoals(goals.filter(item => item.id !== g.id))} style={{ background: 'none', border: 'none', color: '#e11d48', cursor: 'pointer', fontSize: 11, fontWeight: 800 }}>✕ Remove</button>
                           </div>
                         </div>

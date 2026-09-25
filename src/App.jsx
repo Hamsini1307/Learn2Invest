@@ -113,9 +113,23 @@ export default function App() {
   }
 
   const handleSelectTheme = (themeId) => {
+    const target = THEME_CATALOG.find(t => t.id === themeId)
+    const userXp = state.xp || 0
+    if (target && userXp < target.minXp) {
+      alert(`🔒 You need ${target.minXp} XP to unlock the ${target.name} theme! You currently have ${userXp} XP.`)
+      return
+    }
     setColorTheme(themeId)
     localStorage.setItem('l2i_colorTheme', themeId)
   }
+
+  useEffect(() => {
+    const target = THEME_CATALOG.find(t => t.id === colorTheme)
+    if (target && (state.xp || 0) < target.minXp) {
+      setColorTheme('classic')
+      localStorage.setItem('l2i_colorTheme', 'classic')
+    }
+  }, [state.xp, colorTheme])
 
   useEffect(() => {
     document.documentElement.setAttribute('data-color-theme', colorTheme)
@@ -418,6 +432,7 @@ export default function App() {
                 currentScreen={screen}
                 aiGuideAvatar={aiGuideAvatar}
                 aiGuideName={aiGuideName}
+                themeMode={themeMode}
               />
             </>
           )}
