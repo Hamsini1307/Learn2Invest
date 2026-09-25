@@ -167,7 +167,8 @@ export function analyzeMessageContent(text) {
   }
 }
 
-export default function MessageScamAnalyzer() {
+export default function MessageScamAnalyzer({ themeMode = 'dark' }) {
+  const isLight = themeMode === 'light'
   const [inputText, setInputText] = useState('')
   const [result, setResult] = useState(null)
   const [imagePreview, setImagePreview] = useState(null)
@@ -211,11 +212,11 @@ export default function MessageScamAnalyzer() {
   return (
     <div
       style={{
-        background: 'var(--bg-card-deep, #12100c)',
+        background: isLight ? '#ffffff' : 'var(--bg-card-deep, #12100c)',
         borderRadius: 20,
         padding: '24px',
-        border: '1.5px solid var(--border-light, rgba(217, 119, 6, 0.35))',
-        boxShadow: 'var(--card-shadow, 0 12px 30px rgba(0,0,0,0.4))',
+        border: '2px solid #ea580c',
+        boxShadow: isLight ? '0 10px 30px rgba(234, 88, 12, 0.15)' : 'var(--card-shadow, 0 12px 30px rgba(0,0,0,0.4))',
         marginTop: 28,
         fontFamily: "'Space Grotesk', sans-serif",
       }}
@@ -226,8 +227,8 @@ export default function MessageScamAnalyzer() {
             width: 44,
             height: 44,
             borderRadius: 14,
-            background: 'var(--gold-bg, rgba(245, 158, 11, 0.15))',
-            border: '1.5px solid var(--gold-primary, #f59e0b)',
+            background: isLight ? '#ffedd5' : 'rgba(245, 158, 11, 0.15)',
+            border: '1.5px solid #f59e0b',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -237,10 +238,10 @@ export default function MessageScamAnalyzer() {
           🛡️
         </div>
         <div>
-          <h3 style={{ fontSize: 18, fontWeight: 900, color: 'var(--heading-color, #ffffff)', margin: 0 }}>
+          <h3 style={{ fontSize: 18, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff', margin: 0 }}>
             SMS & MESSAGE SCAM / SPAM ANALYZER
           </h3>
-          <p style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', margin: '2px 0 0' }}>
+          <p style={{ fontSize: 12, color: isLight ? '#475569' : '#94a3b8', margin: '2px 0 0', fontWeight: 600 }}>
             Upload or paste any SMS or message you received on your phone to scan for fraud
           </p>
         </div>
@@ -248,32 +249,21 @@ export default function MessageScamAnalyzer() {
 
       {/* Preset Example Buttons */}
       <div style={{ marginBottom: 16 }}>
-        <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--gold-amber, #fbbf24)', display: 'block', marginBottom: 6 }}>
-          ⚡ OR TEST WITH REAL INDIAN SCAM EXAMPLES:
-        </span>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
           {PRESET_MESSAGES.map((preset, idx) => (
             <button
               key={idx}
               onClick={() => handleSelectPreset(preset.text)}
               style={{
-                background: 'var(--bg-main, rgba(255, 255, 255, 0.05))',
-                border: '1px solid var(--border-light, rgba(217, 119, 6, 0.25))',
+                background: isLight ? '#ffedd5' : 'rgba(255, 255, 255, 0.05)',
+                border: `1.5px solid ${isLight ? '#ea580c' : 'rgba(217, 119, 6, 0.25)'}`,
                 borderRadius: 999,
-                padding: '5px 12px',
+                padding: '6px 14px',
                 fontSize: 11,
-                fontWeight: 700,
-                color: 'var(--text-sub, #d1d5db)',
+                fontWeight: 800,
+                color: isLight ? '#7c2d12' : '#fbbf24',
                 cursor: 'pointer',
                 transition: 'all 0.2s',
-              }}
-              onMouseOver={(e) => {
-                e.currentTarget.style.borderColor = 'var(--gold-primary, #f59e0b)'
-                e.currentTarget.style.color = 'var(--heading-color, #ffffff)'
-              }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.borderColor = 'var(--border-light, rgba(217, 119, 6, 0.25))'
-                e.currentTarget.style.color = 'var(--text-sub, #d1d5db)'
               }}
             >
               {preset.label}
@@ -291,12 +281,13 @@ export default function MessageScamAnalyzer() {
           placeholder="Paste the SMS, WhatsApp message, or email notification here (e.g. 'Dear user, your bank account will be blocked...')"
           style={{
             width: '100%',
-            background: 'var(--input-bg, #1a1610)',
-            border: '1.5px solid var(--border-light, rgba(217, 119, 6, 0.3))',
+            background: isLight ? '#fff7ed' : '#1a1610',
+            border: `2px solid ${isLight ? '#ea580c' : 'rgba(217, 119, 6, 0.3)'}`,
             borderRadius: 14,
             padding: 14,
             fontSize: 13,
-            color: 'var(--heading-color, #ffffff)',
+            fontWeight: 700,
+            color: isLight ? '#0f172a' : '#ffffff',
             fontFamily: 'inherit',
             resize: 'vertical',
             outline: 'none',
@@ -306,11 +297,11 @@ export default function MessageScamAnalyzer() {
 
       {/* Image Screenshot Preview if uploaded */}
       {imagePreview && (
-        <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(0,0,0,0.3)', padding: 10, borderRadius: 12, border: '1px solid rgba(245, 158, 11, 0.3)' }}>
+        <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 12, background: isLight ? '#ffedd5' : 'rgba(0,0,0,0.3)', padding: 10, borderRadius: 12, border: '1.5px solid #f59e0b' }}>
           <img src={imagePreview} alt="Screenshot preview" style={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 8, border: '1px solid #f59e0b' }} />
           <div>
-            <div style={{ fontSize: 11, fontWeight: 900, color: '#fbbf24' }}>📷 SCREENSHOT UPLOADED & SCANNED</div>
-            <div style={{ fontSize: 10, color: '#9ca3af' }}>Text extracted automatically via OCR scanner</div>
+            <div style={{ fontSize: 11, fontWeight: 900, color: isLight ? '#9a3412' : '#fbbf24' }}>📷 SCREENSHOT UPLOADED & SCANNED</div>
+            <div style={{ fontSize: 10, color: isLight ? '#475569' : '#9ca3af', fontWeight: 700 }}>Text extracted automatically via OCR scanner</div>
           </div>
         </div>
       )}
@@ -325,7 +316,7 @@ export default function MessageScamAnalyzer() {
           🔍 ANALYZE MESSAGE
         </button>
 
-        <label className="btn-outline" style={{ padding: '10px 18px', fontSize: 13, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+        <label className="btn-outline" style={{ padding: '10px 18px', fontSize: 13, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6, fontWeight: 800, color: isLight ? '#7c2d12' : undefined, borderColor: isLight ? '#ea580c' : undefined }}>
           <span>📷 UPLOAD SCREENSHOT</span>
           <input type="file" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} />
         </label>
@@ -334,7 +325,7 @@ export default function MessageScamAnalyzer() {
           <button
             className="btn-outline"
             onClick={handleClear}
-            style={{ padding: '10px 18px', fontSize: 13 }}
+            style={{ padding: '10px 18px', fontSize: 13, fontWeight: 800, color: isLight ? '#7c2d12' : undefined, borderColor: isLight ? '#ea580c' : undefined }}
           >
             Clear
           </button>
@@ -347,7 +338,7 @@ export default function MessageScamAnalyzer() {
           className="anim-scale"
           style={{
             borderRadius: 16,
-            background: result.bg,
+            background: isLight ? (result.verdict === 'SCAM' ? '#fff1f2' : result.verdict === 'SPAM' ? '#fff7ed' : '#ecfdf5') : result.bg,
             border: `2px solid ${result.border}`,
             padding: 20,
             marginTop: 10,
@@ -356,16 +347,16 @@ export default function MessageScamAnalyzer() {
           {/* Header & Threat Meter */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, marginBottom: 16 }}>
             <div>
-              <div style={{ fontWeight: 900, fontSize: 16, color: result.color }}>
+              <div style={{ fontWeight: 900, fontSize: 16, color: result.verdict === 'SCAM' ? '#e11d48' : result.verdict === 'SPAM' ? '#d97706' : '#059669' }}>
                 {result.label}
               </div>
-              <div style={{ fontSize: 12, color: 'var(--text-sub, #d1d5db)', marginTop: 2 }}>
-                Threat Assessment Score: <strong style={{ color: result.color }}>{result.threatScore}% Risk</strong>
+              <div style={{ fontSize: 12, color: isLight ? '#334155' : '#d1d5db', marginTop: 2, fontWeight: 700 }}>
+                Threat Assessment Score: <strong style={{ color: result.verdict === 'SCAM' ? '#e11d48' : result.verdict === 'SPAM' ? '#d97706' : '#059669' }}>{result.threatScore}% Risk</strong>
               </div>
             </div>
 
             {/* Risk Meter Bar */}
-            <div style={{ width: 140, height: 10, background: 'rgba(0,0,0,0.3)', borderRadius: 999, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.2)' }}>
+            <div style={{ width: 140, height: 10, background: isLight ? '#e2e8f0' : 'rgba(0,0,0,0.3)', borderRadius: 999, overflow: 'hidden', border: '1px solid rgba(0,0,0,0.1)' }}>
               <div
                 style={{
                   width: `${result.threatScore}%`,
@@ -380,7 +371,7 @@ export default function MessageScamAnalyzer() {
           {/* Red Flags List */}
           {result.redFlags.length > 0 && (
             <div style={{ marginBottom: 16 }}>
-              <div style={{ fontSize: 12, fontWeight: 900, color: result.color, marginBottom: 6, textTransform: 'uppercase' }}>
+              <div style={{ fontSize: 12, fontWeight: 900, color: result.verdict === 'SCAM' ? '#e11d48' : '#d97706', marginBottom: 6, textTransform: 'uppercase' }}>
                 🚩 Red Flags Detected ({result.redFlags.length}):
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -388,11 +379,13 @@ export default function MessageScamAnalyzer() {
                   <div
                     key={idx}
                     style={{
-                      background: 'rgba(0, 0, 0, 0.25)',
-                      padding: '8px 12px',
-                      borderRadius: 8,
+                      background: isLight ? '#ffffff' : 'rgba(0, 0, 0, 0.25)',
+                      padding: '10px 14px',
+                      borderRadius: 10,
                       fontSize: 12,
-                      color: 'var(--heading-color, #ffffff)',
+                      fontWeight: 800,
+                      color: isLight ? '#991b1b' : '#ffffff',
+                      border: isLight ? '1px solid #fca5a5' : 'none',
                       display: 'flex',
                       alignItems: 'flex-start',
                       gap: 8,
@@ -409,7 +402,7 @@ export default function MessageScamAnalyzer() {
           {/* Safe Signals */}
           {result.safeSignals.length > 0 && result.verdict === 'SAFE' && (
             <div style={{ marginBottom: 16 }}>
-              <div style={{ fontSize: 12, fontWeight: 900, color: '#10b981', marginBottom: 6, textTransform: 'uppercase' }}>
+              <div style={{ fontSize: 12, fontWeight: 900, color: '#059669', marginBottom: 6, textTransform: 'uppercase' }}>
                 ✓ Legitimate Banking Indicators:
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -417,11 +410,13 @@ export default function MessageScamAnalyzer() {
                   <div
                     key={idx}
                     style={{
-                      background: 'rgba(0, 0, 0, 0.2)',
-                      padding: '8px 12px',
-                      borderRadius: 8,
+                      background: isLight ? '#ffffff' : 'rgba(0, 0, 0, 0.2)',
+                      padding: '10px 14px',
+                      borderRadius: 10,
                       fontSize: 12,
-                      color: 'var(--heading-color, #ffffff)',
+                      fontWeight: 800,
+                      color: isLight ? '#065f46' : '#ffffff',
+                      border: isLight ? '1px solid #6ee7b7' : 'none',
                       display: 'flex',
                       alignItems: 'center',
                       gap: 8,
@@ -437,10 +432,10 @@ export default function MessageScamAnalyzer() {
 
           {/* Recommendations & Action Plan */}
           <div>
-            <div style={{ fontSize: 12, fontWeight: 900, color: 'var(--heading-color, #ffffff)', marginBottom: 6, textTransform: 'uppercase' }}>
+            <div style={{ fontSize: 12, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff', marginBottom: 6, textTransform: 'uppercase' }}>
               🛡️ Recommended Safety Actions:
             </div>
-            <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12, color: 'var(--text-sub, #e2e8f0)', lineHeight: 1.6 }}>
+            <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12, color: isLight ? '#1e293b' : '#e2e8f0', lineHeight: 1.6, fontWeight: 700 }}>
               {result.recommendations.map((rec, i) => (
                 <li key={i}>{rec}</li>
               ))}

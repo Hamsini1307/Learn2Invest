@@ -1,5 +1,67 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { INSTITUTIONS, FORM_CATEGORIES, BANK_TEMPLATES_CONFIG } from '../config/bankTemplates'
+import { INSTITUTIONS, FORM_CATEGORIES, BANK_TEMPLATES_CONFIG, CANONICAL_FIELD_MAPPING } from '../config/bankTemplates'
+import MessageScamAnalyzer from '../components/MessageScamAnalyzer.jsx'
+
+const CYBER_SCENARIOS = [
+  {
+    id: 1,
+    title: "📱 The Phishing SMS Trap",
+    scenario: "You receive an SMS from a number claiming to be your bank: 'Dear user, your bank account will be blocked. Click here to verify now: block-sbi.org'",
+    opts: [
+      { text: "Click the link immediately to verify and avoid getting blocked.", correct: false },
+      { text: "Ignore the SMS. Banks never send warning links from random phone numbers.", correct: true }
+    ],
+    explain: "Banks never send SMS containing verification web links. Entering your password on unknown links leaks your credentials."
+  },
+  {
+    id: 2,
+    title: "📞 The Fake Customer Support Call",
+    scenario: "A person claiming to be a bank manager calls asking for the 6-digit OTP sent to your phone to 'upgrade your KYC status' and prevent card suspension.",
+    opts: [
+      { text: "Share the OTP since it is from a customer support manager.", correct: false },
+      { text: "Never share the OTP. Bank officials will never ask for PINs or OTPs.", correct: true }
+    ],
+    explain: "An OTP is a secret one-time password. Sharing it allows attackers to bypass security and transfer your funds."
+  },
+  {
+    id: 3,
+    title: "💸 The UPI Payment Trap",
+    scenario: "Someone wants to buy your old bicycle online and sends a UPI 'Collect Request' asking for your UPI PIN to transfer the cash to you.",
+    opts: [
+      { text: "Enter your PIN to receive the payment.", correct: false },
+      { text: "Decline the request. A UPI PIN is only needed to SEND money, never to receive it.", correct: true }
+    ],
+    explain: "This is a common UPI scam. PINs are only entered when debited. Receiving money requires no PIN."
+  },
+  {
+    id: 4,
+    title: "📶 Public Wi-Fi Danger",
+    scenario: "You are at a coffee shop and want to check your bank balance. The shop has a free public Wi-Fi network.",
+    opts: [
+      { text: "Connect to the public Wi-Fi and complete the net banking transfer.", correct: false },
+      { text: "Use cellular data (4G/5G) or a secure VPN, as public Wi-Fi can leak bank credentials.", correct: true }
+    ],
+    explain: "Public Wi-Fi networks can be sniffed or spoofed by hackers to capture passwords. Always use private networks for banking."
+  }
+]
+
+const VIDEOS_DB = {
+  upi_working: {
+    title: "🏦 Part 1: Digital Banking Overview",
+    url: "https://www.youtube.com/embed/zvPyqN-FEPQ?rel=0",
+    desc: "An overview of digital banking and mobile channels."
+  },
+  safety_phishing: {
+    title: "🛡️ Spam & Phishing Safety",
+    url: "https://www.youtube.com/embed/NI37JI7KnSc?rel=0",
+    desc: "An animated guide explaining email spam and password protection."
+  },
+  card_basics: {
+    title: "💳 Debit & Credit Cards Guide",
+    url: "https://www.youtube.com/embed/mllbYh0DFMc?rel=0",
+    desc: "A breakdown of Credit vs Debit cards and interest calculation."
+  }
+}
 
 // Helper to convert numeric amount to Indian Rupees in Words
 function numberToWords(num) {
@@ -22,6 +84,126 @@ function numberToWords(num) {
 
   const result = inWords(num).trim()
   return result ? `${result} RUPEES ONLY` : ''
+}
+
+const BANK_IFSC_PREFIXES = {
+  canara: 'CNRB',
+  karnataka: 'KARB',
+  postoffice: 'IPOS',
+  pnb: 'PUNB',
+  sbi: 'SBIN'
+}
+
+const KNOWN_BRANCH_IFSC_DB = {
+  // Canara Bank Official IFSC
+  'canara_gurupura_mangaluru': 'CNRB0003841',
+  'canara_pandeshwar_mangaluru': 'CNRB0001001',
+  'canara_hampankatta_mangaluru': 'CNRB0000412',
+  'canara_balmatta_mangaluru': 'CNRB0000845',
+  'canara_kodialbail_mangaluru': 'CNRB0001890',
+  'canara_founder_mangaluru': 'CNRB0000001',
+  'canara_main_mangaluru': 'CNRB0001001',
+  'canara_surathkal_mangaluru': 'CNRB0000411',
+  'canara_udupi_udupi': 'CNRB0000192',
+  'canara_manipal_udupi': 'CNRB0000107',
+  'canara_mysuru_mysuru': 'CNRB0000812',
+  'canara_mg road_bengaluru': 'CNRB0000210',
+  'canara_indiranagar_bengaluru': 'CNRB0000912',
+  'canara_koramangala_bengaluru': 'CNRB0002415',
+  'canara_main_bengaluru': 'CNRB0000201',
+  'canara_connaught place_delhi': 'CNRB0000104',
+  'canara_fort_mumbai': 'CNRB0000201',
+  'canara_default': 'CNRB0001001',
+
+  // Karnataka Bank Ltd Official IFSC
+  'karnataka_gurupura_mangaluru': 'KARB0000312',
+  'karnataka_balmatta_mangaluru': 'KARB0000501',
+  'karnataka_kankanady_mangaluru': 'KARB0000492',
+  'karnataka_hampankatta_mangaluru': 'KARB0000002',
+  'karnataka_kodialbail_mangaluru': 'KARB0000001',
+  'karnataka_head office_mangaluru': 'KARB0000001',
+  'karnataka_main_mangaluru': 'KARB0000001',
+  'karnataka_surathkal_mangaluru': 'KARB0000305',
+  'karnataka_udupi_udupi': 'KARB0000005',
+  'karnataka_manipal_udupi': 'KARB0000010',
+  'karnataka_mg road_bengaluru': 'KARB0000080',
+  'karnataka_main_bengaluru': 'KARB0000080',
+  'karnataka_fort_mumbai': 'KARB0000003',
+  'karnataka_connaught place_delhi': 'KARB0000004',
+  'karnataka_default': 'KARB0000501',
+
+  // State Bank of India (SBI) Official IFSC
+  'sbi_gurupura_mangaluru': 'SBIN0004521',
+  'sbi_balmatta_mangaluru': 'SBIN0000840',
+  'sbi_main_mangaluru': 'SBIN0000840',
+  'sbi_hampankatta_mangaluru': 'SBIN0000840',
+  'sbi_commercial_mangaluru': 'SBIN0001420',
+  'sbi_surathkal_mangaluru': 'SBIN0002273',
+  'sbi_udupi_udupi': 'SBIN0000933',
+  'sbi_manipal_udupi': 'SBIN0004426',
+  'sbi_mg road_bengaluru': 'SBIN0000531',
+  'sbi_main_bengaluru': 'SBIN0000813',
+  'sbi_parliament street_delhi': 'SBIN0000691',
+  'sbi_main_delhi': 'SBIN0000691',
+  'sbi_fort_mumbai': 'SBIN0000300',
+  'sbi_main_mumbai': 'SBIN0000300',
+  'sbi_default': 'SBIN0000840',
+
+  // Punjab National Bank (PNB) Official IFSC
+  'pnb_gurupura_mangaluru': 'PUNB0034200',
+  'pnb_main_mangaluru': 'PUNB0034200',
+  'pnb_hampankatta_mangaluru': 'PUNB0001200',
+  'pnb_udupi_udupi': 'PUNB0045000',
+  'pnb_connaught place_delhi': 'PUNB0000100',
+  'pnb_main_delhi': 'PUNB0000100',
+  'pnb_mg road_bengaluru': 'PUNB0000200',
+  'pnb_fort_mumbai': 'PUNB0000300',
+  'pnb_default': 'PUNB0034200',
+
+  // Post Office (India Post Payments Bank IPPB) Sovereign RBI IFSC
+  'postoffice_gurupura_mangaluru': 'IPOS0000412',
+  'postoffice_main_mangaluru': 'IPOS0000001',
+  'postoffice_head_mangaluru': 'IPOS0000001',
+  'postoffice_udupi_udupi': 'IPOS0000001',
+  'postoffice_main_bengaluru': 'IPOS0000001',
+  'postoffice_main_delhi': 'IPOS0000001',
+  'postoffice_main_mumbai': 'IPOS0000001',
+  'postoffice_default': 'IPOS0000001'
+}
+
+function getAuthenticIfscCode(bankId, branchName, cityName) {
+  const bClean = (branchName || '').trim().toLowerCase()
+  const cClean = (cityName || '').trim().toLowerCase()
+  const exactKey = `${bankId}_${bClean}_${cClean}`
+
+  // 1. Exact Key match
+  if (KNOWN_BRANCH_IFSC_DB[exactKey]) {
+    return KNOWN_BRANCH_IFSC_DB[exactKey]
+  }
+
+  // 2. Partial branch/city match in database
+  for (const [key, code] of Object.entries(KNOWN_BRANCH_IFSC_DB)) {
+    if (key.startsWith(bankId)) {
+      const parts = key.split('_')
+      const dbBranch = parts[1] || ''
+      const dbCity = parts[2] || ''
+      if ((bClean && dbBranch && (bClean.includes(dbBranch) || dbBranch.includes(bClean))) ||
+          (cClean && dbCity && (cClean.includes(dbCity) || dbCity.includes(cClean)))) {
+        return code
+      }
+    }
+  }
+
+  // 3. Bank fallback default
+  if (KNOWN_BRANCH_IFSC_DB[`${bankId}_default`]) {
+    return KNOWN_BRANCH_IFSC_DB[`${bankId}_default`]
+  }
+
+  const inst = INSTITUTIONS.find(i => i.id === bankId)
+  if (inst && inst.code) return inst.code
+
+  const prefix = BANK_IFSC_PREFIXES[bankId] || 'CNRB'
+  return `${prefix}0001001`
 }
 
 const BankLogo = ({ id }) => {
@@ -53,13 +235,47 @@ const BankLogo = ({ id }) => {
   }
 }
 
-export default function Advanced({ go, goBack, state, themeMode = 'dark' }) {
+export default function Advanced({ go, goBack, state, update, addXP, themeMode = 'dark' }) {
   const isLight = themeMode === 'light'
   const registeredUserName = state?.user?.name || 'Niyathi'
 
   // Selected Bank & Form Category
   const [selectedBankId, setSelectedBankId] = useState('canara')
   const [docType, setDocType] = useState('deposit')
+
+  // Level 3 Tab Switcher State
+  const [activeTab, setActiveTab] = useState('paper_slip') // 'paper_slip' | 'digital_safety'
+
+  // Cyber Safety Arena State Variables
+  const [digitalScenarioIdx, setDigitalScenarioIdx] = useState(0)
+  const [shieldScore, setShieldScore] = useState(100)
+  const [digitalFeedback, setDigitalFeedback] = useState('')
+  const [selectedOpt, setSelectedOpt] = useState(null)
+  const [cyberGameCompleted, setCyberGameCompleted] = useState(false)
+  const [selectedVideo, setSelectedVideo] = useState('upi_working')
+
+  const handleCyberAnswer = (optIndex) => {
+    setSelectedOpt(optIndex)
+    const currentScen = CYBER_SCENARIOS[digitalScenarioIdx]
+    const isCorrect = currentScen.opts[optIndex].correct
+
+    if (!isCorrect) {
+      setShieldScore(prev => Math.max(0, prev - 25))
+    }
+
+    setDigitalFeedback(currentScen.explain)
+  }
+
+  const handleNextScenario = () => {
+    setSelectedOpt(null)
+    setDigitalFeedback('')
+    if (digitalScenarioIdx < CYBER_SCENARIOS.length - 1) {
+      setDigitalScenarioIdx(prev => prev + 1)
+    } else {
+      setCyberGameCompleted(true)
+      if (addXP) addXP(50)
+    }
+  }
 
   // Search Mode for Branch / IFSC
   const [searchMode, setSearchMode] = useState('city_branch')
@@ -68,6 +284,9 @@ export default function Advanced({ go, goBack, state, themeMode = 'dark' }) {
   const [ifscInput, setIfscInput] = useState('')
   const [searchLoading, setSearchLoading] = useState(false)
   const [searchResult, setSearchResult] = useState(null)
+
+  const [toastMsg, setToastMsg] = useState(null)
+  const [highlightForm, setHighlightForm] = useState(false)
 
   const handlePerformSearch = async () => {
     setSearchLoading(true)
@@ -123,12 +342,12 @@ export default function Advanced({ go, goBack, state, themeMode = 'dark' }) {
         return
       }
       const currentInst = INSTITUTIONS.find(b => b.id === selectedBankId)
-      const mockIfsc = currentInst ? currentInst.code : 'CNRB0001001'
+      const authenticIfsc = getAuthenticIfscCode(selectedBankId, branchQ, cityQ)
       const matched = {
         bankName: currentInst?.name || 'Canara Bank',
         branchName: branchQ || 'Main Branch',
         city: cityQ || 'City',
-        ifsc: mockIfsc,
+        ifsc: authenticIfsc,
         address: `${branchQ || 'Main'} Branch, ${cityQ || 'City'}`
       }
       setSearchResult(matched)
@@ -143,6 +362,15 @@ export default function Advanced({ go, goBack, state, themeMode = 'dark' }) {
       branch: `${searchResult.branchName}, ${searchResult.city}`,
       ifsc: searchResult.ifsc
     }))
+    setToastMsg(`✅ APPLIED TO FORM: Branch "${searchResult.branchName}, ${searchResult.city}" & IFSC "${searchResult.ifsc}"`)
+    setHighlightForm(true)
+    setTimeout(() => setToastMsg(null), 4500)
+    setTimeout(() => setHighlightForm(false), 2500)
+
+    const formElem = document.getElementById('user-info-form-section')
+    if (formElem) {
+      formElem.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
   }
 
   // Single Master User Data Object (User enters ONCE, mapped everywhere)
@@ -159,7 +387,11 @@ export default function Advanced({ go, goBack, state, themeMode = 'dark' }) {
     pan: '',
     chequeNumber: '',
     bankName: '',
-    signature: null
+    signature: null,
+    notes500: '',
+    notes200: '',
+    notes100: '',
+    notes50: ''
   })
 
   const [hasCompletedSlip, setHasCompletedSlip] = useState(false)
@@ -377,7 +609,62 @@ export default function Advanced({ go, goBack, state, themeMode = 'dark' }) {
 
       </div>
 
-      {/* Title Banner */}
+      {/* Level 3 High Contrast Tab Switcher Bar */}
+      <div style={{ display: 'flex', gap: 14, marginBottom: 24, flexWrap: 'wrap' }}>
+        <button
+          onClick={() => setActiveTab('paper_slip')}
+          style={{
+            flex: '1 1 200px',
+            fontSize: 14,
+            fontWeight: 900,
+            padding: '14px 20px',
+            borderRadius: 14,
+            cursor: 'pointer',
+            transition: 'all 0.2s',
+            background: activeTab === 'paper_slip'
+              ? 'linear-gradient(135deg, #ea580c, #f59e0b)'
+              : (isLight ? '#ffedd5' : '#1e1b18'),
+            color: activeTab === 'paper_slip' ? '#ffffff' : (isLight ? '#9a3412' : '#fbbf24'),
+            border: activeTab === 'paper_slip'
+              ? '2.5px solid #c2410c'
+              : `2.5px solid ${isLight ? '#ea580c' : 'rgba(217, 119, 6, 0.6)'}`,
+            boxShadow: activeTab === 'paper_slip'
+              ? '0 6px 20px rgba(234, 88, 12, 0.4)'
+              : (isLight ? '0 2px 8px rgba(234, 88, 12, 0.1)' : 'none')
+          }}
+        >
+          📝 BANK PAPER SLIP WRITER 🏛️
+        </button>
+        
+        <button
+          onClick={() => setActiveTab('digital_safety')}
+          style={{
+            flex: '1 1 200px',
+            fontSize: 14,
+            fontWeight: 900,
+            padding: '14px 20px',
+            borderRadius: 14,
+            cursor: 'pointer',
+            transition: 'all 0.2s',
+            background: activeTab === 'digital_safety'
+              ? 'linear-gradient(135deg, #ea580c, #f59e0b)'
+              : (isLight ? '#ffedd5' : '#1e1b18'),
+            color: activeTab === 'digital_safety' ? '#ffffff' : (isLight ? '#9a3412' : '#fbbf24'),
+            border: activeTab === 'digital_safety'
+              ? '2.5px solid #c2410c'
+              : `2.5px solid ${isLight ? '#ea580c' : 'rgba(217, 119, 6, 0.6)'}`,
+            boxShadow: activeTab === 'digital_safety'
+              ? '0 6px 20px rgba(234, 88, 12, 0.4)'
+              : (isLight ? '0 2px 8px rgba(234, 88, 12, 0.1)' : 'none')
+          }}
+        >
+          🌐 DIGITAL BANKING & SAFETY 🛡️
+        </button>
+      </div>
+
+      {activeTab === 'paper_slip' && (
+        <div className="anim-fade" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+          {/* Title Banner */}
       <div className="glass-card-deep anim-scale" style={{
         padding: '24px',
         borderRadius: 24,
@@ -534,12 +821,24 @@ export default function Advanced({ go, goBack, state, themeMode = 'dark' }) {
             <button
               onClick={applySearchResultToForm}
               style={{
-                padding: '8px 16px', borderRadius: 10, background: '#10b981', color: '#ffffff',
-                border: 'none', fontWeight: 900, fontSize: 11, cursor: 'pointer', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)'
+                padding: '10px 18px', borderRadius: 10, background: '#10b981', color: '#ffffff',
+                border: 'none', fontWeight: 900, fontSize: 12, cursor: 'pointer', boxShadow: '0 4px 14px rgba(16, 185, 129, 0.4)',
+                transition: 'all 0.2s'
               }}
             >
               ✓ APPLY IFSC & BRANCH TO FORM
             </button>
+          </div>
+        )}
+
+        {toastMsg && (
+          <div className="anim-scale" style={{
+            marginTop: 12, padding: '12px 18px', borderRadius: 12,
+            background: '#10b981', color: '#ffffff', fontWeight: 900, fontSize: 12,
+            display: 'flex', alignItems: 'center', gap: 8, boxShadow: '0 6px 20px rgba(16, 185, 129, 0.4)'
+          }}>
+            <span>✅</span>
+            <span>{toastMsg}</span>
           </div>
         )}
       </div>
@@ -569,11 +868,19 @@ export default function Advanced({ go, goBack, state, themeMode = 'dark' }) {
         </div>
       </div>
 
-      {/* ─── SECTION 3: SINGLE MASTER USER INPUT FORM ─── */}
-      <div className="glass-card-deep" style={{ padding: 24, borderRadius: 20, marginBottom: 20, background: isLight ? '#ffffff' : '#12100c', border: '1.5px solid #ea580c' }}>
-        <div style={{ fontSize: 12, fontWeight: 900, color: '#ea580c', textTransform: 'uppercase', marginBottom: 12 }}>
+      {/* ─── SECTION 4: SINGLE MASTER USER INPUT FORM ─── */}
+      <div id="user-info-form-section" className="glass-card-deep" style={{
+        padding: 24, borderRadius: 20, marginBottom: 20,
+        background: isLight ? '#ffffff' : '#12100c',
+        border: highlightForm ? '3px solid #10b981' : '1.5px solid #ea580c',
+        boxShadow: highlightForm ? '0 0 30px rgba(16, 185, 129, 0.4)' : 'none',
+        transition: 'all 0.4s'
+      }}>
+        <div style={{ fontSize: 12, fontWeight: 900, color: highlightForm ? '#10b981' : '#ea580c', textTransform: 'uppercase', marginBottom: 12 }}>
           ✍️ ENTER YOUR INFORMATION ONCE ({docType === 'deposit' ? 'SYSTEM RENDERS IT ON CASH DEPOSIT SLIP' : docType === 'withdrawal' ? 'SYSTEM RENDERS IT ON WITHDRAWAL SLIP' : 'SYSTEM RENDERS IT ON CHEQUE LEAF'})
         </div>
+
+
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12 }}>
           <div>
@@ -610,7 +917,12 @@ export default function Advanced({ go, goBack, state, themeMode = 'dark' }) {
               onChange={e => setUserData({ ...userData, ifsc: e.target.value })}
               placeholder="e.g. CNRB0001001"
               className="input-light"
-              style={{ padding: '9px 12px', fontSize: 12, fontWeight: 800, textTransform: 'uppercase' }}
+              style={{
+                padding: '9px 12px', fontSize: 12, fontWeight: 800, textTransform: 'uppercase',
+                border: highlightForm ? '2.5px solid #10b981' : undefined,
+                background: highlightForm ? (isLight ? '#ecfdf5' : 'rgba(16, 185, 129, 0.2)') : undefined,
+                transition: 'all 0.3s'
+              }}
             />
           </div>
 
@@ -622,7 +934,12 @@ export default function Advanced({ go, goBack, state, themeMode = 'dark' }) {
               onChange={e => setUserData({ ...userData, branch: e.target.value })}
               placeholder="e.g. Pandeshwar, Mangaluru"
               className="input-light"
-              style={{ padding: '9px 12px', fontSize: 12, fontWeight: 800 }}
+              style={{
+                padding: '9px 12px', fontSize: 12, fontWeight: 800,
+                border: highlightForm ? '2.5px solid #10b981' : undefined,
+                background: highlightForm ? (isLight ? '#ecfdf5' : 'rgba(16, 185, 129, 0.2)') : undefined,
+                transition: 'all 0.3s'
+              }}
             />
           </div>
 
@@ -785,7 +1102,133 @@ export default function Advanced({ go, goBack, state, themeMode = 'dark' }) {
             📋 REVIEW & PRINT FILLED FORM PDF
           </button>
         </div>
+        </div>
       </div>
+    )}
+
+      {/* ─── DIGITAL BANKING & CYBER SAFETY ARENA ─── */}
+      {activeTab === 'digital_safety' && (
+        <div className="anim-scale glass-card-deep" style={{ padding: '32px', marginBottom: 24, background: isLight ? '#ffffff' : 'var(--bg-card-deep, #12100c)', border: '2px solid #ea580c', color: isLight ? '#0f172a' : '#ffffff' }}>
+          <div style={{ textAlign: 'center', marginBottom: 28 }}>
+            <div className="sticker-badge sticker-yellow" style={{ marginBottom: 10 }}>
+              🌐 CYBER SAFETY ARENA
+            </div>
+            <h2 className="font-display" style={{ fontSize: 36, color: isLight ? '#0f172a' : 'var(--heading-color, #ffffff)', marginBottom: 4 }}>
+              DIGITAL BANKING & SAFETY 🛡️
+            </h2>
+            <p style={{ color: isLight ? '#475569' : 'var(--text-sub, #d1d5db)', fontSize: 13, fontWeight: 600 }}>
+              Defend your bank account against real-world phishing traps and cyber scams!
+            </p>
+          </div>
+
+          {!cyberGameCompleted ? (
+            <div className="glass-card" style={{ padding: 24, border: '2px solid #f59e0b', background: isLight ? '#fff7ed' : 'var(--bg-card-deep, #12100c)', color: isLight ? '#0f172a' : '#ffffff' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                <span style={{ fontSize: 13, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff' }}>
+                  SCENARIO {digitalScenarioIdx + 1} OF {CYBER_SCENARIOS.length}
+                </span>
+                <div className="sticker-badge sticker-yellow">
+                  🛡️ SHIELD HEALTH: {shieldScore}%
+                </div>
+              </div>
+
+              <div style={{
+                background: isLight ? '#ffffff' : 'rgba(245, 158, 11, 0.12)', borderRadius: 16, padding: 20,
+                border: '2px solid #ea580c', marginBottom: 20, boxShadow: isLight ? '0 4px 12px rgba(234,88,12,0.1)' : 'none'
+              }}>
+                <h3 style={{ fontWeight: 900, fontSize: 16, color: isLight ? '#9a3412' : '#ffffff', marginBottom: 8 }}>
+                  {CYBER_SCENARIOS[digitalScenarioIdx].title}
+                </h3>
+                <p style={{ fontSize: 14, color: isLight ? '#0f172a' : '#e2e8f0', lineHeight: 1.6, fontWeight: 800 }}>
+                  {CYBER_SCENARIOS[digitalScenarioIdx].scenario}
+                </p>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 20 }}>
+                {CYBER_SCENARIOS[digitalScenarioIdx].opts.map((opt, i) => (
+                  <button
+                    key={i}
+                    onClick={() => handleCyberAnswer(i)}
+                    className={selectedOpt === i ? (opt.correct ? 'btn-primary' : 'btn-pink') : 'btn-outline'}
+                    style={{
+                      textAlign: 'left', fontSize: 13, padding: '14px 18px', width: '100%',
+                      fontWeight: 800,
+                      color: selectedOpt === i ? '#ffffff' : (isLight ? '#7c2d12' : '#fbbf24'),
+                      borderColor: isLight ? '#ea580c' : undefined,
+                      background: selectedOpt === i ? undefined : (isLight ? '#ffffff' : undefined)
+                    }}
+                  >
+                    {opt.text}
+                  </button>
+                ))}
+              </div>
+
+              {digitalFeedback && (
+                <div className="anim-fade" style={{
+                  background: isLight ? '#ffedd5' : 'rgba(245,158,11,0.12)', border: '1.5px solid #f59e0b',
+                  borderRadius: 14, padding: 16, marginBottom: 20, color: isLight ? '#7c2d12' : '#fef3c7', fontSize: 13, lineHeight: 1.5, fontWeight: 700
+                }}>
+                  💡 {digitalFeedback}
+                </div>
+              )}
+
+              {selectedOpt !== null && (
+                <button className="btn-primary" onClick={handleNextScenario} style={{ width: '100%', fontSize: 14, fontWeight: 900 }}>
+                  {digitalScenarioIdx < CYBER_SCENARIOS.length - 1 ? 'NEXT SCENARIO →' : '🏆 FINISH CHALLENGE (+50 XP)'}
+                </button>
+              )}
+            </div>
+          ) : (
+            <div style={{ textAlign: 'center', padding: 32, background: isLight ? '#ffffff' : 'var(--bg-card-deep, #12100c)', border: '2px solid #ea580c', borderRadius: 20 }} className="glass-card">
+              <div style={{ fontSize: 56, marginBottom: 12 }}>🛡️</div>
+              <h3 className="font-display" style={{ fontSize: 32, color: isLight ? '#ea580c' : '#fbbf24', marginBottom: 8 }}>
+                CHALLENGE PASSED!
+              </h3>
+              <p style={{ color: isLight ? '#475569' : '#d1d5db', fontSize: 14, fontWeight: 600, marginBottom: 20 }}>
+                Shield Health: {shieldScore}% • You earned +50 XP and mastered digital bank safety!
+              </p>
+              <button className="btn-primary" onClick={() => setCyberGameCompleted(false)}>
+                🔄 REPLAY SAFETY ARENA
+              </button>
+            </div>
+          )}
+
+          {/* Phone SMS & Phishing Message Analyzer */}
+          <MessageScamAnalyzer themeMode={themeMode} />
+
+          {/* Video Tutorials Section */}
+          <div style={{ marginTop: 32 }}>
+            <h3 className="font-display" style={{ fontSize: 24, color: isLight ? '#0f172a' : '#ffffff', marginBottom: 16 }}>
+              🎬 DIGITAL BANKING TUTORIALS
+            </h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14, marginBottom: 20 }}>
+              {Object.keys(VIDEOS_DB).map(vKey => (
+                <button
+                  key={vKey}
+                  onClick={() => setSelectedVideo(vKey)}
+                  className={selectedVideo === vKey ? 'btn-primary' : 'btn-outline'}
+                  style={{
+                    fontSize: 12, padding: '12px', fontWeight: 800,
+                    color: selectedVideo === vKey ? '#ffffff' : (isLight ? '#7c2d12' : '#fbbf24'),
+                    borderColor: isLight ? '#ea580c' : undefined
+                  }}
+                >
+                  {VIDEOS_DB[vKey].title}
+                </button>
+              ))}
+            </div>
+
+            <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden', borderRadius: 16, border: '2px solid #ea580c' }}>
+              <iframe
+                src={VIDEOS_DB[selectedVideo].url}
+                title={VIDEOS_DB[selectedVideo].title}
+                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
+                allowFullScreen
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ─── FINAL VERIFICATION MODAL ─── */}
       {showVerifyModal && (

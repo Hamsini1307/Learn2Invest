@@ -386,10 +386,10 @@ export default function LevelMap({ go, goBack, state, aiGuideAvatar = 'female', 
         {[
           { id: 'beginner', type: 'school', label: 'LEARN2INVEST SCHOOL', desc: 'Watch 4 projector video lessons on financial schemes', screen: 'beginner', btnText: 'Enter School →', reqText: 'Unlocked' },
           { id: 'intermediate', type: 'lab', label: 'INVESTMENT LAB', desc: 'Simulations & deeper asset allocation strategies', screen: 'intermediate', btnText: 'Continue →', reqText: '🔒 Score 60%+ in Quiz Hall to unlock' },
-          { id: 'advanced', type: 'tower', label: 'PORTFOLIO TOWER', desc: 'Portfolio mastery & advanced investment strategies', screen: 'advanced', btnText: state.advancedUnlocked ? 'Continue →' : 'Unlock Level 3', reqText: '🔒 Complete Level 2 Lab to unlock' },
+          { id: 'advanced', type: 'tower', label: 'PORTFOLIO TOWER', desc: 'Portfolio mastery & advanced investment strategies', screen: 'advanced', btnText: 'Continue →', reqText: 'Unlocked' },
         ].map((bld) => {
-          const unlocked = isUnlocked(bld.id)
-          const pct = bld.id === 'beginner' ? begPct : bld.id === 'intermediate' ? intPct : (state.advancedUnlocked ? 20 : 0)
+          const unlocked = true
+          const pct = bld.id === 'beginner' ? begPct : bld.id === 'intermediate' ? intPct : 100
 
           return (
             <BuildingCard

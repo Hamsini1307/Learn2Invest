@@ -33,7 +33,7 @@ const INITIAL_STATE = {
   user: null, xp: 0, lessonsWatched: [],
   completedModules: [],
   correctCount: 0, quizScore: 0,
-  intermediateUnlocked: false, advancedUnlocked: false,
+  intermediateUnlocked: true, advancedUnlocked: true,
   currentVideo: null, currentModule: null,
   startingLevel: null,
   allocations: { PPF: 30, FD: 25, NSC: 20, SSY: 15, RD: 10 },
@@ -422,20 +422,22 @@ export default function App() {
               </div>
 
               <EducationalDisclaimer lang={lang} />
-
-              <Chatbot
-                open={chatOpen}
-                onToggle={() => setChatOpen(o => !o)}
-                onClose={() => setChatOpen(false)}
-                user={state.user}
-                xp={state.xp}
-                currentScreen={screen}
-                aiGuideAvatar={aiGuideAvatar}
-                aiGuideName={aiGuideName}
-                themeMode={themeMode}
-              />
             </>
           )}
+
+          {/* AI Chatbot with Voice Assistant - Included on EVERY page */}
+          <Chatbot
+            open={chatOpen}
+            onToggle={() => setChatOpen(o => !o)}
+            onClose={() => setChatOpen(false)}
+            user={state.user}
+            xp={state.xp}
+            currentScreen={screen}
+            aiGuideAvatar={aiGuideAvatar}
+            aiGuideName={aiGuideName}
+            themeMode={themeMode}
+            lang={lang}
+          />
 
           <AiAvatarSelector
             isOpen={avatarModalOpen}

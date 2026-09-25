@@ -57,9 +57,9 @@ export default function Dashboard({ go, goBack, state, addXP, aiGuideAvatar = 'f
     {
       id: 'advanced', type: 'tower', title: `🏦 ${getText('tower', lang)}`, screen: 'advanced',
       desc: getText('towerDesc', lang),
-      pct: state.advancedUnlocked ? 100 : 0,
-      locked: !state.advancedUnlocked,
-      buttonText: state.advancedUnlocked ? `${getText('enterTower', lang)} →` : '🔒 Complete Level 2',
+      pct: 100,
+      locked: false,
+      buttonText: `${getText('enterTower', lang)} →`,
     },
   ]
 

@@ -44,7 +44,7 @@ function generateDynamicAiReply(message, userName, screen, guideName) {
   const isWhereToInvest = /where\s*(should\s*i|to)?\s*invest|where\s*to\s*put|how\s*to\s*invest|have\s*\d+|invest\s*\d+/i.test(m)
   
   if (isGreeting) {
-    return `👋 **Namaste ${name}! I'm ${bot}, your AI Investment Tutor.**\n\nHow can I help you accelerate your financial journey today? Ask me any question or select a topic to get started!`
+    return `👋 **Namaste ${name}! I'm ${bot}, your AI Investment Tutor & Voice Assistant.**\n\nHow can I help you accelerate your financial journey today? Ask me any question or select a topic to get started!`
   }
 
   if (isWhereToInvest) {
@@ -111,26 +111,31 @@ async function getGeminiReply(message, history, systemInstruction, apiKey) {
   }
 }
 
-export default function Chatbot({ open, onToggle, onClose, user, xp, currentScreen, aiGuideAvatar = 'female', aiGuideName, themeMode = 'dark' }) {
+export default function Chatbot({ open, onToggle, onClose, user, xp, currentScreen, aiGuideAvatar = 'female', aiGuideName, themeMode = 'dark', lang = 'en' }) {
   const activeAvatar = AI_AVATARS[aiGuideAvatar] || AI_AVATARS.female
   const guideName = aiGuideName || activeAvatar.name
   const isLight = themeMode === 'light'
 
   const [msgs, setMsgs] = useState([{
     from: 'bot',
-    text: `👋 **Namaste! I'm ${guideName}, your AI Investment Guide!**\n\nAsk me anything about investing in India — SIP, mutual funds, PPF, tax saving, and more. Or pick a question below to get started! 🚀`
+    text: `👋 **Namaste! I'm ${guideName}, your AI Investment Guide & Voice Assistant!**\n\nAsk me anything about investing in India — SIP, mutual funds, PPF, tax saving, and more. Use voice input or text to chat! 🎙️🚀`
   }])
   const [input, setInput] = useState('')
   const [typing, setTyping] = useState(false)
-  const [showSettings, setShowSettings] = useState(false)
   const [apiKey, setApiKey] = useState(() => localStorage.getItem('gemini_api_key') || '')
   const [speakingIdx, setSpeakingIdx] = useState(null)
+  const [isListening, setIsListening] = useState(false)
+  const [autoVoice, setAutoVoice] = useState(false)
+  const recognitionRef = useRef(null)
   const bottomRef = useRef(null)
 
   useEffect(() => {
     return () => {
       if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
         window.speechSynthesis.cancel()
+      }
+      if (recognitionRef.current) {
+        try { recognitionRef.current.stop() } catch {}
       }
     }
   }, [])
@@ -155,13 +160,18 @@ export default function Chatbot({ open, onToggle, onClose, user, xp, currentScre
     const utterance = new SpeechSynthesisUtterance(cleanText)
     utterance.rate = 0.95
     utterance.pitch = aiGuideAvatar === 'female' ? 1.05 : 0.95
+    if (lang === 'hi') utterance.lang = 'hi-IN'
 
     if (window.speechSynthesis.getVoices) {
       const voices = window.speechSynthesis.getVoices()
       if (voices && voices.length > 0) {
-        const preferredVoice = voices.find(v => v.lang.startsWith('en') && (
-          aiGuideAvatar === 'female' ? (v.name.includes('Female') || v.name.includes('Zira') || v.name.includes('Google US English') || v.name.includes('Samantha')) : (v.name.includes('Male') || v.name.includes('David') || v.name.includes('George'))
-        )) || voices.find(v => v.lang.startsWith('en'))
+        const preferredVoice = voices.find(v => (
+          lang === 'hi' ? v.lang.startsWith('hi') : v.lang.startsWith('en')
+        ) && (
+          aiGuideAvatar === 'female'
+            ? (v.name.includes('Female') || v.name.includes('Zira') || v.name.includes('Google US English') || v.name.includes('Samantha') || v.name.includes('Kalpana'))
+            : (v.name.includes('Male') || v.name.includes('David') || v.name.includes('George') || v.name.includes('Hemant'))
+        )) || voices.find(v => lang === 'hi' ? v.lang.startsWith('hi') : v.lang.startsWith('en'))
         if (preferredVoice) utterance.voice = preferredVoice
       }
     }
@@ -172,12 +182,62 @@ export default function Chatbot({ open, onToggle, onClose, user, xp, currentScre
     window.speechSynthesis.speak(utterance)
   }
 
+  const toggleListening = () => {
+    if (typeof window === 'undefined') return
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+    if (!SpeechRecognition) {
+      alert('Voice input is not supported in your browser. Please use Google Chrome, Microsoft Edge, or Safari.')
+      return
+    }
+
+    if (isListening) {
+      if (recognitionRef.current) {
+        try { recognitionRef.current.stop() } catch {}
+      }
+      setIsListening(false)
+      return
+    }
+
+    try {
+      const recognition = new SpeechRecognition()
+      recognitionRef.current = recognition
+      recognition.continuous = false
+      recognition.interimResults = true
+      recognition.lang = lang === 'hi' ? 'hi-IN' : 'en-IN'
+
+      recognition.onstart = () => {
+        setIsListening(true)
+      }
+
+      recognition.onresult = (e) => {
+        const transcript = Array.from(e.results)
+          .map(r => r[0].transcript)
+          .join('')
+        setInput(transcript)
+      }
+
+      recognition.onerror = (e) => {
+        console.error('Speech recognition error:', e.error)
+        setIsListening(false)
+      }
+
+      recognition.onend = () => {
+        setIsListening(false)
+      }
+
+      recognition.start()
+    } catch (err) {
+      console.error('Speech recognition start failed:', err)
+      setIsListening(false)
+    }
+  }
+
   useEffect(() => {
     if (open) {
       setMsgs(prev => {
         const welcomeText = user
-          ? `👋 **Namaste ${user.name}! I'm ${guideName}, your AI Investment Guide!**\n\nYou currently have **${xp} XP**. Ask me anything about investing in India — SIP, mutual funds, PPF, tax saving, and more! 🚀`
-          : `👋 **Namaste! I'm ${guideName}, your AI Investment Guide!**\n\nAsk me anything about investing in India — SIP, mutual funds, PPF, tax saving, and more! 🚀`
+          ? `👋 **Namaste ${user.name}! I'm ${guideName}, your AI Investment Guide & Voice Assistant!**\n\nYou currently have **${xp} XP**. Ask me anything using text or voice! 🎙️🚀`
+          : `👋 **Namaste! I'm ${guideName}, your AI Investment Guide & Voice Assistant!**\n\nAsk me anything using text or voice! 🎙️🚀`
         
         if (prev.length === 1 && prev[0].from === 'bot') {
           return [{ from: 'bot', text: welcomeText }]
@@ -214,17 +274,6 @@ export default function Chatbot({ open, onToggle, onClose, user, xp, currentScre
     }])
   }
 
-  const saveApiKey = (keyVal) => {
-    const trimmed = keyVal.trim()
-    setApiKey(trimmed)
-    if (trimmed) {
-      localStorage.setItem('gemini_api_key', trimmed)
-    } else {
-      localStorage.removeItem('gemini_api_key')
-    }
-    setShowSettings(false)
-  }
-
   const send = async (text) => {
     const t = (text || input).trim()
     if (!t) return
@@ -238,8 +287,15 @@ export default function Chatbot({ open, onToggle, onClose, user, xp, currentScre
     setTyping(false)
 
     const dynamicFallback = generateDynamicAiReply(t, user?.name, currentScreen, guideName)
+    const replyText = geminiText || dynamicFallback
 
-    setMsgs(m => [...m, { from: 'bot', text: geminiText || dynamicFallback }])
+    setMsgs(m => {
+      const newMsgs = [...m, { from: 'bot', text: replyText }]
+      if (autoVoice) {
+        setTimeout(() => speakText(replyText, newMsgs.length - 1), 150)
+      }
+      return newMsgs
+    })
   }
 
   const formatText = (text) => {
@@ -309,26 +365,38 @@ export default function Chatbot({ open, onToggle, onClose, user, xp, currentScre
   if (!open) {
     return (
       <div style={{
-        position: 'fixed', bottom: 24, right: 24, zIndex: 9999,
+        position: 'fixed', bottom: 24, right: 24, zIndex: 99999,
         display: 'flex', flexDirection: 'column', alignItems: 'flex-end',
+        gap: 8,
         fontFamily: "'Space Grotesk', sans-serif"
       }}>
         {/* Launcher Floating Circular Button */}
         <button
           onClick={onToggle || onClose}
           style={{
-            width: 56, height: 56, borderRadius: '50%',
+            width: 60, height: 60, borderRadius: '50%',
             background: 'linear-gradient(135deg, #0284c7, #2563eb)',
-            border: '2.5px solid #38bdf8',
-            color: '#ffffff', fontSize: 26,
+            border: '3px solid #38bdf8',
+            color: '#ffffff', fontSize: 28,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             cursor: 'pointer',
-            boxShadow: '0 8px 24px rgba(2, 132, 199, 0.6)',
-            transition: 'transform 0.2s',
+            boxShadow: '0 8px 28px rgba(2, 132, 199, 0.7)',
+            transition: 'transform 0.2s, box-shadow 0.2s',
+            position: 'relative',
           }}
-          title={`Chat with ${guideName}`}
+          title={`Chat with ${guideName} (Voice Assistant Active)`}
         >
           {activeAvatar.icon}
+          <div style={{
+            position: 'absolute', top: -4, right: -4,
+            background: '#10b981', color: '#fff',
+            fontSize: 10, fontWeight: 900, padding: '2px 6px',
+            borderRadius: 10, border: '2px solid #080705',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.4)',
+            letterSpacing: '0.5px'
+          }}>
+            🎙️ AI
+          </div>
         </button>
       </div>
     )
@@ -336,16 +404,16 @@ export default function Chatbot({ open, onToggle, onClose, user, xp, currentScre
 
   return (
     <div style={{
-      position: 'fixed', bottom: 24, right: 24, zIndex: 200,
-      width: 390, maxWidth: 'calc(100vw - 32px)',
-      height: '75vh', maxHeight: 640,
+      position: 'fixed', bottom: 24, right: 24, zIndex: 99999,
+      width: 400, maxWidth: 'calc(100vw - 32px)',
+      height: '78vh', maxHeight: 660,
       display: 'flex', flexDirection: 'column',
       borderRadius: 24,
-      background: 'var(--bg-card, rgba(18, 16, 12, 0.95))',
+      background: 'var(--bg-card, rgba(18, 16, 12, 0.96))',
       backdropFilter: 'blur(32px)',
       WebkitBackdropFilter: 'blur(32px)',
-      border: '2px solid #d97706',
-      boxShadow: 'var(--card-shadow, 0 24px 80px rgba(0,0,0,0.9))',
+      border: '2.5px solid #d97706',
+      boxShadow: 'var(--card-shadow, 0 24px 80px rgba(0,0,0,0.95))',
       overflow: 'hidden',
       animation: 'popIn 0.4s cubic-bezier(0.34,1.56,0.64,1)',
       transformOrigin: 'bottom right',
@@ -353,7 +421,7 @@ export default function Chatbot({ open, onToggle, onClose, user, xp, currentScre
     }}>
       {/* Header */}
       <div style={{
-        padding: '16px 20px',
+        padding: '14px 18px',
         background: 'linear-gradient(135deg, #d97706, #f59e0b)',
         color: '#080705',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -362,7 +430,7 @@ export default function Chatbot({ open, onToggle, onClose, user, xp, currentScre
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <div style={{
-            width: 40, height: 40, borderRadius: 12,
+            width: 42, height: 42, borderRadius: 12,
             background: '#080705', color: '#fbbf24',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 22, fontWeight: 900,
@@ -370,16 +438,37 @@ export default function Chatbot({ open, onToggle, onClose, user, xp, currentScre
             {activeAvatar.icon}
           </div>
           <div>
-            <div style={{ fontWeight: 900, fontSize: 16, fontFamily: "'Bebas Neue', 'Space Grotesk', sans-serif", letterSpacing: '1px', color: '#080705' }}>
-              {guideName.toUpperCase()} · AI GUIDE
+            <div style={{ fontWeight: 900, fontSize: 15, fontFamily: "'Bebas Neue', 'Space Grotesk', sans-serif", letterSpacing: '1px', color: '#080705' }}>
+              {guideName.toUpperCase()} · VOICE & AI TUTOR
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#080705' }} />
-              <span style={{ fontSize: 11, fontWeight: 800, color: '#1a1610' }}>{activeAvatar.badge}</span>
+              <span style={{ fontSize: 11, fontWeight: 800, color: '#1a1610' }}>🎙️ Voice Assistant Active</span>
             </div>
           </div>
         </div>
+
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <button
+            onClick={() => setAutoVoice(prev => !prev)}
+            title={autoVoice ? "Auto-Read Responses: ON" : "Auto-Read Responses: OFF"}
+            style={{
+              background: autoVoice ? '#080705' : 'rgba(8,7,5,0.15)',
+              border: '1px solid #080705',
+              borderRadius: 8,
+              padding: '4px 8px',
+              color: autoVoice ? '#fbbf24' : '#080705',
+              cursor: 'pointer',
+              fontSize: 10,
+              fontWeight: 800,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 4
+            }}
+          >
+            {autoVoice ? '🔊 Auto Voice ON' : '🔇 Auto Voice OFF'}
+          </button>
+          
           <button
             onClick={clearChat}
             title="Clear Conversation"
@@ -387,7 +476,7 @@ export default function Chatbot({ open, onToggle, onClose, user, xp, currentScre
               background: '#080705',
               border: 'none',
               borderRadius: 8,
-              padding: '4px 10px',
+              padding: '4px 8px',
               color: '#fbbf24',
               cursor: 'pointer',
               fontSize: 11,
@@ -439,7 +528,7 @@ export default function Chatbot({ open, onToggle, onClose, user, xp, currentScre
               {m.from === 'bot' ? formatText(m.text) : m.text}
 
               {m.from === 'bot' && (
-                <div style={{ marginTop: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
                   <button
                     onClick={() => speakText(m.text, i)}
                     style={{
@@ -448,16 +537,16 @@ export default function Chatbot({ open, onToggle, onClose, user, xp, currentScre
                       borderRadius: 8,
                       padding: '4px 10px',
                       color: speakingIdx === i ? '#ffffff' : (isLight ? '#c2410c' : 'var(--gold-amber, #fbbf24)'),
-                      fontSize: 10,
+                      fontSize: 11,
                       fontWeight: 900,
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: 4
+                      gap: 5
                     }}
                     title="Listen to AI Voice Assistant"
                   >
-                    <span>{speakingIdx === i ? '🔊 Speaking...' : '🔊 Voice Assistant'}</span>
+                    <span>{speakingIdx === i ? '🔊 Speaking... (Click to stop)' : '🔊 Read Out Loud (Voice Assistant)'}</span>
                   </button>
                 </div>
               )}
@@ -497,18 +586,65 @@ export default function Chatbot({ open, onToggle, onClose, user, xp, currentScre
         ))}
       </div>
 
+      {/* Listening Status Alert */}
+      {isListening && (
+        <div style={{
+          padding: '6px 14px',
+          background: 'linear-gradient(90deg, #dc2626, #b91c1c)',
+          color: '#ffffff',
+          fontSize: 11,
+          fontWeight: 800,
+          display: 'flex',
+          alignItems: 'center',
+          justify: 'space-between',
+          gap: 8,
+          flexShrink: 0
+        }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#fff', animation: 'pulse 1s infinite' }} />
+            🎙️ Voice Assistant Listening... Speak your question clearly!
+          </span>
+          <button
+            type="button"
+            onClick={toggleListening}
+            style={{ background: 'transparent', border: 'none', color: '#fff', fontSize: 12, fontWeight: 900, cursor: 'pointer' }}
+          >Stop ✕</button>
+        </div>
+      )}
+
       {/* Input */}
       <div style={{
         padding: '12px 14px',
         background: 'var(--bg-card-deep, #12100c)',
         borderTop: '1px solid rgba(217,119,6,0.2)',
-        display: 'flex', gap: 8, flexShrink: 0,
+        display: 'flex', gap: 8, flexShrink: 0, alignItems: 'center'
       }}>
+        {/* Voice Input Mic Button */}
+        <button
+          type="button"
+          onClick={toggleListening}
+          style={{
+            background: isListening ? '#dc2626' : (isLight ? '#f1f5f9' : 'rgba(255,255,255,0.08)'),
+            border: `1.5px solid ${isListening ? '#ef4444' : (isLight ? '#cbd5e1' : 'rgba(217,119,6,0.4)')}`,
+            borderRadius: 12,
+            width: 42, height: 42,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: isListening ? '#ffffff' : (isLight ? '#0f172a' : '#fbbf24'),
+            fontSize: 18,
+            cursor: 'pointer',
+            boxShadow: isListening ? '0 0 12px rgba(239, 68, 68, 0.8)' : 'none',
+            flexShrink: 0
+          }}
+          title={isListening ? 'Stop voice input' : 'Speak using Voice Assistant'}
+        >
+          {isListening ? '🛑' : '🎙️'}
+        </button>
+
         <input
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && send()}
-          placeholder={`Ask ${guideName} about SIP, PPF...`}
+          placeholder={isListening ? "Listening..." : `Ask ${guideName} or click 🎙️ to speak...`}
           className="input-light"
           style={{ flex: 1, padding: '10px 14px', fontSize: 13 }}
         />
@@ -523,6 +659,11 @@ export default function Chatbot({ open, onToggle, onClose, user, xp, currentScre
         @keyframes typingDot {
           0%,60%,100% { transform: translateY(0); opacity: 0.4; }
           30% { transform: translateY(-5px); opacity: 1; }
+        }
+        @keyframes pulse {
+          0% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.5; transform: scale(1.05); }
+          100% { opacity: 1; transform: scale(1); }
         }
       `}</style>
     </div>

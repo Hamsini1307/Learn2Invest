@@ -4,8 +4,8 @@
 export const INSTITUTIONS = [
   { id: 'canara', name: 'Canara Bank', code: 'CNRB0001001', emoji: '🏦' },
   { id: 'karnataka', name: 'Karnataka Bank Ltd.', code: 'KARB0000501', emoji: '🏛️' },
-  { id: 'postoffice', name: 'Post Office Savings Bank', code: 'POST560001', emoji: '📮' },
-  { id: 'pnb', name: 'Punjab National Bank', code: 'PUNB0001200', emoji: '🏢' },
+  { id: 'postoffice', name: 'Post Office Savings Bank', code: 'IPOS0000001', emoji: '📮' },
+  { id: 'pnb', name: 'Punjab National Bank', code: 'PUNB0034200', emoji: '🏢' },
   { id: 'sbi', name: 'State Bank of India', code: 'SBIN0000840', emoji: '🏬' }
 ]
 
@@ -14,6 +14,105 @@ export const FORM_CATEGORIES = [
   { id: 'withdrawal', label: '💳 Cash Withdrawal Slip' },
   { id: 'cheque', label: '✒️ Cheque Book' }
 ]
+
+// ─── CANONICAL FIELD MAPPING DICTIONARY ───
+// Maps App-wide Permanent Predefined Fields to Bank-Specific Slip Labels
+export const CANONICAL_FIELD_MAPPING = {
+  accountNumber: {
+    canonicalName: 'Account Number',
+    acceptedLabels: [
+      'A/c No.',
+      'A/c No. / Credit Card No.',
+      'SF/CA/OD/CC/RD/TL/DL A/c No.',
+      'Account Number',
+      'Account Number (Left)',
+      'Account Number (Right)',
+      'Savings A/c No.'
+    ]
+  },
+  branch: {
+    canonicalName: 'Branch Name',
+    acceptedLabels: [
+      'Branch',
+      'Branch Name',
+      'Account Maintained with Branch',
+      'Post Office',
+      'Post Office Name',
+      'Branch Name (Left)',
+      'Branch Name (Right)'
+    ]
+  },
+  date: {
+    canonicalName: 'Date',
+    acceptedLabels: [
+      'Date',
+      'Date (Left)',
+      'Date (Right)',
+      'Date Digits (Right)',
+      'Cheque Date',
+      'Application Date'
+    ]
+  },
+  mobileNumber: {
+    canonicalName: 'Mobile Number',
+    acceptedLabels: [
+      'Tel No.',
+      'Tel No. / Mobile No.',
+      'Mobile No.',
+      'Mobile Number',
+      'Mobile Number (Left)',
+      'Mobile Number (Right)'
+    ]
+  },
+  amount: {
+    canonicalName: 'Amount',
+    acceptedLabels: [
+      'Amount',
+      '₹ Amount',
+      'Total Amount',
+      'Numeric Amount',
+      'Amount Figures (Left)',
+      'Amount Figures (Right)',
+      'Total Cash',
+      'Sum in Figures'
+    ]
+  },
+  amountInWords: {
+    canonicalName: 'Amount in Words',
+    acceptedLabels: [
+      'Rupees in words',
+      'Total Amount (in words)',
+      'Rupees (In words)',
+      'Amount Words',
+      'Amount Words (Left)',
+      'Amount Words (Right)',
+      'Sum in Words'
+    ]
+  },
+  signature: {
+    canonicalName: 'Depositor Signature',
+    acceptedLabels: [
+      'Signature of Depositor',
+      'Sig. of Depositor',
+      'Depositor Signature',
+      'Account Holder Signature',
+      'Sign Above Line',
+      'Holder Signature'
+    ]
+  },
+  name: {
+    canonicalName: 'Account Holder Name',
+    acceptedLabels: [
+      'Name',
+      'Name of Account Holder',
+      'Depositor Name',
+      'Depositor Name (Left)',
+      'Depositor Name (Right)',
+      'Account Name',
+      'Payee Name'
+    ]
+  }
+}
 
 // FIELD MAPPING CONFIGURATION DATABASE FOR ALL 15 TEMPLATES
 export const BANK_TEMPLATES_CONFIG = {
