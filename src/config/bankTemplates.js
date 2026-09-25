@@ -2,11 +2,11 @@
 // Supports 5 Institutions × 3 Form Categories (Deposit, Withdrawal, Cheque)
 
 export const INSTITUTIONS = [
-  { id: 'canara', name: 'Canara Bank', code: 'CNRB0001001' },
-  { id: 'karnataka', name: 'Karnataka Bank Ltd.', code: 'KARB0000501' },
-  { id: 'postoffice', name: 'Post Office Savings Bank', code: 'POST560001' },
-  { id: 'pnb', name: 'Punjab National Bank', code: 'PUNB0001200' },
-  { id: 'sbi', name: 'State Bank of India', code: 'SBIN0000840' }
+  { id: 'canara', name: 'Canara Bank', code: 'CNRB0001001', emoji: '🏦' },
+  { id: 'karnataka', name: 'Karnataka Bank Ltd.', code: 'KARB0000501', emoji: '🏛️' },
+  { id: 'postoffice', name: 'Post Office Savings Bank', code: 'POST560001', emoji: '📮' },
+  { id: 'pnb', name: 'Punjab National Bank', code: 'PUNB0001200', emoji: '🏢' },
+  { id: 'sbi', name: 'State Bank of India', code: 'SBIN0000840', emoji: '🏬' }
 ]
 
 export const FORM_CATEGORIES = [

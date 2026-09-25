@@ -32,8 +32,8 @@ export default function Dashboard({ go, goBack, state, addXP, aiGuideAvatar = 'f
   const activeAvatar = AI_AVATARS[aiGuideAvatar] || AI_AVATARS.female
   const isLight = themeMode === 'light'
   const isIntermediateStart = state.startingLevel === 'intermediate'
-  const begCleared = (isIntermediateStart && (state.quizScore || 0) >= 60) || ((state.lessonsWatched || []).length >= 4 && (state.quizScore || 0) >= 60)
-  const begPct = begCleared ? 100 : Math.round((Math.min(4, (state.lessonsWatched || []).length) / 4) * 100)
+  const begCleared = (isIntermediateStart && (state.quizScore || 0) >= 60) || ((state.lessonsWatched || []).length >= 5 && (state.quizScore || 0) >= 60)
+  const begPct = begCleared ? 100 : Math.round((Math.min(5, (state.lessonsWatched || []).length) / 5) * 100)
   const currentLevel = state.advancedUnlocked ? 'Advanced' : state.intermediateUnlocked ? 'Intermediate' : 'Beginner'
 
   const intCount = state.completedModules?.length || 0
@@ -57,9 +57,9 @@ export default function Dashboard({ go, goBack, state, addXP, aiGuideAvatar = 'f
     {
       id: 'advanced', type: 'tower', title: `🏦 ${getText('tower', lang)}`, screen: 'advanced',
       desc: getText('towerDesc', lang),
-      pct: 100,
-      locked: false,
-      buttonText: `${getText('enterTower', lang)} →`,
+      pct: state.advancedUnlocked ? 100 : 0,
+      locked: !state.advancedUnlocked,
+      buttonText: state.advancedUnlocked ? `${getText('enterTower', lang)} →` : '🔒 Complete Level 2',
     },
   ]
 

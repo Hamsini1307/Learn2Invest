@@ -20,9 +20,11 @@ export default function LevelMap({ go, goBack, state, aiGuideAvatar = 'female', 
     : state.intermediateUnlocked ? 'intermediate' : 'beginner'
 
   const isIntermediateStart = state.startingLevel === 'intermediate'
-  const begCleared = (isIntermediateStart && (state.quizScore || 0) >= 60) || ((state.lessonsWatched || []).length >= 4 && (state.quizScore || 0) >= 60)
-  const begPct = begCleared ? 100 : Math.round((Math.min(4, (state.lessonsWatched || []).length) / 4) * 100)
+  const begCleared = (isIntermediateStart && (state.quizScore || 0) >= 60) || ((state.lessonsWatched || []).length >= 5 && (state.quizScore || 0) >= 60)
+  const begPct = begCleared ? 100 : Math.round((Math.min(5, (state.lessonsWatched || []).length) / 5) * 100)
   const intPct = Math.min(100, Math.round(((state.completedModules?.length || 0) / 6) * 100))
+
+  const isAdvUnlocked = state.advancedUnlocked || (state.completedModules || []).length > 0 || isIntermediateStart
 
   const handleLocationClick = (locId, screen, title) => {
     if (!isUnlocked(locId)) return
@@ -299,15 +301,15 @@ export default function LevelMap({ go, goBack, state, aiGuideAvatar = 'female', 
 
           {/* Location 3: Portfolio Tower */}
           <div
-            onClick={() => handleLocationClick('advanced', 'advanced', 'Portfolio Tower')}
+            onClick={() => handleLocationClick('advanced', isAdvUnlocked ? 'advanced' : 'unlock-adv', 'Portfolio Tower')}
             style={{
               position: 'absolute', left: '80%', top: '28%', transform: 'translate(-50%, -50%)',
-              cursor: state.advancedUnlocked ? 'pointer' : 'not-allowed', zIndex: 10, textAlign: 'center',
-              opacity: state.advancedUnlocked ? 1 : 0.75
+              cursor: isAdvUnlocked ? 'pointer' : 'not-allowed', zIndex: 10, textAlign: 'center',
+              opacity: isAdvUnlocked ? 1 : 0.75
             }}
           >
             <motion.div
-              whileHover={state.advancedUnlocked ? { scale: 1.08 } : {}}
+              whileHover={isAdvUnlocked ? { scale: 1.08 } : {}}
               animate={{
                 boxShadow: activeTarget === 'advanced'
                   ? '0 0 35px #f59e0b, 0 0 15px #fbbf24'
@@ -315,15 +317,15 @@ export default function LevelMap({ go, goBack, state, aiGuideAvatar = 'female', 
               }}
               style={{
                 background: 'var(--bg-card, rgba(18, 16, 12, 0.92))',
-                border: activeTarget === 'advanced' ? '3px solid #f59e0b' : state.advancedUnlocked ? '2px solid #f59e0b' : '2px solid #64748b',
+                border: activeTarget === 'advanced' ? '3px solid #f59e0b' : isAdvUnlocked ? '2px solid #f59e0b' : '2px solid #64748b',
                 borderRadius: 16, padding: '10px 16px',
                 color: 'var(--heading-color, #ffffff)', minWidth: 150
               }}
             >
               <div className="sticker-badge sticker-yellow" style={{ fontSize: 9, marginBottom: 4 }}>LEVEL 3</div>
               <div style={{ fontWeight: 900, fontSize: 13, color: 'var(--heading-color, #ffffff)' }}>🏢 PORTFOLIO TOWER</div>
-              <div style={{ fontSize: 10, color: state.advancedUnlocked ? '#f59e0b' : 'var(--text-muted, #94a3b8)', fontWeight: 800, marginTop: 2 }}>
-                {state.advancedUnlocked ? 'Unlock Level 3 →' : '🔒 Pass Level 2'}
+              <div style={{ fontSize: 10, color: isAdvUnlocked ? '#f59e0b' : 'var(--text-muted, #94a3b8)', fontWeight: 800, marginTop: 2 }}>
+                {isAdvUnlocked ? 'Continue →' : '🔒 Pass Level 2'}
               </div>
             </motion.div>
           </div>
@@ -384,7 +386,7 @@ export default function LevelMap({ go, goBack, state, aiGuideAvatar = 'female', 
         {[
           { id: 'beginner', type: 'school', label: 'LEARN2INVEST SCHOOL', desc: 'Watch 4 projector video lessons on financial schemes', screen: 'beginner', btnText: 'Enter School →', reqText: 'Unlocked' },
           { id: 'intermediate', type: 'lab', label: 'INVESTMENT LAB', desc: 'Simulations & deeper asset allocation strategies', screen: 'intermediate', btnText: 'Continue →', reqText: '🔒 Score 60%+ in Quiz Hall to unlock' },
-          { id: 'advanced', type: 'tower', label: 'PORTFOLIO TOWER', desc: 'Portfolio mastery & advanced investment strategies', screen: 'advanced', btnText: 'Unlock Level 3', reqText: '🔒 Complete Level 2 Lab to unlock' },
+          { id: 'advanced', type: 'tower', label: 'PORTFOLIO TOWER', desc: 'Portfolio mastery & advanced investment strategies', screen: 'advanced', btnText: state.advancedUnlocked ? 'Continue →' : 'Unlock Level 3', reqText: '🔒 Complete Level 2 Lab to unlock' },
         ].map((bld) => {
           const unlocked = isUnlocked(bld.id)
           const pct = bld.id === 'beginner' ? begPct : bld.id === 'intermediate' ? intPct : (state.advancedUnlocked ? 20 : 0)

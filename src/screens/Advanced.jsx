@@ -62,14 +62,27 @@ export default function Advanced({ go, goBack, state, themeMode = 'dark' }) {
     signature: null // base64 string or uploaded image URL
   })
 
+  const [hasCompletedSlip, setHasCompletedSlip] = useState(false)
+
   // Calculate live total amount from note counts if deposit slip
   const cashTotal = (userData.notes500 * 500) + (userData.notes200 * 200) + (userData.notes100 * 100) + (userData.notes50 * 50)
-  const effectiveAmount = docType === 'deposit' && cashTotal > 0 ? cashTotal : Number(userData.amount || 0)
+  const directAmount = Number(userData.amount || 0)
+  const effectiveAmount = docType === 'deposit' 
+    ? (cashTotal > 0 ? cashTotal : directAmount)
+    : directAmount
   const amountWords = numberToWords(effectiveAmount)
 
   // Certificate & Verification Modals
   const [showCertModal, setShowCertModal] = useState(false)
   const [showVerifyModal, setShowVerifyModal] = useState(false)
+
+  const handleClaimCertificate = () => {
+    if (!hasCompletedSlip && !userData.accountNumber && effectiveAmount <= 0) {
+      alert('🔒 Please fill in your details and click "REVIEW & PRINT FILLED FORM PDF" to practice completing at least 1 bank slip before claiming your official Banking Certificate!')
+      return
+    }
+    setShowCertModal(true)
+  }
 
   // Calibration Developer Mode State
   const [calibrationMode, setCalibrationMode] = useState(false)
@@ -318,23 +331,7 @@ export default function Advanced({ go, goBack, state, themeMode = 'dark' }) {
 
         <div style={{ display: 'flex', gap: 8 }}>
           <button
-            onClick={() => setCalibrationMode(!calibrationMode)}
-            style={{
-              background: calibrationMode ? '#ea580c' : (isLight ? '#f1f5f9' : 'rgba(255,255,255,0.08)'),
-              color: calibrationMode ? '#ffffff' : (isLight ? '#0f172a' : '#fbbf24'),
-              border: '1.5px solid #ea580c',
-              borderRadius: 999,
-              padding: '8px 16px',
-              fontSize: 12,
-              fontWeight: 900,
-              cursor: 'pointer'
-            }}
-          >
-            {calibrationMode ? '✓ CLOSE FIELD CALIBRATION TOOL' : '🛠️ DEVELOPER FIELD CALIBRATION TOOL'}
-          </button>
-
-          <button
-            onClick={() => setShowCertModal(true)}
+            onClick={handleClaimCertificate}
             style={{
               background: 'linear-gradient(135deg, #10b981, #059669)',
               border: '1.5px solid #6ee7b7',
@@ -376,7 +373,7 @@ export default function Advanced({ go, goBack, state, themeMode = 'dark' }) {
           </div>
           <div>
             <div className="sticker-badge sticker-yellow" style={{ marginBottom: 4 }}>
-              LEVEL 3 • 15 REAL INDIAN BANK FORM TEMPLATES
+              LEVEL 3
             </div>
             <h1 className="font-display" style={{ fontSize: 26, color: isLight ? '#0f172a' : '#ffffff', margin: 0 }}>
               INDIAN BANK BRANCH FINDER & REAL PAPER SLIP WRITER
@@ -405,6 +402,7 @@ export default function Advanced({ go, goBack, state, themeMode = 'dark' }) {
                 borderRadius: 14, padding: 12, cursor: 'pointer', textAlign: 'center', transition: 'all 0.2s'
               }}
             >
+              <div style={{ fontSize: 20, marginBottom: 2 }}>{inst.emoji || '🏦'}</div>
               <div style={{ fontSize: 13, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff' }}>{inst.name}</div>
               <div style={{ fontSize: 10, color: '#ea580c', fontWeight: 700, marginTop: 2 }}>IFSC: {inst.code}</div>
             </div>
@@ -436,17 +434,19 @@ export default function Advanced({ go, goBack, state, themeMode = 'dark' }) {
       {/* ─── SECTION 2: SINGLE MASTER USER INPUT FORM ─── */}
       <div className="glass-card-deep" style={{ padding: 24, borderRadius: 20, marginBottom: 20, background: isLight ? '#ffffff' : '#12100c', border: '1.5px solid #ea580c' }}>
         <div style={{ fontSize: 12, fontWeight: 900, color: '#ea580c', textTransform: 'uppercase', marginBottom: 12 }}>
-          ✍️ ENTER YOUR INFORMATION ONCE (SYSTEM RENDERS IT IN ALL LOCATIONS ON THE SLIP)
+          ✍️ ENTER YOUR INFORMATION ONCE ({docType === 'deposit' ? 'SYSTEM RENDERS IT ON CASH DEPOSIT SLIP' : docType === 'withdrawal' ? 'SYSTEM RENDERS IT ON WITHDRAWAL SLIP' : 'SYSTEM RENDERS IT ON CHEQUE LEAF'})
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12, marginBottom: 16 }}>
           <div>
-            <label style={{ fontSize: 10, fontWeight: 800, color: isLight ? '#475569' : '#9ca3af', display: 'block', marginBottom: 4 }}>ACCOUNT HOLDER / PAYEE NAME</label>
+            <label style={{ fontSize: 10, fontWeight: 800, color: isLight ? '#475569' : '#9ca3af', display: 'block', marginBottom: 4 }}>
+              {docType === 'cheque' ? 'PAY TO (PAYEE NAME / SELF)' : 'ACCOUNT HOLDER / PAYEE NAME'}
+            </label>
             <input
               type="text"
               value={userData.name}
               onChange={e => setUserData({ ...userData, name: e.target.value })}
-              placeholder="e.g. Niyathi"
+              placeholder={docType === 'cheque' ? "e.g. Self or Hamsini" : "e.g. Hamsini"}
               className="input-light"
               style={{ padding: '9px 12px', fontSize: 12, fontWeight: 800 }}
             />
@@ -476,17 +476,31 @@ export default function Advanced({ go, goBack, state, themeMode = 'dark' }) {
             />
           </div>
 
-          <div>
-            <label style={{ fontSize: 10, fontWeight: 800, color: isLight ? '#475569' : '#9ca3af', display: 'block', marginBottom: 4 }}>MOBILE / PHONE NO.</label>
-            <input
-              type="text"
-              value={userData.mobileNumber}
-              onChange={e => setUserData({ ...userData, mobileNumber: e.target.value })}
-              placeholder="e.g. 9876543210"
-              className="input-light"
-              style={{ padding: '9px 12px', fontSize: 12, fontWeight: 800 }}
-            />
-          </div>
+          {docType === 'cheque' ? (
+            <div>
+              <label style={{ fontSize: 10, fontWeight: 800, color: isLight ? '#475569' : '#9ca3af', display: 'block', marginBottom: 4 }}>CHEQUE NUMBER (6 DIGITS)</label>
+              <input
+                type="text"
+                value={userData.chequeNumber}
+                onChange={e => setUserData({ ...userData, chequeNumber: e.target.value })}
+                placeholder="e.g. 104502"
+                className="input-light"
+                style={{ padding: '9px 12px', fontSize: 12, fontWeight: 800 }}
+              />
+            </div>
+          ) : (
+            <div>
+              <label style={{ fontSize: 10, fontWeight: 800, color: isLight ? '#475569' : '#9ca3af', display: 'block', marginBottom: 4 }}>MOBILE / PHONE NO.</label>
+              <input
+                type="text"
+                value={userData.mobileNumber}
+                onChange={e => setUserData({ ...userData, mobileNumber: e.target.value })}
+                placeholder="e.g. 9876543210"
+                className="input-light"
+                style={{ padding: '9px 12px', fontSize: 12, fontWeight: 800 }}
+              />
+            </div>
+          )}
 
           <div>
             <label style={{ fontSize: 10, fontWeight: 800, color: isLight ? '#475569' : '#9ca3af', display: 'block', marginBottom: 4 }}>DATE</label>
@@ -499,19 +513,19 @@ export default function Advanced({ go, goBack, state, themeMode = 'dark' }) {
             />
           </div>
 
-          {docType !== 'deposit' && (
-            <div>
-              <label style={{ fontSize: 10, fontWeight: 800, color: isLight ? '#475569' : '#9ca3af', display: 'block', marginBottom: 4 }}>NUMERIC AMOUNT (₹)</label>
-              <input
-                type="number"
-                value={userData.amount}
-                onChange={e => setUserData({ ...userData, amount: e.target.value })}
-                placeholder="e.g. 5000"
-                className="input-light"
-                style={{ padding: '9px 12px', fontSize: 12, fontWeight: 800 }}
-              />
-            </div>
-          )}
+          <div>
+            <label style={{ fontSize: 10, fontWeight: 800, color: isLight ? '#475569' : '#9ca3af', display: 'block', marginBottom: 4 }}>
+              {docType === 'deposit' ? 'TOTAL DEPOSIT AMOUNT (₹)' : docType === 'withdrawal' ? 'CASH WITHDRAWAL AMOUNT (₹)' : 'CHEQUE AMOUNT (₹)'}
+            </label>
+            <input
+              type="number"
+              value={userData.amount}
+              onChange={e => setUserData({ ...userData, amount: e.target.value })}
+              placeholder="e.g. 5000"
+              className="input-light"
+              style={{ padding: '9px 12px', fontSize: 12, fontWeight: 800 }}
+            />
+          </div>
 
           <div>
             <label style={{ fontSize: 10, fontWeight: 800, color: isLight ? '#475569' : '#9ca3af', display: 'block', marginBottom: 4 }}>UPLOAD SIGNATURE IMAGE (OPTIONAL)</label>
@@ -554,7 +568,7 @@ export default function Advanced({ go, goBack, state, themeMode = 'dark' }) {
               </div>
             </div>
             <div style={{ marginTop: 8, fontSize: 12, fontWeight: 900, color: '#ea580c', textAlign: 'right' }}>
-              TOTAL DEPOSIT AMOUNT: {cashTotal > 0 ? `₹${cashTotal.toLocaleString('en-IN')} (${amountWords})` : 'Enter cash note counts above'}
+              TOTAL CALCULATED AMOUNT: {effectiveAmount > 0 ? `₹${effectiveAmount.toLocaleString('en-IN')} (${amountWords})` : 'Enter amount or note counts above'}
             </div>
           </div>
         )}
@@ -651,7 +665,7 @@ export default function Advanced({ go, goBack, state, themeMode = 'dark' }) {
         {/* Print / Export Action Bar */}
         <div style={{ display: 'flex', gap: 12, marginTop: 20, flexWrap: 'wrap' }}>
           <button
-            onClick={() => setShowVerifyModal(true)}
+            onClick={() => { setHasCompletedSlip(true); setShowVerifyModal(true); }}
             className="btn-primary"
             style={{ flex: 1, padding: 14, fontSize: 13, fontWeight: 900 }}
           >

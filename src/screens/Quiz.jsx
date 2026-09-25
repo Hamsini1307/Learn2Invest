@@ -121,10 +121,8 @@ export default function Quiz({ go, goBack, state, update, addXP }) {
       if (passed) {
         setShowXP(true)
         addXP(150)
-        const allBegVideos = ['video1', 'video2', 'video3', 'video4', 'video5']
-        const updatedWatched = state.startingLevel === 'intermediate'
-          ? Array.from(new Set([...(state.lessonsWatched || []), ...allBegVideos]))
-          : state.lessonsWatched
+        const allBegVideos = ['video1', 'video2', 'video3', 'video4', 'video5', 'ppf', 'fd', 'nsc', 'ssy']
+        const updatedWatched = Array.from(new Set([...(state.lessonsWatched || []), ...allBegVideos]))
         update({
           quizScore: score,
           correctCount: finalCorrect,
@@ -193,19 +191,6 @@ export default function Quiz({ go, goBack, state, update, addXP }) {
             width: `${progress}%`,
             background:'linear-gradient(90deg,#d97706,#f59e0b)',
           }}/>
-        </div>
-        <div style={{ display:'flex', gap:4, marginTop:10 }}>
-          {questions.map((_,i) => (
-            <div key={i} style={{
-              flex:1, height:6, borderRadius:999,
-              background: i < current
-                ? '#f59e0b'
-                : i === current
-                ? '#fbbf24'
-                : 'rgba(255,255,255,0.1)',
-              transition:'background 0.3s',
-            }}/>
-          ))}
         </div>
       </div>
 
