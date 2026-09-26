@@ -46,6 +46,7 @@ const CYBER_SCENARIOS = [
   }
 ]
 
+
 const VIDEOS_DB = {
   upi_working: {
     title: "🏦 Part 1: Digital Banking Overview",
@@ -564,7 +565,7 @@ export default function Intermediate({
 
   useEffect(() => {
     if (allDone && !state.advancedUnlocked) {
-      addXP(200)
+      if (addXP) addXP(200)
       update({ advancedUnlocked: true })
     }
   }, [allDone, state.advancedUnlocked])
@@ -763,12 +764,9 @@ export default function Intermediate({
         >
           🏢 COMBINED METRICS 📊
         </button>
-
       </div>
 
-
-
-            {activeTab === 'simulators' && (
+      {activeTab === 'simulators' && (
         <div className="anim-fade" style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
           {/* Header Card */}
           <div className="glass-card anim-fade" style={{ padding: '26px 30px', border: isLight ? '2.5px solid #000000' : '2.5px solid #ffffff', background: isLight ? '#ffffff' : 'var(--bg-card-deep, #12100c)' }}>

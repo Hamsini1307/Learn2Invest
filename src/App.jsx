@@ -249,9 +249,16 @@ export default function App() {
       apiRequest('/api/state/load', 'GET')
         .then(data => {
           const loadedState = { ...data.state, lessonsWatched: data.state?.lessonsWatched || [], user: data.user }
-          setState(s => ({ ...s, ...loadedState }))
-          setScreen('landing')
-          setCurrentBg(getBgClass('landing'))
+          const startLvl = data.user?.startLevel || loadedState.user?.startLevel || 'beginner'
+          const targetScreen = startLvl === 'intermediate' ? 'intermediate' : (startLvl === 'advanced' ? 'advanced' : 'landing')
+          setState(s => ({
+            ...s,
+            ...loadedState,
+            intermediateUnlocked: true,
+            advancedUnlocked: startLvl === 'intermediate' ? (loadedState.advancedUnlocked || false) : (loadedState.advancedUnlocked ?? true)
+          }))
+          setScreen(targetScreen)
+          setCurrentBg(getBgClass(targetScreen))
         })
         .catch(() => {
           localStorage.removeItem('l2i_isLoggedIn')
@@ -407,12 +414,29 @@ export default function App() {
             <Auth onLogin={(user) => {
               apiRequest('/api/state/load', 'GET')
                 .then(data => {
-                  setState(s => ({ ...s, ...data.state, user: data.user }))
+                  const startLvl = data.user?.startLevel || user?.startLevel || 'beginner'
+                  const targetScreen = startLvl === 'intermediate' ? 'intermediate' : (startLvl === 'advanced' ? 'advanced' : 'landing')
+                  setState(s => ({
+                    ...s,
+                    ...data.state,
+                    user: data.user || user,
+                    intermediateUnlocked: true,
+                    advancedUnlocked: startLvl === 'intermediate' ? (data.state?.advancedUnlocked || false) : s.advancedUnlocked
+                  }))
+                  go(targetScreen)
                 })
                 .catch(() => {
-                  setState(s => ({ ...s, ...INITIAL_STATE, user }))
+                  const startLvl = user?.startLevel || 'beginner'
+                  const targetScreen = startLvl === 'intermediate' ? 'intermediate' : (startLvl === 'advanced' ? 'advanced' : 'landing')
+                  setState(s => ({
+                    ...s,
+                    ...INITIAL_STATE,
+                    user,
+                    intermediateUnlocked: true,
+                    advancedUnlocked: false
+                  }))
+                  go(targetScreen)
                 })
-              go('landing')
             }} />
           )}
 

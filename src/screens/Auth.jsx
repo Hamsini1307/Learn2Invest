@@ -25,7 +25,7 @@ const LEVEL_OPTIONS = [
 ]
 
 const Label = ({ children }) => (
-  <label style={{ display: 'block', fontSize: 11, color: 'var(--text-muted, #9ca3af)', marginBottom: 6, fontWeight: 800, letterSpacing: 1, textTransform: 'uppercase', fontFamily: "'Space Grotesk', sans-serif" }}>
+  <label style={{ display: 'block', fontSize: 12, color: '#0f172a', marginBottom: 6, fontWeight: 900, letterSpacing: 1, textTransform: 'uppercase', fontFamily: "'Space Grotesk', sans-serif" }}>
     {children}
   </label>
 )
@@ -35,6 +35,7 @@ const InputField = ({ type, placeholder, value, onChange, onKeyDown }) => (
     className="input-light"
     type={type} placeholder={placeholder} value={value}
     onChange={onChange} onKeyDown={onKeyDown}
+    style={{ color: '#0f172a', fontWeight: 900, fontSize: 13 }}
   />
 )
 
@@ -109,9 +110,10 @@ export default function Auth({ onLogin }) {
       <div className="glass-card-deep anim-scale" style={{
         padding: '40px 36px', width: '92%', maxWidth: 510,
         position: 'relative', overflow: 'hidden',
-        background: 'var(--bg-card-deep, #12100c)',
-        border: '2px solid rgba(245, 158, 11, 0.4)',
-        boxShadow: 'var(--card-shadow, 0 24px 64px rgba(0, 0, 0, 0.9))',
+        background: '#ffffff',
+        border: '2.5px solid #ea580c',
+        boxShadow: '0 24px 64px rgba(234, 88, 12, 0.25)',
+        color: '#0f172a'
       }}>
 
         <div style={{ textAlign: 'center', marginBottom: 24, position: 'relative', zIndex: 1 }}>
@@ -119,19 +121,19 @@ export default function Auth({ onLogin }) {
             <span className="sticker-badge sticker-yellow">⚡ LUXURY FINANCIAL ARENA</span>
           </div>
           <h1 className="font-display" style={{
-            fontSize: 44, color: 'var(--heading-color, #ffffff)',
+            fontSize: 44, color: '#0f172a',
             lineHeight: 1, marginBottom: 4, letterSpacing: '1px'
           }}>LEARN2INVEST</h1>
-          <p style={{ color: 'var(--text-sub, #d1d5db)', fontSize: 13, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>
+          <p style={{ color: '#0f172a', fontSize: 13, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1px' }}>
             Fuel your financial ambition 🇮🇳
           </p>
         </div>
 
         {/* Tab Switcher */}
         <div style={{
-          display: 'flex', background: 'var(--bg-main, #080705)',
+          display: 'flex', background: '#fff7ed',
           borderRadius: 999, padding: 4, marginBottom: 24,
-          border: '1.5px solid rgba(217, 119, 6, 0.3)',
+          border: '2px solid #ea580c',
           position: 'relative', zIndex: 1
         }}>
           {[['register', '✨ CREATE ACCOUNT'], ['login', '🔑 SIGN IN']].map(([t, label]) => (
@@ -141,11 +143,11 @@ export default function Auth({ onLogin }) {
                 borderRadius: 999, cursor: 'pointer', fontSize: 13, fontWeight: 900,
                 fontFamily: "'Space Grotesk', sans-serif",
                 background: tab === t
-                  ? 'linear-gradient(135deg, #d97706, #f59e0b)'
+                  ? 'linear-gradient(135deg, #ea580c, #f59e0b)'
                   : 'transparent',
-                color: tab === t ? '#080705' : 'var(--text-sub, #d1d5db)',
+                color: tab === t ? '#ffffff' : '#0f172a',
                 transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                boxShadow: tab === t ? '0 0 15px rgba(245,158,11,0.4)' : 'none',
+                boxShadow: tab === t ? '0 4px 14px rgba(234,88,12,0.4)' : 'none',
               }}>{label}</div>
           ))}
         </div>
@@ -153,8 +155,8 @@ export default function Auth({ onLogin }) {
         {error && (
           <div style={{
             padding: '12px 16px', borderRadius: 14, fontSize: 13, marginBottom: 20, fontWeight: 800,
-            background: error.startsWith('✅') ? 'rgba(16,185,129,0.15)' : 'rgba(225,29,72,0.15)',
-            color: error.startsWith('✅') ? '#6ee7b7' : '#fda4af',
+            background: error.startsWith('✅') ? '#d1fae5' : '#ffe4e6',
+            color: error.startsWith('✅') ? '#065f46' : '#be123c',
             border: `1.5px solid ${error.startsWith('✅') ? '#10b981' : '#e11d48'}`,
             position: 'relative', zIndex: 1
           }}>{error}</div>
@@ -181,19 +183,19 @@ export default function Auth({ onLogin }) {
                 {LEVEL_OPTIONS.map(lv => (
                   <div key={lv.id} onClick={() => { setSelectedLevel(lv.id); setLevelError(false) }}
                     style={{
-                      border: `2px solid ${selectedLevel === lv.id ? lv.accent : levelError ? '#e11d48' : 'rgba(217,119,6,0.25)'}`,
+                      border: `2px solid ${selectedLevel === lv.id ? '#ea580c' : levelError ? '#e11d48' : '#fed7aa'}`,
                       borderRadius: 18, padding: '16px', cursor: 'pointer',
-                      background: selectedLevel === lv.id ? lv.bg : 'var(--input-bg, #1a1610)',
+                      background: selectedLevel === lv.id ? '#fff7ed' : '#fffbebe6',
                       transition: 'all .3s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                      boxShadow: selectedLevel === lv.id ? `0 0 20px rgba(245,158,11,0.25)` : 'none',
+                      boxShadow: selectedLevel === lv.id ? `0 0 20px rgba(234,88,12,0.25)` : 'none',
                       transform: selectedLevel === lv.id ? 'scale(1.01)' : 'none',
                       position: 'relative'
                     }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
                       <span style={{ fontSize: 24 }}>{lv.emoji}</span>
                       <div>
-                        <div style={{ fontSize: 14, fontWeight: 900, color: selectedLevel === lv.id ? lv.accent : 'var(--heading-color, #ffffff)', fontFamily: "'Space Grotesk', sans-serif" }}>{lv.title}</div>
-                        <div style={{ fontSize: 11, color: 'var(--text-sub, #d1d5db)', fontWeight: 700 }}>{lv.desc}</div>
+                        <div style={{ fontSize: 14, fontWeight: 900, color: '#0f172a', fontFamily: "'Space Grotesk', sans-serif" }}>{lv.title}</div>
+                        <div style={{ fontSize: 11, color: '#0f172a', fontWeight: 800 }}>{lv.desc}</div>
                       </div>
                       {selectedLevel === lv.id && (
                         <div className="sticker-badge sticker-yellow" style={{ marginLeft: 'auto', fontSize: 10, padding: '3px 8px' }}>
@@ -204,10 +206,10 @@ export default function Auth({ onLogin }) {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                       {lv.unlocks.map((u, i) => (
                         <div key={i} style={{
-                          fontSize: 11, fontWeight: u.startsWith('✓') ? 800 : 700,
+                          fontSize: 11, fontWeight: 900,
                           color: u.startsWith('✓') 
-                            ? (selectedLevel === lv.id ? lv.accent : '#10b981') 
-                            : 'var(--text-muted, #9ca3af)',
+                            ? '#047857' 
+                            : '#0f172a',
                         }}>{u}</div>
                       ))}
                     </div>
@@ -234,9 +236,9 @@ export default function Auth({ onLogin }) {
             <button className="btn-primary" onClick={handleLogin} style={{ width: '100%', padding: '16px' }}>
               SIGN IN 🔑
             </button>
-            <p style={{ textAlign: 'center', fontSize: 13, color: 'var(--text-sub, #d1d5db)', fontWeight: 700 }}>
+            <p style={{ textAlign: 'center', fontSize: 13, color: '#0f172a', fontWeight: 900 }}>
               No account yet?{' '}
-              <span onClick={() => setTab('register')} style={{ color: '#fbbf24', cursor: 'pointer', fontWeight: 900 }}>
+              <span onClick={() => setTab('register')} style={{ color: '#c2410c', cursor: 'pointer', fontWeight: 900 }}>
                 Register here
               </span>
             </p>
