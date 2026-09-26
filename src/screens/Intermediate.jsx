@@ -177,6 +177,8 @@ export default function Intermediate({
   const [selectedSchemes, setSelectedSchemes] = useState(['PPF', 'FD', 'GOLD', 'NSC'])
   const [portfolioAlloc, setPortfolioAlloc] = useState({ PPF: 25, FD: 25, GOLD: 25, NSC: 25 })
   const [monthlyTotal, setMonthlyTotal] = useState(10000)
+  const [portfolioYears, setPortfolioYears] = useState(10)
+  const [simDone, setSimDone] = useState(false)
   const [allocationMode, setAllocationMode] = useState('manual')
 
   const [hasRunSim, setHasRunSim] = useState(false)
