@@ -400,31 +400,7 @@ export default function LevelMap({ go, goBack, state, aiGuideAvatar = 'female', 
         </AnimatePresence>
       </div>
 
-      {/* Building Cards Grid */}
-      <div className="level-cards-grid">
-        {[
-          { id: 'beginner', type: 'school', label: 'LEVEL 1: LEARN2INVEST SCHOOL', desc: 'Watch 5 projector video lessons on financial schemes', screen: 'beginner', btnText: 'Enter School →', reqText: 'Unlocked' },
-          { id: 'intermediate', type: 'lab', label: 'LEVEL 2: INVESTMENT LAB', desc: 'Simulations & deeper asset allocation strategies', screen: 'intermediate', btnText: 'Continue →', reqText: '🔒 Pass Level 1 Quiz (60%+)' },
-          { id: 'advanced', type: 'tower', label: 'LEVEL 3: PORTFOLIO TOWER', desc: 'Portfolio mastery & advanced investment strategies', screen: 'advanced', btnText: 'Continue →', reqText: '🔒 Complete Level 2 Tasks' },
-        ].map((bld) => {
-          const unlocked = bld.id === 'beginner' ? true : bld.id === 'intermediate' ? isInterUnlocked : isAdvUnlocked
-          const pct = bld.id === 'beginner' ? begPct : bld.id === 'intermediate' ? intPct : (isAdvUnlocked ? 100 : 0)
 
-          return (
-            <BuildingCard
-              key={bld.id}
-              type={bld.type}
-              title={bld.label}
-              subtitle={bld.desc}
-              locked={!unlocked}
-              active={currentLevel === bld.id}
-              pct={pct}
-              buttonText={unlocked ? bld.btnText : bld.reqText}
-              onClick={() => handleLocationClick(bld.id, bld.screen, bld.label)}
-            />
-          )
-        })}
-      </div>
 
       {/* Action Buttons */}
       <div style={{ display: 'flex', justifyContent: 'center', gap: 16, flexWrap: 'wrap', marginTop: 24 }}>

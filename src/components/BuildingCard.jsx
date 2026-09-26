@@ -4,7 +4,7 @@ export default function BuildingCard({ type = 'school', title, subtitle, locked 
   const configs = {
     school: {
       levelNum: 'LEVEL 1',
-      defaultTitle: 'LEVEL 1: LEARN2INVEST SCHOOL',
+      defaultTitle: 'LEARN2INVEST SCHOOL',
       defaultSubtitle: 'Videos + Quiz on Indian financial schemes',
       emoji: '🏫',
       icon: '📖',
@@ -16,7 +16,7 @@ export default function BuildingCard({ type = 'school', title, subtitle, locked 
     },
     lab: {
       levelNum: 'LEVEL 2',
-      defaultTitle: 'LEVEL 2: INVESTMENT LAB',
+      defaultTitle: 'INVESTMENT LAB',
       defaultSubtitle: 'Simulations & deeper asset strategies',
       emoji: '🧪',
       icon: '🔬',
@@ -28,7 +28,7 @@ export default function BuildingCard({ type = 'school', title, subtitle, locked 
     },
     tower: {
       levelNum: 'LEVEL 3',
-      defaultTitle: 'LEVEL 3: PORTFOLIO TOWER',
+      defaultTitle: 'PORTFOLIO TOWER',
       defaultSubtitle: 'Portfolio mastery & advanced strategies',
       emoji: '🏢',
       icon: '₹',
@@ -50,8 +50,8 @@ export default function BuildingCard({ type = 'school', title, subtitle, locked 
       className="glass-card-sm"
       onClick={onClick}
       style={{
-        padding: '24px',
-        minHeight: '280px',
+        padding: '20px',
+        minHeight: 'auto',
         cursor: 'pointer',
         opacity: locked ? 0.85 : 1,
         transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
@@ -89,15 +89,7 @@ export default function BuildingCard({ type = 'school', title, subtitle, locked 
 
 
 
-      {/* Title & Description */}
-      <div style={{ marginBottom: 14 }}>
-        <h3 className="font-display" style={{ fontSize: 22, color: 'var(--heading-color, #ffffff)', marginBottom: 4 }}>
-          {displayTitle}
-        </h3>
-        <p style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', fontWeight: 600, lineHeight: 1.4 }}>
-          {displaySubtitle}
-        </p>
-      </div>
+
 
       {/* Progress & Action Button */}
       <div>

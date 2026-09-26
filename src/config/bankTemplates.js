@@ -418,3 +418,35 @@ export const BANK_TEMPLATES_CONFIG = {
   }
 
 }
+
+// ─── TEMPLATE-SPECIFIC FIELD MAPPING CONFIGURATIONS ───
+export const canaraBankFields = {
+  deposit: BANK_TEMPLATES_CONFIG['canara_deposit'],
+  withdrawal: BANK_TEMPLATES_CONFIG['canara_withdrawal'],
+  cheque: BANK_TEMPLATES_CONFIG['canara_cheque']
+}
+
+export const karnatakaBankFields = {
+  deposit: BANK_TEMPLATES_CONFIG['karnataka_deposit'],
+  withdrawal: BANK_TEMPLATES_CONFIG['karnataka_withdrawal'],
+  cheque: BANK_TEMPLATES_CONFIG['karnataka_cheque']
+}
+
+export const postOfficeFields = {
+  deposit: BANK_TEMPLATES_CONFIG['postoffice_deposit'],
+  withdrawal: BANK_TEMPLATES_CONFIG['postoffice_withdrawal'],
+  cheque: BANK_TEMPLATES_CONFIG['postoffice_cheque']
+}
+
+export const pnbFields = {
+  deposit: BANK_TEMPLATES_CONFIG['pnb_deposit'],
+  withdrawal: BANK_TEMPLATES_CONFIG['pnb_withdrawal'],
+  cheque: BANK_TEMPLATES_CONFIG['pnb_cheque']
+}
+
+export const sbiFields = {
+  deposit: BANK_TEMPLATES_CONFIG['sbi_deposit'],
+  withdrawal: BANK_TEMPLATES_CONFIG['sbi_withdrawal'],
+  cheque: BANK_TEMPLATES_CONFIG['sbi_cheque']
+}
+

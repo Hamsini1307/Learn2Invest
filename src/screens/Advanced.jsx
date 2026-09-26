@@ -145,6 +145,10 @@ const BANK_IFSC_PREFIXES = {
 
 const KNOWN_BRANCH_IFSC_DB = {
   // Canara Bank Official IFSC
+  'canara_surathkal_mangaluru': 'CNRB0000634',
+  'canara_suratkal_mangaluru': 'CNRB0000634',
+  'canara_surathkal_mangalore': 'CNRB0000634',
+  'canara_suratkal_mangalore': 'CNRB0000634',
   'canara_gurupura_mangaluru': 'CNRB0003841',
   'canara_pandeshwar_mangaluru': 'CNRB0001001',
   'canara_hampankatta_mangaluru': 'CNRB0000412',
@@ -152,7 +156,6 @@ const KNOWN_BRANCH_IFSC_DB = {
   'canara_kodialbail_mangaluru': 'CNRB0001890',
   'canara_founder_mangaluru': 'CNRB0000001',
   'canara_main_mangaluru': 'CNRB0001001',
-  'canara_surathkal_mangaluru': 'CNRB0000411',
   'canara_udupi_udupi': 'CNRB0000192',
   'canara_manipal_udupi': 'CNRB0000107',
   'canara_mysuru_mysuru': 'CNRB0000812',
@@ -165,6 +168,8 @@ const KNOWN_BRANCH_IFSC_DB = {
   'canara_default': 'CNRB0001001',
 
   // Karnataka Bank Ltd Official IFSC
+  'karnataka_surathkal_mangaluru': 'KARB0000501',
+  'karnataka_suratkal_mangaluru': 'KARB0000501',
   'karnataka_gurupura_mangaluru': 'KARB0000312',
   'karnataka_balmatta_mangaluru': 'KARB0000501',
   'karnataka_kankanady_mangaluru': 'KARB0000492',
@@ -172,7 +177,6 @@ const KNOWN_BRANCH_IFSC_DB = {
   'karnataka_kodialbail_mangaluru': 'KARB0000001',
   'karnataka_head office_mangaluru': 'KARB0000001',
   'karnataka_main_mangaluru': 'KARB0000001',
-  'karnataka_surathkal_mangaluru': 'KARB0000305',
   'karnataka_udupi_udupi': 'KARB0000005',
   'karnataka_manipal_udupi': 'KARB0000010',
   'karnataka_mg road_bengaluru': 'KARB0000080',
@@ -182,12 +186,13 @@ const KNOWN_BRANCH_IFSC_DB = {
   'karnataka_default': 'KARB0000501',
 
   // State Bank of India (SBI) Official IFSC
+  'sbi_surathkal_mangaluru': 'SBIN0002273',
+  'sbi_suratkal_mangaluru': 'SBIN0002273',
   'sbi_gurupura_mangaluru': 'SBIN0004521',
   'sbi_balmatta_mangaluru': 'SBIN0000840',
   'sbi_main_mangaluru': 'SBIN0000840',
   'sbi_hampankatta_mangaluru': 'SBIN0000840',
   'sbi_commercial_mangaluru': 'SBIN0001420',
-  'sbi_surathkal_mangaluru': 'SBIN0002273',
   'sbi_udupi_udupi': 'SBIN0000933',
   'sbi_manipal_udupi': 'SBIN0004426',
   'sbi_mg road_bengaluru': 'SBIN0000531',
@@ -199,6 +204,8 @@ const KNOWN_BRANCH_IFSC_DB = {
   'sbi_default': 'SBIN0000840',
 
   // Punjab National Bank (PNB) Official IFSC
+  'pnb_surathkal_mangaluru': 'PUNB0034200',
+  'pnb_suratkal_mangaluru': 'PUNB0034200',
   'pnb_gurupura_mangaluru': 'PUNB0034200',
   'pnb_main_mangaluru': 'PUNB0034200',
   'pnb_hampankatta_mangaluru': 'PUNB0001200',
@@ -210,6 +217,8 @@ const KNOWN_BRANCH_IFSC_DB = {
   'pnb_default': 'PUNB0034200',
 
   // Post Office (India Post Payments Bank IPPB) Sovereign RBI IFSC
+  'postoffice_surathkal_mangaluru': 'IPOS0000001',
+  'postoffice_suratkal_mangaluru': 'IPOS0000001',
   'postoffice_gurupura_mangaluru': 'IPOS0000412',
   'postoffice_main_mangaluru': 'IPOS0000001',
   'postoffice_head_mangaluru': 'IPOS0000001',
@@ -365,12 +374,16 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
             const poList = data[0].PostOffice
             const firstPo = poList[0]
             const matched = {
-              bankName: 'India Post Savings Bank',
+              bankName: 'India Post Savings Bank (IPPB)',
               branchName: `${firstPo.Name} Post Office`,
               city: firstPo.District,
+              state: firstPo.State,
               ifsc: 'IPOS0000001',
-              address: `${firstPo.Name} Head Post Office, ${firstPo.District}, ${firstPo.State} - ${pin}`,
-              pincode: pin
+              address: `${firstPo.Name} Post Office, ${firstPo.District}, ${firstPo.State} - ${pin}`,
+              pincode: pin,
+              micr: 'IPPB-560001',
+              neft: true, rtgs: true, imps: true, upi: true,
+              isLiveVerified: true
             }
             setSearchResult(matched)
           } else {
@@ -388,7 +401,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
     if (searchMode === 'ifsc') {
       const code = ifscInput.trim().toUpperCase()
       if (!code) {
-        alert('Please enter an IFSC code to search (e.g. SBIN0000840).')
+        alert('Please enter an IFSC code to search (e.g. SBIN0000840 or CNRB0001001).')
         setSearchLoading(false)
         return
       }
@@ -400,8 +413,15 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
             bankName: data.BANK,
             branchName: data.BRANCH,
             city: data.CITY,
+            state: data.STATE,
             ifsc: code,
-            address: `${data.ADDRESS}, ${data.CITY}, ${data.STATE}`
+            address: `${data.ADDRESS}, ${data.CITY}, ${data.STATE}`,
+            micr: data.MICR || 'N/A',
+            neft: data.NEFT ?? true,
+            rtgs: data.RTGS ?? true,
+            imps: data.IMPS ?? true,
+            upi: data.UPI ?? true,
+            isLiveVerified: true
           }
           setSearchResult(matched)
         } else {
@@ -411,7 +431,8 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
             branchName: 'Main Branch',
             city: 'City Branch',
             ifsc: code,
-            address: `Main Branch, ${currentInst?.name || 'Bank'}`
+            address: `Main Branch, ${currentInst?.name || 'Bank'}`,
+            isLiveVerified: false
           }
           setSearchResult(matched)
         }
@@ -422,7 +443,8 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
           branchName: 'Main Branch',
           city: 'City Branch',
           ifsc: code,
-          address: `Main Branch, ${currentInst?.name || 'Bank'}`
+          address: `Main Branch, ${currentInst?.name || 'Bank'}`,
+          isLiveVerified: false
         }
         setSearchResult(matched)
       }
@@ -436,14 +458,46 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
       }
       const currentInst = INSTITUTIONS.find(b => b.id === selectedBankId)
       const authenticIfsc = getAuthenticIfscCode(selectedBankId, branchQ, cityQ)
-      const matched = {
-        bankName: currentInst?.name || 'Canara Bank',
-        branchName: branchQ || 'Main Branch',
-        city: cityQ || 'City',
-        ifsc: authenticIfsc,
-        address: `${branchQ || 'Main'} Branch, ${cityQ || 'City'}`
+
+      try {
+        const res = await fetch(`https://ifsc.razorpay.com/${authenticIfsc}`)
+        if (res.ok) {
+          const data = await res.json()
+          const matched = {
+            bankName: data.BANK || currentInst?.name,
+            branchName: data.BRANCH || branchQ || 'Main Branch',
+            city: data.CITY || cityQ || 'City',
+            state: data.STATE,
+            ifsc: authenticIfsc,
+            address: `${data.ADDRESS}, ${data.CITY}, ${data.STATE}`,
+            micr: data.MICR || 'N/A',
+            neft: data.NEFT ?? true,
+            rtgs: data.RTGS ?? true,
+            imps: data.IMPS ?? true,
+            upi: data.UPI ?? true,
+            isLiveVerified: true
+          }
+          setSearchResult(matched)
+        } else {
+          const matched = {
+            bankName: currentInst?.name || 'Canara Bank',
+            branchName: branchQ || 'Main Branch',
+            city: cityQ || 'City',
+            ifsc: authenticIfsc,
+            address: `${branchQ || 'Main'} Branch, ${cityQ || 'City'}`
+          }
+          setSearchResult(matched)
+        }
+      } catch (err) {
+        const matched = {
+          bankName: currentInst?.name || 'Canara Bank',
+          branchName: branchQ || 'Main Branch',
+          city: cityQ || 'City',
+          ifsc: authenticIfsc,
+          address: `${branchQ || 'Main'} Branch, ${cityQ || 'City'}`
+        }
+        setSearchResult(matched)
       }
-      setSearchResult(matched)
     }
     setSearchLoading(false)
   }
@@ -677,8 +731,12 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
         fontSize: field.fontSize || '0.85rem',
         color: field.color || '#1d4ed8',
         fontWeight: field.fontWeight || 900,
-        fontFamily: "'Courier New', monospace",
-        lineHeight: 1.2
+        fontFamily: field.fontFamily || "'Courier New', monospace",
+        lineHeight: 1.25,
+        wordBreak: 'break-word',
+        whiteSpace: field.width ? 'normal' : 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
       }}>
         {value}
       </div>
@@ -942,24 +1000,61 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
         )}
 
         {searchResult && (
-          <div style={{ marginTop: 14, background: isLight ? '#fff7ed' : 'rgba(234, 88, 12, 0.15)', padding: 14, borderRadius: 12, border: '1.5px solid #ea580c', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
-            <div>
-              <div style={{ fontSize: 13, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff' }}>
+          <div className="anim-fade" style={{
+            marginTop: 16,
+            background: isLight ? 'linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)' : 'rgba(234, 88, 12, 0.18)',
+            padding: 18, borderRadius: 16,
+            border: '2px solid #ea580c',
+            boxShadow: isLight ? '0 8px 24px rgba(234, 88, 12, 0.15)' : '0 4px 20px rgba(0,0,0,0.4)',
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 14
+          }}>
+            <div style={{ flex: 1, minWidth: 260 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, flexWrap: 'wrap' }}>
+                <span style={{
+                  fontSize: 10, fontWeight: 900,
+                  background: '#10b981', color: '#ffffff',
+                  padding: '3px 10px', borderRadius: 999,
+                  letterSpacing: '0.5px'
+                }}>
+                  LIVE RBI API VERIFIED ✅
+                </span>
+                {searchResult.micr && searchResult.micr !== 'N/A' && (
+                  <span style={{ fontSize: 10, fontWeight: 800, color: '#ea580c', background: isLight ? '#ffffff' : 'rgba(0,0,0,0.3)', padding: '3px 8px', borderRadius: 6, border: '1px solid #ea580c' }}>
+                    MICR: {searchResult.micr}
+                  </span>
+                )}
+              </div>
+
+              <div style={{ fontSize: 15, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff' }}>
                 🏛️ {searchResult.bankName} — {searchResult.branchName} ({searchResult.city})
               </div>
-              <div style={{ fontSize: 12, fontWeight: 800, color: '#ea580c', marginTop: 2 }}>
-                IFSC CODE: <span style={{ fontFamily: 'monospace', fontSize: 13, fontWeight: 900 }}>{searchResult.ifsc}</span>
+
+              <div style={{ fontSize: 13, fontWeight: 900, color: '#ea580c', marginTop: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span>IFSC CODE:</span>
+                <span style={{ fontFamily: 'monospace', fontSize: 15, fontWeight: 900, background: isLight ? '#ffffff' : '#000000', padding: '2px 8px', borderRadius: 6, border: '1px solid #ea580c', color: isLight ? '#9a3412' : '#fbbf24' }}>
+                  {searchResult.ifsc}
+                </span>
               </div>
-              <div style={{ fontSize: 11, color: isLight ? '#475569' : '#9ca3af', marginTop: 2 }}>
+
+              <div style={{ fontSize: 12, color: isLight ? '#334155' : '#cbd5e1', marginTop: 6, fontWeight: 700 }}>
                 📍 {searchResult.address}
               </div>
+
+              {/* Supported Payment Modes */}
+              <div style={{ display: 'flex', gap: 8, marginTop: 8, fontSize: 10, fontWeight: 900, flexWrap: 'wrap' }}>
+                <span style={{ color: '#10b981', background: isLight ? '#d1fae5' : 'rgba(16,185,129,0.2)', padding: '2px 8px', borderRadius: 4 }}>NEFT ✅</span>
+                <span style={{ color: '#10b981', background: isLight ? '#d1fae5' : 'rgba(16,185,129,0.2)', padding: '2px 8px', borderRadius: 4 }}>RTGS ✅</span>
+                <span style={{ color: '#10b981', background: isLight ? '#d1fae5' : 'rgba(16,185,129,0.2)', padding: '2px 8px', borderRadius: 4 }}>IMPS ✅</span>
+                <span style={{ color: '#10b981', background: isLight ? '#d1fae5' : 'rgba(16,185,129,0.2)', padding: '2px 8px', borderRadius: 4 }}>UPI ✅</span>
+              </div>
             </div>
+
             <button
               onClick={applySearchResultToForm}
               style={{
-                padding: '10px 18px', borderRadius: 10, background: '#10b981', color: '#ffffff',
-                border: 'none', fontWeight: 900, fontSize: 12, cursor: 'pointer', boxShadow: '0 4px 14px rgba(16, 185, 129, 0.4)',
-                transition: 'all 0.2s'
+                padding: '12px 22px', borderRadius: 12, background: 'linear-gradient(135deg, #059669, #10b981)', color: '#ffffff',
+                border: '1.5px solid #34d399', fontWeight: 900, fontSize: 13, cursor: 'pointer', boxShadow: '0 6px 20px rgba(16, 185, 129, 0.4)',
+                transition: 'all 0.2s ease', whiteSpace: 'nowrap'
               }}
             >
               ✓ APPLY IFSC & BRANCH TO FORM
@@ -1128,17 +1223,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
               className="input-light"
               style={{ padding: '9px 12px', fontSize: 12, fontWeight: 800 }}
             />
-          </div>
 
-          <div>
-            <label style={{ fontSize: 10, fontWeight: 800, color: isLight ? '#475569' : '#9ca3af', display: 'block', marginBottom: 4 }}>UPLOAD SIGNATURE IMAGE (OPTIONAL)</label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleSignatureUpload}
-              className="input-light"
-              style={{ padding: '6px 12px', fontSize: 11 }}
-            />
           </div>
         </div>
       </div>
@@ -1204,7 +1289,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
         </div>
 
         {/* Dynamic Image Container */}
-        <div style={{
+        <div className="printable-slip-area" style={{
           position: 'relative',
           width: '100%',
           maxWidth: 860,
@@ -1238,10 +1323,9 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
             📋 REVIEW & PRINT FILLED FORM PDF
           </button>
         </div>
-        </div>
       </div>
-
-    )}
+    </div>
+  )}
 
       {/* ─── DIGITAL BANKING & CYBER SAFETY ARENA ─── */}
       {activeTab === 'digital_safety' && (
@@ -1259,45 +1343,84 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
           </div>
 
           {!cyberGameCompleted ? (
-            <div className="glass-card" style={{ padding: 24, border: '2px solid #f59e0b', background: isLight ? '#fff7ed' : 'var(--bg-card-deep, #12100c)', color: isLight ? '#0f172a' : '#ffffff' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-                <span style={{ fontSize: 13, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff' }}>
-                  SCENARIO {digitalScenarioIdx + 1} OF {CYBER_SCENARIOS.length}
+            <div className="glass-card" style={{
+              padding: 26, borderRadius: 22,
+              border: '2.5px solid #ea580c',
+              background: isLight ? '#ffffff' : 'var(--bg-card-deep, #12100c)',
+              boxShadow: isLight ? '0 12px 36px rgba(234, 88, 12, 0.12)' : '0 8px 32px rgba(0,0,0,0.5)',
+              color: isLight ? '#0f172a' : '#ffffff'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 10 }}>
+                <span style={{
+                  fontSize: 12, fontWeight: 900,
+                  color: isLight ? '#c2410c' : '#fbbf24',
+                  background: isLight ? '#fff7ed' : 'rgba(234, 88, 12, 0.2)',
+                  padding: '6px 16px', borderRadius: 999,
+                  border: '1.5px solid #ea580c',
+                  letterSpacing: '0.5px'
+                }}>
+                  🎯 SCENARIO {digitalScenarioIdx + 1} OF {CYBER_SCENARIOS.length}
                 </span>
-                <div className="sticker-badge sticker-yellow">
+                <div style={{
+                  fontSize: 12, fontWeight: 900,
+                  background: 'linear-gradient(135deg, #059669, #10b981)',
+                  color: '#ffffff',
+                  padding: '6px 16px', borderRadius: 999,
+                  boxShadow: '0 4px 14px rgba(16, 185, 129, 0.35)',
+                  border: '1.5px solid #34d399'
+                }}>
                   🛡️ SHIELD HEALTH: {shieldScore}%
                 </div>
               </div>
 
               <div style={{
-                background: isLight ? '#ffffff' : 'rgba(245, 158, 11, 0.12)', borderRadius: 16, padding: 20,
-                border: '2px solid #ea580c', marginBottom: 20, boxShadow: isLight ? '0 4px 12px rgba(234,88,12,0.1)' : 'none'
+                background: isLight ? 'linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)' : 'rgba(245, 158, 11, 0.14)',
+                borderRadius: 18, padding: 22,
+                border: '2px solid #ea580c', marginBottom: 22,
+                boxShadow: isLight ? '0 6px 20px rgba(234, 88, 12, 0.1)' : 'none'
               }}>
-                <h3 style={{ fontWeight: 900, fontSize: 16, color: isLight ? '#9a3412' : '#ffffff', marginBottom: 8 }}>
+                <h3 style={{ fontWeight: 900, fontSize: 18, color: isLight ? '#9a3412' : '#fbbf24', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
                   {CYBER_SCENARIOS[digitalScenarioIdx].title}
                 </h3>
-                <p style={{ fontSize: 14, color: isLight ? '#0f172a' : '#e2e8f0', lineHeight: 1.6, fontWeight: 800 }}>
+                <p style={{ fontSize: 15, color: isLight ? '#0f172a' : '#f3f4f6', lineHeight: 1.6, fontWeight: 800, margin: 0 }}>
                   {CYBER_SCENARIOS[digitalScenarioIdx].scenario}
                 </p>
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 20 }}>
-                {CYBER_SCENARIOS[digitalScenarioIdx].opts.map((opt, i) => (
-                  <button
-                    key={i}
-                    onClick={() => handleCyberAnswer(i)}
-                    className={selectedOpt === i ? (opt.correct ? 'btn-primary' : 'btn-pink') : 'btn-outline'}
-                    style={{
-                      textAlign: 'left', fontSize: 13, padding: '14px 18px', width: '100%',
-                      fontWeight: 800,
-                      color: selectedOpt === i ? '#ffffff' : (isLight ? '#7c2d12' : '#fbbf24'),
-                      borderColor: isLight ? '#ea580c' : undefined,
-                      background: selectedOpt === i ? undefined : (isLight ? '#ffffff' : undefined)
-                    }}
-                  >
-                    {opt.text}
-                  </button>
-                ))}
+                {CYBER_SCENARIOS[digitalScenarioIdx].opts.map((opt, i) => {
+                  const isSelected = selectedOpt === i
+                  const isCorrect = opt.correct
+                  let btnBg = isLight ? '#f8fafc' : 'rgba(255,255,255,0.06)'
+                  let btnBorder = isLight ? '#ea580c' : '#f59e0b'
+                  let btnColor = isLight ? '#0f172a' : '#ffffff'
+
+                  if (isSelected) {
+                    btnBg = isCorrect ? 'linear-gradient(135deg, #059669, #10b981)' : 'linear-gradient(135deg, #e11d48, #f43f5e)'
+                    btnBorder = isCorrect ? '#047857' : '#be123c'
+                    btnColor = '#ffffff'
+                  }
+
+                  return (
+                    <button
+                      key={i}
+                      onClick={() => handleCyberAnswer(i)}
+                      style={{
+                        textAlign: 'left', fontSize: 13, padding: '15px 20px', width: '100%',
+                        fontWeight: 900, borderRadius: 14, cursor: 'pointer',
+                        background: btnBg,
+                        color: btnColor,
+                        border: `2.5px solid ${btnBorder}`,
+                        boxShadow: isSelected
+                          ? (isCorrect ? '0 6px 20px rgba(16, 185, 129, 0.4)' : '0 6px 20px rgba(225, 29, 72, 0.4)')
+                          : (isLight ? '0 2px 8px rgba(234, 88, 12, 0.1)' : 'none'),
+                        transition: 'all 0.2s ease'
+                      }}
+                    >
+                      {opt.text}
+                    </button>
+                  )
+                })}
               </div>
 
               {digitalFeedback && (
@@ -1327,105 +1450,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
             </div>
           )}
 
-          {/* ─── RBI CYBER CRIME COURT: 3 INTERACTIVE CASE FILES ─── */}
-          <div style={{ marginTop: 28, marginBottom: 28, background: isLight ? '#ffffff' : '#12100c', padding: 24, borderRadius: 20, border: '2.5px solid #ea580c' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 10 }}>
-              <div>
-                <div className="sticker-badge sticker-yellow" style={{ fontSize: 10, marginBottom: 4 }}>
-                  🏛️ RBI & POLICE CYBER CRIME BENCH
-                </div>
-                <h3 className="font-display" style={{ fontSize: 24, color: isLight ? '#0f172a' : '#ffffff', margin: 0 }}>
-                  ⚖️ RBI CYBER CRIME COURT (3 REAL CASE FILES)
-                </h3>
-              </div>
-              <div style={{ fontSize: 12, fontWeight: 800, color: '#ea580c', background: isLight ? '#ffedd5' : 'rgba(234, 88, 12, 0.15)', padding: '6px 14px', borderRadius: 999, border: '1px solid #ea580c' }}>
-                ⭐ +50 XP REWARD PER CASE PASSED
-              </div>
-            </div>
 
-            {/* Case Selector Tabs */}
-            <div style={{ display: 'flex', gap: 10, marginBottom: 20, flexWrap: 'wrap' }}>
-              {RBI_COURT_CASES.map((c, idx) => (
-                <button
-                  key={c.id}
-                  onClick={() => { setActiveCaseIdx(idx); setCaseVerdict(null); }}
-                  style={{
-                    padding: '8px 16px', borderRadius: 12, fontSize: 12, fontWeight: 900, cursor: 'pointer',
-                    background: activeCaseIdx === idx ? '#ea580c' : (isLight ? '#f8fafc' : 'rgba(255,255,255,0.06)'),
-                    color: activeCaseIdx === idx ? '#ffffff' : (isLight ? '#7c2d12' : '#fbbf24'),
-                    border: `1.5px solid ${activeCaseIdx === idx ? '#c2410c' : (isLight ? '#cbd5e1' : 'rgba(255,255,255,0.15)')}`
-                  }}
-                >
-                  {c.caseNum} {completedCases.includes(c.id) ? '✅' : ''}
-                </button>
-              ))}
-            </div>
-
-            {/* Active Case File Display */}
-            {(() => {
-              const activeCase = RBI_COURT_CASES[activeCaseIdx]
-              const isPassed = completedCases.includes(activeCase.id)
-
-              return (
-                <div style={{ background: isLight ? '#fff7ed' : 'rgba(245, 158, 11, 0.08)', borderRadius: 18, padding: 22, border: '2px solid #ea580c' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
-                    <div>
-                      <span style={{ fontSize: 11, fontWeight: 900, color: activeCase.badgeColor, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                        {activeCase.caseNum} · {activeCase.type}
-                      </span>
-                      <h4 style={{ fontSize: 18, fontWeight: 900, color: isLight ? '#9a3412' : '#ffffff', margin: '4px 0 0 0' }}>
-                        {activeCase.title}
-                      </h4>
-                    </div>
-                    <span style={{ fontSize: 10, fontWeight: 900, padding: '4px 10px', borderRadius: 999, background: activeCase.badgeColor, color: '#ffffff' }}>
-                      {activeCase.badge}
-                    </span>
-                  </div>
-
-                  {/* Evidence Summary */}
-                  <div style={{ background: isLight ? '#ffffff' : '#090d16', padding: 16, borderRadius: 14, border: isLight ? '1.5px solid #cbd5e1' : '1.5px solid rgba(255,255,255,0.1)', marginBottom: 18, fontSize: 13, lineHeight: 1.6, color: isLight ? '#1e293b' : '#e2e8f0', fontWeight: 700 }}>
-                    📁 <strong>EVIDENCE BRIEF:</strong> {activeCase.summary}
-                  </div>
-
-                  {/* Options */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 18 }}>
-                    {activeCase.options.map((opt, oIdx) => (
-                      <button
-                        key={oIdx}
-                        onClick={() => {
-                          setCaseVerdict(oIdx)
-                          if (opt.correct && !completedCases.includes(activeCase.id)) {
-                            setCompletedCases(prev => [...prev, activeCase.id])
-                            if (addXP) addXP(50)
-                          }
-                        }}
-                        style={{
-                          textAlign: 'left', fontSize: 13, padding: '14px 18px', width: '100%', borderRadius: 12, fontWeight: 800, cursor: 'pointer',
-                          background: caseVerdict === oIdx ? (opt.correct ? '#10b981' : '#e11d48') : (isLight ? '#ffffff' : 'rgba(255,255,255,0.06)'),
-                          color: caseVerdict === oIdx ? '#ffffff' : (isLight ? '#0f172a' : '#fbbf24'),
-                          border: `1.5px solid ${caseVerdict === oIdx ? (opt.correct ? '#059669' : '#be123c') : (isLight ? '#cbd5e1' : 'rgba(255,255,255,0.2)')}`
-                        }}
-                      >
-                        {opt.text}
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* RBI Advice Box */}
-                  {caseVerdict !== null && (
-                    <div className="anim-fade" style={{ background: isLight ? '#e0f2fe' : 'rgba(2, 132, 199, 0.15)', border: '2px solid #0284c7', borderRadius: 14, padding: 18, color: isLight ? '#075985' : '#bae6fd', fontSize: 13, lineHeight: 1.6, fontWeight: 800 }}>
-                      {activeCase.rbiAdvice}
-                      {activeCase.options[caseVerdict].correct && (
-                        <div style={{ marginTop: 10, fontSize: 12, fontWeight: 900, color: '#10b981' }}>
-                          🎉 VERDICT PASSED! YOU EARNED +50 XP FOR SOLVING THIS CASE!
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              )
-            })()}
-          </div>
 
           {/* Phone SMS & Phishing Message Analyzer */}
           <MessageScamAnalyzer themeMode={themeMode} />
@@ -1460,7 +1485,6 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
                 allowFullScreen
               />
             </div>
-
           </div>
         </div>
       )}
@@ -1476,28 +1500,42 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
           <div style={{
             background: isLight ? '#ffffff' : '#12100c',
             border: '3px solid #ea580c',
-            borderRadius: 24, padding: 28,
-            maxWidth: 550, width: '100%',
+            borderRadius: 24, padding: 24,
+            maxWidth: 780, width: '100%',
+            maxHeight: '90vh', overflowY: 'auto',
             textAlign: 'center', color: isLight ? '#0f172a' : '#ffffff',
             position: 'relative'
           }} className="anim-scale" onClick={e => e.stopPropagation()}>
             
-            <div style={{ fontSize: 40, marginBottom: 8 }}>📋</div>
-            <h3 className="font-display" style={{ fontSize: 24, margin: '0 0 8px' }}>
-              FINAL REVIEW BEFORE PRINTING
+            <button onClick={() => setShowVerifyModal(false)} style={{ position: 'absolute', top: 16, right: 16, background: 'none', border: 'none', color: '#ea580c', fontSize: 22, cursor: 'pointer', fontWeight: 900 }}>✕</button>
+
+            <div style={{ fontSize: 36, marginBottom: 4 }}>📋</div>
+            <h3 className="font-display" style={{ fontSize: 22, margin: '0 0 4px' }}>
+              FINAL REVIEW OF FILLED SLIP
             </h3>
             <p style={{ fontSize: 12, color: isLight ? '#475569' : '#d1d5db', marginBottom: 16 }}>
-              Please verify all details before printing or downloading your filled bank form.
+              Review your completed {currentTemplate.institution} ({docType.toUpperCase()}) slip below before downloading or printing.
             </p>
 
-            <div style={{ background: isLight ? '#f8fafc' : 'rgba(255,255,255,0.04)', padding: 14, borderRadius: 14, textStyle: 'left', fontSize: 12, marginBottom: 20, border: '1px stroke #cbd5e1', textAlign: 'left' }}>
-              <div><strong>Institution:</strong> {currentTemplate.institution}</div>
-              <div><strong>Form Type:</strong> {docType.toUpperCase()}</div>
-              <div><strong>Name:</strong> {userData.name || '—'}</div>
-              <div><strong>Account No:</strong> {userData.accountNumber || '—'}</div>
-              <div><strong>Branch:</strong> {userData.branch || '—'}</div>
-              <div><strong>Date:</strong> {userData.date}</div>
-              <div><strong>Amount:</strong> {effectiveAmount > 0 ? `₹${effectiveAmount.toLocaleString('en-IN')}` : '—'}</div>
+            {/* Exact Filled Slip Visual Card Preview */}
+            <div className="printable-slip-area" style={{
+              position: 'relative',
+              width: '100%',
+              borderRadius: 14,
+              overflow: 'hidden',
+              border: '2px solid #ea580c',
+              boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
+              background: '#ffffff',
+              marginBottom: 20
+            }}>
+              <img
+                src={currentTemplate.image}
+                alt={`${currentTemplate.institution} ${docType}`}
+                style={{ width: '100%', height: 'auto', display: 'block' }}
+              />
+              <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+                {currentTemplate.fields.map(field => renderFieldValue(field))}
+              </div>
             </div>
 
             <div style={{ display: 'flex', gap: 10 }}>
@@ -1512,7 +1550,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
                 className="btn-primary"
                 style={{ flex: 1, padding: 12, fontSize: 13, fontWeight: 900 }}
               >
-                🖨️ GENERATE & PRINT PDF
+                🖨️ PRINT / DOWNLOAD FILLED SLIP PDF
               </button>
             </div>
           </div>

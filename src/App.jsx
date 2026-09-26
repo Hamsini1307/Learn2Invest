@@ -64,15 +64,23 @@ export default function App() {
   const [colorTheme, setColorTheme] = useState(() => getColorThemeForScreen('onboarding'))
   const [themeToast, setThemeToast] = useState(null)
 
+  const toggleThemeMode = () => {
+    setThemeMode(prev => {
+      const next = prev === 'light' ? 'dark' : 'light'
+      localStorage.setItem('l2i_themeMode', next)
+      return next
+    })
+  }
+
   // Automatic Theme Color Change on Level Entry
   useEffect(() => {
     const autoTheme = getColorThemeForScreen(screen)
     setColorTheme(autoTheme)
     document.documentElement.setAttribute('data-color-theme', autoTheme)
     document.body.setAttribute('data-color-theme', autoTheme)
-    document.documentElement.setAttribute('data-theme', 'dark')
-    document.body.setAttribute('data-theme', 'dark')
-  }, [screen])
+    document.documentElement.setAttribute('data-theme', themeMode)
+    document.body.setAttribute('data-theme', themeMode)
+  }, [screen, themeMode])
 
   const [lang, setLangState] = useState(() => localStorage.getItem('l2i_lang') || 'en')
   const [parentChildMode, setParentChildModeState] = useState(() => localStorage.getItem('l2i_parentChildMode') === 'true')
@@ -429,6 +437,8 @@ export default function App() {
                 setLang={setLang}
                 parentChildMode={parentChildMode}
                 toggleParentChildMode={toggleParentChildMode}
+                themeMode={themeMode}
+                toggleThemeMode={toggleThemeMode}
                 state={state}
               />
               <div key={screen} className="anim-fade" style={{ flex: 1 }}>
