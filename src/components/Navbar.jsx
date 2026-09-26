@@ -238,19 +238,20 @@ export default function Navbar({
               <button
                 onClick={openLeaderboard}
                 style={{
-                  background: themeMode === 'light' ? '#ffedd5' : 'rgba(245, 158, 11, 0.15)',
-                  border: '1.5px solid #f59e0b',
-                  color: themeMode === 'light' ? '#92400e' : '#fbbf24',
+                  background: themeMode === 'light' ? '#fff7ed' : 'rgba(245, 158, 11, 0.15)',
+                  border: `1.5px solid ${themeMode === 'light' ? '#ea580c' : '#f59e0b'}`,
+                  color: themeMode === 'light' ? '#9a3412' : '#fbbf24',
                   borderRadius: 999,
-                  padding: '6px 12px',
+                  padding: '6px 14px',
                   fontSize: 12,
                   fontWeight: 900,
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 5
+                  gap: 5,
+                  boxShadow: themeMode === 'light' ? '0 2px 8px rgba(234, 88, 12, 0.12)' : 'none'
                 }}
-                title="View Campus Leaderboard (Req 3.1.4 FR16)"
+                title="View Campus Leaderboard"
               >
                 <span>🏆</span>
                 <span>RANKS</span>
@@ -261,19 +262,20 @@ export default function Navbar({
               <button
                 onClick={openBadges}
                 style={{
-                  background: themeMode === 'light' ? '#d1fae5' : 'rgba(16, 185, 129, 0.15)',
-                  border: '1.5px solid #10b981',
-                  color: themeMode === 'light' ? '#047857' : '#6ee7b7',
+                  background: themeMode === 'light' ? '#ecfdf5' : 'rgba(16, 185, 129, 0.15)',
+                  border: `1.5px solid ${themeMode === 'light' ? '#059669' : '#10b981'}`,
+                  color: themeMode === 'light' ? '#065f46' : '#6ee7b7',
                   borderRadius: 999,
-                  padding: '6px 12px',
+                  padding: '6px 14px',
                   fontSize: 12,
                   fontWeight: 900,
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 5
+                  gap: 5,
+                  boxShadow: themeMode === 'light' ? '0 2px 8px rgba(16, 185, 129, 0.12)' : 'none'
                 }}
-                title="View Achievements & Badges (Req 3.1.4 FR14)"
+                title="View Achievements & Badges"
               >
                 <span>🎖️</span>
                 <span>BADGES</span>
@@ -284,19 +286,20 @@ export default function Navbar({
               <button
                 onClick={openReport}
                 style={{
-                  background: themeMode === 'light' ? '#e0f2fe' : 'rgba(56, 189, 248, 0.15)',
-                  border: '1.5px solid #38bdf8',
-                  color: themeMode === 'light' ? '#0369a1' : '#a5f3fc',
+                  background: themeMode === 'light' ? '#f0f9ff' : 'rgba(56, 189, 248, 0.15)',
+                  border: `1.5px solid ${themeMode === 'light' ? '#0284c7' : '#38bdf8'}`,
+                  color: themeMode === 'light' ? '#075985' : '#a5f3fc',
                   borderRadius: 999,
-                  padding: '6px 12px',
+                  padding: '6px 14px',
                   fontSize: 12,
                   fontWeight: 900,
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 5
+                  gap: 5,
+                  boxShadow: themeMode === 'light' ? '0 2px 8px rgba(2, 132, 199, 0.12)' : 'none'
                 }}
-                title="View Performance Report & Progress Trends (Req 3.1.5 FR18, FR19, FR20)"
+                title="View Performance Report"
               >
                 <span>📊</span>
                 <span>REPORT</span>
@@ -310,61 +313,41 @@ export default function Navbar({
                 style={{
                   background: themeMode === 'light' ? '#ffffff' : '#0f172a',
                   border: '2px solid #ea580c',
-                  color: themeMode === 'light' ? '#c2410c' : '#fbbf24',
+                  color: themeMode === 'light' ? '#9a3412' : '#fbbf24',
                   borderRadius: 999,
                   padding: '6px 12px',
                   fontSize: 12,
                   fontWeight: 900,
                   cursor: 'pointer',
                   outline: 'none',
-                  boxShadow: '0 4px 14px rgba(0,0,0,0.25)',
+                  boxShadow: themeMode === 'light' ? '0 2px 8px rgba(234, 88, 12, 0.12)' : '0 4px 14px rgba(0,0,0,0.25)',
                   fontFamily: "'Space Grotesk', sans-serif"
                 }}
                 title="Select Language (English or Kannada)"
               >
-                <option value="en" style={{ background: '#0f172a', color: '#ffffff', fontSize: '13px', fontWeight: 'bold', padding: '10px' }}>🇬🇧 English</option>
-                <option value="kn" style={{ background: '#0f172a', color: '#ffffff', fontSize: '13px', fontWeight: 'bold', padding: '10px' }}>🌾 ಕನ್ನಡ (Kannada)</option>
+                <option value="en" style={{ background: themeMode === 'light' ? '#ffffff' : '#0f172a', color: themeMode === 'light' ? '#0f172a' : '#ffffff', fontSize: '13px', fontWeight: 'bold', padding: '10px' }}>🇬🇧 English</option>
+                <option value="kn" style={{ background: themeMode === 'light' ? '#ffffff' : '#0f172a', color: themeMode === 'light' ? '#0f172a' : '#ffffff', fontSize: '13px', fontWeight: 'bold', padding: '10px' }}>🌾 ಕನ್ನಡ (Kannada)</option>
               </select>
             )}
 
-            {toggleParentChildMode && (
-              <button
-                onClick={toggleParentChildMode}
-                style={{
-                  background: parentChildMode ? 'rgba(168, 85, 247, 0.25)' : 'rgba(255, 255, 255, 0.08)',
-                  border: `1.5px solid ${parentChildMode ? '#a855f7' : 'rgba(255, 255, 255, 0.2)'}`,
-                  color: parentChildMode ? '#c084fc' : '#d1d5db',
-                  borderRadius: 999,
-                  padding: '6px 12px',
-                  fontSize: 11,
-                  fontWeight: 900,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 5
-                }}
-                title="Toggle Parent-Child Co-Learning Mode (Req 3.7.2)"
-              >
-                <span>👨‍👩‍👧</span>
-                <span>{parentChildMode ? 'PARENT MODE' : 'STUDENT'}</span>
-              </button>
-            )}
+
           </div>
 
           {/* Right Game Stats HUD Bar: XP, Corner User Account */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
             {/* XP Pill */}
             <div style={{
-              background: 'var(--gold-bg, rgba(245, 158, 11, 0.15))',
-              border: '1.5px solid var(--gold-primary, #f59e0b)',
+              background: themeMode === 'light' ? '#fff7ed' : 'var(--gold-bg, rgba(245, 158, 11, 0.15))',
+              border: `1.5px solid ${themeMode === 'light' ? '#ea580c' : '#f59e0b'}`,
               borderRadius: '999px',
               padding: '4px 14px',
               display: 'flex', alignItems: 'center', gap: 8,
-              color: 'var(--gold-amber, #fbbf24)', fontSize: 13, fontWeight: 900
+              color: themeMode === 'light' ? '#9a3412' : '#fbbf24', fontSize: 13, fontWeight: 900,
+              boxShadow: themeMode === 'light' ? '0 2px 8px rgba(234, 88, 12, 0.12)' : 'none'
             }}>
               <span style={{ fontSize: 16 }}>⭐</span>
               <div>
-                <span style={{ fontSize: 9, color: 'var(--text-muted, #94a3b8)', display: 'block', lineHeight: 1 }}>XP POINTS</span>
+                <span style={{ fontSize: 9, color: themeMode === 'light' ? '#9a3412' : 'var(--text-muted, #94a3b8)', display: 'block', lineHeight: 1, fontWeight: 800 }}>XP POINTS</span>
                 <span>{xp !== undefined && xp !== null ? xp : 0}</span>
               </div>
             </div>
@@ -373,9 +356,9 @@ export default function Navbar({
             <button
               onClick={() => setShowLogoutConfirm(true)}
               style={{
-                background: themeMode === 'light' ? '#fee2e2' : 'rgba(225, 29, 72, 0.15)',
+                background: themeMode === 'light' ? '#ffe4e6' : 'rgba(225, 29, 72, 0.15)',
                 border: '1.5px solid #e11d48',
-                color: themeMode === 'light' ? '#be123c' : '#fda4af',
+                color: themeMode === 'light' ? '#9f1239' : '#fda4af',
                 borderRadius: 999,
                 padding: '6px 14px',
                 fontSize: 12,
@@ -398,34 +381,36 @@ export default function Navbar({
               <div
                 onClick={() => setShowAccountMenu(prev => !prev)}
                 style={{
-                  background: showAccountMenu ? 'var(--gold-bg, rgba(245, 158, 11, 0.2))' : 'rgba(255, 255, 255, 0.08)',
-                  border: `1.5px solid ${showAccountMenu ? 'var(--gold-primary, #f59e0b)' : 'var(--border-light, rgba(217, 119, 6, 0.4))'}`,
+                  background: showAccountMenu 
+                    ? (themeMode === 'light' ? '#ffedd5' : 'rgba(245, 158, 11, 0.2)') 
+                    : (themeMode === 'light' ? '#ffffff' : 'rgba(255, 255, 255, 0.08)'),
+                  border: `1.5px solid ${themeMode === 'light' ? '#ea580c' : 'rgba(217, 119, 6, 0.4)'}`,
                   borderRadius: '999px',
                   padding: '4px 12px 4px 6px',
                   display: 'flex', alignItems: 'center', gap: 8,
                   cursor: 'pointer', transition: 'all 0.2s',
-                  boxShadow: showAccountMenu ? '0 0 14px var(--gold-bg)' : 'none'
+                  boxShadow: themeMode === 'light' ? '0 2px 10px rgba(0,0,0,0.08)' : (showAccountMenu ? '0 0 14px var(--gold-bg)' : 'none')
                 }}
                 title="Click to view Account Details and Logout"
               >
                 <div style={{
                   width: 32, height: 32, borderRadius: '50%',
-                  background: 'linear-gradient(135deg, var(--gold-primary, #10b981), var(--gold-dark, #0284c7))',
+                  background: 'linear-gradient(135deg, #10b981, #0284c7)',
                   color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontSize: 14, fontWeight: 900, border: '1.5px solid #ffffff'
                 }}>
                   {(user?.name || 'Kavya').charAt(0).toUpperCase()}
                 </div>
                 <div style={{ textAlign: 'left' }}>
-                  <div style={{ fontSize: 12, fontWeight: 900, color: 'var(--heading-color, #ffffff)', lineHeight: 1.1 }}>
+                  <div style={{ fontSize: 12, fontWeight: 900, color: themeMode === 'light' ? '#0f172a' : 'var(--heading-color, #ffffff)', lineHeight: 1.1 }}>
                     {user?.name || 'Kavya'}
                   </div>
-                  <div style={{ fontSize: 9, fontWeight: 800, color: 'var(--gold-amber, #f59e0b)', textTransform: 'uppercase' }}>
+                  <div style={{ fontSize: 9, fontWeight: 800, color: themeMode === 'light' ? '#c2410c' : 'var(--gold-amber, #f59e0b)', textTransform: 'uppercase' }}>
                     {['intermediate','simulation','int-complete'].includes(currentScreen) ? 'Level 2' :
                      ['advanced','unlock-adv','adv-result'].includes(currentScreen) ? 'Level 3' : 'Level 1'}
                   </div>
                 </div>
-                <span style={{ fontSize: 9, color: 'var(--text-muted, #94a3b8)', transform: showAccountMenu ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>▼</span>
+                <span style={{ fontSize: 9, color: themeMode === 'light' ? '#64748b' : 'var(--text-muted, #94a3b8)', transform: showAccountMenu ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>▼</span>
               </div>
 
               {/* Dropdown Menu Popover */}

@@ -3,9 +3,9 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 
 const PLACES = [
   { id: 'school', name: 'Learn2Invest School 🏫', hint: 'Level 1 · Classrooms & Projector Lessons', x: 23, y: 30, screen: 'beginner', locked: () => false, lockHint: '' },
-  { id: 'quiz', name: 'Quiz Hall 🎯', hint: 'Knowledge Checkpoint', x: 44, y: 58, screen: 'quiz', locked: (s) => (s.lessonsWatched || []).length < 5, lockHint: 'Complete the five classroom lessons first' },
-  { id: 'intermediate', name: 'Investment Lab 🧪', hint: 'Level 2 · FD, SIP & Stock Simulators', x: 69, y: 37, screen: 'intermediate', locked: (s) => !s.intermediateUnlocked, lockHint: 'Pass the Quiz Hall first' },
-  { id: 'advanced', name: 'Portfolio Tower 🏢', hint: 'Level 3 · Financial Headquarters', x: 79, y: 73, screen: 'advanced', locked: (s) => !s.advancedUnlocked, lockHint: 'Unlock Level 3 in the Investment Lab first' },
+  { id: 'quiz', name: 'Quiz Hall 🎯', hint: 'Knowledge Checkpoint', x: 44, y: 58, screen: 'quiz', locked: () => false, lockHint: '' },
+  { id: 'intermediate', name: 'Investment Lab 🧪', hint: 'Level 2 · FD, SIP & Stock Simulators', x: 69, y: 37, screen: 'intermediate', locked: () => false, lockHint: '' },
+  { id: 'advanced', name: 'Portfolio Tower 🏢', hint: 'Level 3 · Financial Headquarters', x: 79, y: 73, screen: 'advanced', locked: () => false, lockHint: '' },
 ]
 
 export default function OverworldCity({ go, state }) {

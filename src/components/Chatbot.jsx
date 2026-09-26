@@ -41,23 +41,28 @@ function generateDynamicAiReply(message, userName, screen, guideName) {
   const bot = guideName || 'AI Guide'
   
   const isGreeting = /^(hi|hello|hey|namaste|greetings)\b/i.test(m)
+  const isWhereToInvest = /where\s*(should\s*i|to)?\s*invest|where\s*to\s*put|how\s*to\s*invest|have\s*\d+|invest\s*\d+/i.test(m)
   
+  if (isGreeting) {
+    return `👋 **Namaste ${name}! I'm ${bot}, your AI Investment Tutor & Voice Assistant.**\n\nHow can I help you accelerate your financial journey today? Ask me any question or select a topic to get started!`
+  }
+
+  if (isWhereToInvest) {
+    return `🏛️ **${bot}'s Top Recommended Investment Avenues for ${name}:**\n\nHere are the best Government-backed & Market schemes in India to start investing:\n\n1. **Public Provident Fund (PPF)**: 7.1% p.a. guaranteed, tax-free interest backed by Govt of India (Section 80C).\n2. **Post Office Savings Schemes (POMIS / NSC)**: 7.7% p.a. risk-free fixed income schemes with sovereign safety.\n3. **SIP in Index Mutual Funds**: Start from just ₹500/month for long-term equity compounding (12-15% historical returns).\n4. **Sukanya Samriddhi Yojana (SSY)**: 8.2% p.a. highest-yielding scheme for girl child education & savings.\n5. **Sovereign Gold Bonds (SGB) & Bank FDs**: 2.5% extra annual interest + gold price appreciation with zero default risk.\n\n📌 **Smart Tip:** Always maintain 3 to 6 months of emergency savings in a liquid bank account before locking capital into long-term schemes!`
+  }
+
   let topicSummary = ''
-  if (/sip/i.test(m)) topicSummary = 'Systematic Investment Plans (SIP) allow disciplined cost-averaging and wealth compounding over time.'
+  if (/sip/i.test(m)) topicSummary = 'Systematic Investment Plans (SIP) allow disciplined cost-averaging and wealth compounding over time from as little as ₹500/month.'
   else if (/swp/i.test(m)) topicSummary = 'Systematic Withdrawal Plans (SWP) provide regular monthly cash flow while keeping funds invested.'
   else if (/stp/i.test(m)) topicSummary = 'Systematic Transfer Plans (STP) shift capital gradually from liquid/debt funds to equity funds to manage market timing risk.'
   else if (/lump\s*sum/i.test(m)) topicSummary = 'Lump sum investing deploys capital all at once, optimal when market valuations are favorable for long-term horizons.'
   else if (/mutual fund|mf/i.test(m)) topicSummary = 'Mutual funds pool investor resources across diversified stocks and bonds under professional SEBI-regulated management.'
-  else if (/tax|80c|elss|ppf/i.test(m)) topicSummary = 'Section 80C tax optimization provides up to ₹1.5 lakh deductions via PPF, ELSS, NSC, and SSY schemes.'
+  else if (/tax|80c|elss|ppf/i.test(m)) topicSummary = 'Section 80C tax optimization provides up to ₹1.5 lakh deductions via PPF, ELSS, NSC, and SSY government schemes.'
   else if (/stock|trading|share/i.test(m)) topicSummary = 'Direct stock investing offers high equity growth potential, best complemented by index funds and disciplined risk management.'
   else if (/portfolio|diversif/i.test(m)) topicSummary = 'Strategic portfolio diversification distributes capital across equities, debt, and liquid reserves based on your risk tolerance.'
   else topicSummary = `wealth building, asset allocation, and smart investment principles tailored to your goals.`
 
-  if (isGreeting) {
-    return `👋 **Namaste ${name}! I'm ${bot}, your dynamic AI Investment Tutor.**\n\nHow can I help you accelerate your financial journey today? Ask me any question or select a topic to get started!`
-  }
-
-  return `🤖 **${bot}'s AI Insights for ${name}:**\n\nRegarding your prompt: *"${m}"*\n\n💡 **Core AI Takeaway:** ${topicSummary}\n\n📌 **Smart Strategy:**\n1. Establish clear short-term vs long-term investment horizons.\n2. Balance guaranteed fixed-income assets with inflation-beating equity growth.\n3. Rebalance your portfolio periodically as your financial goals evolve.\n\n💬 Feel free to ask follow-up questions or test scenarios in our Investment Lab!`
+  return `🤖 **${bot}'s AI Insights for ${name}:**\n\n💡 **Core AI Takeaway:** ${topicSummary}\n\n📌 **Smart Strategy:**\n1. Establish clear short-term vs long-term investment horizons.\n2. Balance guaranteed fixed-income assets (PPF/NSC) with inflation-beating equity growth (Index Funds).\n3. Rebalance your portfolio periodically as your financial goals evolve.\n\n💬 Feel free to ask follow-up questions or test scenarios in our Investment Lab!`
 }
 
 function getSystemInstruction(userName, currentScreen, avatarName) {
@@ -69,7 +74,7 @@ function getSystemInstruction(userName, currentScreen, avatarName) {
   }
 
   return `You are ${avatarName || 'Luna'}, an AI financial education and guidance mentor for Indian users in the Learn2Invest platform.
-The user's name is ${userName || 'Learner'}. They are currently learning at the "${level}" tier of the app. Personalize responses by addressing them by name occasionally. Provide clear, dynamic, actionable financial insights without static boilerplate.`
+The user's name is ${userName || 'Learner'}. They are currently learning at the "${level}" tier of the app. Personalize responses by addressing them by name occasionally. Provide clear, dynamic, actionable financial insights. When asked where to invest, suggest specific Indian government schemes (PPF, NSC, Post Office Schemes, SSY, SGB) and low-cost SIP mutual funds. Do NOT start responses with boilerplate like "Regarding your prompt".`
 }
 
 async function getGeminiReply(message, history, systemInstruction, apiKey) {
@@ -106,20 +111,34 @@ async function getGeminiReply(message, history, systemInstruction, apiKey) {
   }
 }
 
-export default function Chatbot({ open, onToggle, onClose, user, xp, currentScreen, aiGuideAvatar = 'female', aiGuideName }) {
+export default function Chatbot({ open, onToggle, onClose, user, xp, currentScreen, aiGuideAvatar = 'female', aiGuideName, themeMode = 'dark', lang = 'en' }) {
   const activeAvatar = AI_AVATARS[aiGuideAvatar] || AI_AVATARS.female
   const guideName = aiGuideName || activeAvatar.name
+  const isLight = themeMode === 'light'
 
   const [msgs, setMsgs] = useState([{
     from: 'bot',
-    text: `👋 **Namaste! I'm ${guideName}, your AI Investment Guide!**\n\nAsk me anything about investing in India — SIP, mutual funds, PPF, tax saving, and more. Or pick a question below to get started! 🚀`
+    text: `👋 **Namaste! I'm ${guideName}, your AI Investment Guide & Voice Assistant!**\n\nAsk me anything about investing in India — SIP, mutual funds, PPF, tax saving, and more. Use voice input or text to chat! 🎙️🚀`
   }])
   const [input, setInput] = useState('')
   const [typing, setTyping] = useState(false)
-  const [showSettings, setShowSettings] = useState(false)
   const [apiKey, setApiKey] = useState(() => localStorage.getItem('gemini_api_key') || '')
   const [speakingIdx, setSpeakingIdx] = useState(null)
+  const [isListening, setIsListening] = useState(false)
+  const [autoVoice, setAutoVoice] = useState(false)
+  const recognitionRef = useRef(null)
   const bottomRef = useRef(null)
+
+  useEffect(() => {
+    return () => {
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel()
+      }
+      if (recognitionRef.current) {
+        try { recognitionRef.current.stop() } catch {}
+      }
+    }
+  }, [])
 
   const speakText = (text, idx) => {
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) return
@@ -130,24 +149,95 @@ export default function Chatbot({ open, onToggle, onClose, user, xp, currentScre
     }
     window.speechSynthesis.cancel()
     const cleanText = text
+      .replace(/\*\*(.*?)\*\*/g, '$1')
       .replace(/[*#_~`]/g, '')
       .replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '')
+      .replace(/\s+/g, ' ')
       .trim()
+
+    if (!cleanText) return
+
     const utterance = new SpeechSynthesisUtterance(cleanText)
-    utterance.rate = 1.0
-    utterance.pitch = 1.0
+    utterance.rate = 0.95
+    utterance.pitch = aiGuideAvatar === 'female' ? 1.05 : 0.95
+    if (lang === 'hi') utterance.lang = 'hi-IN'
+
+    if (window.speechSynthesis.getVoices) {
+      const voices = window.speechSynthesis.getVoices()
+      if (voices && voices.length > 0) {
+        const preferredVoice = voices.find(v => (
+          lang === 'hi' ? v.lang.startsWith('hi') : v.lang.startsWith('en')
+        ) && (
+          aiGuideAvatar === 'female'
+            ? (v.name.includes('Female') || v.name.includes('Zira') || v.name.includes('Google US English') || v.name.includes('Samantha') || v.name.includes('Kalpana'))
+            : (v.name.includes('Male') || v.name.includes('David') || v.name.includes('George') || v.name.includes('Hemant'))
+        )) || voices.find(v => lang === 'hi' ? v.lang.startsWith('hi') : v.lang.startsWith('en'))
+        if (preferredVoice) utterance.voice = preferredVoice
+      }
+    }
+
     utterance.onend = () => setSpeakingIdx(null)
     utterance.onerror = () => setSpeakingIdx(null)
     setSpeakingIdx(idx)
     window.speechSynthesis.speak(utterance)
   }
 
+  const toggleListening = () => {
+    if (typeof window === 'undefined') return
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+    if (!SpeechRecognition) {
+      alert('Voice input is not supported in your browser. Please use Google Chrome, Microsoft Edge, or Safari.')
+      return
+    }
+
+    if (isListening) {
+      if (recognitionRef.current) {
+        try { recognitionRef.current.stop() } catch {}
+      }
+      setIsListening(false)
+      return
+    }
+
+    try {
+      const recognition = new SpeechRecognition()
+      recognitionRef.current = recognition
+      recognition.continuous = false
+      recognition.interimResults = true
+      recognition.lang = lang === 'hi' ? 'hi-IN' : 'en-IN'
+
+      recognition.onstart = () => {
+        setIsListening(true)
+      }
+
+      recognition.onresult = (e) => {
+        const transcript = Array.from(e.results)
+          .map(r => r[0].transcript)
+          .join('')
+        setInput(transcript)
+      }
+
+      recognition.onerror = (e) => {
+        console.error('Speech recognition error:', e.error)
+        setIsListening(false)
+      }
+
+      recognition.onend = () => {
+        setIsListening(false)
+      }
+
+      recognition.start()
+    } catch (err) {
+      console.error('Speech recognition start failed:', err)
+      setIsListening(false)
+    }
+  }
+
   useEffect(() => {
     if (open) {
       setMsgs(prev => {
         const welcomeText = user
-          ? `👋 **Namaste ${user.name}! I'm ${guideName}, your AI Investment Guide!**\n\nYou currently have **${xp} XP**. Ask me anything about investing in India — SIP, mutual funds, PPF, tax saving, and more! 🚀`
-          : `👋 **Namaste! I'm ${guideName}, your AI Investment Guide!**\n\nAsk me anything about investing in India — SIP, mutual funds, PPF, tax saving, and more! 🚀`
+          ? `👋 **Namaste ${user.name}! I'm ${guideName}, your AI Investment Guide & Voice Assistant!**\n\nYou currently have **${xp} XP**. Ask me anything using text or voice! 🎙️🚀`
+          : `👋 **Namaste! I'm ${guideName}, your AI Investment Guide & Voice Assistant!**\n\nAsk me anything using text or voice! 🎙️🚀`
         
         if (prev.length === 1 && prev[0].from === 'bot') {
           return [{ from: 'bot', text: welcomeText }]
@@ -184,17 +274,6 @@ export default function Chatbot({ open, onToggle, onClose, user, xp, currentScre
     }])
   }
 
-  const saveApiKey = (keyVal) => {
-    const trimmed = keyVal.trim()
-    setApiKey(trimmed)
-    if (trimmed) {
-      localStorage.setItem('gemini_api_key', trimmed)
-    } else {
-      localStorage.removeItem('gemini_api_key')
-    }
-    setShowSettings(false)
-  }
-
   const send = async (text) => {
     const t = (text || input).trim()
     if (!t) return
@@ -208,8 +287,15 @@ export default function Chatbot({ open, onToggle, onClose, user, xp, currentScre
     setTyping(false)
 
     const dynamicFallback = generateDynamicAiReply(t, user?.name, currentScreen, guideName)
+    const replyText = geminiText || dynamicFallback
 
-    setMsgs(m => [...m, { from: 'bot', text: geminiText || dynamicFallback }])
+    setMsgs(m => {
+      const newMsgs = [...m, { from: 'bot', text: replyText }]
+      if (autoVoice) {
+        setTimeout(() => speakText(replyText, newMsgs.length - 1), 150)
+      }
+      return newMsgs
+    })
   }
 
   const formatText = (text) => {
@@ -232,7 +318,8 @@ export default function Chatbot({ open, onToggle, onClose, user, xp, currentScre
 
     const parseInlineMarkdown = (str) => {
       let html = str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-      html = html.replace(/\*\*(.*?)\*\*/g, (_, b) => `<strong style="color: #fbbf24;">${b}</strong>`)
+      const boldColor = isLight ? '#b45309' : '#fbbf24'
+      html = html.replace(/\*\*(.*?)\*\*/g, (_, b) => `<strong style="color: ${boldColor}; font-weight: 800;">${b}</strong>`)
       return html
     }
 
@@ -247,7 +334,7 @@ export default function Chatbot({ open, onToggle, onClose, user, xp, currentScre
         if (listType !== 'ul') { flushList(`flush-b-${index}`); listType = 'ul' }
         const itemText = trimmed.replace(/^[*\-•]\s+/, '')
         listBuffer.push(
-          <li key={`li-${index}`} style={{ margin: '4px 0', fontSize: '13px', lineHeight: 1.5 }}>
+          <li key={`li-${index}`} style={{ margin: '4px 0', fontSize: '13px', lineHeight: 1.5, color: isLight ? '#0f172a' : undefined }}>
             <span dangerouslySetInnerHTML={{ __html: parseInlineMarkdown(itemText) }} />
           </li>
         )
@@ -255,14 +342,14 @@ export default function Chatbot({ open, onToggle, onClose, user, xp, currentScre
         if (listType !== 'ol') { flushList(`flush-n-${index}`); listType = 'ol' }
         const itemText = trimmed.replace(/^\d+\.\s+/, '')
         listBuffer.push(
-          <li key={`li-${index}`} style={{ margin: '4px 0', fontSize: '13px', lineHeight: 1.5 }}>
+          <li key={`li-${index}`} style={{ margin: '4px 0', fontSize: '13px', lineHeight: 1.5, color: isLight ? '#0f172a' : undefined }}>
             <span dangerouslySetInnerHTML={{ __html: parseInlineMarkdown(itemText) }} />
           </li>
         )
       } else {
         flushList(`flush-p-${index}`)
         elements.push(
-          <p key={index} style={{ margin: '6px 0', lineHeight: 1.5, fontSize: '13px' }}>
+          <p key={index} style={{ margin: '6px 0', lineHeight: 1.5, fontSize: '13px', color: isLight ? '#0f172a' : undefined }}>
             <span dangerouslySetInnerHTML={{ __html: parseInlineMarkdown(line) }} />
           </p>
         )
@@ -278,52 +365,38 @@ export default function Chatbot({ open, onToggle, onClose, user, xp, currentScre
   if (!open) {
     return (
       <div style={{
-        position: 'fixed', bottom: 24, right: 24, zIndex: 9999,
-        display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 10,
+        position: 'fixed', bottom: 24, right: 24, zIndex: 99999,
+        display: 'flex', flexDirection: 'column', alignItems: 'flex-end',
+        gap: 8,
         fontFamily: "'Space Grotesk', sans-serif"
       }}>
-        {/* Floating Welcome Teaser Bubble */}
-        <div
-          onClick={onToggle || onClose}
-          className="anim-fade"
-          style={{
-            background: 'var(--bg-card, #12100c)',
-            border: '2px solid #ea580c',
-            borderRadius: '18px 18px 4px 18px',
-            padding: '12px 16px',
-            maxWidth: 280,
-            boxShadow: '0 10px 30px rgba(0,0,0,0.6)',
-            cursor: 'pointer',
-            backdropFilter: 'blur(16px)',
-            color: 'var(--text-main, #ffffff)',
-            fontSize: 12,
-            fontWeight: 700,
-            lineHeight: 1.4,
-            transition: 'transform 0.2s',
-          }}
-        >
-          👋 Hi! I'm {guideName}, your AI Mentor. How can I help you with investing today?
-          <div style={{ fontSize: 10, color: 'var(--gold-amber, #fbbf24)', fontWeight: 900, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
-            <span>💬 Tap to ask a question →</span>
-          </div>
-        </div>
-
         {/* Launcher Floating Circular Button */}
         <button
           onClick={onToggle || onClose}
           style={{
-            width: 56, height: 56, borderRadius: '50%',
+            width: 60, height: 60, borderRadius: '50%',
             background: 'linear-gradient(135deg, #0284c7, #2563eb)',
-            border: '2.5px solid #38bdf8',
-            color: '#ffffff', fontSize: 26,
+            border: '3px solid #38bdf8',
+            color: '#ffffff', fontSize: 28,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             cursor: 'pointer',
-            boxShadow: '0 8px 24px rgba(2, 132, 199, 0.6)',
-            transition: 'transform 0.2s',
+            boxShadow: '0 8px 28px rgba(2, 132, 199, 0.7)',
+            transition: 'transform 0.2s, box-shadow 0.2s',
+            position: 'relative',
           }}
-          title={`Chat with ${guideName}`}
+          title={`Chat with ${guideName} (Voice Assistant Active)`}
         >
           {activeAvatar.icon}
+          <div style={{
+            position: 'absolute', top: -4, right: -4,
+            background: '#10b981', color: '#fff',
+            fontSize: 10, fontWeight: 900, padding: '2px 6px',
+            borderRadius: 10, border: '2px solid #080705',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.4)',
+            letterSpacing: '0.5px'
+          }}>
+            🎙️ AI
+          </div>
         </button>
       </div>
     )
@@ -331,16 +404,16 @@ export default function Chatbot({ open, onToggle, onClose, user, xp, currentScre
 
   return (
     <div style={{
-      position: 'fixed', bottom: 24, right: 24, zIndex: 200,
-      width: 390, maxWidth: 'calc(100vw - 32px)',
-      height: '75vh', maxHeight: 640,
+      position: 'fixed', bottom: 24, right: 24, zIndex: 99999,
+      width: 400, maxWidth: 'calc(100vw - 32px)',
+      height: '78vh', maxHeight: 660,
       display: 'flex', flexDirection: 'column',
       borderRadius: 24,
-      background: 'var(--bg-card, rgba(18, 16, 12, 0.95))',
+      background: 'var(--bg-card, rgba(18, 16, 12, 0.96))',
       backdropFilter: 'blur(32px)',
       WebkitBackdropFilter: 'blur(32px)',
-      border: '2px solid #d97706',
-      boxShadow: 'var(--card-shadow, 0 24px 80px rgba(0,0,0,0.9))',
+      border: '2.5px solid #d97706',
+      boxShadow: 'var(--card-shadow, 0 24px 80px rgba(0,0,0,0.95))',
       overflow: 'hidden',
       animation: 'popIn 0.4s cubic-bezier(0.34,1.56,0.64,1)',
       transformOrigin: 'bottom right',
@@ -348,7 +421,7 @@ export default function Chatbot({ open, onToggle, onClose, user, xp, currentScre
     }}>
       {/* Header */}
       <div style={{
-        padding: '16px 20px',
+        padding: '14px 18px',
         background: 'linear-gradient(135deg, #d97706, #f59e0b)',
         color: '#080705',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -357,7 +430,7 @@ export default function Chatbot({ open, onToggle, onClose, user, xp, currentScre
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <div style={{
-            width: 40, height: 40, borderRadius: 12,
+            width: 42, height: 42, borderRadius: 12,
             background: '#080705', color: '#fbbf24',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 22, fontWeight: 900,
@@ -365,35 +438,37 @@ export default function Chatbot({ open, onToggle, onClose, user, xp, currentScre
             {activeAvatar.icon}
           </div>
           <div>
-            <div style={{ fontWeight: 900, fontSize: 16, fontFamily: "'Bebas Neue', 'Space Grotesk', sans-serif", letterSpacing: '1px', color: '#080705' }}>
-              {guideName.toUpperCase()} · AI GUIDE
+            <div style={{ fontWeight: 900, fontSize: 15, fontFamily: "'Bebas Neue', 'Space Grotesk', sans-serif", letterSpacing: '1px', color: '#080705' }}>
+              {guideName.toUpperCase()} · VOICE & AI TUTOR
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#080705' }} />
-              <span style={{ fontSize: 11, fontWeight: 800, color: '#1a1610' }}>{activeAvatar.badge}</span>
+              <span style={{ fontSize: 11, fontWeight: 800, color: '#1a1610' }}>🎙️ Voice Assistant Active</span>
             </div>
           </div>
         </div>
+
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <button
-            onClick={() => setShowSettings(!showSettings)}
-            title="Configure Gemini API Key"
+            onClick={() => setAutoVoice(prev => !prev)}
+            title={autoVoice ? "Auto-Read Responses: ON" : "Auto-Read Responses: OFF"}
             style={{
-              background: apiKey ? '#080705' : 'rgba(8,7,5,0.7)',
-              border: apiKey ? '1px solid #fbbf24' : '1px solid rgba(8,7,5,0.4)',
+              background: autoVoice ? '#080705' : 'rgba(8,7,5,0.15)',
+              border: '1px solid #080705',
               borderRadius: 8,
               padding: '4px 8px',
-              color: '#fbbf24',
+              color: autoVoice ? '#fbbf24' : '#080705',
               cursor: 'pointer',
-              fontSize: 11,
+              fontSize: 10,
               fontWeight: 800,
               display: 'flex',
               alignItems: 'center',
               gap: 4
             }}
           >
-            {apiKey ? '⚡ Key Active' : '⚙️ API Key'}
+            {autoVoice ? '🔊 Auto Voice ON' : '🔇 Auto Voice OFF'}
           </button>
+          
           <button
             onClick={clearChat}
             title="Clear Conversation"
@@ -422,59 +497,6 @@ export default function Chatbot({ open, onToggle, onClose, user, xp, currentScre
         </div>
       </div>
 
-      {/* API Key Settings Panel */}
-      {showSettings && (
-        <div style={{
-          padding: '12px 16px',
-          background: 'rgba(245, 158, 11, 0.12)',
-          borderBottom: '1.5px solid #d97706',
-          fontSize: 12,
-          color: 'var(--text-main, #fef3c7)',
-        }}>
-          <div style={{ fontWeight: 800, color: '#fbbf24', marginBottom: 4 }}>
-            🔑 GOOGLE GEMINI API KEY INTEGRATION
-          </div>
-          <div style={{ fontSize: 11, color: 'var(--text-muted, #9ca3af)', marginBottom: 8 }}>
-            Paste your Google Gemini API Key below to power responses directly from Google's Gemini models (`gemini-1.5-flash`):
-          </div>
-          <div style={{ display: 'flex', gap: 6 }}>
-            <input
-              type="password"
-              placeholder="AIzaSy..."
-              value={apiKey}
-              onChange={(e) => setApiKey(e.target.value)}
-              style={{
-                flex: 1, padding: '6px 10px', borderRadius: 8,
-                background: 'var(--input-bg, #080705)', border: '1px solid #d97706',
-                color: 'var(--text-main, #ffffff)', fontSize: 12, outline: 'none',
-              }}
-            />
-            <button
-              onClick={() => saveApiKey(apiKey)}
-              style={{
-                background: '#f59e0b', color: '#080705',
-                border: 'none', borderRadius: 8, padding: '6px 12px',
-                fontWeight: 800, cursor: 'pointer', fontSize: 11,
-              }}
-            >
-              SAVE
-            </button>
-            {apiKey && (
-              <button
-                onClick={() => saveApiKey('')}
-                style={{
-                  background: 'rgba(239, 68, 68, 0.2)', color: '#fca5a5',
-                  border: '1px solid #ef4444', borderRadius: 8, padding: '6px 10px',
-                  fontWeight: 800, cursor: 'pointer', fontSize: 11,
-                }}
-              >
-                REMOVE
-              </button>
-            )}
-          </div>
-        </div>
-      )}
-
       {/* Messages area */}
       <div style={{
         flex: 1, overflowY: 'auto', padding: '16px',
@@ -493,36 +515,38 @@ export default function Chatbot({ open, onToggle, onClose, user, xp, currentScre
               borderRadius: m.from === 'user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
               fontSize: 13, lineHeight: 1.5, fontWeight: 600,
               background: m.from === 'user'
-                ? 'linear-gradient(135deg, #d97706, #f59e0b)'
-                : 'var(--input-bg, rgba(255,255,255,0.05))',
-              color: m.from === 'user' ? '#080705' : 'var(--text-main, #fef3c7)',
+                ? 'linear-gradient(135deg, #d97706, #ea580c)'
+                : (isLight ? '#ffffff' : 'var(--input-bg, rgba(255,255,255,0.05))'),
+              color: m.from === 'user' ? '#ffffff' : (isLight ? '#0f172a' : 'var(--text-main, #fef3c7)'),
               boxShadow: m.from === 'user'
                 ? '0 4px 12px rgba(245,158,11,0.3)'
+                : (isLight ? '0 4px 14px rgba(0,0,0,0.06)' : 'none'),
+              border: m.from === 'bot' 
+                ? (isLight ? '1.5px solid rgba(234, 88, 12, 0.35)' : '1.5px solid rgba(217, 119, 6, 0.25)') 
                 : 'none',
-              border: m.from === 'bot' ? '1.5px solid rgba(217,119,6,0.25)' : 'none',
             }}>
               {m.from === 'bot' ? formatText(m.text) : m.text}
 
               {m.from === 'bot' && (
-                <div style={{ marginTop: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
                   <button
                     onClick={() => speakText(m.text, i)}
                     style={{
-                      background: speakingIdx === i ? '#ea580c' : 'rgba(245, 158, 11, 0.15)',
-                      border: `1px solid ${speakingIdx === i ? '#c2410c' : '#f59e0b'}`,
+                      background: speakingIdx === i ? '#ea580c' : (isLight ? '#fff7ed' : 'rgba(245, 158, 11, 0.15)'),
+                      border: `1px solid ${speakingIdx === i ? '#c2410c' : (isLight ? '#ea580c' : '#f59e0b')}`,
                       borderRadius: 8,
-                      padding: '3px 8px',
-                      color: speakingIdx === i ? '#ffffff' : 'var(--gold-amber, #fbbf24)',
-                      fontSize: 10,
-                      fontWeight: 800,
+                      padding: '4px 10px',
+                      color: speakingIdx === i ? '#ffffff' : (isLight ? '#c2410c' : 'var(--gold-amber, #fbbf24)'),
+                      fontSize: 11,
+                      fontWeight: 900,
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: 4
+                      gap: 5
                     }}
                     title="Listen to AI Voice Assistant"
                   >
-                    <span>{speakingIdx === i ? '🔊 Speaking...' : '🔊 Voice Assistant'}</span>
+                    <span>{speakingIdx === i ? '🔊 Speaking... (Click to stop)' : '🔊 Read Out Loud (Voice Assistant)'}</span>
                   </button>
                 </div>
               )}
@@ -562,18 +586,65 @@ export default function Chatbot({ open, onToggle, onClose, user, xp, currentScre
         ))}
       </div>
 
+      {/* Listening Status Alert */}
+      {isListening && (
+        <div style={{
+          padding: '6px 14px',
+          background: 'linear-gradient(90deg, #dc2626, #b91c1c)',
+          color: '#ffffff',
+          fontSize: 11,
+          fontWeight: 800,
+          display: 'flex',
+          alignItems: 'center',
+          justify: 'space-between',
+          gap: 8,
+          flexShrink: 0
+        }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#fff', animation: 'pulse 1s infinite' }} />
+            🎙️ Voice Assistant Listening... Speak your question clearly!
+          </span>
+          <button
+            type="button"
+            onClick={toggleListening}
+            style={{ background: 'transparent', border: 'none', color: '#fff', fontSize: 12, fontWeight: 900, cursor: 'pointer' }}
+          >Stop ✕</button>
+        </div>
+      )}
+
       {/* Input */}
       <div style={{
         padding: '12px 14px',
         background: 'var(--bg-card-deep, #12100c)',
         borderTop: '1px solid rgba(217,119,6,0.2)',
-        display: 'flex', gap: 8, flexShrink: 0,
+        display: 'flex', gap: 8, flexShrink: 0, alignItems: 'center'
       }}>
+        {/* Voice Input Mic Button */}
+        <button
+          type="button"
+          onClick={toggleListening}
+          style={{
+            background: isListening ? '#dc2626' : (isLight ? '#f1f5f9' : 'rgba(255,255,255,0.08)'),
+            border: `1.5px solid ${isListening ? '#ef4444' : (isLight ? '#cbd5e1' : 'rgba(217,119,6,0.4)')}`,
+            borderRadius: 12,
+            width: 42, height: 42,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: isListening ? '#ffffff' : (isLight ? '#0f172a' : '#fbbf24'),
+            fontSize: 18,
+            cursor: 'pointer',
+            boxShadow: isListening ? '0 0 12px rgba(239, 68, 68, 0.8)' : 'none',
+            flexShrink: 0
+          }}
+          title={isListening ? 'Stop voice input' : 'Speak using Voice Assistant'}
+        >
+          {isListening ? '🛑' : '🎙️'}
+        </button>
+
         <input
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && send()}
-          placeholder={`Ask ${guideName} about SIP, PPF...`}
+          placeholder={isListening ? "Listening..." : `Ask ${guideName} or click 🎙️ to speak...`}
           className="input-light"
           style={{ flex: 1, padding: '10px 14px', fontSize: 13 }}
         />
@@ -588,6 +659,11 @@ export default function Chatbot({ open, onToggle, onClose, user, xp, currentScre
         @keyframes typingDot {
           0%,60%,100% { transform: translateY(0); opacity: 0.4; }
           30% { transform: translateY(-5px); opacity: 1; }
+        }
+        @keyframes pulse {
+          0% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.5; transform: scale(1.05); }
+          100% { opacity: 1; transform: scale(1); }
         }
       `}</style>
     </div>

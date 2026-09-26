@@ -3,6 +3,8 @@ import cors from 'cors'
 import dotenv from 'dotenv'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
+import path from 'path'
+import { fileURLToPath } from 'url'
 import { initDb } from './db.js'
 import { User, UserState } from './models.js'
 import { localUser, localUserState } from './localDb.js'
@@ -10,6 +12,8 @@ import { localUser, localUserState } from './localDb.js'
 let dbUser = localUser
 let dbUserState = localUserState
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+dotenv.config({ path: path.join(__dirname, '.env') })
 dotenv.config()
 
 const app = express()
@@ -67,10 +71,12 @@ app.post('/api/register', async (req, res) => {
     })
 
     const intUnlocked = startLevel === 'intermediate'
+    const defaultWatched = intUnlocked ? ['video1', 'video2', 'video3', 'video4', 'video5', 'ppf', 'fd', 'nsc', 'ssy'] : []
     await dbUserState.create({
       email: formattedEmail,
       startingLevel: startLevel,
-      intermediateUnlocked: intUnlocked
+      intermediateUnlocked: intUnlocked,
+      lessonsWatched: defaultWatched
     })
 
     res.status(201).json({ message: 'Registration successful' })
@@ -329,7 +335,7 @@ app.delete('/api/admin/users/:email', authenticateToken, async (req, res) => {
 })
 
 // Start listening immediately to avoid blocking client requests during DB connection timeouts
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Backend running on port ${PORT}`)
 })
 

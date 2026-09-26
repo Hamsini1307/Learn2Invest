@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { INSTITUTIONS, FORM_CATEGORIES, BANK_TEMPLATES_CONFIG } from '../config/bankTemplates'
+import { INSTITUTIONS, FORM_CATEGORIES, BANK_TEMPLATES_CONFIG, CANONICAL_FIELD_MAPPING } from '../config/bankTemplates'
 import MessageScamAnalyzer from '../components/MessageScamAnalyzer.jsx'
 
 const CYBER_SCENARIOS = [
@@ -86,11 +86,160 @@ function numberToWords(num) {
   return result ? `${result} RUPEES ONLY` : ''
 }
 
+
+const BANK_IFSC_PREFIXES = {
+  canara: 'CNRB',
+  karnataka: 'KARB',
+  postoffice: 'IPOS',
+  pnb: 'PUNB',
+  sbi: 'SBIN'
+}
+
+const KNOWN_BRANCH_IFSC_DB = {
+  // Canara Bank Official IFSC
+  'canara_gurupura_mangaluru': 'CNRB0003841',
+  'canara_pandeshwar_mangaluru': 'CNRB0001001',
+  'canara_hampankatta_mangaluru': 'CNRB0000412',
+  'canara_balmatta_mangaluru': 'CNRB0000845',
+  'canara_kodialbail_mangaluru': 'CNRB0001890',
+  'canara_founder_mangaluru': 'CNRB0000001',
+  'canara_main_mangaluru': 'CNRB0001001',
+  'canara_surathkal_mangaluru': 'CNRB0000411',
+  'canara_udupi_udupi': 'CNRB0000192',
+  'canara_manipal_udupi': 'CNRB0000107',
+  'canara_mysuru_mysuru': 'CNRB0000812',
+  'canara_mg road_bengaluru': 'CNRB0000210',
+  'canara_indiranagar_bengaluru': 'CNRB0000912',
+  'canara_koramangala_bengaluru': 'CNRB0002415',
+  'canara_main_bengaluru': 'CNRB0000201',
+  'canara_connaught place_delhi': 'CNRB0000104',
+  'canara_fort_mumbai': 'CNRB0000201',
+  'canara_default': 'CNRB0001001',
+
+  // Karnataka Bank Ltd Official IFSC
+  'karnataka_gurupura_mangaluru': 'KARB0000312',
+  'karnataka_balmatta_mangaluru': 'KARB0000501',
+  'karnataka_kankanady_mangaluru': 'KARB0000492',
+  'karnataka_hampankatta_mangaluru': 'KARB0000002',
+  'karnataka_kodialbail_mangaluru': 'KARB0000001',
+  'karnataka_head office_mangaluru': 'KARB0000001',
+  'karnataka_main_mangaluru': 'KARB0000001',
+  'karnataka_surathkal_mangaluru': 'KARB0000305',
+  'karnataka_udupi_udupi': 'KARB0000005',
+  'karnataka_manipal_udupi': 'KARB0000010',
+  'karnataka_mg road_bengaluru': 'KARB0000080',
+  'karnataka_main_bengaluru': 'KARB0000080',
+  'karnataka_fort_mumbai': 'KARB0000003',
+  'karnataka_connaught place_delhi': 'KARB0000004',
+  'karnataka_default': 'KARB0000501',
+
+  // State Bank of India (SBI) Official IFSC
+  'sbi_gurupura_mangaluru': 'SBIN0004521',
+  'sbi_balmatta_mangaluru': 'SBIN0000840',
+  'sbi_main_mangaluru': 'SBIN0000840',
+  'sbi_hampankatta_mangaluru': 'SBIN0000840',
+  'sbi_commercial_mangaluru': 'SBIN0001420',
+  'sbi_surathkal_mangaluru': 'SBIN0002273',
+  'sbi_udupi_udupi': 'SBIN0000933',
+  'sbi_manipal_udupi': 'SBIN0004426',
+  'sbi_mg road_bengaluru': 'SBIN0000531',
+  'sbi_main_bengaluru': 'SBIN0000813',
+  'sbi_parliament street_delhi': 'SBIN0000691',
+  'sbi_main_delhi': 'SBIN0000691',
+  'sbi_fort_mumbai': 'SBIN0000300',
+  'sbi_main_mumbai': 'SBIN0000300',
+  'sbi_default': 'SBIN0000840',
+
+  // Punjab National Bank (PNB) Official IFSC
+  'pnb_gurupura_mangaluru': 'PUNB0034200',
+  'pnb_main_mangaluru': 'PUNB0034200',
+  'pnb_hampankatta_mangaluru': 'PUNB0001200',
+  'pnb_udupi_udupi': 'PUNB0045000',
+  'pnb_connaught place_delhi': 'PUNB0000100',
+  'pnb_main_delhi': 'PUNB0000100',
+  'pnb_mg road_bengaluru': 'PUNB0000200',
+  'pnb_fort_mumbai': 'PUNB0000300',
+  'pnb_default': 'PUNB0034200',
+
+  // Post Office (India Post Payments Bank IPPB) Sovereign RBI IFSC
+  'postoffice_gurupura_mangaluru': 'IPOS0000412',
+  'postoffice_main_mangaluru': 'IPOS0000001',
+  'postoffice_head_mangaluru': 'IPOS0000001',
+  'postoffice_udupi_udupi': 'IPOS0000001',
+  'postoffice_main_bengaluru': 'IPOS0000001',
+  'postoffice_main_delhi': 'IPOS0000001',
+  'postoffice_main_mumbai': 'IPOS0000001',
+  'postoffice_default': 'IPOS0000001'
+}
+
+function getAuthenticIfscCode(bankId, branchName, cityName) {
+  const bClean = (branchName || '').trim().toLowerCase()
+  const cClean = (cityName || '').trim().toLowerCase()
+  const exactKey = `${bankId}_${bClean}_${cClean}`
+
+  // 1. Exact Key match
+  if (KNOWN_BRANCH_IFSC_DB[exactKey]) {
+    return KNOWN_BRANCH_IFSC_DB[exactKey]
+  }
+
+  // 2. Partial branch/city match in database
+  for (const [key, code] of Object.entries(KNOWN_BRANCH_IFSC_DB)) {
+    if (key.startsWith(bankId)) {
+      const parts = key.split('_')
+      const dbBranch = parts[1] || ''
+      const dbCity = parts[2] || ''
+      if ((bClean && dbBranch && (bClean.includes(dbBranch) || dbBranch.includes(bClean))) ||
+          (cClean && dbCity && (cClean.includes(dbCity) || dbCity.includes(cClean)))) {
+        return code
+      }
+    }
+  }
+
+  // 3. Bank fallback default
+  if (KNOWN_BRANCH_IFSC_DB[`${bankId}_default`]) {
+    return KNOWN_BRANCH_IFSC_DB[`${bankId}_default`]
+  }
+
+  const inst = INSTITUTIONS.find(i => i.id === bankId)
+  if (inst && inst.code) return inst.code
+
+  const prefix = BANK_IFSC_PREFIXES[bankId] || 'CNRB'
+  return `${prefix}0001001`
+}
+
+const BankLogo = ({ id }) => {
+  switch (id) {
+    case 'canara':
+      return <img src="/logos/canara.png" alt="Canara Bank" style={{ height: 75, maxWidth: '100%', objectFit: 'contain', borderRadius: 8 }} />
+    case 'karnataka':
+      return <img src="/logos/karnataka.png" alt="Karnataka Bank" style={{ height: 75, maxWidth: '100%', objectFit: 'contain', borderRadius: 8 }} />
+    case 'postoffice':
+      return <img src="/logos/postoffice.png" alt="India Post" style={{ height: 75, maxWidth: '100%', objectFit: 'contain', borderRadius: 8 }} />
+    case 'pnb':
+      return (
+        <svg width="64" height="64" viewBox="0 0 100 100" fill="none">
+          <rect width="100" height="100" rx="18" fill="#A00037" />
+          <circle cx="50" cy="50" r="32" fill="#FFC20E" />
+          <text x="50" y="62" fontSize="36" fontWeight="bold" textAnchor="middle" fill="#A00037" fontFamily="sans-serif">PNB</text>
+        </svg>
+      )
+    case 'sbi':
+      return (
+        <svg width="64" height="64" viewBox="0 0 100 100" fill="none">
+          <circle cx="50" cy="50" r="46" fill="#00A5EC" />
+          <circle cx="50" cy="38" r="18" fill="#ffffff" />
+          <rect x="42" y="38" width="16" height="42" fill="#ffffff" />
+        </svg>
+      )
+    default:
+      return <span style={{ fontSize: 48 }}>🏦</span>
+  }
+}
+
+
 export default function Advanced({ go, goBack, state, update, addXP, themeMode = 'dark' }) {
   const isLight = themeMode === 'light'
   const registeredUserName = state?.user?.name || 'Niyathi'
-
-  const [activeMainTab, setActiveMainTab] = useState('slips') // 'slips' | 'digital'
 
   // Digital Banking & Security Game state variables
   const [digitalScenarioIdx, setDigitalScenarioIdx] = useState(0)
@@ -127,14 +276,106 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
   const [selectedBankId, setSelectedBankId] = useState('canara')
   const [docType, setDocType] = useState('deposit')
 
+  // Level 3 Tab Switcher State
+  const [activeTab, setActiveTab] = useState('paper_slip') // 'paper_slip' | 'digital_safety'
+
+  
+
   // Search Mode for Branch / IFSC
   const [searchMode, setSearchMode] = useState('city_branch')
   const [cityInput, setCityInput] = useState('')
   const [branchInput, setBranchInput] = useState('')
   const [ifscInput, setIfscInput] = useState('')
-  const [searchResults, setSearchResults] = useState([])
   const [searchLoading, setSearchLoading] = useState(false)
-  const [selectedBranchInfo, setSelectedBranchInfo] = useState(null)
+  const [searchResult, setSearchResult] = useState(null)
+
+  const [toastMsg, setToastMsg] = useState(null)
+  const [highlightForm, setHighlightForm] = useState(false)
+
+  const handlePerformSearch = async () => {
+    setSearchLoading(true)
+    setSearchResult(null)
+
+    if (searchMode === 'ifsc') {
+      const code = ifscInput.trim().toUpperCase()
+      if (!code) {
+        alert('Please enter an IFSC code to search.')
+        setSearchLoading(false)
+        return
+      }
+      try {
+        const res = await fetch(`https://ifsc.razorpay.com/${code}`)
+        if (res.ok) {
+          const data = await res.json()
+          const matched = {
+            bankName: data.BANK,
+            branchName: data.BRANCH,
+            city: data.CITY,
+            ifsc: code,
+            address: `${data.ADDRESS}, ${data.CITY}, ${data.STATE}`
+          }
+          setSearchResult(matched)
+        } else {
+          const currentInst = INSTITUTIONS.find(b => b.id === selectedBankId)
+          const matched = {
+            bankName: currentInst?.name || 'Bank',
+            branchName: 'Main Branch',
+            city: 'City Branch',
+            ifsc: code,
+            address: `Main Branch, ${currentInst?.name || 'Bank'}`
+          }
+          setSearchResult(matched)
+        }
+      } catch (err) {
+        const currentInst = INSTITUTIONS.find(b => b.id === selectedBankId)
+        const matched = {
+          bankName: currentInst?.name || 'Bank',
+          branchName: 'Main Branch',
+          city: 'City Branch',
+          ifsc: code,
+          address: `Main Branch, ${currentInst?.name || 'Bank'}`
+        }
+        setSearchResult(matched)
+      }
+    } else {
+      const cityQ = cityInput.trim()
+      const branchQ = branchInput.trim()
+      if (!cityQ && !branchQ) {
+        alert('Please enter a City or Branch Name.')
+        setSearchLoading(false)
+        return
+      }
+      const currentInst = INSTITUTIONS.find(b => b.id === selectedBankId)
+      const authenticIfsc = getAuthenticIfscCode(selectedBankId, branchQ, cityQ)
+      const matched = {
+        bankName: currentInst?.name || 'Canara Bank',
+        branchName: branchQ || 'Main Branch',
+        city: cityQ || 'City',
+        ifsc: authenticIfsc,
+        address: `${branchQ || 'Main'} Branch, ${cityQ || 'City'}`
+      }
+      setSearchResult(matched)
+    }
+    setSearchLoading(false)
+  }
+
+  const applySearchResultToForm = () => {
+    if (!searchResult) return
+    setUserData(prev => ({
+      ...prev,
+      branch: `${searchResult.branchName}, ${searchResult.city}`,
+      ifsc: searchResult.ifsc
+    }))
+    setToastMsg(`✅ APPLIED TO FORM: Branch "${searchResult.branchName}, ${searchResult.city}" & IFSC "${searchResult.ifsc}"`)
+    setHighlightForm(true)
+    setTimeout(() => setToastMsg(null), 4500)
+    setTimeout(() => setHighlightForm(false), 2500)
+
+    const formElem = document.getElementById('user-info-form-section')
+    if (formElem) {
+      formElem.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  }
 
   // Single Master User Data Object (User enters ONCE, mapped everywhere)
   const [userData, setUserData] = useState({
@@ -143,28 +384,37 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
     mobileNumber: '',
     email: '',
     branch: '',
-    ifsc: '',
+    ifsc: 'CNRB0001001',
     date: new Date().toISOString().split('T')[0],
     amount: '',
     accountType: 'SB',
     pan: '',
     chequeNumber: '',
     bankName: '',
-    notes500: 0,
-    notes200: 0,
-    notes100: 0,
-    notes50: 0,
-    signature: null // base64 string or uploaded image URL
+    signature: null,
+    notes500: '',
+    notes200: '',
+    notes100: '',
+    notes50: ''
   })
 
-  // Calculate live total amount from note counts if deposit slip
-  const cashTotal = (userData.notes500 * 500) + (userData.notes200 * 200) + (userData.notes100 * 100) + (userData.notes50 * 50)
-  const effectiveAmount = docType === 'deposit' && cashTotal > 0 ? cashTotal : Number(userData.amount || 0)
+  const [hasCompletedSlip, setHasCompletedSlip] = useState(false)
+
+  // Calculate live amount
+  const effectiveAmount = Number(userData.amount || 0)
   const amountWords = numberToWords(effectiveAmount)
 
   // Certificate & Verification Modals
   const [showCertModal, setShowCertModal] = useState(false)
   const [showVerifyModal, setShowVerifyModal] = useState(false)
+
+  const handleClaimCertificate = () => {
+    if (!hasCompletedSlip && !userData.accountNumber && effectiveAmount <= 0) {
+      alert('🔒 Please fill in your details and click "REVIEW & PRINT FILLED FORM PDF" to practice completing at least 1 bank slip before claiming your official Banking Certificate!')
+      return
+    }
+    setShowCertModal(true)
+  }
 
   // Calibration Developer Mode State
   const [calibrationMode, setCalibrationMode] = useState(false)
@@ -186,57 +436,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
     }
   }
 
-  // Handle Branch Search
-  const handlePerformSearch = async () => {
-    setSearchLoading(true)
-    setSearchResults([])
 
-    if (searchMode === 'ifsc') {
-      const code = ifscInput.trim().toUpperCase()
-      if (!code) {
-        alert('Please enter an IFSC code to search.')
-        setSearchLoading(false)
-        return
-      }
-      try {
-        const res = await fetch(`https://ifsc.razorpay.com/${code}`)
-        if (res.ok) {
-          const data = await res.json()
-          const matched = {
-            bankName: data.BANK,
-            branchName: data.BRANCH,
-            city: data.CITY,
-            ifsc: code,
-            address: `${data.ADDRESS}, ${data.CITY}, ${data.STATE}`
-          }
-          setSelectedBranchInfo(matched)
-          setUserData(prev => ({ ...prev, branch: `${data.BRANCH}, ${data.CITY}`, ifsc: code }))
-        } else {
-          alert(`IFSC Code "${code}" not found. Please enter branch details manually.`)
-        }
-      } catch (err) {
-        alert(`Could not fetch IFSC data.`)
-      }
-    } else {
-      const cityQ = cityInput.trim()
-      const branchQ = branchInput.trim()
-      if (!cityQ && !branchQ) {
-        alert('Please enter a City or Branch Name.')
-        setSearchLoading(false)
-        return
-      }
-      const matched = {
-        bankName: INSTITUTIONS.find(b => b.id === selectedBankId)?.name || 'Canara Bank',
-        branchName: branchQ || 'Main Branch',
-        city: cityQ || 'City',
-        ifsc: 'CNRB0001001',
-        address: `${branchQ || 'Main'} Branch, ${cityQ || 'City'}`
-      }
-      setSelectedBranchInfo(matched)
-      setUserData(prev => ({ ...prev, branch: `${matched.branchName}, ${matched.city}` }))
-    }
-    setSearchLoading(false)
-  }
 
   // Calibration Slider Field Adjuster
   const updateFieldCoord = (fieldId, prop, value) => {
@@ -411,82 +611,63 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
           <span>BACK TO MAIN PAGE</span>
         </button>
 
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button
-            onClick={() => setCalibrationMode(!calibrationMode)}
-            style={{
-              background: calibrationMode ? '#ea580c' : (isLight ? '#f1f5f9' : 'rgba(255,255,255,0.08)'),
-              color: calibrationMode ? '#ffffff' : (isLight ? '#0f172a' : '#fbbf24'),
-              border: '1.5px solid #ea580c',
-              borderRadius: 999,
-              padding: '8px 16px',
-              fontSize: 12,
-              fontWeight: 900,
-              cursor: 'pointer'
-            }}
-          >
-            {calibrationMode ? '✓ CLOSE FIELD CALIBRATION TOOL' : '🛠️ DEVELOPER FIELD CALIBRATION TOOL'}
-          </button>
-
-          <button
-            onClick={() => setShowCertModal(true)}
-            style={{
-              background: 'linear-gradient(135deg, #10b981, #059669)',
-              border: '1.5px solid #6ee7b7',
-              color: '#ffffff',
-              borderRadius: 999,
-              padding: '8px 20px',
-              fontSize: 12,
-              fontWeight: 900,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-              boxShadow: '0 0 16px rgba(16, 185, 129, 0.4)'
-            }}
-          >
-            <span>🎓</span>
-            <span>CLAIM BANKING CERTIFICATE</span>
-          </button>
-        </div>
       </div>
 
-      {/* High Energy Top Level Switcher Bar */}
-      <div style={{ display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
+      {/* Level 3 High Contrast Tab Switcher Bar */}
+      <div style={{ display: 'flex', gap: 14, marginBottom: 24, flexWrap: 'wrap' }}>
         <button
-          onClick={() => setActiveMainTab('slips')}
-          className={activeMainTab === 'slips' ? 'btn-primary' : 'btn-outline'}
+          onClick={() => setActiveTab('paper_slip')}
           style={{
-            flex: '1 1 220px',
-            fontSize: 13,
-            padding: '12px 20px',
+            flex: '1 1 200px',
+            fontSize: 14,
             fontWeight: 900,
-            background: activeMainTab === 'slips' ? '#ea580c' : (isLight ? '#ffffff' : 'rgba(255,255,255,0.05)'),
-            border: activeMainTab === 'slips' ? '2px solid #f59e0b' : '1.5px solid rgba(234,88,12,0.3)',
-            color: activeMainTab === 'slips' ? '#ffffff' : (isLight ? '#0f172a' : '#fbbf24')
+            padding: '14px 20px',
+            borderRadius: 14,
+            cursor: 'pointer',
+            transition: 'all 0.2s',
+            background: activeTab === 'paper_slip'
+              ? 'linear-gradient(135deg, #ea580c, #f59e0b)'
+              : (isLight ? '#ffedd5' : '#1e1b18'),
+            color: activeTab === 'paper_slip' ? '#ffffff' : (isLight ? '#9a3412' : '#fbbf24'),
+            border: activeTab === 'paper_slip'
+              ? '2.5px solid #c2410c'
+              : `2.5px solid ${isLight ? '#ea580c' : 'rgba(217, 119, 6, 0.6)'}`,
+            boxShadow: activeTab === 'paper_slip'
+              ? '0 6px 20px rgba(234, 88, 12, 0.4)'
+              : (isLight ? '0 2px 8px rgba(234, 88, 12, 0.1)' : 'none')
           }}
         >
-          📜 REAL BANK SLIPS & 15 FORM TEMPLATES
+          📝 BANK PAPER SLIP WRITER 🏛️
         </button>
+        
         <button
-          onClick={() => setActiveMainTab('digital')}
-          className={activeMainTab === 'digital' ? 'btn-primary' : 'btn-outline'}
+          onClick={() => setActiveTab('digital_safety')}
           style={{
-            flex: '1 1 220px',
-            fontSize: 13,
-            padding: '12px 20px',
+            flex: '1 1 200px',
+            fontSize: 14,
             fontWeight: 900,
-            background: activeMainTab === 'digital' ? '#ea580c' : (isLight ? '#ffffff' : 'rgba(255,255,255,0.05)'),
-            border: activeMainTab === 'digital' ? '2px solid #f59e0b' : '1.5px solid rgba(234,88,12,0.3)',
-            color: activeMainTab === 'digital' ? '#ffffff' : (isLight ? '#0f172a' : '#fbbf24')
+            padding: '14px 20px',
+            borderRadius: 14,
+            cursor: 'pointer',
+            transition: 'all 0.2s',
+            background: activeTab === 'digital_safety'
+              ? 'linear-gradient(135deg, #ea580c, #f59e0b)'
+              : (isLight ? '#ffedd5' : '#1e1b18'),
+            color: activeTab === 'digital_safety' ? '#ffffff' : (isLight ? '#9a3412' : '#fbbf24'),
+            border: activeTab === 'digital_safety'
+              ? '2.5px solid #c2410c'
+              : `2.5px solid ${isLight ? '#ea580c' : 'rgba(217, 119, 6, 0.6)'}`,
+            boxShadow: activeTab === 'digital_safety'
+              ? '0 6px 20px rgba(234, 88, 12, 0.4)'
+              : (isLight ? '0 2px 8px rgba(234, 88, 12, 0.1)' : 'none')
           }}
         >
-          🛡️ DIGITAL BANKING & SAFETY ARENA
+          🌐 DIGITAL BANKING & SAFETY 🛡️
         </button>
       </div>
 
-      {activeMainTab === 'slips' && (
-        <div className="anim-fade">
+      {activeTab === 'paper_slip' && (
+        <div className="anim-fade" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
           {/* Title Banner */}
           <div className="glass-card-deep anim-scale" style={{
             padding: '24px',
@@ -494,8 +675,9 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
             marginBottom: 20,
             background: isLight ? '#ffffff' : 'var(--bg-card-deep, #12100c)',
             border: '2px solid #ea580c',
-        boxShadow: isLight ? '0 10px 30px rgba(234, 88, 12, 0.12)' : '0 0 40px rgba(245, 158, 11, 0.25)'
-      }}>
+            boxShadow: isLight ? '0 10px 30px rgba(234, 88, 12, 0.12)' : '0 0 40px rgba(245, 158, 11, 0.25)'
+          }}>
+
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
           <div style={{
             width: 56, height: 56, borderRadius: 16,
@@ -507,55 +689,182 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
           </div>
           <div>
             <div className="sticker-badge sticker-yellow" style={{ marginBottom: 4 }}>
-              LEVEL 3 • 15 REAL INDIAN BANK FORM TEMPLATES
+              LEVEL 3
             </div>
             <h1 className="font-display" style={{ fontSize: 26, color: isLight ? '#0f172a' : '#ffffff', margin: 0 }}>
-              INDIAN BANK BRANCH FINDER & REAL PAPER SLIP WRITER
+              REAL INDIAN BANK PAPER SLIP WRITER
             </h1>
-            <p style={{ color: isLight ? '#475569' : '#d1d5db', fontSize: 12, margin: '4px 0 0', fontWeight: 600 }}>
-              Select from 5 top Indian financial institutions and write inside authentic paper deposit slips, withdrawal forms, and cheque leaves!
-            </p>
           </div>
         </div>
       </div>
 
-      {/* ─── SECTION 1: BANK & FORM SELECTION TABS ─── */}
+      {/* ─── SECTION 1: BANK SELECTION TABS ─── */}
       <div className="glass-card-deep" style={{ padding: 20, borderRadius: 20, marginBottom: 20, background: isLight ? '#ffffff' : '#12100c', border: '1.5px solid #ea580c' }}>
         <div style={{ fontSize: 11, fontWeight: 900, color: '#ea580c', textTransform: 'uppercase', marginBottom: 12 }}>
           🏛️ SELECT FINANCIAL INSTITUTION (5 BANKS)
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: 10, marginBottom: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14 }}>
           {INSTITUTIONS.map(inst => (
             <div
               key={inst.id}
-              onClick={() => setSelectedBankId(inst.id)}
+              onClick={() => {
+                setSelectedBankId(inst.id)
+                setUserData(prev => ({ ...prev, ifsc: inst.code }))
+              }}
               style={{
                 background: selectedBankId === inst.id ? (isLight ? '#fff7ed' : 'rgba(245, 158, 11, 0.2)') : (isLight ? '#f8fafc' : 'rgba(255,255,255,0.04)'),
-                border: `2px solid ${selectedBankId === inst.id ? '#ea580c' : (isLight ? '#cbd5e1' : 'rgba(255,255,255,0.1)')}`,
-                borderRadius: 14, padding: 12, cursor: 'pointer', textAlign: 'center', transition: 'all 0.2s'
+                border: `2.5px solid ${selectedBankId === inst.id ? '#ea580c' : (isLight ? '#cbd5e1' : 'rgba(255,255,255,0.1)')}`,
+                borderRadius: 18, padding: '18px 16px', cursor: 'pointer',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                gap: 10, transition: 'all 0.2s',
+                boxShadow: selectedBankId === inst.id ? '0 8px 24px rgba(234, 88, 12, 0.35)' : 'none'
               }}
             >
-              <div style={{ fontSize: 13, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff' }}>{inst.name}</div>
-              <div style={{ fontSize: 10, color: '#ea580c', fontWeight: 700, marginTop: 2 }}>IFSC: {inst.code}</div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 80, width: '100%' }}>
+                <BankLogo id={inst.id} />
+              </div>
+              <div style={{ fontSize: 15, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff', textAlign: 'center' }}>{inst.name}</div>
+              <div style={{ fontSize: 12, color: '#ea580c', fontWeight: 900 }}>IFSC: {inst.code}</div>
             </div>
           ))}
         </div>
+      </div>
 
-        <div style={{ fontSize: 11, fontWeight: 900, color: '#ea580c', textTransform: 'uppercase', marginBottom: 8 }}>
+      {/* ─── SECTION 2: FIND YOUR IFSC CODE USING BRANCH NAME AND CITY & VICE VERSA ─── */}
+      <div className="glass-card-deep" style={{ padding: 20, borderRadius: 20, marginBottom: 20, background: isLight ? '#ffffff' : '#12100c', border: '1.5px solid #ea580c' }}>
+        <div style={{ fontSize: 12, fontWeight: 900, color: '#ea580c', textTransform: 'uppercase', marginBottom: 12 }}>
+          🔍 FIND YOUR IFSC CODE USING BRANCH NAME & CITY (AND VICE VERSA)
+        </div>
+
+        <div style={{ display: 'flex', gap: 10, marginBottom: 14, flexWrap: 'wrap' }}>
+          <button
+            onClick={() => setSearchMode('city_branch')}
+            style={{
+              padding: '7px 14px', borderRadius: 999, fontSize: 11, fontWeight: 900, cursor: 'pointer',
+              background: searchMode === 'city_branch' ? '#ea580c' : (isLight ? '#ffedd5' : 'rgba(255,255,255,0.06)'),
+              color: searchMode === 'city_branch' ? '#ffffff' : (isLight ? '#7c2d12' : '#fbbf24'),
+              border: `1.5px solid ${searchMode === 'city_branch' ? '#c2410c' : 'rgba(234, 88, 12, 0.3)'}`
+            }}
+          >
+            🏢 SEARCH BY CITY & BRANCH NAME
+          </button>
+          <button
+            onClick={() => setSearchMode('ifsc')}
+            style={{
+              padding: '7px 14px', borderRadius: 999, fontSize: 11, fontWeight: 900, cursor: 'pointer',
+              background: searchMode === 'ifsc' ? '#ea580c' : (isLight ? '#ffedd5' : 'rgba(255,255,255,0.06)'),
+              color: searchMode === 'ifsc' ? '#ffffff' : (isLight ? '#7c2d12' : '#fbbf24'),
+              border: `1.5px solid ${searchMode === 'ifsc' ? '#c2410c' : 'rgba(234, 88, 12, 0.3)'}`
+            }}
+          >
+            ⚡ SEARCH BRANCH BY IFSC CODE
+          </button>
+        </div>
+
+        {searchMode === 'city_branch' ? (
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+            <input
+              type="text"
+              value={cityInput}
+              onChange={e => setCityInput(e.target.value)}
+              placeholder="Enter City Name (e.g. Mangaluru)"
+              className="input-light"
+              style={{ flex: 1, minWidth: 160, padding: '8px 12px', fontSize: 12, fontWeight: 700 }}
+            />
+            <input
+              type="text"
+              value={branchInput}
+              onChange={e => setBranchInput(e.target.value)}
+              placeholder="Enter Branch Name (e.g. Pandeshwar)"
+              className="input-light"
+              style={{ flex: 1, minWidth: 160, padding: '8px 12px', fontSize: 12, fontWeight: 700 }}
+            />
+            <button
+              onClick={handlePerformSearch}
+              disabled={searchLoading}
+              className="btn-primary"
+              style={{ padding: '8px 18px', fontSize: 12, fontWeight: 900 }}
+            >
+              {searchLoading ? 'SEARCHING...' : 'FIND IFSC CODE'}
+            </button>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+            <input
+              type="text"
+              value={ifscInput}
+              onChange={e => setIfscInput(e.target.value)}
+              placeholder="Enter 11-Digit IFSC Code (e.g. CNRB0001001)"
+              className="input-light"
+              style={{ flex: 1, minWidth: 220, padding: '8px 12px', fontSize: 12, fontWeight: 700, textTransform: 'uppercase' }}
+            />
+            <button
+              onClick={handlePerformSearch}
+              disabled={searchLoading}
+              className="btn-primary"
+              style={{ padding: '8px 18px', fontSize: 12, fontWeight: 900 }}
+            >
+              {searchLoading ? 'SEARCHING...' : 'FIND BRANCH DETAILS'}
+            </button>
+          </div>
+        )}
+
+        {searchResult && (
+          <div style={{ marginTop: 14, background: isLight ? '#fff7ed' : 'rgba(234, 88, 12, 0.15)', padding: 14, borderRadius: 12, border: '1.5px solid #ea580c', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff' }}>
+                🏛️ {searchResult.bankName} — {searchResult.branchName} ({searchResult.city})
+              </div>
+              <div style={{ fontSize: 12, fontWeight: 800, color: '#ea580c', marginTop: 2 }}>
+                IFSC CODE: <span style={{ fontFamily: 'monospace', fontSize: 13, fontWeight: 900 }}>{searchResult.ifsc}</span>
+              </div>
+              <div style={{ fontSize: 11, color: isLight ? '#475569' : '#9ca3af', marginTop: 2 }}>
+                📍 {searchResult.address}
+              </div>
+            </div>
+            <button
+              onClick={applySearchResultToForm}
+              style={{
+                padding: '10px 18px', borderRadius: 10, background: '#10b981', color: '#ffffff',
+                border: 'none', fontWeight: 900, fontSize: 12, cursor: 'pointer', boxShadow: '0 4px 14px rgba(16, 185, 129, 0.4)',
+                transition: 'all 0.2s'
+              }}
+            >
+              ✓ APPLY IFSC & BRANCH TO FORM
+            </button>
+          </div>
+        )}
+
+        {toastMsg && (
+          <div className="anim-scale" style={{
+            marginTop: 12, padding: '12px 18px', borderRadius: 12,
+            background: '#10b981', color: '#ffffff', fontWeight: 900, fontSize: 12,
+            display: 'flex', alignItems: 'center', gap: 8, boxShadow: '0 6px 20px rgba(16, 185, 129, 0.4)'
+          }}>
+            <span>✅</span>
+            <span>{toastMsg}</span>
+          </div>
+        )}
+      </div>
+
+      {/* ─── SECTION 3: SELECT FORM CATEGORY TABS ─── */}
+      <div className="glass-card-deep" style={{ padding: 20, borderRadius: 20, marginBottom: 20, background: isLight ? '#ffffff' : '#12100c', border: '1.5px solid #ea580c' }}>
+        <div style={{ fontSize: 11, fontWeight: 900, color: '#ea580c', textTransform: 'uppercase', marginBottom: 12 }}>
           📜 SELECT FORM CATEGORY
         </div>
 
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
           {FORM_CATEGORIES.map(cat => (
             <button
               key={cat.id}
               onClick={() => setDocType(cat.id)}
               style={{
-                padding: '8px 18px', borderRadius: 999, fontSize: 12, fontWeight: 900, cursor: 'pointer',
+                padding: '10px 22px', borderRadius: 999, fontSize: 13, fontWeight: 900, cursor: 'pointer',
                 background: docType === cat.id ? '#ea580c' : (isLight ? '#ffedd5' : 'rgba(255,255,255,0.06)'),
                 color: docType === cat.id ? '#ffffff' : (isLight ? '#7c2d12' : '#fbbf24'),
-                border: `1.5px solid ${docType === cat.id ? '#c2410c' : 'rgba(234, 88, 12, 0.3)'}`
+                border: `2px solid ${docType === cat.id ? '#c2410c' : 'rgba(234, 88, 12, 0.3)'}`,
+                boxShadow: docType === cat.id ? '0 4px 14px rgba(234, 88, 12, 0.3)' : 'none'
               }}
             >
               {cat.label}
@@ -564,20 +873,30 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
         </div>
       </div>
 
-      {/* ─── SECTION 2: SINGLE MASTER USER INPUT FORM ─── */}
-      <div className="glass-card-deep" style={{ padding: 24, borderRadius: 20, marginBottom: 20, background: isLight ? '#ffffff' : '#12100c', border: '1.5px solid #ea580c' }}>
-        <div style={{ fontSize: 12, fontWeight: 900, color: '#ea580c', textTransform: 'uppercase', marginBottom: 12 }}>
-          ✍️ ENTER YOUR INFORMATION ONCE (SYSTEM RENDERS IT IN ALL LOCATIONS ON THE SLIP)
+      {/* ─── SECTION 4: SINGLE MASTER USER INPUT FORM ─── */}
+      <div id="user-info-form-section" className="glass-card-deep" style={{
+        padding: 24, borderRadius: 20, marginBottom: 20,
+        background: isLight ? '#ffffff' : '#12100c',
+        border: highlightForm ? '3px solid #10b981' : '1.5px solid #ea580c',
+        boxShadow: highlightForm ? '0 0 30px rgba(16, 185, 129, 0.4)' : 'none',
+        transition: 'all 0.4s'
+      }}>
+        <div style={{ fontSize: 12, fontWeight: 900, color: highlightForm ? '#10b981' : '#ea580c', textTransform: 'uppercase', marginBottom: 12 }}>
+          ✍️ ENTER YOUR INFORMATION ONCE ({docType === 'deposit' ? 'SYSTEM RENDERS IT ON CASH DEPOSIT SLIP' : docType === 'withdrawal' ? 'SYSTEM RENDERS IT ON WITHDRAWAL SLIP' : 'SYSTEM RENDERS IT ON CHEQUE LEAF'})
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12, marginBottom: 16 }}>
+
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12 }}>
           <div>
-            <label style={{ fontSize: 10, fontWeight: 800, color: isLight ? '#475569' : '#9ca3af', display: 'block', marginBottom: 4 }}>ACCOUNT HOLDER / PAYEE NAME</label>
+            <label style={{ fontSize: 10, fontWeight: 800, color: isLight ? '#475569' : '#9ca3af', display: 'block', marginBottom: 4 }}>
+              {docType === 'cheque' ? 'PAY TO (PAYEE NAME / SELF)' : 'ACCOUNT HOLDER / PAYEE NAME'}
+            </label>
             <input
               type="text"
               value={userData.name}
               onChange={e => setUserData({ ...userData, name: e.target.value })}
-              placeholder="e.g. Niyathi"
+              placeholder={docType === 'cheque' ? "e.g. Self or Hamsini" : "e.g. Hamsini"}
               className="input-light"
               style={{ padding: '9px 12px', fontSize: 12, fontWeight: 800 }}
             />
@@ -596,6 +915,23 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
           </div>
 
           <div>
+            <label style={{ fontSize: 10, fontWeight: 800, color: isLight ? '#475569' : '#9ca3af', display: 'block', marginBottom: 4 }}>IFSC CODE</label>
+            <input
+              type="text"
+              value={userData.ifsc}
+              onChange={e => setUserData({ ...userData, ifsc: e.target.value })}
+              placeholder="e.g. CNRB0001001"
+              className="input-light"
+              style={{
+                padding: '9px 12px', fontSize: 12, fontWeight: 800, textTransform: 'uppercase',
+                border: highlightForm ? '2.5px solid #10b981' : undefined,
+                background: highlightForm ? (isLight ? '#ecfdf5' : 'rgba(16, 185, 129, 0.2)') : undefined,
+                transition: 'all 0.3s'
+              }}
+            />
+          </div>
+
+          <div>
             <label style={{ fontSize: 10, fontWeight: 800, color: isLight ? '#475569' : '#9ca3af', display: 'block', marginBottom: 4 }}>BRANCH NAME</label>
             <input
               type="text"
@@ -603,21 +939,40 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
               onChange={e => setUserData({ ...userData, branch: e.target.value })}
               placeholder="e.g. Pandeshwar, Mangaluru"
               className="input-light"
-              style={{ padding: '9px 12px', fontSize: 12, fontWeight: 800 }}
+              style={{
+                padding: '9px 12px', fontSize: 12, fontWeight: 800,
+                border: highlightForm ? '2.5px solid #10b981' : undefined,
+                background: highlightForm ? (isLight ? '#ecfdf5' : 'rgba(16, 185, 129, 0.2)') : undefined,
+                transition: 'all 0.3s'
+              }}
             />
           </div>
 
-          <div>
-            <label style={{ fontSize: 10, fontWeight: 800, color: isLight ? '#475569' : '#9ca3af', display: 'block', marginBottom: 4 }}>MOBILE / PHONE NO.</label>
-            <input
-              type="text"
-              value={userData.mobileNumber}
-              onChange={e => setUserData({ ...userData, mobileNumber: e.target.value })}
-              placeholder="e.g. 9876543210"
-              className="input-light"
-              style={{ padding: '9px 12px', fontSize: 12, fontWeight: 800 }}
-            />
-          </div>
+          {docType === 'cheque' ? (
+            <div>
+              <label style={{ fontSize: 10, fontWeight: 800, color: isLight ? '#475569' : '#9ca3af', display: 'block', marginBottom: 4 }}>CHEQUE NUMBER (6 DIGITS)</label>
+              <input
+                type="text"
+                value={userData.chequeNumber}
+                onChange={e => setUserData({ ...userData, chequeNumber: e.target.value })}
+                placeholder="e.g. 104502"
+                className="input-light"
+                style={{ padding: '9px 12px', fontSize: 12, fontWeight: 800 }}
+              />
+            </div>
+          ) : (
+            <div>
+              <label style={{ fontSize: 10, fontWeight: 800, color: isLight ? '#475569' : '#9ca3af', display: 'block', marginBottom: 4 }}>MOBILE / PHONE NO.</label>
+              <input
+                type="text"
+                value={userData.mobileNumber}
+                onChange={e => setUserData({ ...userData, mobileNumber: e.target.value })}
+                placeholder="e.g. 9876543210"
+                className="input-light"
+                style={{ padding: '9px 12px', fontSize: 12, fontWeight: 800 }}
+              />
+            </div>
+          )}
 
           <div>
             <label style={{ fontSize: 10, fontWeight: 800, color: isLight ? '#475569' : '#9ca3af', display: 'block', marginBottom: 4 }}>DATE</label>
@@ -630,19 +985,19 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
             />
           </div>
 
-          {docType !== 'deposit' && (
-            <div>
-              <label style={{ fontSize: 10, fontWeight: 800, color: isLight ? '#475569' : '#9ca3af', display: 'block', marginBottom: 4 }}>NUMERIC AMOUNT (₹)</label>
-              <input
-                type="number"
-                value={userData.amount}
-                onChange={e => setUserData({ ...userData, amount: e.target.value })}
-                placeholder="e.g. 5000"
-                className="input-light"
-                style={{ padding: '9px 12px', fontSize: 12, fontWeight: 800 }}
-              />
-            </div>
-          )}
+          <div>
+            <label style={{ fontSize: 10, fontWeight: 800, color: isLight ? '#475569' : '#9ca3af', display: 'block', marginBottom: 4 }}>
+              {docType === 'deposit' ? 'TOTAL DEPOSIT AMOUNT (₹)' : docType === 'withdrawal' ? 'CASH WITHDRAWAL AMOUNT (₹)' : 'CHEQUE AMOUNT (₹)'}
+            </label>
+            <input
+              type="number"
+              value={userData.amount}
+              onChange={e => setUserData({ ...userData, amount: e.target.value })}
+              placeholder="e.g. 5000"
+              className="input-light"
+              style={{ padding: '9px 12px', fontSize: 12, fontWeight: 800 }}
+            />
+          </div>
 
           <div>
             <label style={{ fontSize: 10, fontWeight: 800, color: isLight ? '#475569' : '#9ca3af', display: 'block', marginBottom: 4 }}>UPLOAD SIGNATURE IMAGE (OPTIONAL)</label>
@@ -655,40 +1010,6 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
             />
           </div>
         </div>
-
-        {/* Cash Denomination Notes Counter for Deposit Slips */}
-        {docType === 'deposit' && (
-          <div style={{ background: isLight ? '#ffffff' : 'rgba(0,0,0,0.3)', padding: 14, borderRadius: 14, border: '1px solid rgba(234, 88, 12, 0.2)' }}>
-            <div style={{ fontSize: 10, fontWeight: 800, color: '#ea580c', marginBottom: 8, textTransform: 'uppercase' }}>
-              💵 CASH DENOMINATION COUNTER (ENTER NOTE COUNTS):
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 10 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ fontSize: 11, fontWeight: 800, color: isLight ? '#0f172a' : '#ffffff' }}>₹500 ×</span>
-                <input type="number" min="0" value={userData.notes500 || ''} onChange={e => setUserData({ ...userData, notes500: Math.max(0, Number(e.target.value)) })} placeholder="0" className="input-light" style={{ width: 55, padding: '4px', textAlign: 'center', fontSize: 11, fontWeight: 800 }} />
-                <span style={{ fontSize: 11, fontWeight: 800, color: '#10b981' }}>= ₹{userData.notes500 * 500}</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ fontSize: 11, fontWeight: 800, color: isLight ? '#0f172a' : '#ffffff' }}>₹200 ×</span>
-                <input type="number" min="0" value={userData.notes200 || ''} onChange={e => setUserData({ ...userData, notes200: Math.max(0, Number(e.target.value)) })} placeholder="0" className="input-light" style={{ width: 55, padding: '4px', textAlign: 'center', fontSize: 11, fontWeight: 800 }} />
-                <span style={{ fontSize: 11, fontWeight: 800, color: '#10b981' }}>= ₹{userData.notes200 * 200}</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ fontSize: 11, fontWeight: 800, color: isLight ? '#0f172a' : '#ffffff' }}>₹100 ×</span>
-                <input type="number" min="0" value={userData.notes100 || ''} onChange={e => setUserData({ ...userData, notes100: Math.max(0, Number(e.target.value)) })} placeholder="0" className="input-light" style={{ width: 55, padding: '4px', textAlign: 'center', fontSize: 11, fontWeight: 800 }} />
-                <span style={{ fontSize: 11, fontWeight: 800, color: '#10b981' }}>= ₹{userData.notes100 * 100}</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ fontSize: 11, fontWeight: 800, color: isLight ? '#0f172a' : '#ffffff' }}>₹50 ×</span>
-                <input type="number" min="0" value={userData.notes50 || ''} onChange={e => setUserData({ ...userData, notes50: Math.max(0, Number(e.target.value)) })} placeholder="0" className="input-light" style={{ width: 55, padding: '4px', textAlign: 'center', fontSize: 11, fontWeight: 800 }} />
-                <span style={{ fontSize: 11, fontWeight: 800, color: '#10b981' }}>= ₹{userData.notes50 * 50}</span>
-              </div>
-            </div>
-            <div style={{ marginTop: 8, fontSize: 12, fontWeight: 900, color: '#ea580c', textAlign: 'right' }}>
-              TOTAL DEPOSIT AMOUNT: {cashTotal > 0 ? `₹${cashTotal.toLocaleString('en-IN')} (${amountWords})` : 'Enter cash note counts above'}
-            </div>
-          </div>
-        )}
       </div>
 
       {/* ─── DEVELOPER CALIBRATION PANEL ─── */}
@@ -749,9 +1070,6 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
           <div style={{ fontSize: 12, fontWeight: 900, color: '#ea580c', textTransform: 'uppercase' }}>
             📸 ORIGINAL TEMPLATE PREVIEW ({currentTemplate.institution} • {docType.toUpperCase()})
           </div>
-          <div style={{ fontSize: 11, color: '#10b981', fontWeight: 900 }}>
-            🖊️ BLUE PEN INK OVERLAY ACTIVE
-          </div>
         </div>
 
         {/* Dynamic Image Container */}
@@ -782,166 +1100,139 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
         {/* Print / Export Action Bar */}
         <div style={{ display: 'flex', gap: 12, marginTop: 20, flexWrap: 'wrap' }}>
           <button
-            onClick={() => setShowVerifyModal(true)}
+            onClick={() => { setHasCompletedSlip(true); setShowVerifyModal(true); }}
             className="btn-primary"
             style={{ flex: 1, padding: 14, fontSize: 13, fontWeight: 900 }}
           >
             📋 REVIEW & PRINT FILLED FORM PDF
           </button>
         </div>
+        </div>
       </div>
-    </div>
-  )}
 
-      {activeMainTab === 'digital' && (
-        <div className="anim-fade" style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-          {/* Header Banner */}
-          <div className="glass-card-deep" style={{ padding: 24, borderRadius: 24, background: isLight ? '#ffffff' : '#12100c', border: '2px solid #ea580c' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-              <span style={{ fontSize: 36 }}>🛡️</span>
-              <div>
-                <div className="sticker-badge sticker-yellow" style={{ marginBottom: 4 }}>
-                  LEVEL 3 • DIGITAL BANKING & SAFETY ARENA
-                </div>
-                <h2 className="font-display" style={{ fontSize: 26, color: isLight ? '#0f172a' : '#ffffff', margin: 0 }}>
-                  DIGITAL BANKING & CYBER SAFETY
-                </h2>
-                <p style={{ color: isLight ? '#475569' : '#d1d5db', fontSize: 13, margin: '4px 0 0', fontWeight: 600 }}>
-                  Master net banking security, analyze suspicious messages, and watch interactive video guides.
-                </p>
-              </div>
+    )}
+
+      {/* ─── DIGITAL BANKING & CYBER SAFETY ARENA ─── */}
+      {activeTab === 'digital_safety' && (
+        <div className="anim-scale glass-card-deep" style={{ padding: '32px', marginBottom: 24, background: isLight ? '#ffffff' : 'var(--bg-card-deep, #12100c)', border: '2px solid #ea580c', color: isLight ? '#0f172a' : '#ffffff' }}>
+          <div style={{ textAlign: 'center', marginBottom: 28 }}>
+            <div className="sticker-badge sticker-yellow" style={{ marginBottom: 10 }}>
+              🌐 CYBER SAFETY ARENA
             </div>
+            <h2 className="font-display" style={{ fontSize: 36, color: isLight ? '#0f172a' : 'var(--heading-color, #ffffff)', marginBottom: 4 }}>
+              DIGITAL BANKING & SAFETY 🛡️
+            </h2>
+            <p style={{ color: isLight ? '#475569' : 'var(--text-sub, #d1d5db)', fontSize: 13, fontWeight: 600 }}>
+              Defend your bank account against real-world phishing traps and cyber scams!
+            </p>
           </div>
 
-          {/* Cyber Security Challenge */}
-          <div className="glass-card-deep" style={{ padding: 24, borderRadius: 24, background: isLight ? '#ffffff' : '#12100c', border: '1.5px solid rgba(245, 158, 11, 0.4)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 10 }}>
-              <div>
-                <h3 className="font-display" style={{ fontSize: 18, color: isLight ? '#0f172a' : '#ffffff', margin: 0 }}>
-                  🛡️ CYBER SECURITY SCENARIO CHALLENGE ({digitalScenarioIdx + 1}/{CYBER_SCENARIOS.length})
+          {!cyberGameCompleted ? (
+            <div className="glass-card" style={{ padding: 24, border: '2px solid #f59e0b', background: isLight ? '#fff7ed' : 'var(--bg-card-deep, #12100c)', color: isLight ? '#0f172a' : '#ffffff' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                <span style={{ fontSize: 13, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff' }}>
+                  SCENARIO {digitalScenarioIdx + 1} OF {CYBER_SCENARIOS.length}
+                </span>
+                <div className="sticker-badge sticker-yellow">
+                  🛡️ SHIELD HEALTH: {shieldScore}%
+                </div>
+              </div>
+
+              <div style={{
+                background: isLight ? '#ffffff' : 'rgba(245, 158, 11, 0.12)', borderRadius: 16, padding: 20,
+                border: '2px solid #ea580c', marginBottom: 20, boxShadow: isLight ? '0 4px 12px rgba(234,88,12,0.1)' : 'none'
+              }}>
+                <h3 style={{ fontWeight: 900, fontSize: 16, color: isLight ? '#9a3412' : '#ffffff', marginBottom: 8 }}>
+                  {CYBER_SCENARIOS[digitalScenarioIdx].title}
                 </h3>
-                <p style={{ fontSize: 11, color: isLight ? '#64748b' : '#9ca3af', margin: '2px 0 0' }}>
-                  Test your banking fraud awareness and protect your account score
+                <p style={{ fontSize: 14, color: isLight ? '#0f172a' : '#e2e8f0', lineHeight: 1.6, fontWeight: 800 }}>
+                  {CYBER_SCENARIOS[digitalScenarioIdx].scenario}
                 </p>
               </div>
-              <div style={{ background: 'rgba(16, 185, 129, 0.15)', border: '1.5px solid #10b981', padding: '6px 14px', borderRadius: 999, fontWeight: 900, fontSize: 12, color: '#10b981' }}>
-                🛡️ SHIELD HEALTH: {shieldScore}%
-              </div>
-            </div>
 
-            {/* Scenario Card */}
-            {(() => {
-              const scen = CYBER_SCENARIOS[digitalScenarioIdx]
-              return (
-                <div style={{ background: 'rgba(255, 255, 255, 0.04)', border: '1.5px solid rgba(255, 255, 255, 0.1)', padding: 20, borderRadius: 16 }}>
-                  <h4 style={{ fontSize: 15, fontWeight: 900, color: '#fbbf24', marginTop: 0, marginBottom: 8 }}>
-                    {scen.title}
-                  </h4>
-                  <p style={{ fontSize: 13, color: isLight ? '#334155' : '#e2e8f0', lineHeight: 1.6, marginBottom: 16 }}>
-                    {scen.scenario}
-                  </p>
-
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 16 }}>
-                    {scen.opts.map((opt, oIdx) => (
-                      <button
-                        key={oIdx}
-                        onClick={() => handleCyberAnswer(oIdx)}
-                        style={{
-                          textAlign: 'left',
-                          padding: '12px 16px',
-                          borderRadius: 12,
-                          fontSize: 13,
-                          fontWeight: 700,
-                          cursor: 'pointer',
-                          background: selectedOpt === oIdx
-                            ? (opt.correct ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)')
-                            : (isLight ? '#f8fafc' : 'rgba(255,255,255,0.05)'),
-                          border: `1.5px solid ${
-                            selectedOpt === oIdx
-                              ? (opt.correct ? '#10b981' : '#ef4444')
-                              : (isLight ? '#cbd5e1' : 'rgba(255,255,255,0.1)')
-                          }`,
-                          color: isLight ? '#0f172a' : '#ffffff'
-                        }}
-                      >
-                        {opt.text}
-                      </button>
-                    ))}
-                  </div>
-
-                  {digitalFeedback && (
-                    <div style={{ background: 'rgba(245, 158, 11, 0.15)', border: '1.5px solid #f59e0b', padding: 14, borderRadius: 12, marginBottom: 16, fontSize: 12, color: '#fbbf24', lineHeight: 1.5 }}>
-                      💡 <strong>Explanation:</strong> {digitalFeedback}
-                    </div>
-                  )}
-
-                  {selectedOpt !== null && (
-                    <button
-                      className="btn-primary"
-                      onClick={handleNextScenario}
-                      style={{ width: '100%', fontSize: 13, padding: '10px 18px', fontWeight: 900 }}
-                    >
-                      {digitalScenarioIdx < CYBER_SCENARIOS.length - 1 ? 'NEXT SCENARIO ➔' : 'COMPLETE CYBER CHALLENGE 🎉'}
-                    </button>
-                  )}
-                </div>
-              )
-            })()}
-          </div>
-
-          {/* Message Scam Analyzer */}
-          <div className="glass-card-deep" style={{ padding: 24, borderRadius: 24, background: isLight ? '#ffffff' : '#12100c', border: '1.5px solid rgba(234, 88, 12, 0.4)' }}>
-            <MessageScamAnalyzer />
-          </div>
-
-          {/* Video Tutorials Section */}
-          <div className="glass-card-deep" style={{ padding: 24, borderRadius: 24, background: isLight ? '#ffffff' : '#12100c', border: '1.5px solid rgba(245, 158, 11, 0.4)' }}>
-            <div style={{ fontSize: 12, fontWeight: 900, color: '#fbbf24', textTransform: 'uppercase', marginBottom: 12 }}>
-              🎥 DIGITAL BANKING VIDEO TUTORIALS
-            </div>
-
-            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 18 }}>
-              {Object.keys(VIDEOS_DB).map(vKey => {
-                const vid = VIDEOS_DB[vKey]
-                return (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 20 }}>
+                {CYBER_SCENARIOS[digitalScenarioIdx].opts.map((opt, i) => (
                   <button
-                    key={vKey}
-                    onClick={() => setSelectedVideo(vKey)}
+                    key={i}
+                    onClick={() => handleCyberAnswer(i)}
+                    className={selectedOpt === i ? (opt.correct ? 'btn-primary' : 'btn-pink') : 'btn-outline'}
                     style={{
-                      padding: '8px 16px',
-                      borderRadius: 999,
-                      fontSize: 12,
+                      textAlign: 'left', fontSize: 13, padding: '14px 18px', width: '100%',
                       fontWeight: 800,
-                      cursor: 'pointer',
-                      background: selectedVideo === vKey ? '#f59e0b' : 'rgba(255,255,255,0.06)',
-                      color: selectedVideo === vKey ? '#000000' : '#d1d5db',
-                      border: '1px solid #f59e0b'
+                      color: selectedOpt === i ? '#ffffff' : (isLight ? '#7c2d12' : '#fbbf24'),
+                      borderColor: isLight ? '#ea580c' : undefined,
+                      background: selectedOpt === i ? undefined : (isLight ? '#ffffff' : undefined)
                     }}
                   >
-                    {vid.title}
+                    {opt.text}
                   </button>
-                )
-              })}
+                ))}
+              </div>
+
+              {digitalFeedback && (
+                <div className="anim-fade" style={{
+                  background: isLight ? '#ffedd5' : 'rgba(245,158,11,0.12)', border: '1.5px solid #f59e0b',
+                  borderRadius: 14, padding: 16, marginBottom: 20, color: isLight ? '#7c2d12' : '#fef3c7', fontSize: 13, lineHeight: 1.5, fontWeight: 700
+                }}>
+                  💡 {digitalFeedback}
+                </div>
+              )}
+
+              {selectedOpt !== null && (
+                <button className="btn-primary" onClick={handleNextScenario} style={{ width: '100%', fontSize: 14, fontWeight: 900 }}>
+                  {digitalScenarioIdx < CYBER_SCENARIOS.length - 1 ? 'NEXT SCENARIO →' : '🏆 FINISH CHALLENGE (+50 XP)'}
+                </button>
+              )}
+            </div>
+          ) : (
+            <div style={{ textAlign: 'center', padding: 32, background: isLight ? '#ffffff' : 'var(--bg-card-deep, #12100c)', border: '2px solid #ea580c', borderRadius: 20 }} className="glass-card">
+              <div style={{ fontSize: 56, marginBottom: 12 }}>🛡️</div>
+              <h3 className="font-display" style={{ fontSize: 32, color: isLight ? '#ea580c' : '#fbbf24', marginBottom: 8 }}>
+                CHALLENGE PASSED!
+              </h3>
+              <p style={{ color: isLight ? '#475569' : '#d1d5db', fontSize: 14, fontWeight: 600, marginBottom: 20 }}>
+                Shield Health: {shieldScore}% • You earned +50 XP and mastered digital bank safety!
+              </p>
+              <button className="btn-primary" onClick={() => setCyberGameCompleted(false)}>
+                🔄 REPLAY SAFETY ARENA
+              </button>
+            </div>
+          )}
+
+          {/* Phone SMS & Phishing Message Analyzer */}
+          <MessageScamAnalyzer themeMode={themeMode} />
+
+          {/* Video Tutorials Section */}
+          <div style={{ marginTop: 32 }}>
+            <h3 className="font-display" style={{ fontSize: 24, color: isLight ? '#0f172a' : '#ffffff', marginBottom: 16 }}>
+              🎬 DIGITAL BANKING TUTORIALS
+            </h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14, marginBottom: 20 }}>
+              {Object.keys(VIDEOS_DB).map(vKey => (
+                <button
+                  key={vKey}
+                  onClick={() => setSelectedVideo(vKey)}
+                  className={selectedVideo === vKey ? 'btn-primary' : 'btn-outline'}
+                  style={{
+                    fontSize: 12, padding: '12px', fontWeight: 800,
+                    color: selectedVideo === vKey ? '#ffffff' : (isLight ? '#7c2d12' : '#fbbf24'),
+                    borderColor: isLight ? '#ea580c' : undefined
+                  }}
+                >
+                  {VIDEOS_DB[vKey].title}
+                </button>
+              ))}
             </div>
 
-            {(() => {
-              const vid = VIDEOS_DB[selectedVideo]
-              return (
-                <div style={{ background: 'rgba(0,0,0,0.4)', padding: 16, borderRadius: 16, border: '1px solid rgba(255,255,255,0.1)' }}>
-                  <h4 style={{ fontSize: 16, fontWeight: 900, color: '#ffffff', margin: '0 0 6px' }}>{vid.title}</h4>
-                  <p style={{ fontSize: 12, color: '#9ca3af', margin: '0 0 14px' }}>{vid.desc}</p>
-                  <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden', borderRadius: 12 }}>
-                    <iframe
-                      src={vid.url}
-                      title={vid.title}
-                      style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    />
-                  </div>
-                </div>
-              )
-            })()}
+            <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden', borderRadius: 16, border: '2px solid #ea580c' }}>
+              <iframe
+                src={VIDEOS_DB[selectedVideo].url}
+                title={VIDEOS_DB[selectedVideo].title}
+                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
+                allowFullScreen
+              />
+            </div>
+
           </div>
         </div>
       )}
@@ -1038,7 +1329,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
             </div>
 
             <p style={{ fontSize: 13, color: isLight ? '#334155' : '#d1d5db', lineHeight: 1.6, maxWidth: 480, margin: '0 auto 20px' }}>
-              For successfully mastering Indian Bank Branch Location search, Pay-in Cash Deposit Slips, Withdrawal Slips, and Cheque Book Writing across major Indian Banks and Post Office Savings Banks.
+              For successfully mastering Pay-in Cash Deposit Slips, Withdrawal Slips, and Cheque Book Writing across major Indian Banks and Post Office Savings Banks.
             </p>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: `1px dashed ${isLight ? '#cbd5e1' : 'rgba(255,255,255,0.2)'}`, paddingTop: 16, fontSize: 11, color: isLight ? '#475569' : '#9ca3af' }}>

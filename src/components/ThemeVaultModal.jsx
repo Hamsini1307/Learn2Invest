@@ -346,16 +346,18 @@ export default function ThemeVaultModal({
                     </div>
                   ) : (
                     <button
-                      className="btn-primary"
-                      onClick={() => onSelectTheme(thm.id)}
+                      disabled={!isUnlocked}
+                      onClick={() => isUnlocked && onSelectTheme(thm.id)}
+                      className={isUnlocked ? "btn-primary" : "btn-outline"}
                       style={{
                         padding: '8px 16px',
                         fontSize: 12,
-                        cursor: 'pointer',
+                        cursor: isUnlocked ? 'pointer' : 'not-allowed',
                         borderRadius: 999,
+                        opacity: isUnlocked ? 1 : 0.5,
                       }}
                     >
-                      {isUnlocked ? 'SELECT' : `TRY (🔒 ${thm.minXp} XP)`}
+                      {isUnlocked ? 'SELECT' : `🔒 ${thm.minXp} XP NEEDED`}
                     </button>
                   )}
                 </div>

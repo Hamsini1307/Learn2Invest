@@ -4,10 +4,14 @@ import { getText } from '../data/translations.js'
 
 export default function LandingJourney({ go, goBack, canGoBack, state, aiGuideAvatar = 'female', openAvatarModal, themeMode, lang = 'en' }) {
   const activeAvatar = AI_AVATARS[aiGuideAvatar] || AI_AVATARS.female
-  const { xp = 0, lessonsWatched = [], intermediateUnlocked, advancedUnlocked } = state || {}
+  const { xp = 0, lessonsWatched = [], intermediateUnlocked, advancedUnlocked, completedModules = [], startingLevel } = state || {}
 
   const completedCount = lessonsWatched.length
   const isLight = themeMode === 'light'
+
+  const isIntermediateStart = startingLevel === 'intermediate'
+  const isInterUnlocked = intermediateUnlocked || isIntermediateStart || (completedCount >= 5 && (state?.quizScore || 0) >= 60)
+  const isAdvUnlocked = advancedUnlocked || completedModules.length > 0 || isIntermediateStart
 
   return (
     <div className="content-area" style={{ minHeight: '100%' }}>
@@ -221,12 +225,18 @@ export default function LandingJourney({ go, goBack, canGoBack, state, aiGuideAv
         <div className="level-cards-grid">
           
           {/* STEP 1 ROADMAP CARD */}
-          <div className="glass-card-sm" style={{ 
-            padding: '24px',
-            background: isLight ? '#ffffff' : undefined,
-            border: isLight ? '1.5px solid rgba(234, 88, 12, 0.35)' : undefined,
-            boxShadow: isLight ? '0 10px 30px rgba(194, 65, 12, 0.08)' : undefined
-          }}>
+          <div 
+            onClick={() => go('beginner')}
+            className="glass-card-sm" 
+            style={{ 
+              padding: '24px',
+              background: isLight ? '#ffffff' : undefined,
+              border: isLight ? '1.5px solid rgba(234, 88, 12, 0.35)' : undefined,
+              boxShadow: isLight ? '0 10px 30px rgba(194, 65, 12, 0.08)' : undefined,
+              cursor: 'pointer',
+              transition: 'all 0.2s ease-in-out'
+            }}
+          >
             <div style={{
               background: 'var(--gold-primary, #f59e0b)',
               color: '#ffffff',
@@ -243,22 +253,33 @@ export default function LandingJourney({ go, goBack, canGoBack, state, aiGuideAv
             <p style={{ fontSize: '12px', color: isLight ? '#334155' : 'var(--text-muted, #94a3b8)', lineHeight: 1.5, marginBottom: '16px' }}>
               {getText('schoolDesc', lang)}
             </p>
-            <div style={{ fontSize: '11px', color: isLight ? '#c2410c' : 'var(--gold-amber, #f59e0b)', fontWeight: 800 }}>
-              {getText('status', lang)}: {completedCount > 0 ? getText('inProgress', lang) : getText('readyToStart', lang)}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+              <div style={{ fontSize: '11px', color: isLight ? '#c2410c' : 'var(--gold-amber, #f59e0b)', fontWeight: 800 }}>
+                {getText('status', lang)}: {completedCount > 0 ? getText('inProgress', lang) : getText('readyToStart', lang)}
+              </div>
+              <button className="btn-primary" style={{ padding: '6px 14px', fontSize: '12px', borderRadius: '999px', fontWeight: 800 }}>
+                Enter Level 1 →
+              </button>
             </div>
           </div>
 
           {/* STEP 2 ROADMAP CARD */}
-          <div className="glass-card-sm" style={{
-            padding: '24px',
-            opacity: intermediateUnlocked ? 1 : 0.85,
-            background: isLight ? '#ffffff' : undefined,
-            border: isLight ? '1.5px solid rgba(234, 88, 12, 0.35)' : undefined,
-            boxShadow: isLight ? '0 10px 30px rgba(194, 65, 12, 0.08)' : undefined
-          }}>
+          <div 
+            onClick={() => go('intermediate')}
+            className="glass-card-sm" 
+            style={{
+              padding: '24px',
+              opacity: isInterUnlocked ? 1 : 0.85,
+              background: isLight ? '#ffffff' : undefined,
+              border: isLight ? '1.5px solid rgba(234, 88, 12, 0.35)' : undefined,
+              boxShadow: isLight ? '0 10px 30px rgba(194, 65, 12, 0.08)' : undefined,
+              cursor: 'pointer',
+              transition: 'all 0.2s ease-in-out'
+            }}
+          >
             <div style={{
-              background: intermediateUnlocked ? 'var(--gold-primary, #f59e0b)' : 'rgba(128,128,128,0.2)',
-              color: intermediateUnlocked ? '#ffffff' : (isLight ? '#475569' : 'var(--text-muted, #94a3b8)'),
+              background: isInterUnlocked ? 'var(--gold-primary, #f59e0b)' : 'rgba(128,128,128,0.2)',
+              color: isInterUnlocked ? '#ffffff' : (isLight ? '#475569' : 'var(--text-muted, #94a3b8)'),
               fontSize: '10px',
               fontWeight: 900,
               padding: '3px 10px',
@@ -272,22 +293,33 @@ export default function LandingJourney({ go, goBack, canGoBack, state, aiGuideAv
             <p style={{ fontSize: '12px', color: isLight ? '#334155' : 'var(--text-muted, #94a3b8)', lineHeight: 1.5, marginBottom: '16px' }}>
               {getText('labDesc', lang)}
             </p>
-            <div style={{ fontSize: '11px', color: intermediateUnlocked ? (isLight ? '#c2410c' : 'var(--gold-amber, #f59e0b)') : (isLight ? '#64748b' : 'var(--text-muted, #94a3b8)'), fontWeight: 800 }}>
-              {getText('status', lang)}: {intermediateUnlocked ? getText('unlockedBadge', lang) : getText('reqLvl1', lang)}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+              <div style={{ fontSize: '11px', color: isInterUnlocked ? (isLight ? '#c2410c' : 'var(--gold-amber, #f59e0b)') : (isLight ? '#64748b' : 'var(--text-muted, #94a3b8)'), fontWeight: 800 }}>
+                {getText('status', lang)}: {isInterUnlocked ? getText('unlockedBadge', lang) : getText('reqLvl1', lang)}
+              </div>
+              <button className="btn-primary" style={{ padding: '6px 14px', fontSize: '12px', borderRadius: '999px', fontWeight: 800 }}>
+                Enter Level 2 →
+              </button>
             </div>
           </div>
 
           {/* STEP 3 ROADMAP CARD */}
-          <div className="glass-card-sm" style={{
-            padding: '24px',
-            opacity: advancedUnlocked ? 1 : 0.85,
-            background: isLight ? '#ffffff' : undefined,
-            border: isLight ? '1.5px solid rgba(234, 88, 12, 0.35)' : undefined,
-            boxShadow: isLight ? '0 10px 30px rgba(194, 65, 12, 0.08)' : undefined
-          }}>
+          <div 
+            onClick={() => go(isAdvUnlocked ? 'advanced' : 'unlock-adv')}
+            className="glass-card-sm" 
+            style={{
+              padding: '24px',
+              opacity: isAdvUnlocked ? 1 : 0.85,
+              background: isLight ? '#ffffff' : undefined,
+              border: isLight ? '1.5px solid rgba(234, 88, 12, 0.35)' : undefined,
+              boxShadow: isLight ? '0 10px 30px rgba(194, 65, 12, 0.08)' : undefined,
+              cursor: 'pointer',
+              transition: 'all 0.2s ease-in-out'
+            }}
+          >
             <div style={{
-              background: advancedUnlocked ? 'var(--gold-primary, #f59e0b)' : 'rgba(128,128,128,0.2)',
-              color: advancedUnlocked ? '#ffffff' : (isLight ? '#475569' : 'var(--text-muted, #94a3b8)'),
+              background: isAdvUnlocked ? 'var(--gold-primary, #f59e0b)' : 'rgba(128,128,128,0.2)',
+              color: isAdvUnlocked ? '#ffffff' : (isLight ? '#475569' : 'var(--text-muted, #94a3b8)'),
               fontSize: '10px',
               fontWeight: 900,
               padding: '3px 10px',
@@ -301,234 +333,64 @@ export default function LandingJourney({ go, goBack, canGoBack, state, aiGuideAv
             <p style={{ fontSize: '12px', color: isLight ? '#334155' : 'var(--text-muted, #94a3b8)', lineHeight: 1.5, marginBottom: '16px' }}>
               {getText('towerDesc', lang)}
             </p>
-            <div style={{ fontSize: '11px', color: advancedUnlocked ? 'var(--gold-amber, #f59e0b)' : 'var(--text-muted, #94a3b8)', fontWeight: 800 }}>
-              {getText('status', lang)}: {advancedUnlocked ? getText('unlockedBadge', lang) : getText('reqLvl2', lang)}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+              <div style={{ fontSize: '11px', color: isAdvUnlocked ? (isLight ? '#c2410c' : 'var(--gold-amber, #f59e0b)') : (isLight ? '#64748b' : 'var(--text-muted, #94a3b8)'), fontWeight: 800 }}>
+                {getText('status', lang)}: {isAdvUnlocked ? getText('unlockedBadge', lang) : getText('reqLvl2', lang)}
+              </div>
+              <button className="btn-primary" style={{ padding: '6px 14px', fontSize: '12px', borderRadius: '999px', fontWeight: 800 }}>
+                {isAdvUnlocked ? 'Enter Level 3 →' : 'Unlock Level 3 🔒'}
+              </button>
             </div>
           </div>
 
         </div>
       </section>
 
-      {/* ─── BEHANCE STYLE HEADER DIVIDER ─── */}
-      <div style={{ textAlign: 'center', margin: '24px 0 16px' }}>
-        <span style={{
-          background: 'linear-gradient(90deg, #d97706, #f59e0b)',
-          color: '#080705',
-          padding: '6px 16px',
-          borderRadius: '999px',
-          fontSize: '10px',
-          fontWeight: 900,
-          letterSpacing: '1.5px',
-          boxShadow: '0 0 15px rgba(245,158,11,0.3)'
+
+
+
+      {/* ─── SECTION 6: FINAL CTA (ONLY RENDERED IF ADVANCED LEVEL IS NOT UNLOCKED) ─── */}
+      {!isAdvUnlocked && (
+        <section style={{
+          padding: '48px 16px',
+          textAlign: 'center',
+          background: isLight 
+            ? 'radial-gradient(ellipse at 50% 50%, rgba(245, 158, 11, 0.15) 0%, rgba(255, 255, 255, 1) 75%)' 
+            : 'var(--bg-gradient-radial, radial-gradient(ellipse at 50% 50%, rgba(245, 158, 11, 0.2) 0%, rgba(8, 7, 5, 1) 75%))',
+          borderTop: '1px solid rgba(217, 119, 6, 0.3)',
+          borderRadius: '24px'
         }}>
-          UI SCREENS & MOCKUPS
-        </span>
-      </div>
-
-      {/* ─── SECTION 3: LEVEL 1 SCHOOL SHOWCASE ─── */}
-      <section style={{ 
-        padding: '32px 16px', 
-        background: isLight ? '#ffffff' : 'var(--bg-card-deep, rgba(18, 16, 12, 0.6))', 
-        borderTop: '1px solid rgba(217, 119, 6, 0.15)',
-        borderRadius: '20px',
-        marginBottom: '24px'
-      }}>
-        <div>
-          <span className="sticker-badge sticker-yellow" style={{ marginBottom: '8px' }}>
-            {getText('level01', lang)} • THE FOUNDATION
-          </span>
-          <h2 style={{ fontSize: '28px', color: 'var(--heading-color, #fff)', margin: '4px 0 12px', lineHeight: 1.2 }}>
-            🌱 {getText('school', lang)}
-          </h2>
-          <p style={{ color: 'var(--text-sub, #d1d5db)', fontSize: '13px', lineHeight: 1.5, marginBottom: '20px' }}>
-            {getText('schoolDesc', lang)}
-          </p>
-
-          {/* Interactive Smartphone Screen Mockup */}
-          <div style={{
-            width: '100%',
-            background: isLight ? '#f8fafc' : 'var(--bg-card-deep, #12100c)',
-            border: '2px solid #d97706',
-            borderRadius: '24px',
-            padding: '14px',
-            boxShadow: isLight ? '0 10px 30px rgba(0,0,0,0.05)' : 'var(--card-shadow, 0 15px 40px rgba(0,0,0,0.8))',
-            marginBottom: '20px'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(217, 119, 6, 0.2)', paddingBottom: '8px', marginBottom: '12px' }}>
-              <div style={{ fontSize: '11px', fontWeight: 800, color: 'var(--gold-amber, #fbbf24)' }}>📹 CLASSROOM SCREEN</div>
-              <div style={{ fontSize: '10px', color: 'var(--text-muted, #9ca3af)' }}>{completedCount}/5 Lessons</div>
-            </div>
-            <div style={{
-              background: isLight ? '#ffffff' : 'var(--bg-main, #000)',
-              borderRadius: '12px',
-              height: '150px',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              border: '1px solid rgba(245,158,11,0.3)',
-              marginBottom: '12px'
-            }}>
-              <div style={{ fontSize: '36px', marginBottom: '4px' }}>🎓</div>
-              <div style={{ color: 'var(--heading-color, #fff)', fontSize: '13px', fontWeight: 700 }}>PROJECTOR LESSON 1</div>
-              <div style={{ color: 'var(--text-muted, #9ca3af)', fontSize: '10px' }}>Understanding Inflation & Purchasing Power</div>
-            </div>
-            <button
-              onClick={() => go('beginner')}
-              className="btn-primary"
-              style={{ width: '100%', padding: '12px', fontSize: '13px' }}
-            >
-              {getText('enterSchool', lang)} →
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── SECTION 4: LEVEL 2 LAB SHOWCASE ─── */}
-      <section style={{ 
-        padding: '32px 16px',
-        background: isLight ? '#ffffff' : 'transparent',
-        borderRadius: '20px',
-        marginBottom: '24px' 
-      }}>
-        <div>
-          <span className="sticker-badge sticker-yellow" style={{ marginBottom: '8px' }}>
-            {getText('level02', lang)} • THE LAB
-          </span>
-          <h2 style={{ fontSize: '28px', color: 'var(--heading-color, #fff)', margin: '4px 0 12px', lineHeight: 1.2 }}>
-            🧪 {getText('lab', lang)}
-          </h2>
-          <p style={{ color: 'var(--text-sub, #d1d5db)', fontSize: '13px', lineHeight: 1.5, marginBottom: '20px' }}>
-            {getText('labDesc', lang)}
-          </p>
-
-          <div style={{
-            width: '100%',
-            background: isLight ? '#f8fafc' : 'var(--bg-card-deep, #12100c)',
-            border: '2px solid #d97706',
-            borderRadius: '24px',
-            padding: '14px',
-            boxShadow: isLight ? '0 10px 30px rgba(0,0,0,0.05)' : 'var(--card-shadow, 0 15px 40px rgba(0,0,0,0.8))',
-            marginBottom: '20px'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(217, 119, 6, 0.2)', paddingBottom: '8px', marginBottom: '12px' }}>
-              <div style={{ fontSize: '11px', fontWeight: 800, color: 'var(--gold-amber, #fbbf24)' }}>🧪 SIMULATION CANVAS</div>
-              <div style={{ fontSize: '10px', color: intermediateUnlocked ? '#10b981' : '#f59e0b' }}>
-                {intermediateUnlocked ? getText('unlockedBadge', lang) : getText('status', lang)}
-              </div>
-            </div>
-            <div style={{
-              background: isLight ? '#ffffff' : 'var(--input-bg, #1a1610)',
-              borderRadius: '12px',
-              padding: '14px',
-              border: '1px solid rgba(245,158,11,0.2)',
-              marginBottom: '12px'
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                <span style={{ fontSize: '11px', color: 'var(--text-sub, #334155)' }}>SIP Monthly Investment:</span>
-                <span style={{ fontSize: '12px', fontWeight: 800, color: 'var(--gold-primary, #f59e0b)' }}>₹5,000 / mo</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                <span style={{ fontSize: '11px', color: 'var(--text-sub, #334155)' }}>Expected Return (CAGR):</span>
-                <span style={{ fontSize: '12px', fontWeight: 800, color: 'var(--gold-primary, #f59e0b)' }}>12.5%</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: '11px', color: 'var(--text-sub, #334155)' }}>Est. 10-Year Corpus:</span>
-                <span style={{ fontSize: '14px', fontWeight: 900, color: '#10b981' }}>₹11,61,695</span>
-              </div>
-            </div>
-            <button
-              onClick={() => go('intermediate')}
-              className="btn-primary"
-              style={{ width: '100%', padding: '12px', fontSize: '13px' }}
-            >
-              {getText('enterLab', lang)} →
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── SECTION 5: LUNA / AI GUIDE FEATURE ─── */}
-      <section style={{ 
-        padding: '32px 16px', 
-        textAlign: 'center', 
-        background: isLight ? '#ffffff' : 'var(--bg-card-deep, rgba(18, 16, 12, 0.6))',
-        borderRadius: '20px',
-        marginBottom: '24px'
-      }}>
-        <div style={{
-          fontSize: '44px',
-          marginBottom: '8px',
-          display: 'inline-block',
-          filter: 'drop-shadow(0 0 15px rgba(245, 158, 11, 0.6))'
-        }}>
-          {activeAvatar.icon}
-        </div>
-        <span className="sticker-badge sticker-yellow" style={{ marginBottom: '8px' }}>
-          🤖 MEET YOUR AI MENTOR
-        </span>
-        <h2 style={{ fontSize: '26px', color: 'var(--heading-color, #fff)', margin: '4px 0 8px 0' }}>
-          AI GUIDE: {activeAvatar.name.toUpperCase()}
-        </h2>
-        <p style={{ color: 'var(--text-sub, #d1d5db)', fontSize: '13px', lineHeight: 1.5, marginBottom: '20px' }}>
-          Ask anything from "What is Nifty 50?" to "How should I structure my SIP for tax efficiency?".
-        </p>
-
-        <button
-          onClick={openAvatarModal}
-          className="btn-outline"
-          style={{
-            width: '100%',
-            borderColor: '#f59e0b',
-            color: isLight ? '#b45309' : '#fbbf24',
-            padding: '12px',
-            fontSize: '13px'
-          }}
-        >
-          CHANGE AI AVATAR ({activeAvatar.name} ACTIVE) ⚙️
-        </button>
-      </section>
-
-      {/* ─── SECTION 6: FINAL CTA ─── */}
-      <section style={{
-        padding: '48px 16px',
-        textAlign: 'center',
-        background: isLight 
-          ? 'radial-gradient(ellipse at 50% 50%, rgba(245, 158, 11, 0.15) 0%, rgba(255, 255, 255, 1) 75%)' 
-          : 'var(--bg-gradient-radial, radial-gradient(ellipse at 50% 50%, rgba(245, 158, 11, 0.2) 0%, rgba(8, 7, 5, 1) 75%))',
-        borderTop: '1px solid rgba(217, 119, 6, 0.3)',
-        borderRadius: '24px'
-      }}>
-        <h2 style={{
-          fontSize: '32px',
-          fontWeight: 900,
-          color: 'var(--heading-color, #fff)',
-          margin: '0 0 12px 0',
-          fontFamily: 'Space Grotesk'
-        }}>
-          {getText('readyToLevelUp', lang)}
-        </h2>
-        <p style={{ color: 'var(--text-sub, #d1d5db)', fontSize: '14px', marginBottom: '24px' }}>
-          Take full control of your financial destiny today. Start Level 1 School now!
-        </p>
-
-        <button
-          onClick={() => go('level-map')}
-          className="btn-primary"
-          style={{
-            width: '100%',
-            background: 'linear-gradient(135deg, #d97706 0%, #f59e0b 100%)',
-            color: '#080705',
-            fontSize: '16px',
-            padding: '16px',
-            border: 'none',
+          <h2 style={{
+            fontSize: '32px',
             fontWeight: 900,
-            boxShadow: '0 0 30px rgba(245, 158, 11, 0.4)'
-          }}
-        >
-          {getText('startLearningNow', lang)}
-        </button>
-      </section>
+            color: 'var(--heading-color, #fff)',
+            margin: '0 0 12px 0',
+            fontFamily: 'Space Grotesk'
+          }}>
+            {getText('readyToLevelUp', lang)}
+          </h2>
+          <p style={{ color: 'var(--text-sub, #d1d5db)', fontSize: '14px', marginBottom: '24px' }}>
+            Take full control of your financial destiny today. Start Level 1 School now!
+          </p>
+
+          <button
+            onClick={() => go('level-map')}
+            className="btn-primary"
+            style={{
+              width: '100%',
+              background: 'linear-gradient(135deg, #d97706 0%, #f59e0b 100%)',
+              color: '#080705',
+              fontSize: '16px',
+              padding: '16px',
+              border: 'none',
+              fontWeight: 900,
+              boxShadow: '0 0 30px rgba(245, 158, 11, 0.4)'
+            }}
+          >
+            {getText('startLearningNow', lang)}
+          </button>
+        </section>
+      )}
 
     </div>
   )

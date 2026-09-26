@@ -24,13 +24,14 @@ import LeaderboardModal from './components/LeaderboardModal.jsx'
 import BadgesModal from './components/BadgesModal.jsx'
 import PerformanceReportModal from './components/PerformanceReportModal.jsx'
 import UserProfileModal from './components/UserProfileModal.jsx'
+import { THEME_CATALOG } from './components/ThemeVaultModal.jsx'
 import { TRANSLATIONS } from './data/translations.js'
 
 const INITIAL_STATE = {
   user: null, xp: 0, lessonsWatched: [],
   completedModules: [],
   correctCount: 0, quizScore: 0,
-  intermediateUnlocked: false, advancedUnlocked: false,
+  intermediateUnlocked: true, advancedUnlocked: true,
   currentVideo: null, currentModule: null,
   startingLevel: null,
   allocations: { PPF: 30, FD: 25, NSC: 20, SSY: 15, RD: 10 },
@@ -59,8 +60,9 @@ export default function App() {
   const [prevBg, setPrevBg] = useState('')
   const [currentBg, setCurrentBg] = useState('bg-auth')
   
-  const [themeMode] = useState('dark')
+  const [themeMode, setThemeMode] = useState(() => localStorage.getItem('l2i_themeMode') || 'dark')
   const [colorTheme, setColorTheme] = useState(() => getColorThemeForScreen('onboarding'))
+  const [themeToast, setThemeToast] = useState(null)
 
   // Automatic Theme Color Change on Level Entry
   useEffect(() => {
@@ -110,6 +112,59 @@ export default function App() {
       return []
     }
   })
+
+
+  const toggleTheme = () => {
+    setThemeMode(prev => {
+      const next = prev === 'dark' ? 'light' : 'dark'
+      localStorage.setItem('l2i_themeMode', next)
+      return next
+    })
+  }
+
+  const handleSelectTheme = (themeId) => {
+    const target = THEME_CATALOG.find(t => t.id === themeId)
+    const userXp = state.xp || 0
+    if (target && userXp < target.minXp) {
+      alert(`🔒 You need ${target.minXp} XP to unlock the ${target.name} theme! You currently have ${userXp} XP.`)
+      return
+    }
+    setColorTheme(themeId)
+    localStorage.setItem('l2i_colorTheme', themeId)
+  }
+
+  useEffect(() => {
+    const target = THEME_CATALOG.find(t => t.id === colorTheme)
+    if (target && (state.xp || 0) < target.minXp) {
+      setColorTheme('classic')
+      localStorage.setItem('l2i_colorTheme', 'classic')
+    }
+  }, [state.xp, colorTheme])
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-color-theme', colorTheme)
+    document.body.setAttribute('data-color-theme', colorTheme)
+  }, [colorTheme])
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', themeMode)
+    document.body.setAttribute('data-theme', themeMode)
+  }, [themeMode])
+
+  // XP Milestone Unlock Notification (+300 XP)
+  useEffect(() => {
+    const currentXp = state.xp || 0
+    const unlockedThemes = THEME_CATALOG.filter(t => t.minXp > 0 && currentXp >= t.minXp)
+    unlockedThemes.forEach(t => {
+      const key = `l2i_toast_${t.id}`
+      if (!localStorage.getItem(key)) {
+        localStorage.setItem(key, 'true')
+        setThemeToast(`🎉 NEW THEME UNLOCKED: ${t.name}! Click 'THEMES' in the header to activate.`)
+        setTimeout(() => setThemeToast(null), 7000)
+      }
+    })
+  }, [state.xp])
+
 
   // Handlers for Lab Simulations
   const handleSaveSimulation = (sim) => {
@@ -381,19 +436,22 @@ export default function App() {
               </div>
 
               <EducationalDisclaimer lang={lang} />
-
-              <Chatbot
-                open={chatOpen}
-                onToggle={() => setChatOpen(o => !o)}
-                onClose={() => setChatOpen(false)}
-                user={state.user}
-                xp={state.xp}
-                currentScreen={screen}
-                aiGuideAvatar={aiGuideAvatar}
-                aiGuideName={aiGuideName}
-              />
             </>
           )}
+
+          {/* AI Chatbot with Voice Assistant - Included on EVERY page */}
+          <Chatbot
+            open={chatOpen}
+            onToggle={() => setChatOpen(o => !o)}
+            onClose={() => setChatOpen(false)}
+            user={state.user}
+            xp={state.xp}
+            currentScreen={screen}
+            aiGuideAvatar={aiGuideAvatar}
+            aiGuideName={aiGuideName}
+            themeMode={themeMode}
+            lang={lang}
+          />
 
           <AiAvatarSelector
             isOpen={avatarModalOpen}
