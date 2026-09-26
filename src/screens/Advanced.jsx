@@ -628,7 +628,9 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
   const [activeFieldId, setActiveFieldId] = useState(null)
 
   const templateKey = `${selectedBankId}_${docType}`
-  const currentTemplate = templateConfigs[templateKey] || BANK_TEMPLATES_CONFIG['canara_deposit']
+  const currentTemplate = calibrationMode 
+    ? (templateConfigs[templateKey] || BANK_TEMPLATES_CONFIG[templateKey])
+    : (BANK_TEMPLATES_CONFIG[templateKey] || BANK_TEMPLATES_CONFIG['canara_deposit'])
 
   // Handle Signature Upload
   const handleSignatureUpload = (e) => {
@@ -790,8 +792,12 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
         top: `${field.y}%`,
         left: field.x ? `${field.x}%` : 'auto',
         right: field.right ? `${field.right}%` : 'auto',
+        width: field.width ? `${field.width}%` : 'auto',
+        height: field.height ? `${field.height}%` : 'auto',
         maxWidth: field.width ? `${field.width}%` : 'none',
+        maxHeight: field.height ? `${field.height}%` : 'none',
         fontSize: field.fontSize || '0.85rem',
+        letterSpacing: field.letterSpacing || 'normal',
         color: field.color || '#1d4ed8',
         fontWeight: field.fontWeight || 900,
         fontFamily: field.fontFamily || "'Courier New', monospace",
@@ -799,9 +805,17 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
         wordBreak: 'break-word',
         whiteSpace: field.width ? 'normal' : 'nowrap',
         overflow: 'hidden',
-        textOverflow: 'ellipsis'
+        textOverflow: 'ellipsis',
+        display: field.height ? 'flex' : 'block',
+        alignItems: field.height ? 'center' : 'initial',
+        ...(calibrationMode ? { border: '1px dashed #dc2626', background: 'rgba(220, 38, 38, 0.12)' } : {})
       }}>
         {value}
+        {calibrationMode && (
+          <span style={{ position: 'absolute', top: -14, left: 0, fontSize: '9px', background: '#dc2626', color: '#fff', padding: '1px 3px', borderRadius: '2px', whiteSpace: 'nowrap' }}>
+            {field.id} (x:{field.x}%, y:{field.y}%)
+          </span>
+        )}
       </div>
     )
   }
