@@ -703,7 +703,7 @@ export default function Intermediate({
               : (isLight ? '0 2px 8px rgba(234, 88, 12, 0.1)' : 'none')
           }}
         >
-          💼 SAVINGS MIXER PLAYGROUND 🌟
+          🧪 SIMULATOR MODULES 🌟
         </button>
         
         <button
@@ -726,7 +726,7 @@ export default function Intermediate({
               : (isLight ? '0 2px 8px rgba(234, 88, 12, 0.1)' : 'none')
           }}
         >
-          🏢 PORTFOLIO SIMULATOR 🌟
+          💼 SAVINGS MIXER 🌟
         </button>
         <button
           onClick={() => setActiveTab('portfolio')}
@@ -754,16 +754,16 @@ export default function Intermediate({
 
 
 
-      {activeTab === 'simulators' && (
+            {activeTab === 'simulators' && (
         <div className="anim-fade" style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
           {/* Header Card */}
-          <div className="glass-card anim-fade" style={{ padding:'26px 30px', border: isLight ? '2.5px solid #000000' : '2.5px solid #ffffff', background: isLight ? '#ffffff' : 'var(--bg-card-deep, #12100c)' }}>
-            <div style={{ display:'flex',alignItems:'center',gap:14,marginBottom:16 }}>
+          <div className="glass-card anim-fade" style={{ padding: '26px 30px', border: isLight ? '2.5px solid #000000' : '2.5px solid #ffffff', background: isLight ? '#ffffff' : 'var(--bg-card-deep, #12100c)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 16 }}>
               <div style={{
-                width:50,height:50,borderRadius:14,
-                background:'linear-gradient(135deg, #d97706, #f59e0b)', color:'#080705',
-                display:'flex',alignItems:'center',justifyContent:'center',
-                fontSize:24,boxShadow:'0 0 20px rgba(245,158,11,0.3)',
+                width: 50, height: 50, borderRadius: 14,
+                background: 'linear-gradient(135deg, #d97706, #f59e0b)', color: '#080705',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 24, boxShadow: '0 0 20px rgba(245,158,11,0.3)',
                 border: isLight ? '2px solid #000000' : '2px solid #ffffff', fontWeight: 900
               }}>🧪</div>
               <div style={{ flex: 1 }}>
@@ -789,18 +789,102 @@ export default function Intermediate({
                     </button>
                   )}
                 </div>
-                <h1 className="font-display" style={{ fontSize:32, color: isLight ? '#0f172a' : '#ffffff', marginBottom:2 }}>
-                  SAVINGS PORTFOLIO MIXER PLAYGROUND
+                <h1 className="font-display" style={{ fontSize: 32, color: isLight ? '#0f172a' : '#ffffff', marginBottom: 2 }}>
+                  INVESTMENT LAB
                 </h1>
-                <p style={{ fontSize:13, color: isLight ? '#475569' : '#d1d5db', fontWeight:600 }}>
-                  Mix safe government savings assets to build your optimal portfolio and calculate compound returns!
+                <p style={{ fontSize: 13, color: isLight ? '#475569' : '#d1d5db', fontWeight: 600, margin: 0 }}>
+                  Explore all investment simulators & build real financial models!
                 </p>
               </div>
             </div>
 
-
+            {/* Modules Progress Bar */}
+            <div style={{ marginTop: 12 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, fontWeight: 900, color: isLight ? '#ea580c' : '#fbbf24', marginBottom: 6 }}>
+                <span>MODULES: {modules.filter(m => modulesDone.includes(m.id)).length}/6 COMPLETED</span>
+                <span>{Math.round((modules.filter(m => modulesDone.includes(m.id)).length / 6) * 100)}%</span>
+              </div>
+              <div style={{ width: '100%', height: 8, background: isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)', borderRadius: 999, overflow: 'hidden' }}>
+                <div style={{
+                  width: `${(modules.filter(m => modulesDone.includes(m.id)).length / 6) * 100}%`,
+                  height: '100%',
+                  background: 'linear-gradient(90deg, #d97706, #f59e0b)',
+                  transition: 'width 0.4s ease'
+                }} />
+              </div>
+            </div>
           </div>
 
+          {/* 6 Simulator Cards Grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
+            {modules.map((mod) => {
+              const done = modulesDone.includes(mod.id)
+              return (
+                <div
+                  key={mod.id}
+                  className="glass-card-deep anim-fade"
+                  style={{
+                    position: 'relative',
+                    padding: '24px',
+                    borderRadius: 20,
+                    background: isLight ? '#ffffff' : 'var(--bg-card-deep, #12100c)',
+                    border: done
+                      ? '2.5px solid #10b981'
+                      : (isLight ? '2.5px solid #000000' : '2.5px solid #ffffff'),
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between'
+                  }}
+                >
+                  <div className="sticker-badge sticker-yellow" style={{
+                    position: 'absolute', top: 14, right: 14, fontSize: 9, padding: '2px 8px',
+                    background: done ? 'rgba(16, 185, 129, 0.15)' : undefined,
+                    color: done ? '#10b981' : undefined,
+                    borderColor: done ? '#10b981' : undefined,
+                  }}>
+                    {done ? '✓ DONE' : '▶ OPEN'}
+                  </div>
+
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12, marginTop: 8 }}>
+                      <div style={{
+                        width: 48, height: 48, borderRadius: 16,
+                        background: `var(--gold-bg, rgba(245, 158, 11, 0.12))`,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: 24, border: `1.5px solid ${mod.color || '#d97706'}`,
+                      }}>
+                        {mod.emoji}
+                      </div>
+                      <div>
+                        <div style={{ fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff', fontSize: 16 }}>{mod.name}</div>
+                        <div style={{ fontSize: 11, color: isLight ? '#ea580c' : '#fbbf24', fontWeight: 800 }}>{mod.rate}</div>
+                      </div>
+                    </div>
+
+                    <p style={{ fontSize: 12, color: isLight ? '#475569' : '#d1d5db', fontWeight: 600, marginBottom: 20, lineHeight: 1.5 }}>
+                      {mod.desc}
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={() => handleModule(mod)}
+                    className={done ? 'btn-outline' : 'btn-primary'}
+                    style={{
+                      width: '100%', padding: 12, fontSize: 13, fontWeight: 900, marginTop: 'auto',
+                      border: isLight ? '2px solid #000000' : '2px solid #ffffff'
+                    }}
+                  >
+                    {done ? '🔄 REVISIT' : '▶ OPEN SIMULATOR'}
+                  </button>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'mixer' && (
+        <div className="anim-fade" style={{ display: 'flex', flexDirection: 'column', gap: 24, marginBottom: 24 }}>
           {/* Savings Portfolio Mixer Playground (Images 3 & 4) */}
           <div className="glass-card-deep" style={{ padding: '32px', borderRadius: 24, background: isLight ? '#ffffff' : 'var(--bg-card-deep, #12100c)', border: isLight ? '2.5px solid #000000' : '2.5px solid #ffffff', color: isLight ? '#0f172a' : '#fef3c7' }}>
             <div style={{ textAlign: 'center', marginBottom: 28 }}>
@@ -1107,456 +1191,6 @@ export default function Intermediate({
           </div>
 
 
-        </div>
-      )}
-
-      {activeTab === 'mixer' && (
-        <div className="anim-scale" style={{ display: 'flex', flexDirection: 'column', gap: 24, marginBottom: 24 }}>
-          {/* Header Banner */}
-          <div style={{
-            background: isLight ? '#ffffff' : '#090d16',
-            borderRadius: 20,
-            padding: '24px 28px',
-            border: isLight ? '2.5px solid #000000' : '2.5px solid #ffffff',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
-          }}>
-            <div className="sticker-badge sticker-yellow" style={{ marginBottom: 10, display: 'inline-block' }}>
-              LEVEL 3 • WEALTH ENGINE
-            </div>
-            <h2 className="font-display" style={{ fontSize: 32, color: isLight ? '#0f172a' : '#ffffff', margin: '0 0 6px 0', letterSpacing: 0.5 }}>
-              MULTI-ASSET PORTFOLIO SIMULATOR
-            </h2>
-            <p style={{ color: isLight ? '#475569' : '#94a3b8', fontSize: 13, fontWeight: 600, margin: 0 }}>
-              Select 2 or more investment instruments, simulate combined wealth outcomes, and analyze reinvestment gap periods.
-            </p>
-          </div>
-
-          {/* Available Options Bar */}
-          <div style={{
-            background: isLight ? '#ffffff' : '#090d16',
-            borderRadius: 20,
-            padding: '20px 24px',
-            border: isLight ? '2.5px solid #000000' : '2.5px solid #ffffff'
-          }}>
-            <div style={{ fontSize: 11, fontWeight: 900, color: '#38bdf8', marginBottom: 14, letterSpacing: 0.5, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span>+</span>
-              <span>CLICK "+" TO ADD INVESTMENT OPTIONS TO YOUR PORTFOLIO:</span>
-            </div>
-            <div style={{ display: 'flex', gap: 12, overflowX: 'auto', paddingBottom: 6 }}>
-              {PORTFOLIO_CATALOG.map((cat) => (
-                <div key={cat.key} style={{
-                  minWidth: 160,
-                  flex: '0 0 auto',
-                  background: isLight ? '#f8fafc' : '#030712',
-                  border: isLight ? '2px solid #000000' : '2px solid #ffffff',
-                  borderRadius: 14,
-                  padding: '12px 14px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  gap: 8
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <span style={{ fontSize: 22 }}>{cat.icon}</span>
-                    <div>
-                      <div style={{ fontWeight: 900, fontSize: 14, color: isLight ? '#0f172a' : '#ffffff' }}>{cat.name}</div>
-                      <div style={{ fontSize: 10, color: isLight ? '#64748b' : '#94a3b8', fontWeight: 700 }}>{cat.sub}</div>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => handleAddPortfolioItem(cat)}
-                    style={{
-                      width: 30, height: 30, borderRadius: '50%',
-                      background: '#10b981', border: isLight ? '2px solid #000000' : '2px solid #ffffff', color: '#ffffff',
-                      fontSize: 18, fontWeight: 900, cursor: 'pointer',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      boxShadow: '0 0 10px rgba(16,185,129,0.3)', transition: 'transform 0.15s'
-                    }}
-                    title={`Add ${cat.name} to portfolio`}
-                  >
-                    +
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Allocation Strategy Selector */}
-          <div style={{
-            background: isLight ? '#ffffff' : '#090d16',
-            borderRadius: 20,
-            padding: '18px 24px',
-            border: isLight ? '2.5px solid #000000' : '2.5px solid #ffffff',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: 16
-          }}>
-            <div>
-              <div style={{ fontSize: 12, fontWeight: 900, color: '#38bdf8', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
-                <span>⚙️</span>
-                <span>PORTFOLIO ALLOCATION STRATEGY</span>
-              </div>
-              <div style={{ fontSize: 12, color: isLight ? '#475569' : '#94a3b8', fontWeight: 600 }}>
-                Choose how monthly funds are allocated across your selected investments
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', background: isLight ? '#f1f5f9' : '#030712', padding: 4, borderRadius: 14, border: isLight ? '2px solid #000000' : '2px solid #ffffff' }}>
-              <button
-                onClick={() => setAllocStrategy('manual')}
-                style={{
-                  padding: '8px 18px',
-                  borderRadius: 10,
-                  fontSize: 12,
-                  fontWeight: 800,
-                  border: isLight ? '2px solid #000000' : '2px solid #ffffff',
-                  cursor: 'pointer',
-                  background: allocStrategy === 'manual' ? '#f59e0b' : 'transparent',
-                  color: allocStrategy === 'manual' ? '#000000' : (isLight ? '#475569' : '#94a3b8'),
-                  transition: 'all 0.2s'
-                }}
-              >
-                ⚡ Manual Allocation
-              </button>
-              <button
-                onClick={handleSmartAllocationOpt}
-                style={{
-                  padding: '8px 18px',
-                  borderRadius: 10,
-                  fontSize: 12,
-                  fontWeight: 800,
-                  border: isLight ? '2px solid #000000' : '2px solid #ffffff',
-                  cursor: 'pointer',
-                  background: allocStrategy === 'smart' ? '#10b981' : 'transparent',
-                  color: allocStrategy === 'smart' ? '#ffffff' : (isLight ? '#475569' : '#94a3b8'),
-                  transition: 'all 0.2s'
-                }}
-              >
-                ⚡ Smart Allocation
-              </button>
-            </div>
-          </div>
-
-          {/* Selected Portfolio Investments Table */}
-          <div style={{
-            background: isLight ? '#ffffff' : '#090d16',
-            borderRadius: 20,
-            padding: '24px',
-            border: isLight ? '2.5px solid #000000' : '2.5px solid #ffffff'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, marginBottom: 16 }}>
-              <div>
-                <h3 style={{ fontSize: 16, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff', margin: 0, textTransform: 'uppercase' }}>
-                  SELECTED PORTFOLIO INVESTMENTS ({portfolioItems.length})
-                </h3>
-                <div style={{ fontSize: 11, color: isLight ? '#64748b' : '#94a3b8', fontWeight: 600, marginTop: 2 }}>
-                  Configure individual monthly amounts, return expectations, and tenure. You can rename any option.
-                </div>
-
-              </div>
-
-              {portfolioItems.length >= 2 ? (
-                <div style={{ fontSize: 12, fontWeight: 800, color: '#10b981', display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <span>✓</span> Ready for Simulation
-                </div>
-              ) : (
-                <div style={{ fontSize: 12, fontWeight: 800, color: '#f59e0b', display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <span>⚠️</span> Need at least 2 investments
-                </div>
-              )}
-            </div>
-
-            {portfolioItems.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '32px 16px', color: isLight ? '#64748b' : '#94a3b8', fontSize: 13, fontWeight: 700 }}>
-                No investments selected. Click "+" on any investment option above to add it to your portfolio!
-              </div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 20 }}>
-                {portfolioItems.map((item) => (
-                  <div key={item.id} style={{
-                    background: isLight ? '#f8fafc' : '#040914',
-                    border: isLight ? '2px solid #000000' : '2px solid #ffffff',
-                    borderRadius: 14,
-                    padding: '14px 18px',
-                    display: 'grid',
-                    gridTemplateColumns: '1.2fr 1fr 1fr 1fr 40px',
-                    gap: 12,
-                    alignItems: 'center'
-                  }}>
-                    {/* Scheme Name */}
-                    <div>
-                      <label style={{ display: 'block', fontSize: 9, fontWeight: 900, color: isLight ? '#64748b' : '#94a3b8', marginBottom: 4, textTransform: 'uppercase' }}>
-                        SCHEME NAME
-                      </label>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: isLight ? '#ffffff' : '#0b1329', padding: '6px 10px', borderRadius: 8, border: isLight ? '2px solid #000000' : '2px solid #ffffff' }}>
-                        <span style={{ fontSize: 16 }}>{item.icon}</span>
-                        <input
-                          type="text"
-                          value={item.name}
-                          onChange={(e) => handleUpdatePortfolioItem(item.id, 'name', e.target.value)}
-                          style={{
-                            background: 'transparent', border: 'none', color: isLight ? '#0f172a' : '#ffffff',
-                            fontWeight: 800, fontSize: 13, outline: 'none', width: '100%'
-                          }}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Monthly */}
-                    <div>
-                      <label style={{ display: 'block', fontSize: 9, fontWeight: 900, color: isLight ? '#64748b' : '#94a3b8', marginBottom: 4, textTransform: 'uppercase' }}>
-                        MONTHLY (₹)
-                      </label>
-                      <input
-                        type="number"
-                        min="500" step="500"
-                        value={item.monthly}
-                        onChange={(e) => handleUpdatePortfolioItem(item.id, 'monthly', Number(e.target.value))}
-                        style={{
-                          background: isLight ? '#ffffff' : '#0b1329', border: isLight ? '2px solid #000000' : '2px solid #ffffff',
-                          color: isLight ? '#0f172a' : '#ffffff', fontWeight: 800, fontSize: 13, padding: '8px 10px',
-                          borderRadius: 8, outline: 'none', width: '100%'
-                        }}
-                      />
-                    </div>
-
-                    {/* Rate */}
-                    <div>
-                      <label style={{ display: 'block', fontSize: 9, fontWeight: 900, color: isLight ? '#64748b' : '#94a3b8', marginBottom: 4, textTransform: 'uppercase' }}>
-                        RATE (% p.a.)
-                      </label>
-                      <input
-                        type="number"
-                        min="1" max="25" step="0.1"
-                        value={item.rate}
-                        onChange={(e) => handleUpdatePortfolioItem(item.id, 'rate', Number(e.target.value))}
-                        style={{
-                          background: isLight ? '#ffffff' : '#0b1329', border: isLight ? '2px solid #000000' : '2px solid #ffffff',
-                          color: isLight ? '#0f172a' : '#ffffff', fontWeight: 800, fontSize: 13, padding: '8px 10px',
-                          borderRadius: 8, outline: 'none', width: '100%'
-                        }}
-                      />
-                    </div>
-
-                    {/* Tenure */}
-                    <div>
-                      <label style={{ display: 'block', fontSize: 9, fontWeight: 900, color: isLight ? '#64748b' : '#94a3b8', marginBottom: 4, textTransform: 'uppercase' }}>
-                        TENURE (YRS)
-                      </label>
-                      <input
-                        type="number"
-                        min="1" max="30" step="1"
-                        value={item.tenure}
-                        onChange={(e) => handleUpdatePortfolioItem(item.id, 'tenure', Number(e.target.value))}
-                        style={{
-                          background: isLight ? '#ffffff' : '#0b1329', border: isLight ? '2px solid #000000' : '2px solid #ffffff',
-                          color: isLight ? '#0f172a' : '#ffffff', fontWeight: 800, fontSize: 13, padding: '8px 10px',
-                          borderRadius: 8, outline: 'none', width: '100%'
-                        }}
-                      />
-                    </div>
-
-                    {/* Delete button */}
-                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', paddingTop: 16 }}>
-                      <button
-                        onClick={() => handleRemovePortfolioItem(item.id)}
-                        style={{
-                          width: 28, height: 28, borderRadius: '50%',
-                          background: 'rgba(239, 68, 68, 0.15)', border: '1px solid #ef4444',
-                          color: '#ef4444', fontSize: 14, fontWeight: 900, cursor: 'pointer',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center'
-                        }}
-                        title="Remove option"
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Simulation Action Buttons */}
-            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-              <button
-                onClick={handleRunPortfolioSimulation}
-                style={{
-                  background: 'linear-gradient(135deg, #0284c7, #38bdf8)',
-                  color: '#ffffff',
-                  border: isLight ? '2.5px solid #000000' : '2.5px solid #ffffff',
-                  borderRadius: 12,
-                  padding: '12px 24px',
-                  fontSize: 13,
-                  fontWeight: 900,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  boxShadow: '0 4px 14px rgba(2, 132, 199, 0.4)',
-                  letterSpacing: 0.5
-                }}
-              >
-                <span>🚀</span>
-                <span>RUN PORTFOLIO SIMULATION</span>
-              </button>
-
-              <button
-                onClick={handleSmartAllocationOpt}
-                style={{
-                  background: 'transparent',
-                  color: '#10b981',
-                  border: isLight ? '2.5px solid #000000' : '2.5px solid #ffffff',
-                  borderRadius: 12,
-                  padding: '12px 24px',
-                  fontSize: 13,
-                  fontWeight: 900,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  letterSpacing: 0.5
-                }}
-              >
-                <span>⚡</span>
-                <span>TRY SMART ALLOCATION OPTIMIZATION</span>
-              </button>
-            </div>
-          </div>
-
-          {/* COMBINED WEALTH METRICS REPORT & GAP ANALYSIS */}
-          {portfolioItems.length >= 2 && (
-            <>
-              {/* Overall Portfolio Report */}
-              <div style={{
-                background: isLight ? '#ffffff' : '#090d16',
-                borderRadius: 20,
-                padding: '24px',
-                border: isLight ? '2.5px solid #000000' : '2.5px solid #ffffff'
-              }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10, marginBottom: 16 }}>
-                  <div style={{ fontSize: 10, fontWeight: 900, color: '#0284c7', background: 'rgba(2,132,199,0.15)', padding: '4px 10px', borderRadius: 999, border: isLight ? '2px solid #000000' : '2px solid #ffffff' }}>
-                    OVERALL PORTFOLIO REPORT
-                  </div>
-                  <div style={{ fontSize: 12, fontWeight: 800, color: isLight ? '#475569' : '#94a3b8' }}>
-                    Longest Investment Horizon: <strong style={{ color: '#f59e0b' }}>{portLongestTenure} Years</strong>
-                  </div>
-                </div>
-
-                <h3 className="font-display" style={{ fontSize: 24, color: isLight ? '#0f172a' : '#ffffff', margin: '0 0 20px 0' }}>
-                  COMBINED WEALTH METRICS
-                </h3>
-
-                {/* 4 Metric Cards */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 24 }}>
-                  <div style={{ background: isLight ? '#f8fafc' : '#030712', borderRadius: 14, padding: '16px 20px', border: isLight ? '2px solid #000000' : '2px solid #ffffff' }}>
-                    <div style={{ fontSize: 10, fontWeight: 900, color: isLight ? '#64748b' : '#94a3b8', textTransform: 'uppercase' }}>TOTAL INVESTMENT</div>
-                    <div style={{ fontSize: 22, fontWeight: 900, color: '#38bdf8', marginTop: 4 }}>{fmtLakhs(portTotalInvested)}</div>
-                  </div>
-
-                  <div style={{ background: isLight ? '#f8fafc' : '#030712', borderRadius: 14, padding: '16px 20px', border: isLight ? '2px solid #000000' : '2px solid #ffffff' }}>
-                    <div style={{ fontSize: 10, fontWeight: 900, color: isLight ? '#64748b' : '#94a3b8', textTransform: 'uppercase' }}>TOTAL RETURNS</div>
-                    <div style={{ fontSize: 22, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff', marginTop: 4 }}>{fmtLakhs(portTotalReturns)}</div>
-                  </div>
-
-                  <div style={{ background: isLight ? '#f8fafc' : '#030712', borderRadius: 14, padding: '16px 20px', border: isLight ? '2px solid #000000' : '2px solid #ffffff' }}>
-                    <div style={{ fontSize: 10, fontWeight: 900, color: isLight ? '#64748b' : '#94a3b8', textTransform: 'uppercase' }}>TOTAL PROFIT</div>
-                    <div style={{ fontSize: 22, fontWeight: 900, color: '#10b981', marginTop: 4 }}>+{fmtLakhs(portTotalProfit)}</div>
-                  </div>
-
-                  <div style={{ background: isLight ? '#f8fafc' : '#030712', borderRadius: 14, padding: '16px 20px', border: isLight ? '2px solid #000000' : '2px solid #ffffff' }}>
-                    <div style={{ fontSize: 10, fontWeight: 900, color: isLight ? '#64748b' : '#94a3b8', textTransform: 'uppercase' }}>PROFIT PERCENTAGE</div>
-                    <div style={{ fontSize: 22, fontWeight: 900, color: '#10b981', marginTop: 4 }}>+{portProfitPct}%</div>
-                  </div>
-                </div>
-
-                {/* Progress Bar Breakdown */}
-                <div style={{ background: isLight ? '#f8fafc' : '#030712', borderRadius: 14, padding: '16px 20px', border: isLight ? '2px solid #000000' : '2px solid #ffffff' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, fontWeight: 900, marginBottom: 10 }}>
-                    <span style={{ color: isLight ? '#0f172a' : '#ffffff', textTransform: 'uppercase' }}>COMBINED INVESTED VS RETURNS BREAKDOWN</span>
-                    <span style={{ color: isLight ? '#64748b' : '#94a3b8' }}>Portfolio Value: {fmtLakhs(portTotalReturns)} (100%)</span>
-                  </div>
-                  <div style={{ height: 24, borderRadius: 12, overflow: 'hidden', display: 'flex', background: '#1e293b' }}>
-                    <div style={{ width: `${portInvestedBarPct}%`, background: '#0284c7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 900, color: '#ffffff' }}>
-                      {portInvestedBarPct}%
-                    </div>
-                    <div style={{ width: `${portProfitBarPct}%`, background: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 900, color: '#ffffff' }}>
-                      {portProfitBarPct}%
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* GAP PERIODS & REINVESTMENT ANALYSIS */}
-              <div style={{
-                background: isLight ? '#ffffff' : '#090d16',
-                borderRadius: 20,
-                padding: '24px',
-                border: isLight ? '2.5px solid #000000' : '2.5px solid #ffffff'
-              }}>
-                <div style={{ marginBottom: 20 }}>
-                  <h3 style={{ fontSize: 18, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff', margin: '0 0 4px 0', display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span>⏳</span>
-                    <span>GAP PERIODS & REINVESTMENT ANALYSIS</span>
-                  </h3>
-                  <div style={{ fontSize: 12, color: isLight ? '#64748b' : '#94a3b8', fontWeight: 600 }}>
-                    Understand when earlier investments mature and how to put the matured corpus to work during the remaining gap years.
-                  </div>
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                  {portItemDetails.map((item) => {
-                    const gapYears = portLongestTenure - item.tenure
-                    return (
-                      <div key={item.id} style={{
-                        background: isLight ? '#f8fafc' : '#030712',
-                        border: isLight ? '2px solid #000000' : '2px solid #ffffff',
-                        borderRadius: 14,
-                        padding: '16px 20px'
-                      }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
-                          <div style={{ fontWeight: 900, fontSize: 15, color: isLight ? '#0f172a' : '#ffffff', display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <span>{item.icon}</span>
-                            <span>{item.name} matures at Year {item.tenure}</span>
-                          </div>
-
-                          {gapYears > 0 ? (
-                            <div style={{
-                              fontSize: 10, fontWeight: 900, color: '#f59e0b',
-                              border: '1.5px solid #f59e0b', padding: '3px 10px',
-                              borderRadius: 999, background: 'rgba(245, 158, 11, 0.1)', textTransform: 'uppercase'
-                            }}>
-                              {gapYears} YEARS GAP AVAILABLE
-                            </div>
-                          ) : (
-                            <div style={{
-                              fontSize: 10, fontWeight: 900, color: '#10b981',
-                              border: '1.5px solid #10b981', padding: '3px 10px',
-                              borderRadius: 999, background: 'rgba(16, 185, 129, 0.1)', textTransform: 'uppercase'
-                            }}>
-                              LONGEST HORIZON ANCHOR
-                            </div>
-                          )}
-                        </div>
-
-                        <div style={{ fontSize: 13, color: isLight ? '#334155' : '#cbd5e1', lineHeight: 1.6, fontWeight: 600, marginBottom: 8 }}>
-                          At <strong>Year {item.tenure}</strong>, {item.name} will fully mature with an estimated payout corpus of <strong style={{ color: '#10b981' }}>{fmtLakhs(item.returns)}</strong>. {gapYears > 0 ? `Because your overall portfolio horizon runs for ${portLongestTenure} years, you have a ${gapYears}-year gap period before longer-term investments conclude.` : `This serves as your primary long-term anchor horizon.`}
-                        </div>
-
-                        {gapYears > 0 && (
-                          <div style={{ fontSize: 12, color: isLight ? '#d97706' : '#fbbf24', fontWeight: 700, display: 'flex', alignItems: 'flex-start', gap: 6 }}>
-                            <span>💡</span>
-                            <span><strong>Smart Utilization Tip:</strong> You can redeploy this matured {fmtLakhs(item.returns)} into short-term liquid funds, higher-yield corporate FDs, or utilize it for targeted mid-term life goals!</span>
-                          </div>
-                        )}
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
-            </>
-          )}
         </div>
       )}
 
