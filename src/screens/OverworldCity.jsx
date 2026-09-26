@@ -8,7 +8,7 @@ const PLACES = [
   { id: 'advanced', name: 'Portfolio Tower 🏢', hint: 'Level 3 · Financial Headquarters', x: 79, y: 73, screen: 'advanced', locked: () => false, lockHint: '' },
 ]
 
-export default function OverworldCity({ go, state }) {
+export default function OverworldCity({ go, goBack, state }) {
   const [player, setPlayer] = useState({ x: 50, y: 79 })
   const [facing, setFacing] = useState('right')
   const [nearby, setNearby] = useState(null)
@@ -61,7 +61,10 @@ export default function OverworldCity({ go, state }) {
               Walk your character using <strong style={{ color: '#38bdf8' }}>WASD / Arrow Keys</strong>. Approach a location and press <strong style={{ color: '#10b981' }}>Enter</strong>!
             </p>
           </div>
-          <div style={{ display: 'flex', gap: 8 }}>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <button className="btn-outline" onClick={goBack || (() => go('landing'))} style={{ fontSize: 12, padding: '8px 16px' }}>
+              ⬅ Back
+            </button>
             <button className="btn-gigi-outline" onClick={() => go('level-map')} style={{ fontSize: 12, padding: '8px 16px' }}>
               🗺️ 3D MAP VIEW
             </button>

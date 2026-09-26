@@ -1361,12 +1361,18 @@ export default function Intermediate({
           {portfolioStep === 'select' ? (
             <div className="anim-fade">
               {/* Step 1: Scheme Selector */}
-              <div className="glass-card-deep" style={{ padding: 28, marginBottom: 24, background: '#12100c', border: '2px solid rgba(217,119,6,0.3)', borderRadius: 24 }}>
-                <h2 className="font-display" style={{ fontSize: 24, color: '#ffffff', marginBottom: 6 }}>
+              <div className="glass-card-deep" style={{
+                padding: 28, marginBottom: 24,
+                background: isLight ? '#ffffff' : '#12100c',
+                border: isLight ? '2px solid rgba(234,88,12,0.35)' : '2px solid rgba(217,119,6,0.3)',
+                borderRadius: 24,
+                boxShadow: isLight ? '0 10px 30px rgba(194,65,12,0.1)' : 'none'
+              }}>
+                <h2 className="font-display" style={{ fontSize: 24, color: isLight ? '#0f172a' : '#ffffff', marginBottom: 6 }}>
                   STEP 1: CHOOSE ASSET CLASSES
                 </h2>
-                <p style={{ fontSize: 13, color: '#d1d5db', fontWeight: 600, marginBottom: 20 }}>
-                  Select the assets you want to include in your portfolio simulator. We recommend selecting at least <strong>two</strong> different schemes to diversify your risk.
+                <p style={{ fontSize: 13, color: isLight ? '#334155' : '#d1d5db', fontWeight: 600, marginBottom: 20 }}>
+                  Select the assets you want to include in your portfolio simulator. We recommend selecting at least <strong style={{ color: isLight ? '#ea580c' : '#fbbf24' }}>two</strong> different schemes to diversify your risk.
                 </p>
 
 
@@ -1379,38 +1385,42 @@ export default function Intermediate({
                         onClick={() => toggleScheme(k)}
                         style={{
                           padding: '16px 20px', borderRadius: 18, cursor: 'pointer',
-                          background: selected ? 'rgba(245,158,11,0.12)' : 'rgba(255,255,255,0.03)',
-                          border: selected ? `2.5px solid #f59e0b` : '1.5px solid rgba(217,119,6,0.2)',
-                          boxShadow: selected ? `0 0 20px rgba(245,158,11,0.2)` : 'none',
+                          background: selected
+                            ? (isLight ? '#fff7ed' : 'rgba(245,158,11,0.12)')
+                            : (isLight ? '#f8fafc' : 'rgba(255,255,255,0.03)'),
+                          border: selected
+                            ? `2.5px solid ${isLight ? '#ea580c' : '#f59e0b'}`
+                            : (isLight ? '1.5px solid #cbd5e1' : '1.5px solid rgba(217,119,6,0.2)'),
+                          boxShadow: selected ? `0 0 20px ${isLight ? 'rgba(234,88,12,0.2)' : 'rgba(245,158,11,0.2)'}` : 'none',
                           transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
                           display: 'flex', alignItems: 'center', gap: 14,
                         }}
                       >
                         <div style={{
                           width: 26, height: 26, borderRadius: '50%',
-                          border: `2px solid ${selected ? '#f59e0b' : '#71717a'}`,
-                          background: selected ? '#f59e0b' : 'transparent',
+                          border: `2px solid ${selected ? (isLight ? '#ea580c' : '#f59e0b') : (isLight ? '#94a3b8' : '#71717a')}`,
+                          background: selected ? (isLight ? '#ea580c' : '#f59e0b') : 'transparent',
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          color: '#080705', fontWeight: 900, fontSize: 13,
+                          color: selected ? '#ffffff' : (isLight ? '#0f172a' : '#ffffff'), fontWeight: 900, fontSize: 13,
                         }}>
                           {selected ? '✓' : ''}
                         </div>
 
                         <div style={{
                           width: 46, height: 46, borderRadius: 14,
-                          background: `rgba(255,255,255,0.05)`,
+                          background: isLight ? '#ffffff' : 'rgba(255,255,255,0.05)',
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
                           fontSize: 22, border: `2px solid ${COLORS[k]}`,
                         }}>{EMOJIS[k]}</div>
 
                         <div style={{ flex: 1 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <span style={{ fontWeight: 900, color: '#ffffff', fontSize: 15 }}>{k}</span>
+                            <span style={{ fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff', fontSize: 15 }}>{k}</span>
                             <span className="sticker-badge sticker-yellow" style={{ fontSize: 10, padding: '2px 6px' }}>
                               {advRates[k]}% P.A.
                             </span>
                           </div>
-                          <div style={{ fontSize: 12, color: '#d1d5db', fontWeight: 600, marginTop: 4 }}>
+                          <div style={{ fontSize: 12, color: isLight ? '#334155' : '#d1d5db', fontWeight: 600, marginTop: 4 }}>
                             {DESCRIPTIONS[k]}
                           </div>
                           <div style={{ fontSize: 10, color: COLORS[k], fontWeight: 800, marginTop: 4 }}>
@@ -1444,26 +1454,31 @@ export default function Intermediate({
               </button>
 
               {/* Global settings */}
-              <div className="glass-card-sm anim-fade delay-1" style={{ padding: '22px', marginBottom: 20, background: '#12100c', border: '1.5px solid rgba(217,119,6,0.3)', borderRadius: 20 }}>
-                <h3 style={{ fontWeight: 900, color: '#ffffff', fontSize: 14, marginBottom: 16 }}>⚙️ PORTFOLIO SETTINGS</h3>
+              <div className="glass-card-sm anim-fade delay-1" style={{
+                padding: '22px', marginBottom: 20,
+                background: isLight ? '#ffffff' : '#12100c',
+                border: isLight ? '1.5px solid rgba(234,88,12,0.35)' : '1.5px solid rgba(217,119,6,0.3)',
+                borderRadius: 20
+              }}>
+                <h3 style={{ fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff', fontSize: 14, marginBottom: 16 }}>⚙️ PORTFOLIO SETTINGS</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 20 }}>
                   <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                      <span style={{ fontSize: 12, fontWeight: 800, color: '#d1d5db' }}>MONTHLY BUDGET</span>
-                      <span style={{ fontWeight: 900, color: '#fbbf24', fontSize: 13 }}>₹{monthlyTotal.toLocaleString('en-IN')}</span>
+                      <span style={{ fontSize: 12, fontWeight: 800, color: isLight ? '#334155' : '#d1d5db' }}>MONTHLY BUDGET</span>
+                      <span style={{ fontWeight: 900, color: isLight ? '#ea580c' : '#fbbf24', fontSize: 13 }}>₹{monthlyTotal.toLocaleString('en-IN')}</span>
                     </div>
                     <input type="range" min={1000} max={100000} step={1000} value={monthlyTotal}
                       onChange={e => setMonthlyTotal(Number(e.target.value))}
-                      style={{ width: '100%', accentColor: '#f59e0b' }} />
+                      style={{ width: '100%', accentColor: isLight ? '#ea580c' : '#f59e0b' }} />
                   </div>
                   <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                      <span style={{ fontSize: 12, fontWeight: 800, color: '#d1d5db' }}>DURATION</span>
-                      <span style={{ fontWeight: 900, color: '#fbbf24', fontSize: 13 }}>{portfolioYears} YEARS</span>
+                      <span style={{ fontSize: 12, fontWeight: 800, color: isLight ? '#334155' : '#d1d5db' }}>DURATION</span>
+                      <span style={{ fontWeight: 900, color: isLight ? '#ea580c' : '#fbbf24', fontSize: 13 }}>{portfolioYears} YEARS</span>
                     </div>
                     <input type="range" min={1} max={30} step={1} value={portfolioYears}
                       onChange={e => setPortfolioYears(Number(e.target.value))}
-                      style={{ width: '100%', accentColor: '#f59e0b' }} />
+                      style={{ width: '100%', accentColor: isLight ? '#ea580c' : '#f59e0b' }} />
                   </div>
                 </div>
 
@@ -1489,23 +1504,27 @@ export default function Intermediate({
                   )
                 })()}
               {/* Allocation Sliders */}
-
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 24 }}>
                 {selectedSchemes.map((k, i) => (
-                  <div key={k} className={`glass-card-sm anim-fade delay-${i+2}`} style={{ padding: '20px 22px', background: '#12100c', border: '1.5px solid rgba(217,119,6,0.25)', borderRadius: 18 }}>
+                  <div key={k} className={`glass-card-sm anim-fade delay-${i+2}`} style={{
+                    padding: '20px 22px',
+                    background: isLight ? '#ffffff' : '#12100c',
+                    border: isLight ? '1.5px solid rgba(234,88,12,0.3)' : '1.5px solid rgba(217,119,6,0.25)',
+                    borderRadius: 18
+                  }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
                       <div style={{
                         width: 42, height: 42, borderRadius: 14,
-                        background: `rgba(255,255,255,0.05)`,
+                        background: isLight ? '#f8fafc' : 'rgba(255,255,255,0.05)',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         fontSize: 20, border: `2px solid ${COLORS[k]}`,
                       }}>{EMOJIS[k]}</div>
                       <div style={{ flex: 1 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                          <span style={{ fontWeight: 900, color: '#ffffff', fontSize: 14 }}>{k}</span>
+                          <span style={{ fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff', fontSize: 14 }}>{k}</span>
                           <span style={{ fontWeight: 900, color: COLORS[k], fontSize: 14 }}>{portfolioAlloc[k] || 0}%</span>
                         </div>
-                        <div style={{ fontSize: 11, color: '#d1d5db', fontWeight: 600 }}>
+                        <div style={{ fontSize: 11, color: isLight ? '#334155' : '#d1d5db', fontWeight: 600 }}>
                           ₹{Math.round(((portfolioAlloc[k] || 0)/100)*monthlyTotal).toLocaleString('en-IN')}/mo · {advRates[k]}% p.a.
                         </div>
                       </div>
@@ -1514,7 +1533,7 @@ export default function Intermediate({
                       onChange={e => setSchemeAlloc(k, Number(e.target.value))}
                       style={{ width: '100%', accentColor: COLORS[k], height: 6 }} />
 
-                    <div style={{ marginTop: 10, fontSize: 12, color: '#d1d5db', fontWeight: 700 }}>
+                    <div style={{ marginTop: 10, fontSize: 12, color: isLight ? '#334155' : '#d1d5db', fontWeight: 700 }}>
                       Projected after {portfolioYears}yr: <strong style={{ color: COLORS[k] }}>
                         {fmt((((portfolioAlloc[k] || 0)/100)*monthlyTotal) > 0 ? ((((portfolioAlloc[k] || 0)/100)*monthlyTotal) * ((Math.pow(1 + (advRates[k]/100/12), portfolioYears*12) - 1) / (advRates[k]/100/12)) * (1 + (advRates[k]/100/12))) : 0)}
                       </strong>
@@ -1538,13 +1557,18 @@ export default function Intermediate({
                 const totalGainVal = Math.max(0, totalFVVal - totalInvestedVal)
 
                 return (
-                  <div className="glass-card-deep anim-fade" style={{ padding: '28px 32px', marginBottom: 24, background: '#12100c', border: '2px solid rgba(217,119,6,0.4)', borderRadius: 24 }}>
-                    <h3 className="font-display" style={{ fontSize: 24, color: '#ffffff', marginBottom: 20 }}>
+                  <div className="glass-card-deep anim-fade" style={{
+                    padding: '28px 32px', marginBottom: 24,
+                    background: isLight ? '#ffffff' : '#12100c',
+                    border: isLight ? '2px solid rgba(234,88,12,0.4)' : '2px solid rgba(217,119,6,0.4)',
+                    borderRadius: 24
+                  }}>
+                    <h3 className="font-display" style={{ fontSize: 24, color: isLight ? '#0f172a' : '#ffffff', marginBottom: 20 }}>
                       📊 PORTFOLIO SUMMARY
                     </h3>
 
                     {/* Allocation Bar */}
-                    <div style={{ display: 'flex', height: 16, borderRadius: 999, overflow: 'hidden', marginBottom: 12, border: '1.5px solid rgba(217,119,6,0.3)' }}>
+                    <div style={{ display: 'flex', height: 16, borderRadius: 999, overflow: 'hidden', marginBottom: 12, border: isLight ? '1.5px solid rgba(234,88,12,0.3)' : '1.5px solid rgba(217,119,6,0.3)' }}>
                       {selectedSchemes.map(k => (
                         (portfolioAlloc[k] || 0) > 0 && (
                           <div key={k} style={{
@@ -1558,23 +1582,23 @@ export default function Intermediate({
                       {selectedSchemes.map(k => (
                         <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
                           <div style={{ width: 10, height: 10, borderRadius: 2, background: COLORS[k] }} />
-                          <span style={{ fontSize: 11, fontWeight: 800, color: '#d1d5db' }}>{k} {portfolioAlloc[k] || 0}%</span>
+                          <span style={{ fontSize: 11, fontWeight: 800, color: isLight ? '#334155' : '#d1d5db' }}>{k} {portfolioAlloc[k] || 0}%</span>
                         </div>
                       ))}
                     </div>
 
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, marginBottom: 24 }}>
                       {[
-                        { label: 'TOTAL INVESTED', value: fmt(totalInvestedVal), color: '#ffffff' },
-                        { label: 'TOTAL VALUE', value: fmt(totalFVVal), color: '#fbbf24' },
+                        { label: 'TOTAL INVESTED', value: fmt(totalInvestedVal), color: isLight ? '#0f172a' : '#ffffff' },
+                        { label: 'TOTAL VALUE', value: fmt(totalFVVal), color: isLight ? '#ea580c' : '#fbbf24' },
                         { label: 'WEALTH GAINED', value: fmt(totalGainVal), color: '#10b981' },
                       ].map(c => (
                         <div key={c.label} style={{
-                          background: '#080705', borderRadius: 14, padding: '14px 10px',
-                          textAlign: 'center', border: `1.5px solid rgba(217,119,6,0.3)`,
+                          background: isLight ? '#f8fafc' : '#080705', borderRadius: 14, padding: '14px 10px',
+                          textAlign: 'center', border: isLight ? '1.5px solid #cbd5e1' : '1.5px solid rgba(217,119,6,0.3)',
                         }}>
                           <div className="font-display" style={{ fontSize: 20, color: c.color, lineHeight: 1 }}>{c.value}</div>
-                          <div style={{ fontSize: 10, color: '#9ca3af', fontWeight: 800, marginTop: 4 }}>{c.label}</div>
+                          <div style={{ fontSize: 10, color: isLight ? '#475569' : '#9ca3af', fontWeight: 800, marginTop: 4 }}>{c.label}</div>
                         </div>
                       ))}
                     </div>
@@ -1582,12 +1606,12 @@ export default function Intermediate({
                     {simDone ? (
                       <div style={{
                         textAlign: 'center', padding: '18px',
-                        background: 'rgba(245,158,11,0.12)',
-                        borderRadius: 16, border: '2px solid #f59e0b',
+                        background: isLight ? '#fff7ed' : 'rgba(245,158,11,0.12)',
+                        borderRadius: 16, border: isLight ? '2px solid #ea580c' : '2px solid #f59e0b',
                         marginBottom: 20
                       }}>
                         <div style={{ fontSize: 32, marginBottom: 6 }}>🎊</div>
-                        <div style={{ fontWeight: 900, color: '#fbbf24', fontSize: 16 }}>+100 XP EARNED! AMAZING WORK!</div>
+                        <div style={{ fontWeight: 900, color: isLight ? '#ea580c' : '#fbbf24', fontSize: 16 }}>+100 XP EARNED! AMAZING WORK!</div>
                       </div>
                     ) : (
                       <button
@@ -1616,49 +1640,54 @@ export default function Intermediate({
             const invPctVal = ((portfolioResults.totalInvested / totalRet) * 100).toFixed(1)
             const profPctVal = ((portfolioResults.totalProfit / totalRet) * 100).toFixed(1)
             return (
-              <div className="glass-card-deep anim-scale" style={{ padding: 28, borderRadius: 24, marginBottom: 24, background: 'rgba(8, 20, 36, 0.95)', border: '2px solid #0284c7', boxShadow: '0 0 30px rgba(2, 132, 199, 0.25)' }}>
+              <div className="glass-card-deep anim-scale" style={{
+                padding: 28, borderRadius: 24, marginBottom: 24,
+                background: isLight ? '#ffffff' : 'rgba(8, 20, 36, 0.95)',
+                border: '2px solid #0284c7',
+                boxShadow: isLight ? '0 10px 30px rgba(2, 132, 199, 0.15)' : '0 0 30px rgba(2, 132, 199, 0.25)'
+              }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 10 }}>
                   <div>
-                    <div className="sticker-badge" style={{ marginBottom: 6, background: 'rgba(2, 132, 199, 0.2)', color: '#38bdf8', border: '1px solid #0284c7', padding: '4px 12px', fontSize: 10, fontWeight: 900, borderRadius: 999 }}>
+                    <div className="sticker-badge" style={{ marginBottom: 6, background: isLight ? '#e0f2fe' : 'rgba(2, 132, 199, 0.2)', color: isLight ? '#0284c7' : '#38bdf8', border: '1px solid #0284c7', padding: '4px 12px', fontSize: 10, fontWeight: 900, borderRadius: 999 }}>
                       OVERALL PORTFOLIO REPORT
                     </div>
-                    <h2 className="font-display" style={{ fontSize: 26, color: '#ffffff', margin: 0 }}>
+                    <h2 className="font-display" style={{ fontSize: 26, color: isLight ? '#0f172a' : '#ffffff', margin: 0 }}>
                       COMBINED WEALTH METRICS
                     </h2>
                   </div>
-                  <div style={{ fontSize: 12, fontWeight: 900, color: '#fbbf24', background: 'rgba(245, 158, 11, 0.15)', padding: '6px 14px', borderRadius: 999, border: '1px solid #f59e0b' }}>
+                  <div style={{ fontSize: 12, fontWeight: 900, color: isLight ? '#ea580c' : '#fbbf24', background: isLight ? '#ffedd5' : 'rgba(245, 158, 11, 0.15)', padding: '6px 14px', borderRadius: 999, border: isLight ? '1px solid #ea580c' : '1px solid #f59e0b' }}>
                     Longest Investment Horizon: {portfolioResults.maxHorizon} Years
                   </div>
                 </div>
 
                 {/* 4 Cards Grid */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 14, marginBottom: 24 }}>
-                  <div style={{ background: 'rgba(2, 132, 199, 0.15)', border: '1.5px solid #0284c7', padding: 18, borderRadius: 16, textAlign: 'center' }}>
-                    <div style={{ fontSize: 11, fontWeight: 800, color: '#38bdf8', textTransform: 'uppercase', marginBottom: 4 }}>TOTAL INVESTMENT</div>
-                    <div style={{ fontSize: 22, fontWeight: 900, color: '#38bdf8' }}>{fmt(portfolioResults.totalInvested)}</div>
+                  <div style={{ background: isLight ? '#e0f2fe' : 'rgba(2, 132, 199, 0.15)', border: '1.5px solid #0284c7', padding: 18, borderRadius: 16, textAlign: 'center' }}>
+                    <div style={{ fontSize: 11, fontWeight: 800, color: isLight ? '#0369a1' : '#38bdf8', textTransform: 'uppercase', marginBottom: 4 }}>TOTAL INVESTMENT</div>
+                    <div style={{ fontSize: 22, fontWeight: 900, color: isLight ? '#0284c7' : '#38bdf8' }}>{fmt(portfolioResults.totalInvested)}</div>
                   </div>
 
-                  <div style={{ background: 'rgba(255, 255, 255, 0.06)', border: '1.5px solid rgba(255, 255, 255, 0.2)', padding: 18, borderRadius: 16, textAlign: 'center' }}>
-                    <div style={{ fontSize: 11, fontWeight: 800, color: '#d1d5db', textTransform: 'uppercase', marginBottom: 4 }}>TOTAL RETURNS</div>
-                    <div style={{ fontSize: 22, fontWeight: 900, color: '#ffffff' }}>{fmt(portfolioResults.totalReturns)}</div>
+                  <div style={{ background: isLight ? '#f8fafc' : 'rgba(255, 255, 255, 0.06)', border: isLight ? '1.5px solid #cbd5e1' : '1.5px solid rgba(255, 255, 255, 0.2)', padding: 18, borderRadius: 16, textAlign: 'center' }}>
+                    <div style={{ fontSize: 11, fontWeight: 800, color: isLight ? '#334155' : '#d1d5db', textTransform: 'uppercase', marginBottom: 4 }}>TOTAL RETURNS</div>
+                    <div style={{ fontSize: 22, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff' }}>{fmt(portfolioResults.totalReturns)}</div>
                   </div>
 
-                  <div style={{ background: 'rgba(16, 185, 129, 0.15)', border: '1.5px solid #10b981', padding: 18, borderRadius: 16, textAlign: 'center' }}>
-                    <div style={{ fontSize: 11, fontWeight: 800, color: '#6ee7b7', textTransform: 'uppercase', marginBottom: 4 }}>TOTAL PROFIT</div>
-                    <div style={{ fontSize: 22, fontWeight: 900, color: '#10b981' }}>+{fmt(portfolioResults.totalProfit)}</div>
+                  <div style={{ background: isLight ? '#d1fae5' : 'rgba(16, 185, 129, 0.15)', border: '1.5px solid #10b981', padding: 18, borderRadius: 16, textAlign: 'center' }}>
+                    <div style={{ fontSize: 11, fontWeight: 800, color: isLight ? '#047857' : '#6ee7b7', textTransform: 'uppercase', marginBottom: 4 }}>TOTAL PROFIT</div>
+                    <div style={{ fontSize: 22, fontWeight: 900, color: isLight ? '#059669' : '#10b981' }}>+{fmt(portfolioResults.totalProfit)}</div>
                   </div>
 
-                  <div style={{ background: 'rgba(16, 185, 129, 0.15)', border: '1.5px solid #10b981', padding: 18, borderRadius: 16, textAlign: 'center' }}>
-                    <div style={{ fontSize: 11, fontWeight: 800, color: '#6ee7b7', textTransform: 'uppercase', marginBottom: 4 }}>PROFIT PERCENTAGE</div>
-                    <div style={{ fontSize: 22, fontWeight: 900, color: '#10b981' }}>+{portfolioResults.profitPct}%</div>
+                  <div style={{ background: isLight ? '#d1fae5' : 'rgba(16, 185, 129, 0.15)', border: '1.5px solid #10b981', padding: 18, borderRadius: 16, textAlign: 'center' }}>
+                    <div style={{ fontSize: 11, fontWeight: 800, color: isLight ? '#047857' : '#6ee7b7', textTransform: 'uppercase', marginBottom: 4 }}>PROFIT PERCENTAGE</div>
+                    <div style={{ fontSize: 22, fontWeight: 900, color: isLight ? '#059669' : '#10b981' }}>+{portfolioResults.profitPct}%</div>
                   </div>
                 </div>
 
                 {/* Combined Invested vs Returns Breakdown Bar */}
-                <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1.5px solid rgba(2, 132, 199, 0.3)', padding: 18, borderRadius: 16, marginBottom: 24 }}>
+                <div style={{ background: isLight ? '#f8fafc' : 'rgba(255, 255, 255, 0.03)', border: isLight ? '1.5px solid rgba(2, 132, 199, 0.3)' : '1.5px solid rgba(2, 132, 199, 0.3)', padding: 18, borderRadius: 16, marginBottom: 24 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, fontWeight: 800, marginBottom: 10 }}>
-                    <span style={{ color: '#ffffff' }}>COMBINED INVESTED VS RETURNS BREAKDOWN</span>
-                    <span style={{ color: '#94a3b8' }}>Portfolio Value: {fmt(portfolioResults.totalReturns)} (100%)</span>
+                    <span style={{ color: isLight ? '#0f172a' : '#ffffff' }}>COMBINED INVESTED VS RETURNS BREAKDOWN</span>
+                    <span style={{ color: isLight ? '#475569' : '#94a3b8' }}>Portfolio Value: {fmt(portfolioResults.totalReturns)} (100%)</span>
                   </div>
                   <div style={{ height: 26, background: '#10b981', borderRadius: 999, overflow: 'hidden', display: 'flex', marginBottom: 12, fontWeight: 900, fontSize: 11, color: '#ffffff' }}>
                     <div style={{ width: `${invPctVal}%`, background: '#0284c7', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -1669,21 +1698,21 @@ export default function Intermediate({
                     </div>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10, fontSize: 11, fontWeight: 800 }}>
-                    <span style={{ color: '#38bdf8' }}>🟦 TOTAL INVESTED: {invPctVal}% ({fmt(portfolioResults.totalInvested)})</span>
-                    <span style={{ color: '#6ee7b7' }}>🟩 TOTAL RETURNS (PROFIT): {profPctVal}% ({fmt(portfolioResults.totalProfit)})</span>
+                    <span style={{ color: isLight ? '#0284c7' : '#38bdf8' }}>🟦 TOTAL INVESTED: {invPctVal}% ({fmt(portfolioResults.totalInvested)})</span>
+                    <span style={{ color: isLight ? '#059669' : '#6ee7b7' }}>🟩 TOTAL RETURNS (PROFIT): {profPctVal}% ({fmt(portfolioResults.totalProfit)})</span>
                   </div>
                 </div>
 
                 {/* Gap Periods & Reinvestment Analysis */}
                 {portfolioResults.gapPeriods && portfolioResults.gapPeriods.length > 0 && (
-                  <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1.5px solid rgba(245, 158, 11, 0.3)', padding: 20, borderRadius: 18, marginBottom: 20 }}>
+                  <div style={{ background: isLight ? '#f8fafc' : 'rgba(255, 255, 255, 0.03)', border: isLight ? '1.5px solid rgba(234, 88, 12, 0.3)' : '1.5px solid rgba(245, 158, 11, 0.3)', padding: 20, borderRadius: 18, marginBottom: 20 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
                       <span style={{ fontSize: 22 }}>⌛</span>
                       <div>
-                        <h4 style={{ fontSize: 16, fontWeight: 900, color: '#ffffff', margin: 0 }}>
+                        <h4 style={{ fontSize: 16, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff', margin: 0 }}>
                           GAP PERIODS & REINVESTMENT ANALYSIS
                         </h4>
-                        <p style={{ fontSize: 11, color: '#9ca3af', margin: '2px 0 0' }}>
+                        <p style={{ fontSize: 11, color: isLight ? '#475569' : '#9ca3af', margin: '2px 0 0' }}>
                           Understand when earlier investments mature and how to put the matured corpus to work during the remaining gap years.
                         </p>
                       </div>
@@ -1691,19 +1720,19 @@ export default function Intermediate({
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                       {portfolioResults.gapPeriods.map((gap, gIdx) => (
-                        <div key={gIdx} style={{ background: 'rgba(18, 16, 12, 0.9)', border: '1.5px solid #f59e0b', padding: 16, borderRadius: 14 }}>
+                        <div key={gIdx} style={{ background: isLight ? '#ffffff' : 'rgba(18, 16, 12, 0.9)', border: isLight ? '1.5px solid #ea580c' : '1.5px solid #f59e0b', padding: 16, borderRadius: 14 }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, flexWrap: 'wrap', gap: 8 }}>
-                            <span style={{ fontWeight: 900, color: '#ffffff', fontSize: 14 }}>
+                            <span style={{ fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff', fontSize: 14 }}>
                               {gap.emoji || '🔒'} {gap.name} matures at Year {gap.maturesAt}
                             </span>
-                            <span style={{ fontSize: 10, fontWeight: 900, color: '#fbbf24', background: 'rgba(245, 158, 11, 0.2)', padding: '4px 10px', borderRadius: 999, border: '1px solid #f59e0b' }}>
+                            <span style={{ fontSize: 10, fontWeight: 900, color: isLight ? '#c2410c' : '#fbbf24', background: isLight ? '#ffedd5' : 'rgba(245, 158, 11, 0.2)', padding: '4px 10px', borderRadius: 999, border: isLight ? '1px solid #ea580c' : '1px solid #f59e0b' }}>
                               {gap.gapYears} YEARS GAP AVAILABLE
                             </span>
                           </div>
-                          <p style={{ fontSize: 12, color: '#d1d5db', lineHeight: 1.5, margin: 0 }}>
+                          <p style={{ fontSize: 12, color: isLight ? '#334155' : '#d1d5db', lineHeight: 1.5, margin: 0 }}>
                             At <strong>Year {gap.maturesAt}</strong>, <strong>{gap.name}</strong> will fully mature with an estimated payout corpus of <strong style={{ color: '#10b981' }}>{fmt(gap.maturedCorpus)}</strong>. Because your overall portfolio horizon runs for <strong>{portfolioResults.maxHorizon} years</strong>, you have a <strong>{gap.gapYears}-year gap period</strong> before longer-term investments conclude.
                           </p>
-                          <div style={{ marginTop: 10, fontSize: 11, color: '#fbbf24', fontWeight: 700, background: 'rgba(245, 158, 11, 0.1)', padding: '10px 14px', borderRadius: 10, border: '1px solid rgba(245, 158, 11, 0.2)' }}>
+                          <div style={{ marginTop: 10, fontSize: 11, color: isLight ? '#9a3412' : '#fbbf24', fontWeight: 700, background: isLight ? '#fff7ed' : 'rgba(245, 158, 11, 0.1)', padding: '10px 14px', borderRadius: 10, border: isLight ? '1px solid rgba(234, 88, 12, 0.3)' : '1.5px solid rgba(245, 158, 11, 0.2)' }}>
                             💡 <strong>Smart Utilization Tip:</strong> {gap.smartTip}
                           </div>
                         </div>
@@ -1731,26 +1760,25 @@ export default function Intermediate({
       {/* Save Portfolio Modal */}
       {showSaveModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(8, 7, 5, 0.85)', backdropFilter: 'blur(8px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-          <div className="glass-card-deep anim-scale" style={{ maxWidth: 460, width: '100%', borderRadius: 20, padding: 24, background: 'var(--bg-card-deep, #12100c)', border: '2px solid #10b981' }}>
+          <div className="glass-card-deep anim-scale" style={{ maxWidth: 460, width: '100%', borderRadius: 20, padding: 24, background: isLight ? '#ffffff' : 'var(--bg-card-deep, #12100c)', border: '2px solid #10b981' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
               <span style={{ fontSize: 24 }}>💾</span>
               <div>
-                <h3 style={{ fontSize: 18, fontWeight: 900, color: '#ffffff', margin: 0 }}>SAVE PORTFOLIO SIMULATION</h3>
-                <p style={{ fontSize: 11, color: '#9ca3af', margin: '2px 0 0' }}>Name this overall portfolio model</p>
+                <h3 style={{ fontSize: 18, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff', margin: 0 }}>SAVE PORTFOLIO SIMULATION</h3>
+                <p style={{ fontSize: 11, color: isLight ? '#475569' : '#9ca3af', margin: '2px 0 0' }}>Name this overall portfolio model</p>
               </div>
             </div>
 
             <div style={{ marginBottom: 16 }}>
-              <label style={{ fontSize: 11, fontWeight: 800, color: '#9ca3af', display: 'block', marginBottom: 6 }}>PORTFOLIO SIMULATION NAME</label>
+              <label style={{ fontSize: 11, fontWeight: 800, color: isLight ? '#334155' : '#9ca3af', display: 'block', marginBottom: 6 }}>PORTFOLIO SIMULATION NAME</label>
               <input
                 type="text"
                 className="input-light"
                 value={portfolioName}
                 onChange={e => setPortfolioName(e.target.value)}
-                style={{ width: '100%', padding: '10px 14px', fontSize: 13, fontWeight: 700 }}
+                style={{ width: '100%', padding: '10px 14px', fontSize: 13, fontWeight: 700, background: isLight ? '#fff7ed' : '#1a1610', color: isLight ? '#0f172a' : '#fef3c7', border: isLight ? '1.5px solid #cbd5e1' : '1.5px solid rgba(217,119,6,0.3)' }}
               />
             </div>
-
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
               <button className="btn-outline" onClick={() => setShowSaveModal(false)} style={{ padding: '8px 18px', fontSize: 12 }}>Cancel</button>
