@@ -125,18 +125,19 @@ export default function Navbar({
               style={{
                 background: currentScreen === 'landing' 
                   ? 'var(--gold-bg, rgba(245, 158, 11, 0.25))' 
-                  : (themeMode === 'light' ? '#ffedd5' : 'rgba(255, 255, 255, 0.06)'),
-                border: `1.5px solid ${currentScreen === 'landing' ? 'var(--gold-primary, #f59e0b)' : (themeMode === 'light' ? 'rgba(234, 88, 12, 0.3)' : 'rgba(255, 255, 255, 0.15)')}`,
-                color: currentScreen === 'landing' ? 'var(--gold-amber, #ea580c)' : (themeMode === 'light' ? '#7c2d12' : '#e2e8f0'),
+                  : (themeMode === 'light' ? '#fff7ed' : 'rgba(255, 255, 255, 0.08)'),
+                border: `1.5px solid ${currentScreen === 'landing' ? '#ea580c' : (themeMode === 'light' ? '#c2410c' : 'rgba(255, 255, 255, 0.2)')}`,
+                color: currentScreen === 'landing' ? '#ea580c' : (themeMode === 'light' ? '#431407' : '#ffffff'),
                 borderRadius: '999px',
                 padding: '6px 14px',
-                fontSize: '11px',
-                fontWeight: 800,
+                fontSize: '12px',
+                fontWeight: 900,
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 gap: 5,
                 transition: 'all 0.2s',
+                boxShadow: themeMode === 'light' ? '0 2px 6px rgba(0,0,0,0.06)' : 'none'
               }}
             >
               <span>✨</span>
@@ -148,18 +149,19 @@ export default function Navbar({
               style={{
                 background: currentScreen === 'dashboard' 
                   ? 'var(--gold-bg, rgba(245, 158, 11, 0.25))' 
-                  : (themeMode === 'light' ? '#ffedd5' : 'rgba(255, 255, 255, 0.06)'),
-                border: `1px solid ${currentScreen === 'dashboard' ? 'var(--gold-primary, #f59e0b)' : (themeMode === 'light' ? 'rgba(234, 88, 12, 0.3)' : 'rgba(255, 255, 255, 0.15)')}`,
-                color: currentScreen === 'dashboard' ? 'var(--gold-amber, #ea580c)' : (themeMode === 'light' ? '#7c2d12' : '#e2e8f0'),
+                  : (themeMode === 'light' ? '#fff7ed' : 'rgba(255, 255, 255, 0.08)'),
+                border: `1.5px solid ${currentScreen === 'dashboard' ? '#ea580c' : (themeMode === 'light' ? '#c2410c' : 'rgba(255, 255, 255, 0.2)')}`,
+                color: currentScreen === 'dashboard' ? '#ea580c' : (themeMode === 'light' ? '#431407' : '#ffffff'),
                 borderRadius: '999px',
-                padding: '4px 14px',
-                fontSize: '11px',
-                fontWeight: 800,
+                padding: '6px 14px',
+                fontSize: '12px',
+                fontWeight: 900,
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 gap: 5,
-                transition: 'all 0.2s'
+                transition: 'all 0.2s',
+                boxShadow: themeMode === 'light' ? '0 2px 6px rgba(0,0,0,0.06)' : 'none'
               }}
             >
               <span>📊</span>
@@ -171,18 +173,19 @@ export default function Navbar({
               style={{
                 background: currentScreen === 'level-map' 
                   ? 'var(--gold-bg, rgba(245, 158, 11, 0.25))' 
-                  : (themeMode === 'light' ? '#ffedd5' : 'rgba(255, 255, 255, 0.06)'),
-                border: `1px solid ${currentScreen === 'level-map' ? 'var(--gold-primary, #f59e0b)' : (themeMode === 'light' ? 'rgba(234, 88, 12, 0.3)' : 'rgba(255, 255, 255, 0.15)')}`,
-                color: currentScreen === 'level-map' ? 'var(--gold-amber, #ea580c)' : (themeMode === 'light' ? '#7c2d12' : '#e2e8f0'),
+                  : (themeMode === 'light' ? '#fff7ed' : 'rgba(255, 255, 255, 0.08)'),
+                border: `1.5px solid ${currentScreen === 'level-map' ? '#ea580c' : (themeMode === 'light' ? '#c2410c' : 'rgba(255, 255, 255, 0.2)')}`,
+                color: currentScreen === 'level-map' ? '#ea580c' : (themeMode === 'light' ? '#431407' : '#ffffff'),
                 borderRadius: '999px',
-                padding: '4px 14px',
-                fontSize: '11px',
-                fontWeight: 800,
+                padding: '6px 14px',
+                fontSize: '12px',
+                fontWeight: 900,
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 gap: 5,
-                transition: 'all 0.2s'
+                transition: 'all 0.2s',
+                boxShadow: themeMode === 'light' ? '0 2px 6px rgba(0,0,0,0.06)' : 'none'
               }}
             >
               <span>🗺️</span>
@@ -195,18 +198,19 @@ export default function Navbar({
                 style={{
                   background: currentScreen === 'saved-simulations' 
                     ? 'var(--gold-bg, rgba(245, 158, 11, 0.25))' 
-                    : (themeMode === 'light' ? '#ffedd5' : 'rgba(255, 255, 255, 0.06)'),
-                  border: `1px solid ${currentScreen === 'saved-simulations' ? 'var(--gold-primary, #f59e0b)' : (themeMode === 'light' ? 'rgba(234, 88, 12, 0.3)' : 'rgba(255, 255, 255, 0.15)')}`,
-                  color: currentScreen === 'saved-simulations' ? 'var(--gold-amber, #ea580c)' : (themeMode === 'light' ? '#7c2d12' : '#e2e8f0'),
+                    : (themeMode === 'light' ? '#fff7ed' : 'rgba(255, 255, 255, 0.08)'),
+                  border: `1.5px solid ${currentScreen === 'saved-simulations' ? '#ea580c' : (themeMode === 'light' ? '#c2410c' : 'rgba(255, 255, 255, 0.2)')}`,
+                  color: currentScreen === 'saved-simulations' ? '#ea580c' : (themeMode === 'light' ? '#431407' : '#ffffff'),
                   borderRadius: '999px',
-                  padding: '4px 14px',
-                  fontSize: '11px',
-                  fontWeight: 800,
+                  padding: '6px 14px',
+                  fontSize: '12px',
+                  fontWeight: 900,
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   gap: 5,
-                  transition: 'all 0.2s'
+                  transition: 'all 0.2s',
+                  boxShadow: themeMode === 'light' ? '0 2px 6px rgba(0,0,0,0.06)' : 'none'
                 }}
               >
                 <span>📁</span>
@@ -234,13 +238,14 @@ export default function Navbar({
               <span>Ask {guideName}</span>
               <span>→</span>
             </button>
+
             {openLeaderboard && (
               <button
                 onClick={openLeaderboard}
                 style={{
-                  background: themeMode === 'light' ? '#fff7ed' : 'rgba(245, 158, 11, 0.15)',
-                  border: `1.5px solid ${themeMode === 'light' ? '#ea580c' : '#f59e0b'}`,
-                  color: themeMode === 'light' ? '#9a3412' : '#fbbf24',
+                  background: themeMode === 'light' ? '#ffedd5' : 'rgba(245, 158, 11, 0.15)',
+                  border: `1.5px solid ${themeMode === 'light' ? '#c2410c' : '#f59e0b'}`,
+                  color: themeMode === 'light' ? '#7c2d12' : '#fbbf24',
                   borderRadius: 999,
                   padding: '6px 14px',
                   fontSize: 12,
@@ -249,7 +254,7 @@ export default function Navbar({
                   display: 'flex',
                   alignItems: 'center',
                   gap: 5,
-                  boxShadow: themeMode === 'light' ? '0 2px 8px rgba(234, 88, 12, 0.12)' : 'none'
+                  boxShadow: themeMode === 'light' ? '0 2px 8px rgba(234, 88, 12, 0.15)' : 'none'
                 }}
                 title="View Campus Leaderboard"
               >
@@ -262,9 +267,9 @@ export default function Navbar({
               <button
                 onClick={openBadges}
                 style={{
-                  background: themeMode === 'light' ? '#ecfdf5' : 'rgba(16, 185, 129, 0.15)',
+                  background: themeMode === 'light' ? '#d1fae5' : 'rgba(16, 185, 129, 0.15)',
                   border: `1.5px solid ${themeMode === 'light' ? '#059669' : '#10b981'}`,
-                  color: themeMode === 'light' ? '#065f46' : '#6ee7b7',
+                  color: themeMode === 'light' ? '#064e3b' : '#6ee7b7',
                   borderRadius: 999,
                   padding: '6px 14px',
                   fontSize: 12,
@@ -273,7 +278,7 @@ export default function Navbar({
                   display: 'flex',
                   alignItems: 'center',
                   gap: 5,
-                  boxShadow: themeMode === 'light' ? '0 2px 8px rgba(16, 185, 129, 0.12)' : 'none'
+                  boxShadow: themeMode === 'light' ? '0 2px 8px rgba(16, 185, 129, 0.15)' : 'none'
                 }}
                 title="View Achievements & Badges"
               >
@@ -286,7 +291,7 @@ export default function Navbar({
               <button
                 onClick={openReport}
                 style={{
-                  background: themeMode === 'light' ? '#f0f9ff' : 'rgba(56, 189, 248, 0.15)',
+                  background: themeMode === 'light' ? '#e0f2fe' : 'rgba(56, 189, 248, 0.15)',
                   border: `1.5px solid ${themeMode === 'light' ? '#0284c7' : '#38bdf8'}`,
                   color: themeMode === 'light' ? '#075985' : '#a5f3fc',
                   borderRadius: 999,
@@ -297,7 +302,7 @@ export default function Navbar({
                   display: 'flex',
                   alignItems: 'center',
                   gap: 5,
-                  boxShadow: themeMode === 'light' ? '0 2px 8px rgba(2, 132, 199, 0.12)' : 'none'
+                  boxShadow: themeMode === 'light' ? '0 2px 8px rgba(2, 132, 199, 0.15)' : 'none'
                 }}
                 title="View Performance Report"
               >
@@ -694,7 +699,7 @@ export default function Navbar({
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14, fontSize: 13, lineHeight: 1.5, color: 'var(--text-sub, #d1d5db)' }}>
               <div style={{ background: 'var(--gold-bg, rgba(255,255,255,0.03))', padding: 12, borderRadius: 12, border: '1px solid rgba(217,119,6,0.2)' }}>
                 <strong style={{ color: 'var(--heading-color, #ffffff)' }}>🏫 Level 1: School</strong>
-                <p style={{ marginTop: 4 }}>Watch 4 projector video lessons on PPF, FD, Stocks & Mutual Funds. Earn +30 XP per lesson, then unlock the Quiz Hall!</p>
+                <p style={{ marginTop: 4 }}>Watch 5 projector video lessons on PPF, FD, Stocks & Mutual Funds. Earn +30 XP per lesson, then unlock the Quiz Hall!</p>
               </div>
               <div style={{ background: 'var(--gold-bg, rgba(255,255,255,0.03))', padding: 12, borderRadius: 12, border: '1px solid rgba(217,119,6,0.2)' }}>
                 <strong style={{ color: 'var(--heading-color, #ffffff)' }}>🧪 Level 2: Investment Lab</strong>

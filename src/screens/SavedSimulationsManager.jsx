@@ -148,7 +148,7 @@ export default function SavedSimulationsManager({
       {/* Top Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
         <button className="btn-outline" onClick={goBack || (() => go('level-map'))} style={{ padding: '8px 18px', fontSize: 13 }}>
-          ⬅ Back to Previous Page
+          ⬅ Back
         </button>
         <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', fontWeight: 800 }}>
           📂 SAVED SIMULATIONS HUB
@@ -261,7 +261,7 @@ export default function SavedSimulationsManager({
                 onClick={() => { setSelectedSim(null); setIsEditing(false) }}
                 style={{ padding: '8px 16px', fontSize: 12 }}
               >
-                ← Back to List
+                ⬅ Back
               </button>
 
               {!isEditing && (

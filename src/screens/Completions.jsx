@@ -69,7 +69,7 @@ export function BeginnerComplete({ go, state }) {
             🚀 GO TO INTERMEDIATE LEVEL
           </button>
           <button className="btn-outline" onClick={() => go('level-map')} style={{ width: '100%' }}>
-            🗺️ BACK TO LEVEL MAP
+            ⬅ Back
           </button>
         </div>
       </div>
@@ -204,7 +204,7 @@ export function AdvancedResult({ go, state }) {
 
         <div style={{ display: 'flex', gap: 12 }}>
           <button className="btn-primary" onClick={() => go('level-map')} style={{ flex: 1 }}>
-            🗺️ BACK TO CAMPUS MAP
+            ⬅ Back
           </button>
         </div>
       </div>

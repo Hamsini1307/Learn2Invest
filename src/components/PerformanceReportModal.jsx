@@ -9,8 +9,8 @@ export default function PerformanceReportModal({ user, state, onClose, themeMode
 
   // Requirement FR20: Suggest things that need improvement
   const improvementSuggestions = []
-  if (watchedCount < 4) {
-    improvementSuggestions.push("📹 Complete all 4 video lessons in School (Level 1) to earn +120 XP.")
+  if (watchedCount < 5) {
+    improvementSuggestions.push("📹 Complete all 5 video lessons in School (Level 1) to earn +150 XP.")
   }
   if (quizScore < 60) {
     improvementSuggestions.push("📝 Take or retry the Level 1 Quiz — score 60%+ to unlock Level 2 Lab.")

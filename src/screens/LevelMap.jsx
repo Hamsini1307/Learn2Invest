@@ -20,14 +20,34 @@ export default function LevelMap({ go, goBack, state, aiGuideAvatar = 'female', 
     : state.intermediateUnlocked ? 'intermediate' : 'beginner'
 
   const isIntermediateStart = state.startingLevel === 'intermediate'
+  const isAdvancedStart = state.startingLevel === 'advanced'
+
+  const isInterUnlocked = Boolean(
+    state.intermediateUnlocked ||
+    isIntermediateStart ||
+    isAdvancedStart ||
+    (state.quizScore || 0) >= 60
+  )
+
+  const isAdvUnlocked = Boolean(
+    state.advancedUnlocked ||
+    isAdvancedStart ||
+    (state.completedModules || []).length >= 2
+  )
+
   const begCleared = (isIntermediateStart && (state.quizScore || 0) >= 60) || ((state.lessonsWatched || []).length >= 5 && (state.quizScore || 0) >= 60)
   const begPct = begCleared ? 100 : Math.round((Math.min(5, (state.lessonsWatched || []).length) / 5) * 100)
   const intPct = Math.min(100, Math.round(((state.completedModules?.length || 0) / 6) * 100))
 
-  const isAdvUnlocked = state.advancedUnlocked || (state.completedModules || []).length > 0 || isIntermediateStart
-
   const handleLocationClick = (locId, screen, title) => {
-    if (!isUnlocked(locId)) return
+    if (locId === 'intermediate' && !isInterUnlocked) {
+      alert('🔒 Level 2 is locked! Complete Level 1 video lessons & pass the Quiz with 60%+ to unlock Level 2!')
+      return
+    }
+    if (locId === 'advanced' && !isAdvUnlocked) {
+      alert('🔒 Level 3 is locked! Complete Level 2 Investment Lab tasks to unlock Level 3!')
+      return
+    }
     if (activeTarget) return
 
     setActiveTarget(locId)
@@ -93,8 +113,7 @@ export default function LevelMap({ go, goBack, state, aiGuideAvatar = 'female', 
             transition: 'all 0.2s'
           }}
         >
-          <span>⬅</span>
-          <span>Back to Main Page</span>
+          <span>⬅ Back</span>
         </button>
       </div>
       {/* Marquee Ticker */}
@@ -384,12 +403,12 @@ export default function LevelMap({ go, goBack, state, aiGuideAvatar = 'female', 
       {/* Building Cards Grid */}
       <div className="level-cards-grid">
         {[
-          { id: 'beginner', type: 'school', label: 'LEARN2INVEST SCHOOL', desc: 'Watch 4 projector video lessons on financial schemes', screen: 'beginner', btnText: 'Enter School →', reqText: 'Unlocked' },
-          { id: 'intermediate', type: 'lab', label: 'INVESTMENT LAB', desc: 'Simulations & deeper asset allocation strategies', screen: 'intermediate', btnText: 'Continue →', reqText: '🔒 Score 60%+ in Quiz Hall to unlock' },
-          { id: 'advanced', type: 'tower', label: 'PORTFOLIO TOWER', desc: 'Portfolio mastery & advanced investment strategies', screen: 'advanced', btnText: 'Continue →', reqText: 'Unlocked' },
+          { id: 'beginner', type: 'school', label: 'LEVEL 1: LEARN2INVEST SCHOOL', desc: 'Watch 5 projector video lessons on financial schemes', screen: 'beginner', btnText: 'Enter School →', reqText: 'Unlocked' },
+          { id: 'intermediate', type: 'lab', label: 'LEVEL 2: INVESTMENT LAB', desc: 'Simulations & deeper asset allocation strategies', screen: 'intermediate', btnText: 'Continue →', reqText: '🔒 Pass Level 1 Quiz (60%+)' },
+          { id: 'advanced', type: 'tower', label: 'LEVEL 3: PORTFOLIO TOWER', desc: 'Portfolio mastery & advanced investment strategies', screen: 'advanced', btnText: 'Continue →', reqText: '🔒 Complete Level 2 Tasks' },
         ].map((bld) => {
-          const unlocked = true
-          const pct = bld.id === 'beginner' ? begPct : bld.id === 'intermediate' ? intPct : 100
+          const unlocked = bld.id === 'beginner' ? true : bld.id === 'intermediate' ? isInterUnlocked : isAdvUnlocked
+          const pct = bld.id === 'beginner' ? begPct : bld.id === 'intermediate' ? intPct : (isAdvUnlocked ? 100 : 0)
 
           return (
             <BuildingCard

@@ -41,14 +41,18 @@ function generateDynamicAiReply(message, userName, screen, guideName) {
   const bot = guideName || 'AI Guide'
   
   const isGreeting = /^(hi|hello|hey|namaste|greetings)\b/i.test(m)
-  const isWhereToInvest = /where\s*(should\s*i|to)?\s*invest|where\s*to\s*put|how\s*to\s*invest|have\s*\d+|invest\s*\d+/i.test(m)
-  
+  const amountMatch = m.match(/\b(?:₹\s*|rs\.?\s*|inr\s*|rupees\s*)?(\d+)\b/i)
+  const isWhereToInvest = /where\s*(should\s*i|to)?\s*invest|where\s*to\s*put|how\s*to\s*invest|have\s*\d+|invest\s*\d+|where\s*can\s*i\s*invest/i.test(m)
+
   if (isGreeting) {
     return `👋 **Namaste ${name}! I'm ${bot}, your AI Investment Tutor & Voice Assistant.**\n\nHow can I help you accelerate your financial journey today? Ask me any question or select a topic to get started!`
   }
 
-  if (isWhereToInvest) {
-    return `🏛️ **${bot}'s Top Recommended Investment Avenues for ${name}:**\n\nHere are the best Government-backed & Market schemes in India to start investing:\n\n1. **Public Provident Fund (PPF)**: 7.1% p.a. guaranteed, tax-free interest backed by Govt of India (Section 80C).\n2. **Post Office Savings Schemes (POMIS / NSC)**: 7.7% p.a. risk-free fixed income schemes with sovereign safety.\n3. **SIP in Index Mutual Funds**: Start from just ₹500/month for long-term equity compounding (12-15% historical returns).\n4. **Sukanya Samriddhi Yojana (SSY)**: 8.2% p.a. highest-yielding scheme for girl child education & savings.\n5. **Sovereign Gold Bonds (SGB) & Bank FDs**: 2.5% extra annual interest + gold price appreciation with zero default risk.\n\n📌 **Smart Tip:** Always maintain 3 to 6 months of emergency savings in a liquid bank account before locking capital into long-term schemes!`
+  if (isWhereToInvest || (amountMatch && amountMatch[1] >= 100)) {
+    const amount = amountMatch ? parseInt(amountMatch[1], 10) : 1000
+    const sipAmount = amount >= 1000 ? 500 : amount
+
+    return `🏛️ **${bot}'s Practical Investment Plan for ${name}:**\n\nWith **₹${amount.toLocaleString('en-IN')}** available to invest, here is how you can deploy your capital in Indian financial markets (NSE & BSE):\n\n1. 📈 **NSE / BSE Nifty 50 Index Fund (SIP ₹${sipAmount}/month):**\n   - Start a direct Mutual Fund SIP for just ₹500/month on platforms like Zerodha Coin, Groww, or Kuvera.\n   - Nifty 50 Index Funds track top 50 blue-chip companies on the NSE stock exchange, delivering ~12–15% long-term historical returns.\n\n2. 🪙 **Stock Exchange ETFs (NIFTYBEES / GOLDBEES):**\n   - Buy single ETF shares directly on NSE/BSE: **NIFTYBEES** (~₹270/share) or **GOLDBEES** (~₹65/share) using your Demat account.\n\n3. 🏦 **Government Schemes (Post Office RD / PPF):**\n   - Deposit ₹500/month into Post Office Recurring Deposit (6.8% interest) or Public Provident Fund (7.1% tax-free under 80C).\n\n4. 💡 **Smart Strategy:**\n   - Start with ₹500/month SIP now, and automatically step up your investment by 10% each year as your income grows!\n\n💬 *What would you like to explore next? Ask me about SIP vs Lump Sum, PPF returns, or Stock Market basics!*`
   }
 
   let topicSummary = ''
@@ -62,7 +66,7 @@ function generateDynamicAiReply(message, userName, screen, guideName) {
   else if (/portfolio|diversif/i.test(m)) topicSummary = 'Strategic portfolio diversification distributes capital across equities, debt, and liquid reserves based on your risk tolerance.'
   else topicSummary = `wealth building, asset allocation, and smart investment principles tailored to your goals.`
 
-  return `🤖 **${bot}'s AI Insights for ${name}:**\n\n💡 **Core AI Takeaway:** ${topicSummary}\n\n📌 **Smart Strategy:**\n1. Establish clear short-term vs long-term investment horizons.\n2. Balance guaranteed fixed-income assets (PPF/NSC) with inflation-beating equity growth (Index Funds).\n3. Rebalance your portfolio periodically as your financial goals evolve.\n\n💬 Feel free to ask follow-up questions or test scenarios in our Investment Lab!`
+  return `🤖 **${bot}'s AI Insights for ${name}:**\n\n💡 **Core AI Takeaway:** ${topicSummary}\n\n📌 **Smart Strategy:**\n1. Establish clear short-term vs long-term investment horizons.\n2. Balance guaranteed fixed-income assets (PPF/NSC) with inflation-beating equity growth (Index Funds on NSE/BSE).\n3. Rebalance your portfolio periodically as your financial goals evolve.\n\n💬 Feel free to ask follow-up questions or test scenarios in our Investment Lab!`
 }
 
 function getSystemInstruction(userName, currentScreen, avatarName) {
@@ -73,8 +77,11 @@ function getSystemInstruction(userName, currentScreen, avatarName) {
     level = 'Advanced'
   }
 
-  return `You are ${avatarName || 'Luna'}, an AI financial education and guidance mentor for Indian users in the Learn2Invest platform.
-The user's name is ${userName || 'Learner'}. They are currently learning at the "${level}" tier of the app. Personalize responses by addressing them by name occasionally. Provide clear, dynamic, actionable financial insights. When asked where to invest, suggest specific Indian government schemes (PPF, NSC, Post Office Schemes, SSY, SGB) and low-cost SIP mutual funds. Do NOT start responses with boilerplate like "Regarding your prompt".`
+  return `You are ${avatarName || 'Luna'}, a friendly, practical AI investment coach for Indian users in the Learn2Invest platform.
+The user's name is ${userName || 'Learner'}. They are currently at the "${level}" level.
+When asked where or how to invest an amount (e.g. ₹1000), respond like an actual helpful human chat coach:
+- Recommend practical steps in India: NSE/BSE Index Funds (Nifty 50), ₹500/month SIP, ETFs (NIFTYBEES, GOLDBEES), Post Office RD, PPF.
+- Keep the tone realistic, encouraging, and clear without financial jargon or disclaimer blocks.`
 }
 
 async function getGeminiReply(message, history, systemInstruction, apiKey) {

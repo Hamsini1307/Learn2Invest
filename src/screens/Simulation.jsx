@@ -207,7 +207,7 @@ export default function Simulation({
       {/* Top Nav Row */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
         <button className="btn-outline" onClick={goBack || (() => go('intermediate'))}>
-          ⬅ BACK TO PREVIOUS PAGE
+          ⬅ Back
         </button>
 
         {/* View Switcher: Simulator vs. Saved Simulations */}
@@ -527,7 +527,7 @@ export default function Simulation({
                 </div>
               </div>
               <button className="btn-outline" onClick={() => go('intermediate')} style={{ padding: '8px 16px', fontSize: 12 }}>
-                ← Back to Intermediate
+                ⬅ Back
               </button>
             </div>
           ) : (

@@ -275,7 +275,7 @@ function VideoCard({ v, watched, onWatch, delay = 1, activeAvatar, guideName }) 
               backgroundSize: '14px 14px', pointerEvents: 'none'
             }} />
 
-            {/* Sleek Top Bar with Category & Duration */}
+            {/* Sleek Top Bar with Category */}
             <div style={{
               position: 'absolute', top: 8, left: 8, right: 8,
               display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 3
@@ -290,18 +290,6 @@ function VideoCard({ v, watched, onWatch, delay = 1, activeAvatar, guideName }) 
                 letterSpacing: '0.6px', textTransform: 'uppercase'
               }}>
                 ● {v.category || `LESSON 0${delay}`}
-              </div>
-
-              <div style={{
-                background: 'rgba(0, 0, 0, 0.75)',
-                backdropFilter: 'blur(8px)',
-                border: '1px solid rgba(255,255,255,0.2)',
-                color: '#ffffff',
-                fontSize: 9, fontWeight: 800,
-                padding: '3px 7px', borderRadius: 6,
-                display: 'flex', alignItems: 'center', gap: 4
-              }}>
-                <span>⏱️</span> {v.duration || '4:30'} MIN
               </div>
             </div>
 
@@ -530,7 +518,8 @@ export default function BeginnerLevel({ go, goBack, state, update, addXP, aiGuid
   const [activeTab, setActiveTab] = useState('classroom') // 'classroom' | 'lessons' | 'takeaways'
 
   const isIntermediateStart = state.startingLevel === 'intermediate'
-  const begCleared = (isIntermediateStart && (state.quizScore || 0) >= 60) || ((state.lessonsWatched || []).length >= 4 && (state.quizScore || 0) >= 60)
+  const begCleared = (isIntermediateStart && (state.quizScore || 0) >= 60) || ((state.lessonsWatched || []).length >= 5 && (state.quizScore || 0) >= 60)
+  const isQuizUnlocked = isIntermediateStart || watched.length >= 5
   const progress = begCleared ? total : Math.min(watched.length, total)
   const progressPct = begCleared ? 100 : Math.min(100, Math.round((progress / total) * 100))
 
@@ -565,8 +554,7 @@ export default function BeginnerLevel({ go, goBack, state, update, addXP, aiGuid
             transition: 'all 0.2s'
           }}
         >
-          <span>⬅</span>
-          <span>Back to Main Page</span>
+          <span>⬅ Back</span>
         </button>
       </div>
 
@@ -727,6 +715,41 @@ export default function BeginnerLevel({ go, goBack, state, update, addXP, aiGuid
           </div>
         </div>
 
+        {/* Quiz Prompt Callout */}
+        <div className="glass-card-deep anim-fade" style={{ padding: 20, borderRadius: 18, marginBottom: 20, border: '2px solid #ea580c', background: 'linear-gradient(135deg, rgba(234, 88, 12, 0.12), rgba(245, 158, 11, 0.15))' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+            <div>
+              <div style={{ fontSize: 16, fontWeight: 900, color: '#f59e0b', marginBottom: 4 }}>
+                📝 LET'S TEST YOUR KNOWLEDGE!
+              </div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-sub, #d1d5db)' }}>
+                {isQuizUnlocked
+                  ? '🎉 All 5 video lessons complete! Take the Level 1 Quiz to unlock Level 2 Investment Lab!' 
+                  : `Watched ${watched.length}/5 video lessons. Watch all 5 videos to unlock the Level 1 Quiz!`}
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                if (!isQuizUnlocked) {
+                  alert("🔒 Please watch all 5 video lessons to unlock the Level 1 Quiz!")
+                  return
+                }
+                go('quiz')
+              }}
+              disabled={!isQuizUnlocked}
+              className={isQuizUnlocked ? "btn-primary" : "btn-outline"}
+              style={{
+                padding: '12px 24px', fontSize: 13, fontWeight: 900,
+                opacity: isQuizUnlocked ? 1 : 0.6,
+                cursor: isQuizUnlocked ? 'pointer' : 'not-allowed',
+                boxShadow: isQuizUnlocked ? '0 0 16px rgba(234,88,12,0.4)' : 'none'
+              }}
+            >
+              {isQuizUnlocked ? '📝 TAKE LEVEL 1 QUIZ →' : `🔒 WATCH ALL 5 VIDEOS (${watched.length}/5)`}
+            </button>
+          </div>
+        </div>
+
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: 14 }}>
           {VIDEO_FILES.map((i, idx) => (
             <VideoCard
@@ -743,7 +766,7 @@ export default function BeginnerLevel({ go, goBack, state, update, addXP, aiGuid
       </div>
 
       <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
-        <button className="btn-outline" onClick={() => go('level-map')}>← BACK TO CAMPUS MAP</button>
+        <button className="btn-outline" onClick={() => go('level-map')}>⬅ Back</button>
       </div>
     </div>
   )

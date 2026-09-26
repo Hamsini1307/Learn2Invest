@@ -15,7 +15,7 @@ export default function VideoPlayer({ go, state, update, addXP }) {
   return (
     <div className="content-area">
       <button className="btn-outline" onClick={() => go('beginner')} style={{ marginBottom: 20 }}>
-        ← Back to Videos
+        ⬅ Back
       </button>
 
       {/* Video card */}

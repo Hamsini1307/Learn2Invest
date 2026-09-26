@@ -10,8 +10,9 @@ export default function LandingJourney({ go, goBack, canGoBack, state, aiGuideAv
   const isLight = themeMode === 'light'
 
   const isIntermediateStart = startingLevel === 'intermediate'
-  const isInterUnlocked = intermediateUnlocked || isIntermediateStart || (completedCount >= 5 && (state?.quizScore || 0) >= 60)
-  const isAdvUnlocked = advancedUnlocked || completedModules.length > 0 || isIntermediateStart
+  const isAdvancedStart = startingLevel === 'advanced'
+  const isInterUnlocked = Boolean(intermediateUnlocked || isIntermediateStart || isAdvancedStart || (completedCount >= 4 && (state?.quizScore || 0) >= 60))
+  const isAdvUnlocked = Boolean(advancedUnlocked || isAdvancedStart || (completedModules || []).length >= 2)
 
   return (
     <div className="content-area" style={{ minHeight: '100%' }}>

@@ -4,7 +4,7 @@ export default function BuildingCard({ type = 'school', title, subtitle, locked 
   const configs = {
     school: {
       levelNum: 'LEVEL 1',
-      defaultTitle: 'LEARN2INVEST SCHOOL',
+      defaultTitle: 'LEVEL 1: LEARN2INVEST SCHOOL',
       defaultSubtitle: 'Videos + Quiz on Indian financial schemes',
       emoji: '🏫',
       icon: '📖',
@@ -16,7 +16,7 @@ export default function BuildingCard({ type = 'school', title, subtitle, locked 
     },
     lab: {
       levelNum: 'LEVEL 2',
-      defaultTitle: 'INVESTMENT LAB',
+      defaultTitle: 'LEVEL 2: INVESTMENT LAB',
       defaultSubtitle: 'Simulations & deeper asset strategies',
       emoji: '🧪',
       icon: '🔬',
@@ -28,7 +28,7 @@ export default function BuildingCard({ type = 'school', title, subtitle, locked 
     },
     tower: {
       levelNum: 'LEVEL 3',
-      defaultTitle: 'PORTFOLIO TOWER',
+      defaultTitle: 'LEVEL 3: PORTFOLIO TOWER',
       defaultSubtitle: 'Portfolio mastery & advanced strategies',
       emoji: '🏢',
       icon: '₹',
@@ -78,19 +78,14 @@ export default function BuildingCard({ type = 'school', title, subtitle, locked 
         e.currentTarget.style.boxShadow = active ? `0 16px 36px rgba(217,119,6,0.35)` : 'var(--card-shadow, 0 12px 32px rgba(0,0,0,0.4))'
       }}
     >
-      {/* Top Level Pill */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-        <span className="sticker-badge sticker-yellow" style={{
-          fontSize: 10, padding: '3px 10px',
-        }}>
-          {cfg.levelNum}
-        </span>
-        {active && (
+      {/* Top Active Location Indicator */}
+      {active && (
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 14 }}>
           <span className="sticker-badge sticker-yellow" style={{ fontSize: 9, padding: '2px 8px', background: '#f59e0b', color: '#080705' }}>
             ACTIVE LOCATION
           </span>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Building Visual Box */}
       <div style={{

@@ -220,13 +220,18 @@ export default function Quiz({ go, goBack, state, update, addXP, themeMode = 'da
 
       {/* Progress Bar Header */}
       <div className="glass-card-sm anim-fade" style={{ padding:'18px 22px', marginBottom:20, background: isLight ? '#ffffff' : 'var(--bg-card-deep, #12100c)', border: isLight ? '1.5px solid rgba(234, 88, 12, 0.35)' : '1.5px solid rgba(217, 119, 6, 0.3)' }}>
-        <div style={{ display:'flex', justifyContent:'space-between', marginBottom:8 }}>
-          <span style={{ fontWeight:900, color: isLight ? '#0f172a' : 'var(--heading-color, #ffffff)', fontSize:14 }}>
-            QUESTION {current + 1} OF {questions.length}
-          </span>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+          <div className="sticker-badge sticker-yellow" style={{ fontSize: 13, fontWeight: 900, padding: '4px 14px' }}>
+            📝 LET'S TEST YOUR KNOWLEDGE!
+          </div>
           <div className="sticker-badge sticker-yellow">
             ⭐ {state.xp} XP
           </div>
+        </div>
+        <div style={{ display:'flex', justifyContent:'space-between', marginBottom:8 }}>
+          <span style={{ fontWeight:900, color: isLight ? '#0f172a' : 'var(--heading-color, #ffffff)', fontSize:14 }}>
+            QUESTION {current + 1}/{questions.length}
+          </span>
         </div>
         <div className="progress-track">
           <div className="progress-fill" style={{
@@ -361,10 +366,15 @@ export default function Quiz({ go, goBack, state, update, addXP, themeMode = 'da
 
       {/* Score Tracker */}
       <div className="glass-card-sm" style={{ padding:'14px 20px', display:'flex', justifyContent:'space-between', alignItems:'center', background: isLight ? '#ffffff' : 'var(--bg-card-deep, #12100c)', border: isLight ? '1.5px solid rgba(234, 88, 12, 0.35)' : '1.5px solid rgba(217, 119, 6, 0.3)' }}>
-        <span style={{ fontSize:13, fontWeight:800, color: isLight ? '#334155' : 'var(--text-sub, #d1d5db)' }}>SCORE SO FAR</span>
-        <span style={{ fontWeight:900, color: isLight ? '#ea580c' : '#fbbf24', fontSize:15 }}>
-          {correct}/{current + (answered ? 1 : 0)} CORRECT
-        </span>
+        <span style={{ fontSize:13, fontWeight:800, color: isLight ? '#334155' : 'var(--text-sub, #d1d5db)' }}>📊 PROGRESS & SCORE SO FAR</span>
+        <div style={{ textAlign: 'right' }}>
+          <div style={{ fontWeight:900, color: isLight ? '#ea580c' : '#fbbf24', fontSize:16 }}>
+            {current + (answered ? 1 : 0)}/10
+          </div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: isLight ? '#475569' : '#9ca3af' }}>
+            Score: {correct}/{current + (answered ? 1 : 0)} Correct
+          </div>
+        </div>
       </div>
     </div>
   )
