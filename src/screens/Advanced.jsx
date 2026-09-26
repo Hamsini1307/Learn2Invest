@@ -2,16 +2,64 @@ import React, { useState, useEffect, useRef } from 'react'
 import { INSTITUTIONS, FORM_CATEGORIES, BANK_TEMPLATES_CONFIG, CANONICAL_FIELD_MAPPING } from '../config/bankTemplates'
 import MessageScamAnalyzer from '../components/MessageScamAnalyzer.jsx'
 
+const RBI_COURT_CASES = [
+  {
+    id: 'case_101',
+    caseNum: 'CASE FILE #101',
+    title: '🚨 The "Digital Arrest" Video Extortion Scam',
+    type: 'Vishing & Impersonation Racket',
+    badge: 'HIGH THREAT',
+    badgeColor: '#e11d48',
+    summary: 'You receive an urgent WhatsApp video call from a person wearing a Police uniform claiming to be a CBI Officer. They display a fake Supreme Court warrant claiming your Aadhaar number is linked to a ₹25 Crore money laundering racket. They order you to stay on video call in "Digital Arrest" and demand an immediate ₹50,000 transfer to a "clearance account".',
+    options: [
+      { text: 'Transfer ₹50,000 immediately to clear your name and prevent arrest.', correct: false },
+      { text: 'Disconnect the video call immediately. Report to National Cyber Helpline 1930 and cybercrime.gov.in. Real Police/CBI never arrest anyone via video call or demand money.', correct: true }
+    ],
+    rbiAdvice: '🏛️ OFFICIAL RBI & POLICE ADVISORY: Law enforcement agencies (Police, CBI, ED, RBI) NEVER conduct "Digital Arrests" via video calls, nor do they demand money transfers to clear charges. If targeted, disconnect immediately and dial 1930 or file a complaint at cybercrime.gov.in.',
+    rewardXp: 50
+  },
+  {
+    id: 'case_102',
+    caseNum: 'CASE FILE #102',
+    title: '📱 The Instant Fake Loan App Extortion Trap',
+    type: 'Illegal Lending & Blackmail App',
+    badge: 'CRITICAL RISK',
+    badgeColor: '#dc2626',
+    summary: 'You download an unregistered instant loan app promising ₹10,000 in 2 minutes without credit check. During installation, the app requests access to your entire Phone Contacts and Photo Gallery. Two days later, after disbursing only ₹3,000, they demand ₹25,000 and threaten to send edited obscene photos to all your family and contacts.',
+    options: [
+      { text: 'Pay ₹25,000 out of fear to prevent public humiliation.', correct: false },
+      { text: 'Do NOT pay. File a complaint on the RBI Sachet Portal (sachet.rbi.org.in) and report the illegal app to National Cyber Crime helpline 1930. Only borrow from RBI-registered NBFCs.', correct: true }
+    ],
+    rbiAdvice: '🏛️ OFFICIAL RBI ADVISORY: Never grant photo gallery or contact permissions to instant loan apps. Check if the lender is registered on the RBI Sachet Portal (sachet.rbi.org.in). If extorted, report immediately to police and 1930.',
+    rewardXp: 50
+  },
+  {
+    id: 'case_103',
+    caseNum: 'CASE FILE #103',
+    title: '💼 The Work-From-Home YouTube Like/Task Scam',
+    type: 'Part-Time Job & Prepaid Task Fraud',
+    badge: 'HIGH THREAT',
+    badgeColor: '#ea580c',
+    summary: 'You receive a WhatsApp message offering ₹50 for liking YouTube videos. After paying you ₹150 for 3 initial likes, they add you to a Telegram group and ask you to deposit ₹5,000 into "VIP Investment Tasks" promising ₹15,000 returns. When you ask to withdraw, they demand ₹20,000 more for "tax clearance".',
+    options: [
+      { text: 'Deposit ₹20,000 more to unlock your earnings.', correct: false },
+      { text: 'Stop all communication and report the UPI IDs and Telegram handle to 1930 and your bank. Legitimate employers never ask you to pay money to receive salary.', correct: true }
+    ],
+    rbiAdvice: '🏛️ OFFICIAL RBI ADVISORY: Part-time job scams lure victims with micro-payouts before demanding high deposit investments. Real employers never request prepaid deposits. Report fraudulent UPI IDs to your bank immediately.',
+    rewardXp: 50
+  }
+]
+
 const CYBER_SCENARIOS = [
   {
     id: 1,
-    title: "📱 The Phishing SMS Trap",
-    scenario: "You receive an SMS from a number claiming to be your bank: 'Dear user, your bank account will be blocked. Click here to verify now: block-sbi.org'",
+    title: "📧 Phishing Email Alert",
+    scenario: "You receive an email claiming to be from your bank asking you to click a link and re-verify your password immediately.",
     opts: [
-      { text: "Click the link immediately to verify and avoid getting blocked.", correct: false },
-      { text: "Ignore the SMS. Banks never send warning links from random phone numbers.", correct: true }
+      { text: "Click the link and enter your password.", correct: false },
+      { text: "Ignore the email and visit the official bank site directly.", correct: true }
     ],
-    explain: "Banks never send SMS containing verification web links. Entering your password on unknown links leaks your credentials."
+    explain: "Banks will never email you direct links to login or reset your password."
   },
   {
     id: 2,
@@ -281,13 +329,19 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
 
   
 
-  // Search Mode for Branch / IFSC
-  const [searchMode, setSearchMode] = useState('city_branch')
+  // Search Mode for Branch / IFSC / PIN Code
+  const [searchMode, setSearchMode] = useState('ifsc')
   const [cityInput, setCityInput] = useState('')
   const [branchInput, setBranchInput] = useState('')
   const [ifscInput, setIfscInput] = useState('')
+  const [pincodeInput, setPincodeInput] = useState('')
   const [searchLoading, setSearchLoading] = useState(false)
   const [searchResult, setSearchResult] = useState(null)
+
+  // RBI Cyber Crime Court State
+  const [activeCaseIdx, setActiveCaseIdx] = useState(0)
+  const [caseVerdict, setCaseVerdict] = useState(null)
+  const [completedCases, setCompletedCases] = useState([])
 
   const [toastMsg, setToastMsg] = useState(null)
   const [highlightForm, setHighlightForm] = useState(false)
@@ -296,10 +350,45 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
     setSearchLoading(true)
     setSearchResult(null)
 
+    if (searchMode === 'pincode') {
+      const pin = pincodeInput.trim()
+      if (!pin || pin.length < 6) {
+        alert('Please enter a valid 6-digit Indian PIN Code (e.g. 560001).')
+        setSearchLoading(false)
+        return
+      }
+      try {
+        const res = await fetch(`https://api.postalpincode.in/pincode/${pin}`)
+        if (res.ok) {
+          const data = await res.json()
+          if (data && data[0] && data[0].Status === 'Success' && data[0].PostOffice?.length > 0) {
+            const poList = data[0].PostOffice
+            const firstPo = poList[0]
+            const matched = {
+              bankName: 'India Post Savings Bank',
+              branchName: `${firstPo.Name} Post Office`,
+              city: firstPo.District,
+              ifsc: 'IPOS0000001',
+              address: `${firstPo.Name} Head Post Office, ${firstPo.District}, ${firstPo.State} - ${pin}`,
+              pincode: pin
+            }
+            setSearchResult(matched)
+          } else {
+            alert('PIN Code not found. Please enter a valid 6-digit Indian PIN Code.')
+          }
+        }
+      } catch (err) {
+        console.error('PIN Code fetch error:', err)
+        alert('Unable to fetch PIN Code data right now.')
+      }
+      setSearchLoading(false)
+      return
+    }
+
     if (searchMode === 'ifsc') {
       const code = ifscInput.trim().toUpperCase()
       if (!code) {
-        alert('Please enter an IFSC code to search.')
+        alert('Please enter an IFSC code to search (e.g. SBIN0000840).')
         setSearchLoading(false)
         return
       }
@@ -479,7 +568,17 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
 
     // 1. DATE BOXES RENDERING (DDMMYYYY individual box placement)
     if (field.renderingMode === 'dateBoxes') {
-      const digits = userData.date ? userData.date.split('-').reverse().join('').split('') : []
+      let digits = []
+      if (userData.date) {
+        const parts = userData.date.split(/[-/]/)
+        if (parts.length === 3) {
+          let day = parts[0], month = parts[1], year = parts[2]
+          if (parts[0].length === 4) { // YYYY-MM-DD format
+            year = parts[0]; month = parts[1]; day = parts[2]
+          }
+          digits = `${day.padStart(2, '0')}${month.padStart(2, '0')}${year}`.split('')
+        }
+      }
       return (
         <div key={field.id} style={{
           position: 'absolute',
@@ -487,14 +586,14 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
           left: field.x ? `${field.x}%` : 'auto',
           right: field.right ? `${field.right}%` : 'auto',
           display: 'flex',
-          gap: `${field.gap || 8}px`,
-          fontSize: field.fontSize || '0.9rem',
+          gap: `${field.gap || 6}px`,
+          fontSize: field.fontSize || '0.85rem',
           color: field.color || '#1d4ed8',
           fontWeight: field.fontWeight || 900,
           fontFamily: "'Courier New', monospace"
         }}>
           {digits.map((d, i) => (
-            <span key={i} style={{ width: '14px', textAlign: 'center' }}>{d}</span>
+            <span key={i} style={{ width: field.boxWidth || '14px', textAlign: 'center', display: 'inline-block' }}>{d}</span>
           ))}
         </div>
       )
@@ -509,14 +608,15 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
           top: `${field.y}%`,
           left: `${field.x}%`,
           display: 'flex',
-          letterSpacing: field.letterSpacing || '4px',
+          gap: `${field.gap || 6}px`,
+          letterSpacing: field.letterSpacing || 'normal',
           fontSize: field.fontSize || '0.9rem',
           color: field.color || '#1d4ed8',
           fontWeight: field.fontWeight || 900,
           fontFamily: "'Courier New', monospace"
         }}>
           {chars.map((ch, i) => (
-            <span key={i} style={{ display: 'inline-block', width: '14px', textAlign: 'center' }}>{ch}</span>
+            <span key={i} style={{ display: 'inline-block', width: field.boxWidth || '14px', textAlign: 'center' }}>{ch}</span>
           ))}
         </div>
       )
@@ -549,7 +649,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
           top: `${field.y}%`,
           left: field.x ? `${field.x}%` : 'auto',
           right: field.right ? `${field.right}%` : 'auto',
-          width: `${field.width || 18}%`,
+          width: `${field.width || 15}%`,
           height: `${field.height || 8}%`,
           display: 'flex',
           alignItems: 'center',
@@ -558,8 +658,8 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
           {userData.signature ? (
             <img src={userData.signature} alt="User Signature" style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }} />
           ) : (
-            <div style={{ fontSize: '0.85rem', color: '#1d4ed8', fontStyle: 'italic', fontWeight: 900 }}>
-              {userData.name} (Sig)
+            <div style={{ fontSize: '1.05rem', color: '#1d4ed8', fontWeight: 800, fontFamily: "'Caveat', 'Brush Script MT', 'Dancing Script', cursive", transform: 'rotate(-2deg)' }}>
+              {userData.name ? userData.name : ''}
             </div>
           )}
         </div>
@@ -607,8 +707,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
             boxShadow: '0 4px 14px rgba(0,0,0,0.3)'
           }}
         >
-          <span>⬅</span>
-          <span>BACK TO MAIN PAGE</span>
+          <span>⬅ Back</span>
         </button>
 
       </div>
@@ -731,24 +830,13 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
         </div>
       </div>
 
-      {/* ─── SECTION 2: FIND YOUR IFSC CODE USING BRANCH NAME AND CITY & VICE VERSA ─── */}
+      {/* ─── SECTION 2: LIVE BANK & POST OFFICE LOCATOR + DEPOSIT SLIP GENERATOR ─── */}
       <div className="glass-card-deep" style={{ padding: 20, borderRadius: 20, marginBottom: 20, background: isLight ? '#ffffff' : '#12100c', border: '1.5px solid #ea580c' }}>
         <div style={{ fontSize: 12, fontWeight: 900, color: '#ea580c', textTransform: 'uppercase', marginBottom: 12 }}>
-          🔍 FIND YOUR IFSC CODE USING BRANCH NAME & CITY (AND VICE VERSA)
+          🏦 LIVE BANK & POST OFFICE LOCATOR (SEARCH BY IFSC, PIN CODE OR BRANCH) 📮
         </div>
 
         <div style={{ display: 'flex', gap: 10, marginBottom: 14, flexWrap: 'wrap' }}>
-          <button
-            onClick={() => setSearchMode('city_branch')}
-            style={{
-              padding: '7px 14px', borderRadius: 999, fontSize: 11, fontWeight: 900, cursor: 'pointer',
-              background: searchMode === 'city_branch' ? '#ea580c' : (isLight ? '#ffedd5' : 'rgba(255,255,255,0.06)'),
-              color: searchMode === 'city_branch' ? '#ffffff' : (isLight ? '#7c2d12' : '#fbbf24'),
-              border: `1.5px solid ${searchMode === 'city_branch' ? '#c2410c' : 'rgba(234, 88, 12, 0.3)'}`
-            }}
-          >
-            🏢 SEARCH BY CITY & BRANCH NAME
-          </button>
           <button
             onClick={() => setSearchMode('ifsc')}
             style={{
@@ -758,11 +846,73 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
               border: `1.5px solid ${searchMode === 'ifsc' ? '#c2410c' : 'rgba(234, 88, 12, 0.3)'}`
             }}
           >
-            ⚡ SEARCH BRANCH BY IFSC CODE
+            ⚡ SEARCH BY IFSC CODE (e.g. SBIN0000840)
+          </button>
+
+          <button
+            onClick={() => setSearchMode('pincode')}
+            style={{
+              padding: '7px 14px', borderRadius: 999, fontSize: 11, fontWeight: 900, cursor: 'pointer',
+              background: searchMode === 'pincode' ? '#ea580c' : (isLight ? '#ffedd5' : 'rgba(255,255,255,0.06)'),
+              color: searchMode === 'pincode' ? '#ffffff' : (isLight ? '#7c2d12' : '#fbbf24'),
+              border: `1.5px solid ${searchMode === 'pincode' ? '#c2410c' : 'rgba(234, 88, 12, 0.3)'}`
+            }}
+          >
+            📍 SEARCH BY PIN CODE (e.g. 560001)
+          </button>
+
+          <button
+            onClick={() => setSearchMode('city_branch')}
+            style={{
+              padding: '7px 14px', borderRadius: 999, fontSize: 11, fontWeight: 900, cursor: 'pointer',
+              background: searchMode === 'city_branch' ? '#ea580c' : (isLight ? '#ffedd5' : 'rgba(255,255,255,0.06)'),
+              color: searchMode === 'city_branch' ? '#ffffff' : (isLight ? '#7c2d12' : '#fbbf24'),
+              border: `1.5px solid ${searchMode === 'city_branch' ? '#c2410c' : 'rgba(234, 88, 12, 0.3)'}`
+            }}
+          >
+            🔍 SEARCH BY CITY & BRANCH NAME
           </button>
         </div>
 
-        {searchMode === 'city_branch' ? (
+        {searchMode === 'pincode' ? (
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+            <input
+              type="text"
+              value={pincodeInput}
+              onChange={e => setPincodeInput(e.target.value)}
+              placeholder="Enter 6-Digit PIN Code (e.g. 560001 or 110001)"
+              className="input-light"
+              style={{ flex: 1, minWidth: 220, padding: '8px 12px', fontSize: 12, fontWeight: 700 }}
+            />
+            <button
+              onClick={handlePerformSearch}
+              disabled={searchLoading}
+              className="btn-primary"
+              style={{ padding: '8px 18px', fontSize: 12, fontWeight: 900 }}
+            >
+              {searchLoading ? 'FETCHING...' : 'FETCH POST OFFICE & BRANCH DETAILS'}
+            </button>
+          </div>
+        ) : searchMode === 'ifsc' ? (
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+            <input
+              type="text"
+              value={ifscInput}
+              onChange={e => setIfscInput(e.target.value)}
+              placeholder="Enter 11-Digit IFSC Code (e.g. CNRB0001001 or SBIN0000840)"
+              className="input-light"
+              style={{ flex: 1, minWidth: 220, padding: '8px 12px', fontSize: 12, fontWeight: 700, textTransform: 'uppercase' }}
+            />
+            <button
+              onClick={handlePerformSearch}
+              disabled={searchLoading}
+              className="btn-primary"
+              style={{ padding: '8px 18px', fontSize: 12, fontWeight: 900 }}
+            >
+              {searchLoading ? 'SEARCHING...' : 'FIND BANK BRANCH DETAILS'}
+            </button>
+          </div>
+        ) : (
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
             <input
               type="text"
@@ -787,25 +937,6 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
               style={{ padding: '8px 18px', fontSize: 12, fontWeight: 900 }}
             >
               {searchLoading ? 'SEARCHING...' : 'FIND IFSC CODE'}
-            </button>
-          </div>
-        ) : (
-          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
-            <input
-              type="text"
-              value={ifscInput}
-              onChange={e => setIfscInput(e.target.value)}
-              placeholder="Enter 11-Digit IFSC Code (e.g. CNRB0001001)"
-              className="input-light"
-              style={{ flex: 1, minWidth: 220, padding: '8px 12px', fontSize: 12, fontWeight: 700, textTransform: 'uppercase' }}
-            />
-            <button
-              onClick={handlePerformSearch}
-              disabled={searchLoading}
-              className="btn-primary"
-              style={{ padding: '8px 18px', fontSize: 12, fontWeight: 900 }}
-            >
-              {searchLoading ? 'SEARCHING...' : 'FIND BRANCH DETAILS'}
             </button>
           </div>
         )}
@@ -1193,11 +1324,108 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
               <p style={{ color: isLight ? '#475569' : '#d1d5db', fontSize: 14, fontWeight: 600, marginBottom: 20 }}>
                 Shield Health: {shieldScore}% • You earned +50 XP and mastered digital bank safety!
               </p>
-              <button className="btn-primary" onClick={() => setCyberGameCompleted(false)}>
-                🔄 REPLAY SAFETY ARENA
-              </button>
             </div>
           )}
+
+          {/* ─── RBI CYBER CRIME COURT: 3 INTERACTIVE CASE FILES ─── */}
+          <div style={{ marginTop: 28, marginBottom: 28, background: isLight ? '#ffffff' : '#12100c', padding: 24, borderRadius: 20, border: '2.5px solid #ea580c' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 10 }}>
+              <div>
+                <div className="sticker-badge sticker-yellow" style={{ fontSize: 10, marginBottom: 4 }}>
+                  🏛️ RBI & POLICE CYBER CRIME BENCH
+                </div>
+                <h3 className="font-display" style={{ fontSize: 24, color: isLight ? '#0f172a' : '#ffffff', margin: 0 }}>
+                  ⚖️ RBI CYBER CRIME COURT (3 REAL CASE FILES)
+                </h3>
+              </div>
+              <div style={{ fontSize: 12, fontWeight: 800, color: '#ea580c', background: isLight ? '#ffedd5' : 'rgba(234, 88, 12, 0.15)', padding: '6px 14px', borderRadius: 999, border: '1px solid #ea580c' }}>
+                ⭐ +50 XP REWARD PER CASE PASSED
+              </div>
+            </div>
+
+            {/* Case Selector Tabs */}
+            <div style={{ display: 'flex', gap: 10, marginBottom: 20, flexWrap: 'wrap' }}>
+              {RBI_COURT_CASES.map((c, idx) => (
+                <button
+                  key={c.id}
+                  onClick={() => { setActiveCaseIdx(idx); setCaseVerdict(null); }}
+                  style={{
+                    padding: '8px 16px', borderRadius: 12, fontSize: 12, fontWeight: 900, cursor: 'pointer',
+                    background: activeCaseIdx === idx ? '#ea580c' : (isLight ? '#f8fafc' : 'rgba(255,255,255,0.06)'),
+                    color: activeCaseIdx === idx ? '#ffffff' : (isLight ? '#7c2d12' : '#fbbf24'),
+                    border: `1.5px solid ${activeCaseIdx === idx ? '#c2410c' : (isLight ? '#cbd5e1' : 'rgba(255,255,255,0.15)')}`
+                  }}
+                >
+                  {c.caseNum} {completedCases.includes(c.id) ? '✅' : ''}
+                </button>
+              ))}
+            </div>
+
+            {/* Active Case File Display */}
+            {(() => {
+              const activeCase = RBI_COURT_CASES[activeCaseIdx]
+              const isPassed = completedCases.includes(activeCase.id)
+
+              return (
+                <div style={{ background: isLight ? '#fff7ed' : 'rgba(245, 158, 11, 0.08)', borderRadius: 18, padding: 22, border: '2px solid #ea580c' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
+                    <div>
+                      <span style={{ fontSize: 11, fontWeight: 900, color: activeCase.badgeColor, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        {activeCase.caseNum} · {activeCase.type}
+                      </span>
+                      <h4 style={{ fontSize: 18, fontWeight: 900, color: isLight ? '#9a3412' : '#ffffff', margin: '4px 0 0 0' }}>
+                        {activeCase.title}
+                      </h4>
+                    </div>
+                    <span style={{ fontSize: 10, fontWeight: 900, padding: '4px 10px', borderRadius: 999, background: activeCase.badgeColor, color: '#ffffff' }}>
+                      {activeCase.badge}
+                    </span>
+                  </div>
+
+                  {/* Evidence Summary */}
+                  <div style={{ background: isLight ? '#ffffff' : '#090d16', padding: 16, borderRadius: 14, border: isLight ? '1.5px solid #cbd5e1' : '1.5px solid rgba(255,255,255,0.1)', marginBottom: 18, fontSize: 13, lineHeight: 1.6, color: isLight ? '#1e293b' : '#e2e8f0', fontWeight: 700 }}>
+                    📁 <strong>EVIDENCE BRIEF:</strong> {activeCase.summary}
+                  </div>
+
+                  {/* Options */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 18 }}>
+                    {activeCase.options.map((opt, oIdx) => (
+                      <button
+                        key={oIdx}
+                        onClick={() => {
+                          setCaseVerdict(oIdx)
+                          if (opt.correct && !completedCases.includes(activeCase.id)) {
+                            setCompletedCases(prev => [...prev, activeCase.id])
+                            if (addXP) addXP(50)
+                          }
+                        }}
+                        style={{
+                          textAlign: 'left', fontSize: 13, padding: '14px 18px', width: '100%', borderRadius: 12, fontWeight: 800, cursor: 'pointer',
+                          background: caseVerdict === oIdx ? (opt.correct ? '#10b981' : '#e11d48') : (isLight ? '#ffffff' : 'rgba(255,255,255,0.06)'),
+                          color: caseVerdict === oIdx ? '#ffffff' : (isLight ? '#0f172a' : '#fbbf24'),
+                          border: `1.5px solid ${caseVerdict === oIdx ? (opt.correct ? '#059669' : '#be123c') : (isLight ? '#cbd5e1' : 'rgba(255,255,255,0.2)')}`
+                        }}
+                      >
+                        {opt.text}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* RBI Advice Box */}
+                  {caseVerdict !== null && (
+                    <div className="anim-fade" style={{ background: isLight ? '#e0f2fe' : 'rgba(2, 132, 199, 0.15)', border: '2px solid #0284c7', borderRadius: 14, padding: 18, color: isLight ? '#075985' : '#bae6fd', fontSize: 13, lineHeight: 1.6, fontWeight: 800 }}>
+                      {activeCase.rbiAdvice}
+                      {activeCase.options[caseVerdict].correct && (
+                        <div style={{ marginTop: 10, fontSize: 12, fontWeight: 900, color: '#10b981' }}>
+                          🎉 VERDICT PASSED! YOU EARNED +50 XP FOR SOLVING THIS CASE!
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )
+            })()}
+          </div>
 
           {/* Phone SMS & Phishing Message Analyzer */}
           <MessageScamAnalyzer themeMode={themeMode} />
