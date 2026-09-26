@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { AI_AVATARS } from '../components/AiAvatarSelector.jsx'
+import { BEGINNER_VIDEO_IDS, isLevel1Completed } from '../data.js'
 
 const VIDEO_FILES = [
   { id: 'video1', title: 'Introduction to Investing', subtitle: 'Why investing matters for your financial future', category: 'FINANCIAL FOUNDATIONS', duration: '3:45', src: '/videos/video1.mp4',
@@ -518,15 +519,21 @@ export default function BeginnerLevel({ go, goBack, state, update, addXP, aiGuid
   const [activeTab, setActiveTab] = useState('classroom') // 'classroom' | 'lessons' | 'takeaways'
 
   const isIntermediateStart = state.startingLevel === 'intermediate'
-  const begCleared = (isIntermediateStart && (state.quizScore || 0) >= 60) || ((state.lessonsWatched || []).length >= 5 && (state.quizScore || 0) >= 60)
-  const isQuizUnlocked = isIntermediateStart || watched.length >= 5
-  const progress = begCleared ? total : Math.min(watched.length, total)
+  const begCleared = isLevel1Completed(state)
+  const watchedCount = BEGINNER_VIDEO_IDS.filter(id => watched.includes(id)).length
+  const isQuizUnlocked = isIntermediateStart || watchedCount >= 5
+  const progress = begCleared ? total : Math.min(watchedCount, total)
   const progressPct = begCleared ? 100 : Math.min(100, Math.round((progress / total) * 100))
 
   const handleWatch = (id) => {
     if (!watched.includes(id)) {
       const newWatched = [...watched, id]
-      update({ lessonsWatched: newWatched })
+      const allFiveWatched = BEGINNER_VIDEO_IDS.every(vid => newWatched.includes(vid))
+      const lvl1NowComplete = allFiveWatched && (state.quizScore || 0) >= 60
+      update({
+        lessonsWatched: newWatched,
+        ...(lvl1NowComplete ? { intermediateUnlocked: true, level1Completed: true } : {}),
+      })
       addXP(30)
     }
   }
@@ -591,8 +598,21 @@ export default function BeginnerLevel({ go, goBack, state, update, addXP, aiGuid
             width: 280,
             boxShadow: '0 12px 32px rgba(0,0,0,0.6)'
           }}>
-            <div style={{ fontSize: 10, fontWeight: 900, color: '#38bdf8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 8 }}>
-              LEVEL 1 PROGRESS
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+              <div style={{ fontSize: 10, fontWeight: 900, color: '#38bdf8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                LEVEL 1 PROGRESS
+              </div>
+              <span style={{
+                fontSize: 10,
+                fontWeight: 900,
+                padding: '2px 8px',
+                borderRadius: 999,
+                background: begCleared ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.2)',
+                border: `1px solid ${begCleared ? '#10b981' : '#f59e0b'}`,
+                color: begCleared ? '#6ee7b7' : '#fbbf24',
+              }}>
+                {begCleared ? '✓ Completed' : 'In Progress'}
+              </span>
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 14 }}>
@@ -614,8 +634,8 @@ export default function BeginnerLevel({ go, goBack, state, update, addXP, aiGuid
                 <div style={{ fontSize: 13, fontWeight: 900, color: 'var(--heading-color, #ffffff)' }}>
                   {progress} of {total} Lessons
                 </div>
-                <div style={{ fontSize: 10, color: 'var(--text-muted, #94a3b8)', fontWeight: 700 }}>
-                  Completed
+                <div style={{ fontSize: 10, color: begCleared ? '#6ee7b7' : 'var(--text-muted, #94a3b8)', fontWeight: 700 }}>
+                  {begCleared ? 'Level 1 Completed' : 'Watched'}
                 </div>
               </div>
             </div>
@@ -716,37 +736,54 @@ export default function BeginnerLevel({ go, goBack, state, update, addXP, aiGuid
         </div>
 
         {/* Quiz Prompt Callout */}
-        <div className="glass-card-deep anim-fade" style={{ padding: 20, borderRadius: 18, marginBottom: 20, border: '2px solid #ea580c', background: 'linear-gradient(135deg, rgba(234, 88, 12, 0.12), rgba(245, 158, 11, 0.15))' }}>
+        <div className="glass-card-deep anim-fade" style={{ padding: 20, borderRadius: 18, marginBottom: 20, border: `2px solid ${begCleared ? '#10b981' : '#ea580c'}`, background: begCleared ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(5, 150, 105, 0.15))' : 'linear-gradient(135deg, rgba(234, 88, 12, 0.12), rgba(245, 158, 11, 0.15))' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
             <div>
-              <div style={{ fontSize: 16, fontWeight: 900, color: '#f59e0b', marginBottom: 4 }}>
-                📝 LET'S TEST YOUR KNOWLEDGE!
+              <div style={{ fontSize: 16, fontWeight: 900, color: begCleared ? '#6ee7b7' : '#f59e0b', marginBottom: 4 }}>
+                {begCleared ? '✅ LEVEL 1 STATUS: COMPLETED' : "📝 LET'S TEST YOUR KNOWLEDGE!"}
               </div>
               <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-sub, #d1d5db)' }}>
-                {isQuizUnlocked
+                {begCleared
+                  ? `🎉 Level 1 is Completed (Quiz Score: ${state.quizScore || 0}%)! Level 2 Investment Lab is unlocked.`
+                  : isQuizUnlocked
                   ? '🎉 All 5 video lessons complete! Take the Level 1 Quiz to unlock Level 2 Investment Lab!' 
-                  : `Watched ${watched.length}/5 video lessons. Watch all 5 videos to unlock the Level 1 Quiz!`}
+                  : `Watched ${watchedCount}/5 video lessons. Watch all 5 videos to unlock the Level 1 Quiz!`}
               </div>
             </div>
-            <button
-              onClick={() => {
-                if (!isQuizUnlocked) {
-                  alert("🔒 Please watch all 5 video lessons to unlock the Level 1 Quiz!")
-                  return
-                }
-                go('quiz')
-              }}
-              disabled={!isQuizUnlocked}
-              className={isQuizUnlocked ? "btn-primary" : "btn-outline"}
-              style={{
-                padding: '12px 24px', fontSize: 13, fontWeight: 900,
-                opacity: isQuizUnlocked ? 1 : 0.6,
-                cursor: isQuizUnlocked ? 'pointer' : 'not-allowed',
-                boxShadow: isQuizUnlocked ? '0 0 16px rgba(234,88,12,0.4)' : 'none'
-              }}
-            >
-              {isQuizUnlocked ? '📝 TAKE LEVEL 1 QUIZ →' : `🔒 WATCH ALL 5 VIDEOS (${watched.length}/5)`}
-            </button>
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+              {begCleared && (
+                <button
+                  onClick={() => go('intermediate')}
+                  className="btn-primary"
+                  style={{
+                    padding: '12px 20px', fontSize: 13, fontWeight: 900,
+                    background: 'linear-gradient(135deg, #10b981, #059669)',
+                    color: '#fff',
+                  }}
+                >
+                  🚀 OPEN LEVEL 2 →
+                </button>
+              )}
+              <button
+                onClick={() => {
+                  if (!isQuizUnlocked) {
+                    alert("🔒 Please watch all 5 video lessons to unlock the Level 1 Quiz!")
+                    return
+                  }
+                  go('quiz')
+                }}
+                disabled={!isQuizUnlocked}
+                className={isQuizUnlocked ? "btn-primary" : "btn-outline"}
+                style={{
+                  padding: '12px 24px', fontSize: 13, fontWeight: 900,
+                  opacity: isQuizUnlocked ? 1 : 0.6,
+                  cursor: isQuizUnlocked ? 'pointer' : 'not-allowed',
+                  boxShadow: isQuizUnlocked ? '0 0 16px rgba(234,88,12,0.4)' : 'none'
+                }}
+              >
+                {begCleared ? '📝 RETAKE LEVEL 1 QUIZ' : isQuizUnlocked ? '📝 TAKE LEVEL 1 QUIZ →' : `🔒 WATCH ALL 5 VIDEOS (${watchedCount}/5)`}
+              </button>
+            </div>
           </div>
         </div>
 
@@ -755,7 +792,7 @@ export default function BeginnerLevel({ go, goBack, state, update, addXP, aiGuid
             <VideoCard
               key={i.id}
               v={i}
-              watched={watched.includes(i.id)}
+              watched={begCleared || watched.includes(i.id)}
               onWatch={handleWatch}
               delay={idx + 1}
               activeAvatar={activeAvatar}

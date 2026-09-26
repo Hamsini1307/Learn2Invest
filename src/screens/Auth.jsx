@@ -60,12 +60,19 @@ export default function Auth({ onLogin }) {
     if (!selectedLevel) { setLevelError(true); return }
 
     try {
-      await apiRequest('/api/register', 'POST', {
+      const data = await apiRequest('/api/register', 'POST', {
         name: name.trim(),
         email,
         password: pass,
         startLevel: selectedLevel
       })
+      if (data.token && data.user) {
+        localStorage.setItem('l2i_isLoggedIn', 'true')
+        localStorage.setItem('l2i_token', data.token)
+        localStorage.setItem('l2i_currentUser', JSON.stringify(data.user))
+        onLogin(data.user)
+        return
+      }
       setTab('login')
       setPass('')
       setConfirm('')

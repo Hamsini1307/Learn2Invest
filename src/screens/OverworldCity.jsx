@@ -1,11 +1,12 @@
 // OverworldCity.jsx — RPG Character Walkthrough City Map with learn2-invest overworld background image
 import { useState, useEffect, useCallback, useMemo } from 'react'
+import { isLevel1Completed, isLevel2Unlocked, isLevel2Completed, isLevel3Unlocked, isLevel3Completed } from '../data.js'
 
 const PLACES = [
-  { id: 'school', name: 'Learn2Invest School 🏫', hint: 'Level 1 · Classrooms & Projector Lessons', x: 23, y: 30, screen: 'beginner', locked: () => false, lockHint: '' },
-  { id: 'quiz', name: 'Quiz Hall 🎯', hint: 'Knowledge Checkpoint', x: 44, y: 58, screen: 'quiz', locked: () => false, lockHint: '' },
-  { id: 'intermediate', name: 'Investment Lab 🧪', hint: 'Level 2 · FD, SIP & Stock Simulators', x: 69, y: 37, screen: 'intermediate', locked: () => false, lockHint: '' },
-  { id: 'advanced', name: 'Portfolio Tower 🏢', hint: 'Level 3 · Financial Headquarters', x: 79, y: 73, screen: 'advanced', locked: () => false, lockHint: '' },
+  { id: 'school', name: 'Learn2Invest School 🏫', hint: 'Level 1 · Classrooms & Projector Lessons', x: 23, y: 30, screen: 'beginner', locked: () => false, completed: (s) => isLevel1Completed(s), lockHint: '' },
+  { id: 'quiz', name: 'Quiz Hall 🎯', hint: 'Knowledge Checkpoint', x: 44, y: 58, screen: 'quiz', locked: () => false, completed: (s) => isLevel1Completed(s), lockHint: '' },
+  { id: 'intermediate', name: 'Investment Lab 🧪', hint: 'Level 2 · FD, SIP & Stock Simulators', x: 69, y: 37, screen: 'intermediate', locked: (s) => !isLevel2Unlocked(s), completed: (s) => isLevel2Completed(s), lockHint: 'Complete Level 1 to Unlock' },
+  { id: 'advanced', name: 'Portfolio Tower 🏢', hint: 'Level 3 · Financial Headquarters', x: 79, y: 73, screen: 'advanced', locked: (s) => !isLevel3Unlocked(s), completed: (s) => isLevel3Completed(s), lockHint: 'Complete Level 2 to Unlock' },
 ]
 
 export default function OverworldCity({ go, goBack, state }) {
@@ -30,7 +31,7 @@ export default function OverworldCity({ go, goBack, state }) {
       if (['ArrowRight', 'd', 'D'].includes(event.key)) move(3.5, 0)
       if (['ArrowUp', 'w', 'W'].includes(event.key)) move(0, -3.5)
       if (event.key === 'ArrowDown' || event.key === 's' || event.key === 'S') move(0, 3.5)
-      if (event.key === 'Enter' && nearby?.screen && !nearby.locked(state)) go(nearby.screen)
+      if (event.key === 'Enter' && nearby?.screen) go(nearby.screen)
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
@@ -88,14 +89,20 @@ export default function OverworldCity({ go, goBack, state }) {
         {/* Building Locations */}
         {PLACES.map((place) => {
           const locked = place.locked(state)
+          const completed = place.completed ? place.completed(state) : false
           const isNear = nearby?.id === place.id
           return (
-            <div key={place.id} style={{
-              position: 'absolute', left: `${place.x}%`, top: `${place.y}%`,
-              transform: 'translate(-50%, -50%)',
-              transition: 'all 0.3s ease',
-              zIndex: 10,
-            }}>
+            <div
+              key={place.id}
+              onClick={() => go(place.screen)}
+              style={{
+                position: 'absolute', left: `${place.x}%`, top: `${place.y}%`,
+                transform: 'translate(-50%, -50%)',
+                transition: 'all 0.3s ease',
+                zIndex: 10,
+                cursor: 'pointer',
+              }}
+            >
               <div style={{
                 position: 'relative', textAlign: 'center',
                 transform: isNear ? 'scale(1.12)' : 'scale(1)',
@@ -110,8 +117,8 @@ export default function OverworldCity({ go, goBack, state }) {
                   <div style={{ fontSize: 13, fontWeight: 900, color: '#ffffff', whiteSpace: 'nowrap' }}>
                     {place.name}
                   </div>
-                  <div style={{ fontSize: 9, fontWeight: 800, color: locked ? '#f43f5e' : '#38bdf8', textTransform: 'uppercase' }}>
-                    {locked ? '🔒 Locked' : place.hint}
+                  <div style={{ fontSize: 9, fontWeight: 800, color: locked ? '#f43f5e' : completed ? '#10b981' : '#38bdf8', textTransform: 'uppercase' }}>
+                    {locked ? `🔒 ${place.lockHint}` : completed ? '✓ Completed' : place.hint}
                   </div>
                 </div>
               </div>
@@ -150,12 +157,18 @@ export default function OverworldCity({ go, goBack, state }) {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
               <div>
                 <div style={{ fontSize: 16, fontWeight: 900, color: '#ffffff' }}>{nearby.name}</div>
-                <div style={{ fontSize: 12, fontWeight: 600, color: '#94a3b8', marginTop: 2 }}>
-                  {nearby.locked(state) ? nearby.lockHint : 'Press Enter or click to step inside!'}
+                <div style={{ fontSize: 12, fontWeight: 600, color: nearby.locked(state) ? '#fda4af' : '#94a3b8', marginTop: 2 }}>
+                  {nearby.locked(state) ? `🔒 ${nearby.lockHint}` : 'Press Enter or click to step inside!'}
                 </div>
               </div>
               {nearby.locked(state) ? (
-                <span className="sticker-badge sticker-pink text-[10px]">🔒 LOCKED</span>
+                <button
+                  onClick={() => go(nearby.screen)}
+                  className="sticker-badge sticker-pink"
+                  style={{ fontSize: 10, cursor: 'pointer', border: 'none' }}
+                >
+                  🔒 LOCKED
+                </button>
               ) : (
                 <button className="btn-gigi-lime" onClick={() => go(nearby.screen)} style={{ fontSize: 13, padding: '10px 20px' }}>
                   ENTER →

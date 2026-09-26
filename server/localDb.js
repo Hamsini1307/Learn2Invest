@@ -84,6 +84,9 @@ export const localUserState = {
       quizScore: 0,
       intermediateUnlocked: false,
       advancedUnlocked: false,
+      level1Completed: false,
+      level2Completed: false,
+      level3Completed: false,
       allocations: {},
       startingLevel: 'beginner',
       ...stateDoc,
@@ -113,6 +116,9 @@ export const localUserState = {
           quizScore: 0,
           intermediateUnlocked: false,
           advancedUnlocked: false,
+          level1Completed: false,
+          level2Completed: false,
+          level3Completed: false,
           allocations: {},
           startingLevel: 'beginner'
         }

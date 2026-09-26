@@ -212,3 +212,57 @@ export const onboardingSlides = [
     illustration: 'trophy',
   },
 ]
+
+export const BEGINNER_VIDEO_IDS = ['video1', 'video2', 'video3', 'video4', 'video5']
+export const ALL_VIDEO_IDS = ['video1', 'video2', 'video3', 'video4', 'video5', 'ppf', 'fd', 'nsc', 'ssy']
+
+export function isLevel1Completed(state) {
+  if (!state) return false
+  if (state.level1Completed) return true
+  const watched = state.lessonsWatched || []
+  const quizPassed = (state.quizScore || 0) >= 60
+  if (state.startingLevel === 'intermediate') {
+    return quizPassed
+  }
+  const allVideosWatched = BEGINNER_VIDEO_IDS.every(id => watched.includes(id))
+  return allVideosWatched && quizPassed
+}
+
+export function isLevel2Unlocked(state) {
+  return isLevel1Completed(state)
+}
+
+export function isLevel2SimulatorsDone(state) {
+  const completed = state?.completedModules || []
+  return modules.every(m => completed.includes(m.id))
+}
+
+export function isLevel2MixerDone(state) {
+  const completed = state?.completedModules || []
+  return completed.includes('mixer')
+}
+
+export function isLevel2PortfolioDone(state) {
+  const completed = state?.completedModules || []
+  return completed.includes('portfolio')
+}
+
+export function isLevel2Completed(state) {
+  if (!state) return false
+  if (!isLevel1Completed(state)) return false
+  if (state.level2Completed) return true
+  return isLevel2SimulatorsDone(state) && isLevel2MixerDone(state) && isLevel2PortfolioDone(state)
+}
+
+export function isLevel3Unlocked(state) {
+  return isLevel2Completed(state)
+}
+
+export function isLevel3Completed(state) {
+  if (!state) return false
+  if (!isLevel2Completed(state)) return false
+  if (state.level3Completed) return true
+  const completed = state.completedModules || []
+  return completed.includes('paper_slip') && completed.includes('cyber_game')
+}
+

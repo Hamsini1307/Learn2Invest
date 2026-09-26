@@ -70,16 +70,23 @@ app.post('/api/register', async (req, res) => {
       startLevel
     })
 
-    const intUnlocked = startLevel === 'intermediate'
-    const defaultWatched = intUnlocked ? ['video1', 'video2', 'video3', 'video4', 'video5', 'ppf', 'fd', 'nsc', 'ssy'] : []
     await dbUserState.create({
       email: formattedEmail,
       startingLevel: startLevel,
-      intermediateUnlocked: intUnlocked,
-      lessonsWatched: defaultWatched
+      intermediateUnlocked: false,
+      advancedUnlocked: false,
+      level1Completed: false,
+      level2Completed: false,
+      level3Completed: false,
+      lessonsWatched: []
     })
 
-    res.status(201).json({ message: 'Registration successful' })
+    const token = jwt.sign({ email: formattedEmail }, JWT_SECRET, { expiresIn: '7d' })
+    res.status(201).json({
+      message: 'Registration successful',
+      token,
+      user: { name: name.trim(), email: formattedEmail, startLevel }
+    })
   } catch (err) {
     console.error('Registration error:', err)
     if (err.message && (err.message.includes('already exists') || err.message.includes('duplicate'))) {
@@ -110,7 +117,7 @@ app.post('/api/login', async (req, res) => {
     }
 
     const token = jwt.sign({ email: user.email }, JWT_SECRET, { expiresIn: '7d' })
-    res.json({ token, user: { name: user.name, email: user.email } })
+    res.json({ token, user: { name: user.name, email: user.email, startLevel: user.startLevel } })
   } catch (err) {
     console.error('Login error:', err)
     res.status(500).json({ error: 'Internal server error during login' })
@@ -127,6 +134,9 @@ app.post('/api/state/save', authenticateToken, async (req, res) => {
     quizScore,
     intermediateUnlocked,
     advancedUnlocked,
+    level1Completed,
+    level2Completed,
+    level3Completed,
     allocations,
     startingLevel,
   } = req.body
@@ -144,6 +154,9 @@ app.post('/api/state/save', authenticateToken, async (req, res) => {
         quizScore: quizScore || 0,
         intermediateUnlocked: !!intermediateUnlocked,
         advancedUnlocked: !!advancedUnlocked,
+        level1Completed: !!level1Completed,
+        level2Completed: !!level2Completed,
+        level3Completed: !!level3Completed,
         allocations: allocations || {},
         startingLevel: startingLevel || 'beginner',
       },
@@ -161,7 +174,7 @@ app.post('/api/state/save', authenticateToken, async (req, res) => {
 app.get('/api/state/load', authenticateToken, async (req, res) => {
   try {
     const formattedEmail = req.user.email.toLowerCase().trim()
-    const user = await dbUser.findOne({ email: formattedEmail }, 'name email')
+    const user = await dbUser.findOne({ email: formattedEmail }, 'name email startLevel')
     if (!user) {
       return res.status(404).json({ error: 'User not found' })
     }
@@ -181,10 +194,13 @@ app.get('/api/state/load', authenticateToken, async (req, res) => {
       completedModules: state.completedModules || [],
       correctCount: state.correctCount,
       quizScore: state.quizScore,
-      intermediateUnlocked: state.intermediateUnlocked,
-      advancedUnlocked: state.advancedUnlocked,
+      intermediateUnlocked: !!state.intermediateUnlocked,
+      advancedUnlocked: !!state.advancedUnlocked,
+      level1Completed: !!state.level1Completed,
+      level2Completed: !!state.level2Completed,
+      level3Completed: !!state.level3Completed,
       allocations: allocationsObj,
-      startingLevel: state.startingLevel,
+      startingLevel: state.startingLevel || user.startLevel || 'beginner',
     }
 
     res.json({ user, state: formattedState })

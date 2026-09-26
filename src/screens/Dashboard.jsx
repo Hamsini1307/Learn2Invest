@@ -1,5 +1,15 @@
 import { useState } from 'react'
-import { modules } from '../data.js'
+import {
+  modules,
+  isLevel1Completed,
+  isLevel2Unlocked,
+  isLevel2Completed,
+  isLevel3Unlocked,
+  isLevel3Completed,
+  isLevel2SimulatorsDone,
+  isLevel2MixerDone,
+  isLevel2PortfolioDone,
+} from '../data.js'
 import BuildingCard from '../components/BuildingCard.jsx'
 import { AI_AVATARS } from '../components/AiAvatarSelector.jsx'
 import { getText } from '../data/translations.js'
@@ -31,13 +41,21 @@ function StatCard({ icon, label, value, color, delay, themeMode }) {
 export default function Dashboard({ go, goBack, state, addXP, aiGuideAvatar = 'female', lang = 'en', themeMode }) {
   const activeAvatar = AI_AVATARS[aiGuideAvatar] || AI_AVATARS.female
   const isLight = themeMode === 'light'
-  const isIntermediateStart = state.startingLevel === 'intermediate'
-  const begCleared = (isIntermediateStart && (state.quizScore || 0) >= 60) || ((state.lessonsWatched || []).length >= 5 && (state.quizScore || 0) >= 60)
-  const begPct = begCleared ? 100 : Math.round((Math.min(5, (state.lessonsWatched || []).length) / 5) * 100)
-  const currentLevel = state.advancedUnlocked ? 'Advanced' : state.intermediateUnlocked ? 'Intermediate' : 'Beginner'
 
-  const intCount = state.completedModules?.length || 0
-  const intPct = Math.min(100, Math.round((intCount / modules.length) * 100))
+  const lvl1Done = isLevel1Completed(state)
+  const lvl2Unlocked = isLevel2Unlocked(state)
+  const lvl2Done = isLevel2Completed(state)
+  const lvl3Unlocked = isLevel3Unlocked(state)
+  const lvl3Done = isLevel3Completed(state)
+
+  const begCleared = lvl1Done
+  const begPct = begCleared ? 100 : Math.round((Math.min(5, (state.lessonsWatched || []).length) / 5) * 100)
+  const currentLevel = lvl3Unlocked ? 'Advanced' : lvl2Unlocked ? 'Intermediate' : 'Beginner'
+
+  const lvl2SectionsCount = [isLevel2SimulatorsDone(state), isLevel2MixerDone(state), isLevel2PortfolioDone(state)].filter(Boolean).length
+  const intPct = lvl2Done ? 100 : Math.round((lvl2SectionsCount / 3) * 100)
+  const advTasksCount = ['paper_slip', 'cyber_game'].filter(id => (state.completedModules || []).includes(id)).length
+  const advPct = lvl3Done ? 100 : Math.round((advTasksCount / 2) * 100)
 
   const levels = [
     {
@@ -45,21 +63,27 @@ export default function Dashboard({ go, goBack, state, addXP, aiGuideAvatar = 'f
       desc: getText('schoolDesc', lang),
       pct: begPct,
       locked: false,
-      buttonText: `${getText('enterSchool', lang)} →`,
+      completed: lvl1Done,
+      statusText: lvl1Done ? 'Completed ✓' : (begPct > 0 ? 'In Progress' : 'Ready to Start'),
+      buttonText: lvl1Done ? 'Review Level 1 →' : `${getText('enterSchool', lang)} →`,
     },
     {
       id: 'intermediate', type: 'lab', title: `🧪 ${getText('lab', lang)}`, screen: 'intermediate',
       desc: getText('labDesc', lang),
       pct: intPct,
-      locked: false,
-      buttonText: `${getText('enterLab', lang)} →`,
+      locked: !lvl2Unlocked,
+      completed: lvl2Done,
+      statusText: lvl2Done ? 'Completed ✓' : (lvl2Unlocked ? 'Unlocked' : 'Complete Level 1 to Unlock'),
+      buttonText: lvl2Done ? 'Review Level 2 →' : (lvl2Unlocked ? `${getText('enterLab', lang)} →` : 'Complete Level 1 to Unlock'),
     },
     {
       id: 'advanced', type: 'tower', title: `🏦 ${getText('tower', lang)}`, screen: 'advanced',
       desc: getText('towerDesc', lang),
-      pct: 100,
-      locked: false,
-      buttonText: `${getText('enterTower', lang)} →`,
+      pct: advPct,
+      locked: !lvl3Unlocked,
+      completed: lvl3Done,
+      statusText: lvl3Done ? 'Completed ✓' : (lvl3Unlocked ? 'Unlocked' : 'Complete Level 2 to Unlock'),
+      buttonText: lvl3Done ? 'Review Level 3 →' : (lvl3Unlocked ? `${getText('enterTower', lang)} →` : 'Complete Level 2 to Unlock'),
     },
   ]
 
@@ -161,7 +185,7 @@ export default function Dashboard({ go, goBack, state, addXP, aiGuideAvatar = 'f
       {/* Stats Row */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 14, marginBottom: 24 }}>
         <StatCard icon="⭐" label={getText('xpPoints', lang)} value={state.xp} color="#f59e0b" delay={1} themeMode={themeMode} />
-        <StatCard icon="📺" label={getText('videoLessons', lang)} value={`${Math.min(4, state.lessonsWatched.length)}/4`} color="#fbbf24" delay={2} themeMode={themeMode} />
+        <StatCard icon="📺" label={getText('videoLessons', lang)} value={`${lvl1Done ? 5 : Math.min(5, (state.lessonsWatched || []).length)}/5`} color="#fbbf24" delay={2} themeMode={themeMode} />
         <StatCard icon="🎯" label={getText('status', lang)} value={currentLevel.toUpperCase()} color="#10b981" delay={3} themeMode={themeMode} />
       </div>
 
@@ -172,13 +196,13 @@ export default function Dashboard({ go, goBack, state, addXP, aiGuideAvatar = 'f
             🚀 {getText('campusProgress', lang)}
           </span>
           <span style={{ fontWeight: 900, color: 'var(--gold-amber, #fbbf24)', fontSize: 13 }}>
-            {state.advancedUnlocked ? 100 : state.intermediateUnlocked ? (40 + Math.round(intPct * 0.4)) : Math.round(begPct * 0.4)}%
+            {lvl3Done ? 100 : lvl3Unlocked ? (75 + Math.round(advPct * 0.25)) : lvl2Unlocked ? (35 + Math.round(intPct * 0.4)) : Math.round(begPct * 0.35)}%
           </span>
         </div>
         <div className="progress-track">
           <div
             className="progress-fill"
-            style={{ width: `${state.advancedUnlocked ? 100 : state.intermediateUnlocked ? (40 + Math.round(intPct * 0.4)) : Math.round(begPct * 0.4)}%` }}
+            style={{ width: `${lvl3Done ? 100 : lvl3Unlocked ? (75 + Math.round(advPct * 0.25)) : lvl2Unlocked ? (35 + Math.round(intPct * 0.4)) : Math.round(begPct * 0.35)}%` }}
           />
         </div>
       </div>
@@ -196,14 +220,12 @@ export default function Dashboard({ go, goBack, state, addXP, aiGuideAvatar = 'f
               title={bld.title}
               subtitle={bld.desc}
               locked={bld.locked}
+              completed={bld.completed}
+              statusText={bld.statusText}
               active={currentLevel.toLowerCase() === bld.id}
               pct={bld.pct}
-              buttonText={bld.locked ? (bld.id === 'intermediate' ? `🔒 ${getText('reqLvl1', lang)}` : `🔒 ${getText('reqLvl2', lang)}`) : bld.buttonText}
-              onClick={() => (
-                bld.id === 'intermediate' && state.startingLevel === 'intermediate' && state.quizScore < 60
-                  ? go('quiz')
-                  : go(bld.screen)
-              )}
+              buttonText={bld.buttonText}
+              onClick={() => go(bld.screen)}
             />
           ))}
         </div>

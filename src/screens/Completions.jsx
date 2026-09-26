@@ -31,14 +31,14 @@ export function BeginnerComplete({ go, state }) {
         <div style={{ fontSize: 64, marginBottom: 16, animation: 'popIn 0.6s cubic-bezier(0.34,1.56,0.64,1)' }}>🎊</div>
 
         <div className="sticker-badge sticker-yellow" style={{ marginBottom: 10 }}>
-          BEGINNER PASSED!
+          LEVEL 1 STATUS: COMPLETED ✓
         </div>
 
         <h1 className="font-display" style={{ fontSize: 36, color: 'var(--heading-color, #ffffff)', marginBottom: 10 }}>
           BEGINNER COMPLETE!
         </h1>
         <p style={{ fontSize: 15, color: 'var(--text-sub, #d1d5db)', fontWeight: 600, marginBottom: 20 }}>
-          You passed with <strong style={{ color: '#fbbf24' }}>{state.quizScore}%</strong>! Amazing work 🌟
+          You passed with <strong style={{ color: '#fbbf24' }}>{state.quizScore}%</strong>! All Level 1 videos are marked as watched 🌟
         </p>
 
         <div style={{ display: 'flex', justifyContent: 'center', gap: 14, marginBottom: 28, flexWrap: 'wrap' }}>
@@ -85,14 +85,14 @@ export function IntermediateComplete({ go, state }) {
         <div style={{ fontSize: 64, marginBottom: 16, animation: 'popIn 0.6s cubic-bezier(0.34,1.56,0.64,1)' }}>🏅</div>
 
         <div className="sticker-badge sticker-yellow" style={{ marginBottom: 10 }}>
-          INTERMEDIATE PASSED!
+          LEVEL 2 STATUS: COMPLETED ✓
         </div>
 
         <h1 className="font-display" style={{ fontSize: 36, color: 'var(--heading-color, #ffffff)', marginBottom: 10 }}>
           INTERMEDIATE COMPLETE!
         </h1>
         <p style={{ fontSize: 15, color: 'var(--text-sub, #d1d5db)', fontWeight: 600, marginBottom: 24 }}>
-          You're mastering Indian investments! Ready for the top tier? 🚀
+          You've completed all 3 sections of Level 2! Ready for the top tier? 🚀
         </p>
 
         <div style={{
@@ -107,8 +107,8 @@ export function IntermediateComplete({ go, state }) {
           </div>
         </div>
 
-        <button className="btn-primary" onClick={() => go('unlock-adv')} style={{ width: '100%', fontSize: 15, marginBottom: 12 }}>
-          🏢 UNLOCK PORTFOLIO TOWER
+        <button className="btn-primary" onClick={() => go('advanced')} style={{ width: '100%', fontSize: 15, marginBottom: 12 }}>
+          🏢 ENTER LEVEL 3: PORTFOLIO TOWER
         </button>
         <button className="btn-outline" onClick={() => go('level-map')} style={{ width: '100%' }}>
           🗺️ LEVEL MAP
@@ -120,7 +120,7 @@ export function IntermediateComplete({ go, state }) {
 
 export function UnlockAdvanced({ go, state, update }) {
   const handleUnlock = () => {
-    update({ advancedUnlocked: true })
+    update({ advancedUnlocked: true, level2Completed: true })
     go('advanced')
   }
 
@@ -181,7 +181,7 @@ export function AdvancedResult({ go, state }) {
         <div style={{ fontSize: 72, marginBottom: 16, animation: 'floatY 3s ease-in-out infinite' }}>🌟</div>
 
         <div className="sticker-badge sticker-yellow" style={{ marginBottom: 10 }}>
-          FINANCIAL MASTERY
+          LEVEL 3 STATUS: COMPLETED ✓
         </div>
 
         <h1 className="font-display" style={{ fontSize: 38, color: '#fbbf24', marginBottom: 12 }}>

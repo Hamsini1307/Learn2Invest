@@ -1,6 +1,6 @@
 // BuildingCard.jsx — Stylized Campus Building Card Component (School, Lab, Tower) Gold Obsidian Theme
 
-export default function BuildingCard({ type = 'school', title, subtitle, locked = false, active = false, pct = 0, onClick, buttonText }) {
+export default function BuildingCard({ type = 'school', title, subtitle, locked = false, completed = false, statusText, active = false, pct = 0, onClick, buttonText }) {
   const configs = {
     school: {
       levelNum: 'LEVEL 1',
@@ -60,7 +60,7 @@ export default function BuildingCard({ type = 'school', title, subtitle, locked 
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
         borderRadius: '24px',
-        border: active ? `2px solid #f59e0b` : `1px solid rgba(217, 119, 6, 0.3)`,
+        border: completed ? '2px solid #10b981' : active ? `2px solid #f59e0b` : `1px solid rgba(217, 119, 6, 0.3)`,
         boxShadow: active ? `0 16px 36px rgba(217,119,6,0.35)` : 'var(--card-shadow, 0 12px 32px rgba(0,0,0,0.4))',
         display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
         fontFamily: "'Space Grotesk', 'Outfit', sans-serif",
@@ -68,40 +68,66 @@ export default function BuildingCard({ type = 'school', title, subtitle, locked 
       onMouseOver={e => {
         if (!locked) {
           e.currentTarget.style.transform = 'translateY(-4px)'
-          e.currentTarget.style.borderColor = '#f59e0b'
+          e.currentTarget.style.borderColor = completed ? '#10b981' : '#f59e0b'
           e.currentTarget.style.boxShadow = `0 20px 40px rgba(217,119,6,0.35)`
         }
       }}
       onMouseOut={e => {
         e.currentTarget.style.transform = 'none'
-        e.currentTarget.style.borderColor = active ? '#f59e0b' : 'rgba(217, 119, 6, 0.3)'
+        e.currentTarget.style.borderColor = completed ? '#10b981' : active ? '#f59e0b' : 'rgba(217, 119, 6, 0.3)'
         e.currentTarget.style.boxShadow = active ? `0 16px 36px rgba(217,119,6,0.35)` : 'var(--card-shadow, 0 12px 32px rgba(0,0,0,0.4))'
       }}
     >
-      {/* Top Active Location Indicator */}
-      {active && (
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 14 }}>
-          <span className="sticker-badge sticker-yellow" style={{ fontSize: 9, padding: '2px 8px', background: '#f59e0b', color: '#080705' }}>
-            ACTIVE LOCATION
+      {/* Top Header & Status Indicator */}
+      <div style={{ marginBottom: 14 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+          <span className="sticker-badge" style={{
+            fontSize: 10, padding: '3px 10px',
+            background: locked ? 'rgba(100,116,139,0.2)' : 'rgba(245, 158, 11, 0.2)',
+            color: locked ? '#94a3b8' : '#fbbf24',
+            border: locked ? '1px solid rgba(100,116,139,0.4)' : '1px solid rgba(245, 158, 11, 0.4)'
+          }}>
+            {cfg.levelNum}
           </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            {completed && (
+              <span className="sticker-badge sticker-lime" style={{ fontSize: 9, padding: '2px 8px', background: '#10b981', color: '#080705' }}>
+                ✓ COMPLETED
+              </span>
+            )}
+            {active && !completed && (
+              <span className="sticker-badge sticker-yellow" style={{ fontSize: 9, padding: '2px 8px', background: '#f59e0b', color: '#080705' }}>
+                ACTIVE LOCATION
+              </span>
+            )}
+          </div>
         </div>
-      )}
-
-
-
-
+        <h4 style={{ fontSize: 18, fontWeight: 900, color: 'var(--heading-color, #ffffff)', margin: '0 0 6px 0' }}>
+          {displayTitle}
+        </h4>
+        <p style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', margin: '0 0 8px 0', lineHeight: 1.4 }}>
+          {displaySubtitle}
+        </p>
+        <div style={{
+          fontSize: 11,
+          fontWeight: 800,
+          color: completed ? '#10b981' : locked ? '#64748b' : '#fbbf24'
+        }}>
+          Status: {statusText || (completed ? 'Completed ✓' : locked ? 'Locked' : 'In Progress')}
+        </div>
+      </div>
 
       {/* Progress & Action Button */}
       <div>
         <div style={{ marginBottom: 12 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
             <span style={{ fontSize: 10, color: 'var(--text-muted, #94a3b8)', fontWeight: 800, textTransform: 'uppercase' }}>PROGRESS</span>
-            <span style={{ fontSize: 11, fontWeight: 800, color: locked ? '#64748b' : '#f59e0b' }}>{pct}%</span>
+            <span style={{ fontSize: 11, fontWeight: 800, color: completed ? '#10b981' : locked ? '#64748b' : '#f59e0b' }}>{pct}%</span>
           </div>
           <div className="progress-track" style={{ background: 'var(--input-bg, rgba(255,255,255,0.1))', border: '1px solid var(--border-light, rgba(255,255,255,0.05))' }}>
             <div className="progress-fill" style={{
               width: `${pct}%`,
-              background: locked ? '#64748b' : 'linear-gradient(90deg, #d97706, #f59e0b)',
+              background: completed ? '#10b981' : locked ? '#64748b' : 'linear-gradient(90deg, #d97706, #f59e0b)',
             }} />
           </div>
         </div>

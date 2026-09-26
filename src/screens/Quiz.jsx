@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { quizQuestions } from '../data.js'
+import { quizQuestions, ALL_VIDEO_IDS } from '../data.js'
 
 function XPBurst({ show }) {
   if (!show) return null
@@ -163,13 +163,13 @@ export default function Quiz({ go, goBack, state, update, addXP, themeMode = 'da
       if (passed) {
         setShowXP(true)
         addXP(150)
-        const allBegVideos = ['video1', 'video2', 'video3', 'video4', 'video5', 'ppf', 'fd', 'nsc', 'ssy']
-        const updatedWatched = Array.from(new Set([...(state.lessonsWatched || []), ...allBegVideos]))
+        const updatedWatched = Array.from(new Set([...(state.lessonsWatched || []), ...ALL_VIDEO_IDS]))
         update({
           quizScore: score,
           correctCount: finalCorrect,
           quizTotal: questions.length,
           intermediateUnlocked: true,
+          level1Completed: true,
           lessonsWatched: updatedWatched
         })
         setTimeout(() => { setShowXP(false); go('beg-complete') }, 1200)

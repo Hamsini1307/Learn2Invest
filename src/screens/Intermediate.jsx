@@ -258,7 +258,17 @@ export default function Intermediate({
 
   const handleRunPortfolioAllocSim = () => {
     if (addXP) addXP(100)
-    update({ allocations: portfolioAlloc })
+    const currentCompleted = state.completedModules || []
+    const nextCompleted = currentCompleted.includes('portfolio')
+      ? currentCompleted
+      : [...currentCompleted, 'portfolio']
+    const allSims = modules.every(m => nextCompleted.includes(m.id))
+    const allThreeDone = allSims && nextCompleted.includes('mixer') && nextCompleted.includes('portfolio')
+    update({
+      allocations: portfolioAlloc,
+      completedModules: nextCompleted,
+      ...(allThreeDone ? { advancedUnlocked: true, level2Completed: true } : {}),
+    })
     setSimDone(true)
 
     let totalInvestedAcc = 0
@@ -560,18 +570,19 @@ export default function Intermediate({
 
   const simulationsDone = modules.every(m => modulesDone.includes(m.id))
   const mixerDone = modulesDone.includes('mixer')
-  const cyberDone = modulesDone.includes('cyber_game')
-  const allDone = simulationsDone && mixerDone && cyberDone
+  const portfolioDone = modulesDone.includes('portfolio')
+  const allDone = Boolean(state.level2Completed || (simulationsDone && mixerDone && portfolioDone))
+  const sectionsDoneCount = (simulationsDone ? 1 : 0) + (mixerDone ? 1 : 0) + (portfolioDone ? 1 : 0)
 
   useEffect(() => {
-    if (allDone && !state.advancedUnlocked) {
-      if (addXP) addXP(200)
-      update({ advancedUnlocked: true })
+    if (simulationsDone && mixerDone && portfolioDone && (!state.advancedUnlocked || !state.level2Completed)) {
+      if (!state.level2Completed && addXP) addXP(200)
+      update({ advancedUnlocked: true, level2Completed: true })
     }
-  }, [allDone, state.advancedUnlocked])
+  }, [simulationsDone, mixerDone, portfolioDone, state.advancedUnlocked, state.level2Completed])
   
-  const completedCount = modules.filter(m => modulesDone.includes(m.id)).length + (mixerDone ? 1 : 0) + (cyberDone ? 1 : 0)
-  const progressPct = Math.min(100, Math.round((completedCount / 8) * 100))
+  const completedCount = modules.filter(m => modulesDone.includes(m.id)).length + (mixerDone ? 1 : 0) + (portfolioDone ? 1 : 0)
+  const progressPct = allDone ? 100 : Math.min(100, Math.round((completedCount / 8) * 100))
 
   const colors = {
     PPF: '#f59e0b', FD: '#d97706', NSC: '#fbbf24',
@@ -594,7 +605,14 @@ export default function Intermediate({
 
   const trackMixerInteraction = () => {
     if (!modulesDone.includes('mixer')) {
-      update({ completedModules: [...modulesDone, 'mixer'] })
+      const nextCompleted = [...modulesDone, 'mixer']
+      const allSims = modules.every(m => nextCompleted.includes(m.id))
+      const allThreeDone = allSims && nextCompleted.includes('portfolio')
+      if (addXP) addXP(50)
+      update({
+        completedModules: nextCompleted,
+        ...(allThreeDone ? { advancedUnlocked: true, level2Completed: true } : {}),
+      })
     }
   }
 
@@ -694,6 +712,59 @@ export default function Intermediate({
         </button>
       </div>
 
+      {/* Level 2 Overall Status & 3-Section Tracker */}
+      <div className="glass-card-sm anim-fade" style={{
+        padding: '16px 22px',
+        marginBottom: 18,
+        borderRadius: 18,
+        background: isLight ? '#ffffff' : 'var(--bg-card-deep, #12100c)',
+        border: `2px solid ${allDone ? '#10b981' : '#f59e0b'}`,
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: 14,
+      }}>
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4, flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 14, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff' }}>
+              LEVEL 2: INVESTMENT LAB
+            </span>
+            <span style={{
+              fontSize: 11,
+              fontWeight: 900,
+              padding: '3px 10px',
+              borderRadius: 999,
+              background: allDone ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.2)',
+              border: `1.5px solid ${allDone ? '#10b981' : '#f59e0b'}`,
+              color: allDone ? '#10b981' : '#fbbf24',
+            }}>
+              Status: {allDone ? 'Completed ✓' : `In Progress (${sectionsDoneCount}/3 Sections)`}
+            </span>
+          </div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: isLight ? '#475569' : '#d1d5db' }}>
+            {allDone
+              ? '🎉 All 3 sections of Level 2 are completed! Level 3 (Portfolio Tower) is now unlocked!'
+              : 'Complete all 3 sections below (Simulator Modules, Savings Mixer, and Combined Metrics) to unlock Level 3.'}
+          </div>
+        </div>
+        {allDone && (
+          <button
+            onClick={() => go('advanced')}
+            className="btn-primary"
+            style={{
+              padding: '10px 20px',
+              fontSize: 13,
+              fontWeight: 900,
+              background: 'linear-gradient(135deg, #10b981, #059669)',
+              color: '#ffffff',
+            }}
+          >
+            🏢 OPEN LEVEL 3 →
+          </button>
+        )}
+      </div>
+
       {/* High Energy Tab Switcher Bar */}
       <div style={{ display: 'flex', gap: 14, marginBottom: 24, flexWrap: 'wrap' }}>
         <button
@@ -710,13 +781,13 @@ export default function Intermediate({
               ? 'linear-gradient(135deg, #ea580c, #f59e0b)'
               : (isLight ? '#ffedd5' : '#1e1b18'),
             color: activeTab === 'simulators' ? '#ffffff' : (isLight ? '#9a3412' : '#fbbf24'),
-            border: isLight ? '2.5px solid #000000' : '2.5px solid #ffffff',
+            border: simulationsDone ? '2.5px solid #10b981' : (isLight ? '2.5px solid #000000' : '2.5px solid #ffffff'),
             boxShadow: activeTab === 'simulators'
               ? '0 6px 20px rgba(234, 88, 12, 0.4)'
               : (isLight ? '0 2px 8px rgba(234, 88, 12, 0.1)' : 'none')
           }}
         >
-          🧪 SIMULATOR MODULES 🌟
+          🧪 1. SIMULATOR MODULES {simulationsDone ? '✅' : `(${modules.filter(m => modulesDone.includes(m.id)).length}/6)`}
         </button>
         
         <button
@@ -733,13 +804,13 @@ export default function Intermediate({
               ? 'linear-gradient(135deg, #ea580c, #f59e0b)'
               : (isLight ? '#ffedd5' : '#1e1b18'),
             color: activeTab === 'mixer' ? '#ffffff' : (isLight ? '#9a3412' : '#fbbf24'),
-            border: isLight ? '2.5px solid #000000' : '2.5px solid #ffffff',
+            border: mixerDone ? '2.5px solid #10b981' : (isLight ? '2.5px solid #000000' : '2.5px solid #ffffff'),
             boxShadow: activeTab === 'mixer'
               ? '0 6px 20px rgba(234, 88, 12, 0.4)'
               : (isLight ? '0 2px 8px rgba(234, 88, 12, 0.1)' : 'none')
           }}
         >
-          💼 SAVINGS MIXER 🌟
+          💼 2. SAVINGS MIXER {mixerDone ? '✅' : '🌟'}
         </button>
 
         <button
@@ -756,13 +827,13 @@ export default function Intermediate({
               ? 'linear-gradient(135deg, #ea580c, #f59e0b)'
               : (isLight ? '#ffedd5' : '#1e1b18'),
             color: activeTab === 'portfolio' ? '#ffffff' : (isLight ? '#9a3412' : '#fbbf24'),
-            border: isLight ? '2.5px solid #000000' : '2.5px solid #ffffff',
+            border: portfolioDone ? '2.5px solid #10b981' : (isLight ? '2.5px solid #000000' : '2.5px solid #ffffff'),
             boxShadow: activeTab === 'portfolio'
               ? '0 6px 20px rgba(234, 88, 12, 0.4)'
               : (isLight ? '0 2px 8px rgba(234, 88, 12, 0.1)' : 'none')
           }}
         >
-          🏢 COMBINED METRICS 📊
+          🏢 3. COMBINED METRICS {portfolioDone ? '✅' : '📊'}
         </button>
       </div>
 
@@ -933,7 +1004,7 @@ export default function Intermediate({
                     return (
                       <button
                         key={s.key}
-                        onClick={() => toggleMatrixScheme(s.key)}
+                        onClick={() => { toggleMatrixScheme(s.key); trackMixerInteraction() }}
                         style={{
                           display: 'flex', alignItems: 'center', gap: 6,
                           padding: '8px 14px', borderRadius: 12, fontSize: 12, fontWeight: 900,
@@ -960,7 +1031,7 @@ export default function Intermediate({
                   </div>
                   <input
                     type="range" min="1000" max="50000" step="1000" value={matrixAmount}
-                    onChange={e => setMatrixAmount(Number(e.target.value))}
+                    onChange={e => { setMatrixAmount(Number(e.target.value)); trackMixerInteraction() }}
                     style={{ width: '100%', accentColor: '#f59e0b', height: 6, cursor: 'pointer' }}
                   />
                 </div>
@@ -972,7 +1043,7 @@ export default function Intermediate({
                   </div>
                   <input
                     type="range" min="1" max="15" step="1" value={matrixYears}
-                    onChange={e => setMatrixYears(Number(e.target.value))}
+                    onChange={e => { setMatrixYears(Number(e.target.value)); trackMixerInteraction() }}
                     style={{ width: '100%', accentColor: '#f59e0b', height: 6, cursor: 'pointer' }}
                   />
                 </div>
@@ -984,7 +1055,7 @@ export default function Intermediate({
                   </div>
                   <input
                     type="range" min="3" max="10" step="0.5" value={matrixInflation}
-                    onChange={e => setMatrixInflation(Number(e.target.value))}
+                    onChange={e => { setMatrixInflation(Number(e.target.value)); trackMixerInteraction() }}
                     style={{ width: '100%', accentColor: '#ef4444', height: 6, cursor: 'pointer' }}
                   />
                 </div>
@@ -1158,7 +1229,7 @@ export default function Intermediate({
                       ].map(opt => (
                         <button
                           key={opt.id}
-                          onClick={() => setMatrixFactorChoice(opt.id)}
+                          onClick={() => { setMatrixFactorChoice(opt.id); trackMixerInteraction() }}
                           style={{
                             padding: '12px 14px', borderRadius: 12, fontSize: 12, fontWeight: 900, textAlign: 'left',
                             border: matrixFactorChoice === opt.id ? '2px solid #f59e0b' : (isLight ? '2px solid #cbd5e1' : '2px solid rgba(255,255,255,0.15)'),
@@ -1214,7 +1285,7 @@ export default function Intermediate({
                       </div>
                       <input
                         type="range" min="1000" max="50000" step="1000" value={monthlySavings}
-                        onChange={(e) => setMonthlySavings(parseInt(e.target.value))}
+                        onChange={(e) => { setMonthlySavings(parseInt(e.target.value)); trackMixerInteraction() }}
                         style={{ width: '100%', accentColor: '#f59e0b' }}
                       />
                     </div>
@@ -1225,7 +1296,7 @@ export default function Intermediate({
                       </div>
                       <input
                         type="range" min="1" max="15" step="1" value={years}
-                        onChange={(e) => setYears(parseInt(e.target.value))}
+                        onChange={(e) => { setYears(parseInt(e.target.value)); trackMixerInteraction() }}
                         style={{ width: '100%', accentColor: '#f59e0b' }}
                       />
                     </div>
@@ -1352,6 +1423,28 @@ export default function Intermediate({
                       })}
                     </div>
                   )}
+
+                  <button
+                    className="btn-primary"
+                    onClick={() => {
+                      trackMixerInteraction()
+                      if (!portfolioDone) setActiveTab('portfolio')
+                    }}
+                    style={{
+                      width: '100%',
+                      padding: '14px 20px',
+                      fontSize: 14,
+                      fontWeight: 900,
+                      background: mixerDone
+                        ? 'linear-gradient(135deg, #10b981, #059669)'
+                        : 'linear-gradient(135deg, #ea580c, #f59e0b)',
+                      color: '#ffffff',
+                    }}
+                  >
+                    {mixerDone
+                      ? '✅ SAVINGS MIXER SECTION COMPLETED — PROCEED TO COMBINED METRICS →'
+                      : '✅ COMPLETE SAVINGS MIXER SECTION (+50 XP) →'}
+                  </button>
                 </div>
               </div>
       )}

@@ -1,18 +1,20 @@
 import React from 'react'
 import { AI_AVATARS } from '../components/AiAvatarSelector.jsx'
 import { getText } from '../data/translations.js'
+import { isLevel1Completed, isLevel2Unlocked, isLevel2Completed, isLevel3Unlocked, isLevel3Completed } from '../data.js'
 
 export default function LandingJourney({ go, goBack, canGoBack, state, aiGuideAvatar = 'female', openAvatarModal, themeMode, lang = 'en' }) {
   const activeAvatar = AI_AVATARS[aiGuideAvatar] || AI_AVATARS.female
-  const { xp = 0, lessonsWatched = [], intermediateUnlocked, advancedUnlocked, completedModules = [], startingLevel } = state || {}
+  const { xp = 0, lessonsWatched = [] } = state || {}
 
   const completedCount = lessonsWatched.length
   const isLight = themeMode === 'light'
 
-  const isIntermediateStart = startingLevel === 'intermediate'
-  const isAdvancedStart = startingLevel === 'advanced'
-  const isInterUnlocked = Boolean(intermediateUnlocked || isIntermediateStart || isAdvancedStart || (completedCount >= 4 && (state?.quizScore || 0) >= 60))
-  const isAdvUnlocked = Boolean(advancedUnlocked || isAdvancedStart || (completedModules || []).length >= 2)
+  const lvl1Done = isLevel1Completed(state)
+  const isInterUnlocked = isLevel2Unlocked(state)
+  const lvl2Done = isLevel2Completed(state)
+  const isAdvUnlocked = isLevel3Unlocked(state)
+  const lvl3Done = isLevel3Completed(state)
 
   return (
     <div className="content-area" style={{ minHeight: '100%' }}>
@@ -255,11 +257,11 @@ export default function LandingJourney({ go, goBack, canGoBack, state, aiGuideAv
               {getText('schoolDesc', lang)}
             </p>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-              <div style={{ fontSize: '11px', color: isLight ? '#c2410c' : 'var(--gold-amber, #f59e0b)', fontWeight: 800 }}>
-                {getText('status', lang)}: {completedCount > 0 ? getText('inProgress', lang) : getText('readyToStart', lang)}
+              <div style={{ fontSize: '11px', color: lvl1Done ? '#10b981' : (isLight ? '#c2410c' : 'var(--gold-amber, #f59e0b)'), fontWeight: 800 }}>
+                {getText('status', lang)}: {lvl1Done ? 'Completed ✓' : (completedCount > 0 ? getText('inProgress', lang) : getText('readyToStart', lang))}
               </div>
               <button className="btn-primary" style={{ padding: '6px 14px', fontSize: '12px', borderRadius: '999px', fontWeight: 800 }}>
-                Enter Level 1 →
+                {lvl1Done ? 'Review Level 1 →' : 'Enter Level 1 →'}
               </button>
             </div>
           </div>
@@ -295,18 +297,18 @@ export default function LandingJourney({ go, goBack, canGoBack, state, aiGuideAv
               {getText('labDesc', lang)}
             </p>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-              <div style={{ fontSize: '11px', color: isInterUnlocked ? (isLight ? '#c2410c' : 'var(--gold-amber, #f59e0b)') : (isLight ? '#64748b' : 'var(--text-muted, #94a3b8)'), fontWeight: 800 }}>
-                {getText('status', lang)}: {isInterUnlocked ? getText('unlockedBadge', lang) : getText('reqLvl1', lang)}
+              <div style={{ fontSize: '11px', color: lvl2Done ? '#10b981' : (isInterUnlocked ? (isLight ? '#c2410c' : 'var(--gold-amber, #f59e0b)') : (isLight ? '#64748b' : 'var(--text-muted, #94a3b8)')), fontWeight: 800 }}>
+                {getText('status', lang)}: {lvl2Done ? 'Completed ✓' : (isInterUnlocked ? getText('unlockedBadge', lang) : 'Complete Level 1 to Unlock')}
               </div>
               <button className="btn-primary" style={{ padding: '6px 14px', fontSize: '12px', borderRadius: '999px', fontWeight: 800 }}>
-                Enter Level 2 →
+                {lvl2Done ? 'Review Level 2 →' : (isInterUnlocked ? 'Enter Level 2 →' : '🔒 Complete Level 1 to Unlock')}
               </button>
             </div>
           </div>
 
           {/* STEP 3 ROADMAP CARD */}
           <div 
-            onClick={() => go(isAdvUnlocked ? 'advanced' : 'unlock-adv')}
+            onClick={() => go('advanced')}
             className="glass-card-sm" 
             style={{
               padding: '24px',
@@ -335,11 +337,11 @@ export default function LandingJourney({ go, goBack, canGoBack, state, aiGuideAv
               {getText('towerDesc', lang)}
             </p>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-              <div style={{ fontSize: '11px', color: isAdvUnlocked ? (isLight ? '#c2410c' : 'var(--gold-amber, #f59e0b)') : (isLight ? '#64748b' : 'var(--text-muted, #94a3b8)'), fontWeight: 800 }}>
-                {getText('status', lang)}: {isAdvUnlocked ? getText('unlockedBadge', lang) : getText('reqLvl2', lang)}
+              <div style={{ fontSize: '11px', color: lvl3Done ? '#10b981' : (isAdvUnlocked ? (isLight ? '#c2410c' : 'var(--gold-amber, #f59e0b)') : (isLight ? '#64748b' : 'var(--text-muted, #94a3b8)')), fontWeight: 800 }}>
+                {getText('status', lang)}: {lvl3Done ? 'Completed ✓' : (isAdvUnlocked ? getText('unlockedBadge', lang) : 'Complete Level 2 to Unlock')}
               </div>
               <button className="btn-primary" style={{ padding: '6px 14px', fontSize: '12px', borderRadius: '999px', fontWeight: 800 }}>
-                {isAdvUnlocked ? 'Enter Level 3 →' : 'Unlock Level 3 🔒'}
+                {lvl3Done ? 'Review Level 3 →' : (isAdvUnlocked ? 'Enter Level 3 →' : '🔒 Complete Level 2 to Unlock')}
               </button>
             </div>
           </div>

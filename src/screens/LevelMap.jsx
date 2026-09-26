@@ -3,8 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion'
 import MarqueeTicker from '../components/MarqueeTicker.jsx'
 import BuildingCard from '../components/BuildingCard.jsx'
 import { AI_AVATARS } from '../components/AiAvatarSelector.jsx'
+import { isLevel1Completed, isLevel2Unlocked, isLevel2Completed, isLevel3Unlocked, isLevel3Completed, isLevel2SimulatorsDone, isLevel2MixerDone, isLevel2PortfolioDone } from '../data.js'
 
-export default function LevelMap({ go, goBack, state, aiGuideAvatar = 'female', aiGuideName, openAvatarModal }) {
+export default function LevelMap({ go, goBack, state, showLockMessage, aiGuideAvatar = 'female', aiGuideName, openAvatarModal }) {
   const activeAvatar = AI_AVATARS[aiGuideAvatar] || AI_AVATARS.female
   const guideName = aiGuideName || activeAvatar.name
 
@@ -14,38 +15,29 @@ export default function LevelMap({ go, goBack, state, aiGuideAvatar = 'female', 
   const [activeNodes, setActiveNodes] = useState([])
   const [transitioningText, setTransitioningText] = useState('')
 
-  const isUnlocked = () => true
+  const lvl1Done = isLevel1Completed(state)
+  const isInterUnlocked = isLevel2Unlocked(state)
+  const lvl2Done = isLevel2Completed(state)
+  const isAdvUnlocked = isLevel3Unlocked(state)
+  const lvl3Done = isLevel3Completed(state)
 
-  const currentLevel = state.advancedUnlocked ? 'advanced'
-    : state.intermediateUnlocked ? 'intermediate' : 'beginner'
+  const currentLevel = isAdvUnlocked ? 'advanced'
+    : isInterUnlocked ? 'intermediate' : 'beginner'
 
-  const isIntermediateStart = state.startingLevel === 'intermediate'
-  const isAdvancedStart = state.startingLevel === 'advanced'
-
-  const isInterUnlocked = Boolean(
-    state.intermediateUnlocked ||
-    isIntermediateStart ||
-    isAdvancedStart ||
-    (state.quizScore || 0) >= 60
-  )
-
-  const isAdvUnlocked = Boolean(
-    state.advancedUnlocked ||
-    isAdvancedStart ||
-    (state.completedModules || []).length >= 2
-  )
-
-  const begCleared = (isIntermediateStart && (state.quizScore || 0) >= 60) || ((state.lessonsWatched || []).length >= 5 && (state.quizScore || 0) >= 60)
+  const begCleared = lvl1Done
   const begPct = begCleared ? 100 : Math.round((Math.min(5, (state.lessonsWatched || []).length) / 5) * 100)
-  const intPct = Math.min(100, Math.round(((state.completedModules?.length || 0) / 6) * 100))
+  const lvl2SectionsCount = [isLevel2SimulatorsDone(state), isLevel2MixerDone(state), isLevel2PortfolioDone(state)].filter(Boolean).length
+  const intPct = lvl2Done ? 100 : Math.round((lvl2SectionsCount / 3) * 100)
 
   const handleLocationClick = (locId, screen, title) => {
     if (locId === 'intermediate' && !isInterUnlocked) {
-      alert('🔒 Level 2 is locked! Complete Level 1 video lessons & pass the Quiz with 60%+ to unlock Level 2!')
+      if (showLockMessage) showLockMessage('Complete Level 1 to Unlock')
+      else go('intermediate')
       return
     }
     if (locId === 'advanced' && !isAdvUnlocked) {
-      alert('🔒 Level 3 is locked! Complete Level 2 Investment Lab tasks to unlock Level 3!')
+      if (showLockMessage) showLockMessage('Complete Level 2 to Unlock')
+      else go('advanced')
       return
     }
     if (activeTarget) return
@@ -281,9 +273,13 @@ export default function LevelMap({ go, goBack, state, aiGuideAvatar = 'female', 
                 color: 'var(--heading-color, #ffffff)', minWidth: 150
               }}
             >
-              <div className="sticker-badge sticker-lime" style={{ fontSize: 9, marginBottom: 4 }}>LEVEL 1</div>
+              <div className="sticker-badge sticker-lime" style={{ fontSize: 9, marginBottom: 4 }}>
+                {lvl1Done ? 'LEVEL 1 · COMPLETED ✓' : 'LEVEL 1'}
+              </div>
               <div style={{ fontWeight: 900, fontSize: 13, color: 'var(--heading-color, #ffffff)' }}>🏫 SCHOOL</div>
-              <div style={{ fontSize: 10, color: '#10b981', fontWeight: 800, marginTop: 2 }}>Enter School →</div>
+              <div style={{ fontSize: 10, color: '#10b981', fontWeight: 800, marginTop: 2 }}>
+                {lvl1Done ? '✓ Completed · Review →' : 'Enter School →'}
+              </div>
             </motion.div>
           </div>
 
@@ -292,12 +288,12 @@ export default function LevelMap({ go, goBack, state, aiGuideAvatar = 'female', 
             onClick={() => handleLocationClick('intermediate', 'intermediate', 'Investment Lab')}
             style={{
               position: 'absolute', left: '50%', top: '35%', transform: 'translate(-50%, -50%)',
-              cursor: state.intermediateUnlocked ? 'pointer' : 'not-allowed', zIndex: 10, textAlign: 'center',
-              opacity: state.intermediateUnlocked ? 1 : 0.75
+              cursor: 'pointer', zIndex: 10, textAlign: 'center',
+              opacity: isInterUnlocked ? 1 : 0.75
             }}
           >
             <motion.div
-              whileHover={state.intermediateUnlocked ? { scale: 1.08 } : {}}
+              whileHover={{ scale: 1.08 }}
               animate={{
                 boxShadow: activeTarget === 'intermediate'
                   ? '0 0 35px #38bdf8, 0 0 15px #818cf8'
@@ -305,30 +301,32 @@ export default function LevelMap({ go, goBack, state, aiGuideAvatar = 'female', 
               }}
               style={{
                 background: 'var(--bg-card, rgba(18, 16, 12, 0.92))',
-                border: activeTarget === 'intermediate' ? '3px solid #38bdf8' : state.intermediateUnlocked ? '2px solid #38bdf8' : '2px solid #64748b',
+                border: activeTarget === 'intermediate' ? '3px solid #38bdf8' : isInterUnlocked ? '2px solid #38bdf8' : '2px solid #64748b',
                 borderRadius: 16, padding: '10px 16px',
                 color: 'var(--heading-color, #ffffff)', minWidth: 150
               }}
             >
-              <div className="sticker-badge sticker-cyan" style={{ fontSize: 9, marginBottom: 4 }}>LEVEL 2</div>
+              <div className="sticker-badge sticker-cyan" style={{ fontSize: 9, marginBottom: 4 }}>
+                {lvl2Done ? 'LEVEL 2 · COMPLETED ✓' : 'LEVEL 2'}
+              </div>
               <div style={{ fontWeight: 900, fontSize: 13, color: 'var(--heading-color, #ffffff)' }}>🧪 INVESTMENT LAB</div>
-              <div style={{ fontSize: 10, color: state.intermediateUnlocked ? '#38bdf8' : 'var(--text-muted, #94a3b8)', fontWeight: 800, marginTop: 2 }}>
-                {state.intermediateUnlocked ? 'Continue →' : '🔒 Score 60%+ Quiz'}
+              <div style={{ fontSize: 10, color: lvl2Done ? '#10b981' : isInterUnlocked ? '#38bdf8' : 'var(--text-muted, #94a3b8)', fontWeight: 800, marginTop: 2 }}>
+                {lvl2Done ? '✓ Completed · Review →' : isInterUnlocked ? 'Continue →' : '🔒 Complete Level 1 to Unlock'}
               </div>
             </motion.div>
           </div>
 
           {/* Location 3: Portfolio Tower */}
           <div
-            onClick={() => handleLocationClick('advanced', isAdvUnlocked ? 'advanced' : 'unlock-adv', 'Portfolio Tower')}
+            onClick={() => handleLocationClick('advanced', 'advanced', 'Portfolio Tower')}
             style={{
               position: 'absolute', left: '80%', top: '28%', transform: 'translate(-50%, -50%)',
-              cursor: isAdvUnlocked ? 'pointer' : 'not-allowed', zIndex: 10, textAlign: 'center',
+              cursor: 'pointer', zIndex: 10, textAlign: 'center',
               opacity: isAdvUnlocked ? 1 : 0.75
             }}
           >
             <motion.div
-              whileHover={isAdvUnlocked ? { scale: 1.08 } : {}}
+              whileHover={{ scale: 1.08 }}
               animate={{
                 boxShadow: activeTarget === 'advanced'
                   ? '0 0 35px #f59e0b, 0 0 15px #fbbf24'
@@ -341,10 +339,12 @@ export default function LevelMap({ go, goBack, state, aiGuideAvatar = 'female', 
                 color: 'var(--heading-color, #ffffff)', minWidth: 150
               }}
             >
-              <div className="sticker-badge sticker-yellow" style={{ fontSize: 9, marginBottom: 4 }}>LEVEL 3</div>
+              <div className="sticker-badge sticker-yellow" style={{ fontSize: 9, marginBottom: 4 }}>
+                {lvl3Done ? 'LEVEL 3 · COMPLETED ✓' : 'LEVEL 3'}
+              </div>
               <div style={{ fontWeight: 900, fontSize: 13, color: 'var(--heading-color, #ffffff)' }}>🏢 PORTFOLIO TOWER</div>
-              <div style={{ fontSize: 10, color: isAdvUnlocked ? '#f59e0b' : 'var(--text-muted, #94a3b8)', fontWeight: 800, marginTop: 2 }}>
-                {isAdvUnlocked ? 'Continue →' : '🔒 Pass Level 2'}
+              <div style={{ fontSize: 10, color: lvl3Done ? '#10b981' : isAdvUnlocked ? '#f59e0b' : 'var(--text-muted, #94a3b8)', fontWeight: 800, marginTop: 2 }}>
+                {lvl3Done ? '✓ Completed · Review →' : isAdvUnlocked ? 'Continue →' : '🔒 Complete Level 2 to Unlock'}
               </div>
             </motion.div>
           </div>

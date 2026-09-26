@@ -16,6 +16,9 @@ const UserStateSchema = new mongoose.Schema({
   quizScore: { type: Number, default: 0 },
   intermediateUnlocked: { type: Boolean, default: false },
   advancedUnlocked: { type: Boolean, default: false },
+  level1Completed: { type: Boolean, default: false },
+  level2Completed: { type: Boolean, default: false },
+  level3Completed: { type: Boolean, default: false },
   allocations: { type: Map, of: Number, default: {} },
   startingLevel: { type: String, default: 'beginner' }
 })

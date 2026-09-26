@@ -395,14 +395,30 @@ const BankLogo = ({ id }) => {
 export default function Advanced({ go, goBack, state, update, addXP, themeMode = 'dark' }) {
   const isLight = themeMode === 'light'
   const registeredUserName = state?.user?.name || 'Niyathi'
+  const completedMods = state?.completedModules || []
+  const paperSlipDone = completedMods.includes('paper_slip')
+  const cyberSafetyDone = completedMods.includes('cyber_game')
+  const level3Done = Boolean(state?.level3Completed || (paperSlipDone && cyberSafetyDone))
 
   // Digital Banking & Security Game state variables
   const [digitalScenarioIdx, setDigitalScenarioIdx] = useState(0)
   const [shieldScore, setShieldScore] = useState(100)
   const [digitalFeedback, setDigitalFeedback] = useState('')
   const [selectedOpt, setSelectedOpt] = useState(null)
-  const [cyberGameCompleted, setCyberGameCompleted] = useState(false)
+  const [cyberGameCompleted, setCyberGameCompleted] = useState(cyberSafetyDone)
   const [selectedVideo, setSelectedVideo] = useState('upi_working')
+
+  const markLevel3Section = (sectionId) => {
+    const current = state?.completedModules || []
+    const nextCompleted = current.includes(sectionId) ? current : [...current, sectionId]
+    const isAllL3Done = nextCompleted.includes('paper_slip') && nextCompleted.includes('cyber_game')
+    if (update) {
+      update({
+        completedModules: nextCompleted,
+        ...(isAllL3Done ? { level3Completed: true } : {}),
+      })
+    }
+  }
 
   const handleCyberAnswer = (optIndex) => {
     setSelectedOpt(optIndex)
@@ -424,6 +440,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
     } else {
       setCyberGameCompleted(true)
       if (addXP) addXP(50)
+      markLevel3Section('cyber_game')
     }
   }
 
@@ -847,6 +864,44 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
 
       </div>
 
+      {/* Level 3 Overall Status Banner */}
+      <div className="glass-card-sm anim-fade" style={{
+        padding: '16px 22px',
+        marginBottom: 18,
+        borderRadius: 18,
+        background: isLight ? '#ffffff' : 'var(--bg-card-deep, #12100c)',
+        border: `2px solid ${level3Done ? '#10b981' : '#f59e0b'}`,
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: 14,
+      }}>
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4, flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 14, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff' }}>
+              LEVEL 3: PORTFOLIO TOWER & BANKING MASTERY
+            </span>
+            <span style={{
+              fontSize: 11,
+              fontWeight: 900,
+              padding: '3px 10px',
+              borderRadius: 999,
+              background: level3Done ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.2)',
+              border: `1.5px solid ${level3Done ? '#10b981' : '#f59e0b'}`,
+              color: level3Done ? '#10b981' : '#fbbf24',
+            }}>
+              Status: {level3Done ? 'Completed ✓' : `In Progress (${(paperSlipDone ? 1 : 0) + (cyberSafetyDone ? 1 : 0)}/2 Sections)`}
+            </span>
+          </div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: isLight ? '#475569' : '#d1d5db' }}>
+            {level3Done
+              ? '🏆 Congratulations! Level 3 is Completed!'
+              : 'Complete both sections below (Bank Paper Slip Writer & Digital Banking Safety) to complete Level 3!'}
+          </div>
+        </div>
+      </div>
+
       {/* Level 3 High Contrast Tab Switcher Bar */}
       <div style={{ display: 'flex', gap: 14, marginBottom: 24, flexWrap: 'wrap' }}>
         <button
@@ -863,15 +918,17 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
               ? 'linear-gradient(135deg, #ea580c, #f59e0b)'
               : (isLight ? '#ffedd5' : '#1e1b18'),
             color: activeTab === 'paper_slip' ? '#ffffff' : (isLight ? '#9a3412' : '#fbbf24'),
-            border: activeTab === 'paper_slip'
-              ? '2.5px solid #c2410c'
-              : `2.5px solid ${isLight ? '#ea580c' : 'rgba(217, 119, 6, 0.6)'}`,
+            border: paperSlipDone
+              ? '2.5px solid #10b981'
+              : (activeTab === 'paper_slip'
+                ? '2.5px solid #c2410c'
+                : `2.5px solid ${isLight ? '#ea580c' : 'rgba(217, 119, 6, 0.6)'}`),
             boxShadow: activeTab === 'paper_slip'
               ? '0 6px 20px rgba(234, 88, 12, 0.4)'
               : (isLight ? '0 2px 8px rgba(234, 88, 12, 0.1)' : 'none')
           }}
         >
-          📝 BANK PAPER SLIP WRITER 🏛️
+          📝 1. BANK PAPER SLIP WRITER {paperSlipDone ? '✅' : '🏛️'}
         </button>
         
         <button
@@ -888,15 +945,17 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
               ? 'linear-gradient(135deg, #ea580c, #f59e0b)'
               : (isLight ? '#ffedd5' : '#1e1b18'),
             color: activeTab === 'digital_safety' ? '#ffffff' : (isLight ? '#9a3412' : '#fbbf24'),
-            border: activeTab === 'digital_safety'
-              ? '2.5px solid #c2410c'
-              : `2.5px solid ${isLight ? '#ea580c' : 'rgba(217, 119, 6, 0.6)'}`,
+            border: cyberSafetyDone
+              ? '2.5px solid #10b981'
+              : (activeTab === 'digital_safety'
+                ? '2.5px solid #c2410c'
+                : `2.5px solid ${isLight ? '#ea580c' : 'rgba(217, 119, 6, 0.6)'}`),
             boxShadow: activeTab === 'digital_safety'
               ? '0 6px 20px rgba(234, 88, 12, 0.4)'
               : (isLight ? '0 2px 8px rgba(234, 88, 12, 0.1)' : 'none')
           }}
         >
-          🌐 DIGITAL BANKING & SAFETY 🛡️
+          🌐 2. DIGITAL BANKING & SAFETY {cyberSafetyDone ? '✅' : '🛡️'}
         </button>
       </div>
 
@@ -1424,11 +1483,11 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
         {/* Print / Export Action Bar */}
         <div style={{ display: 'flex', gap: 12, marginTop: 20, flexWrap: 'wrap' }}>
           <button
-            onClick={() => { setHasCompletedSlip(true); setShowVerifyModal(true); }}
+            onClick={() => { setHasCompletedSlip(true); markLevel3Section('paper_slip'); setShowVerifyModal(true); }}
             className="btn-primary"
             style={{ flex: 1, padding: 14, fontSize: 13, fontWeight: 900 }}
           >
-            📋 REVIEW & PRINT FILLED FORM PDF
+            📋 REVIEW & PRINT FILLED FORM PDF {paperSlipDone ? '✅' : ''}
           </button>
         </div>
       </div>

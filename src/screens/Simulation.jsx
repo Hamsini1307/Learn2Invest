@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { modules } from '../data.js'
 
 function fmt(n) {
   if (n >= 1e7) return `₹${(n / 1e7).toFixed(2)} Cr`
@@ -68,9 +69,15 @@ export default function Simulation({
     addXP(50)
     setDone(true)
     const currentCompleted = state.completedModules || []
-    if (!currentCompleted.includes(mod.id)) {
-      update({ completedModules: [...currentCompleted, mod.id] })
-    }
+    const nextCompleted = currentCompleted.includes(mod.id)
+      ? currentCompleted
+      : [...currentCompleted, mod.id]
+    const allSimsDone = modules.every(m => nextCompleted.includes(m.id))
+    const allThreeSectionsDone = allSimsDone && nextCompleted.includes('mixer') && nextCompleted.includes('portfolio')
+    update({
+      completedModules: nextCompleted,
+      ...(allThreeSectionsDone ? { advancedUnlocked: true, level2Completed: true } : {}),
+    })
     setTimeout(() => go('intermediate'), 1500)
   }
 
