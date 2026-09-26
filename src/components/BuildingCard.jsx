@@ -87,32 +87,7 @@ export default function BuildingCard({ type = 'school', title, subtitle, locked 
         </div>
       )}
 
-      {/* Building Visual Box */}
-      <div style={{
-        height: 105,
-        borderRadius: 16,
-        background: 'rgba(245, 158, 11, 0.08)',
-        border: `1.5px solid rgba(217,119,6,0.3)`,
-        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-        marginBottom: 14, position: 'relative', overflow: 'hidden',
-      }}>
-        <div style={{
-          width: 38, height: 38, borderRadius: '50%',
-          background: locked ? 'rgba(255,255,255,0.08)' : 'linear-gradient(135deg, #d97706, #f59e0b)',
-          color: locked ? '#94a3b8' : '#080705',
-          border: '1.5px solid #d97706',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 18, fontWeight: 800,
-          boxShadow: locked ? 'none' : '0 0 12px rgba(245,158,11,0.3)',
-          marginBottom: 4,
-        }}>
-          {locked ? '🔒' : cfg.icon}
-        </div>
 
-        <div style={{ fontSize: 28, filter: locked ? 'grayscale(1)' : 'none' }}>
-          {cfg.emoji}
-        </div>
-      </div>
 
       {/* Title & Description */}
       <div style={{ marginBottom: 14 }}>
