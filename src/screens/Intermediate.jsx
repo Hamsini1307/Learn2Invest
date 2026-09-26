@@ -158,6 +158,23 @@ export default function Intermediate({
   const [monthlySavings, setMonthlySavings] = useState(5000)
   const [years, setYears] = useState(5)
 
+  // Risk vs. Reward Safety Matrix State Variables
+  const [matrixSelected, setMatrixSelected] = useState(['PPF', 'FD', 'NSC', 'GOLD'])
+  const [matrixAmount, setMatrixAmount] = useState(5000)
+  const [matrixYears, setMatrixYears] = useState(5)
+  const [matrixInflation, setMatrixInflation] = useState(6.0)
+  const [matrixFactorChoice, setMatrixFactorChoice] = useState(null)
+
+  const toggleMatrixScheme = (k) => {
+    if (matrixSelected.includes(k)) {
+      if (matrixSelected.length <= 2) return
+      setMatrixSelected(prev => prev.filter(s => s !== k))
+    } else {
+      if (matrixSelected.length >= 4) return
+      setMatrixSelected(prev => [...prev, k])
+    }
+  }
+
   // Goal Planner State Variables
   const [goals, setGoals] = useState([])
   const [newGoalName, setNewGoalName] = useState('')
@@ -185,6 +202,8 @@ export default function Intermediate({
   const [portfolioResults, setPortfolioResults] = useState(null)
   const [showSaveModal, setShowSaveModal] = useState(false)
   const [portfolioName, setPortfolioName] = useState('My Multi-Asset Portfolio')
+
+
 
   const toggleScheme = (k) => {
     if (selectedSchemes.includes(k)) {
@@ -558,14 +577,8 @@ export default function Intermediate({
     SSY: '#eab308', RD: '#10b981', MIS: '#0284c7'
   }
 
-  const yieldRate = parseFloat(
-    ((alloc.PPF * customRates.PPF +
-      alloc.FD * customRates.FD +
-      alloc.NSC * customRates.NSC +
-      alloc.SSY * customRates.SSY +
-      alloc.RD * customRates.RD +
-      alloc.MIS * customRates.MIS) / 100).toFixed(2)
-  )
+  // Growth Projector Calculations
+  const yieldRate = 7.1
 
   const monthlyRate = (yieldRate / 100) / 12
   const totalMonths = years * 12
@@ -727,6 +740,30 @@ export default function Intermediate({
         >
           💼 SAVINGS MIXER 🌟
         </button>
+
+        <button
+          onClick={() => setActiveTab('portfolio')}
+          style={{
+            flex: '1 1 200px',
+            fontSize: 14,
+            fontWeight: 900,
+            padding: '14px 20px',
+            borderRadius: 14,
+            cursor: 'pointer',
+            transition: 'all 0.2s',
+            background: activeTab === 'portfolio'
+              ? 'linear-gradient(135deg, #ea580c, #f59e0b)'
+              : (isLight ? '#ffedd5' : '#1e1b18'),
+            color: activeTab === 'portfolio' ? '#ffffff' : (isLight ? '#9a3412' : '#fbbf24'),
+            border: isLight ? '2.5px solid #000000' : '2.5px solid #ffffff',
+            boxShadow: activeTab === 'portfolio'
+              ? '0 6px 20px rgba(234, 88, 12, 0.4)'
+              : (isLight ? '0 2px 8px rgba(234, 88, 12, 0.1)' : 'none')
+          }}
+        >
+          🏢 COMBINED METRICS 📊
+        </button>
+
       </div>
 
 
@@ -862,150 +899,305 @@ export default function Intermediate({
 
       {activeTab === 'mixer' && (
         <div className="anim-fade" style={{ display: 'flex', flexDirection: 'column', gap: 24, marginBottom: 24 }}>
-          {/* Savings Portfolio Mixer Playground (Images 3 & 4) */}
+                    {/* 🛡️ Risk vs. Reward Safety Matrix Card */}
           <div className="glass-card-deep" style={{ padding: '32px', borderRadius: 24, background: isLight ? '#ffffff' : 'var(--bg-card-deep, #12100c)', border: isLight ? '2.5px solid #000000' : '2.5px solid #ffffff', color: isLight ? '#0f172a' : '#fef3c7' }}>
-            <div style={{ textAlign: 'center', marginBottom: 28 }}>
-              <div className="sticker-badge sticker-yellow" style={{ marginBottom: 10, display: 'inline-block' }}>
-                💼 SAVINGS PORTFOLIO MIXER PLAYGROUND 🌟
+            <div style={{ textAlign: 'center', marginBottom: 24 }}>
+              <div className="sticker-badge sticker-yellow" style={{ marginBottom: 10, display: 'inline-block', background: 'rgba(16, 185, 129, 0.15)', color: '#10b981', borderColor: '#10b981' }}>
+                🛡️ SIDE-BY-SIDE SCHEME EVALUATOR
               </div>
-              <h2 className="font-display" style={{ fontSize: 32, color: isLight ? '#0f172a' : '#ffffff', marginBottom: 4 }}>
-                Savings Portfolio Mixer Playground 🌟
+              <h2 className="font-display" style={{ fontSize: 30, color: isLight ? '#0f172a' : '#ffffff', marginBottom: 4 }}>
+                🛡️ Risk vs. Reward Safety Matrix
               </h2>
               <p style={{ color: isLight ? '#475569' : '#d1d5db', fontSize: 13, fontWeight: 600, margin: 0 }}>
-                Mix and match safe government-backed savings assets to build your ultimate Indian portfolio!
+                Compare investment schemes beyond just the return percentage. Evaluate Risk, Lock-in, Tax Benefits, and Real Yield side-by-side!
               </p>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 32 }}>
-              {/* Left Column: Sliders & Presets */}
-              <div>
-                <h3 style={{ fontSize: 15, fontWeight: 900, color: isLight ? '#ea580c' : '#fbbf24', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-                  ⚙️ Adjust Asset Allocations
-                </h3>
-                
-                {/* Presets Grid */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10, marginBottom: 24 }}>
-                  <button onClick={() => applyPreset('safe')} style={{ padding: '10px 14px', fontSize: 12, fontWeight: 900, borderRadius: 12, border: isLight ? '2px solid #000000' : '2px solid #ffffff', background: isLight ? '#ffedd5' : 'rgba(245,158,11,0.15)', color: isLight ? '#7c2d12' : '#fbbf24', cursor: 'pointer' }}>
-                    🏰 Safe Fortress
-                  </button>
-                  <button onClick={() => applyPreset('growth')} style={{ padding: '10px 14px', fontSize: 12, fontWeight: 900, borderRadius: 12, border: isLight ? '2px solid #000000' : '2px solid #ffffff', background: isLight ? '#ffedd5' : 'rgba(245,158,11,0.15)', color: isLight ? '#7c2d12' : '#fbbf24', cursor: 'pointer' }}>
-                    🚀 Growth Focus
-                  </button>
-                  <button onClick={() => applyPreset('cash')} style={{ padding: '10px 14px', fontSize: 12, fontWeight: 900, borderRadius: 12, border: isLight ? '2px solid #000000' : '2px solid #ffffff', background: isLight ? '#ffedd5' : 'rgba(245,158,11,0.15)', color: isLight ? '#7c2d12' : '#fbbf24', cursor: 'pointer' }}>
-                    💧 Easy Cash Flow
-                  </button>
-                  <button onClick={() => applyPreset('balanced')} style={{ padding: '10px 14px', fontSize: 12, fontWeight: 900, borderRadius: 12, border: isLight ? '2px solid #000000' : '2px solid #ffffff', background: isLight ? '#ffedd5' : 'rgba(245,158,11,0.15)', color: isLight ? '#7c2d12' : '#fbbf24', cursor: 'pointer' }}>
-                    🍭 Balanced Kid
-                  </button>
+            {/* Controls Header: Select Schemes & Adjust Assumptions */}
+            <div style={{ background: isLight ? '#f8fafc' : 'rgba(255,255,255,0.03)', padding: 20, borderRadius: 20, border: isLight ? '2px solid #000000' : '2px solid #ffffff', marginBottom: 24 }}>
+              {/* Scheme Picker Checkboxes */}
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ fontSize: 12, fontWeight: 900, color: isLight ? '#ea580c' : '#fbbf24', marginBottom: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span>SELECT SCHEMES TO COMPARE (2 TO 4 SCHEMES):</span>
+                  <span style={{ fontSize: 11, color: isLight ? '#475569' : '#9ca3af', fontWeight: 700 }}>{matrixSelected.length}/4 Selected</span>
                 </div>
 
-
-
-                {/* Sliders Container */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                  {Object.keys(alloc).map((key) => {
-                    const val = alloc[key]
-                    const rate = customRates[key]
-                    const color = colors[key]
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+                  {[
+                    { key: 'PPF', label: 'PPF (7.1% EEE)', emoji: '🏛️', color: '#f59e0b' },
+                    { key: 'FD', label: 'Fixed Deposit (7.25%)', emoji: '🏦', color: '#d97706' },
+                    { key: 'NSC', label: 'NSC (7.7% Sec 80C)', emoji: '📜', color: '#fbbf24' },
+                    { key: 'GOLD', label: 'Sovereign Gold (9.5%)', emoji: '🪙', color: '#eab308' },
+                    { key: 'SSY', label: 'Sukanya Samriddhi (8.2%)', emoji: '👧', color: '#ec4899' },
+                    { key: 'RD', label: 'Recurring Deposit (6.5%)', emoji: '🔄', color: '#10b981' }
+                  ].map(s => {
+                    const isChecked = matrixSelected.includes(s.key)
                     return (
-                      <div key={key} style={{
-                        background: isLight ? '#f8fafc' : 'rgba(255,255,255,0.03)', borderRadius: 16, padding: '12px 16px',
-                        border: isLight ? '2px solid #000000' : '2px solid #ffffff',
-                      }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <span style={{ width: 10, height: 10, borderRadius: '50%', background: color, display: 'inline-block' }}/>
-                            <div>
-                              <span style={{ fontWeight: 900, fontSize: 14, color: isLight ? '#0f172a' : '#ffffff' }} title={SCHEME_NAMES[key]}>{key}</span>
-                              <div style={{ fontSize: 10, color: isLight ? '#475569' : '#9ca3af', fontWeight: 700 }}>{SCHEME_NAMES[key]}</div>
-                            </div>
-                            
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginLeft: 8 }}>
-                              <span style={{ fontSize: 10, color: isLight ? '#475569' : '#9ca3af', fontWeight: 800 }}>Rate:</span>
-                              <input
-                                type="number"
-                                min="0" max="25" step="0.05"
-                                value={rate}
-                                onChange={(e) => setCustomRates({ ...customRates, [key]: parseFloat(e.target.value) || 0 })}
-                                style={{
-                                  width: 55, padding: '3px 6px', fontSize: 11, fontWeight: 900,
-                                  background: isLight ? '#ffffff' : '#1a1610', border: isLight ? '2px solid #000000' : '2px solid #ffffff',
-                                  borderRadius: 6, textAlign: 'center', color: isLight ? '#0f172a' : '#fef3c7', outline: 'none'
-                                }}
-                              />
-                              <span style={{ fontSize: 10, color: isLight ? '#475569' : '#9ca3af', fontWeight: 800 }}>%</span>
-                            </div>
-                          </div>
-                          <span style={{ fontWeight: 900, color: isLight ? '#ea580c' : color, fontSize: 14 }}>{val}%</span>
-                        </div>
-                        <input
-                          type="range" min="0" max="100" value={val}
-                          onChange={(e) => handleSliderChange(key, parseInt(e.target.value))}
-                          style={{
-                            width: '100%', height: 6, borderRadius: 3,
-                            accentColor: color, outline: 'none', cursor: 'pointer'
-                          }}
-                        />
-                      </div>
+                      <button
+                        key={s.key}
+                        onClick={() => toggleMatrixScheme(s.key)}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: 6,
+                          padding: '8px 14px', borderRadius: 12, fontSize: 12, fontWeight: 900,
+                          border: isChecked ? `2px solid ${s.color}` : (isLight ? '2px solid #cbd5e1' : '2px solid rgba(255,255,255,0.15)'),
+                          background: isChecked ? (isLight ? '#ffedd5' : 'rgba(245, 158, 11, 0.15)') : (isLight ? '#ffffff' : 'rgba(255,255,255,0.03)'),
+                          color: isChecked ? (isLight ? '#7c2d12' : '#fbbf24') : (isLight ? '#64748b' : '#9ca3af'),
+                          cursor: 'pointer', transition: 'all 0.2s'
+                        }}
+                      >
+                        <span>{isChecked ? '☑' : '☐'}</span>
+                        <span>{s.emoji} {s.label}</span>
+                      </button>
                     )
                   })}
                 </div>
               </div>
 
-              {/* Right Column: Donut & Growth Projector */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-                {/* Donut Chart */}
-                <div style={{
-                  background: isLight ? '#f8fafc' : 'rgba(255,255,255,0.03)', borderRadius: 24, padding: 24,
-                  border: isLight ? '2px solid #000000' : '2px solid #ffffff',
-                  display: 'flex', alignItems: 'center', justifyContent: 'space-around', flexWrap: 'wrap', gap: 16
-                }}>
-                  <div style={{ position: 'relative', width: 130, height: 130 }}>
-                    <svg width="130" height="130" viewBox="0 0 120 120" style={{ transform: 'rotate(-90deg)' }}>
-                      <circle cx="60" cy="60" r={radius} fill="transparent" stroke={isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.08)'} strokeWidth="14" />
-                      {Object.keys(alloc).map((key) => {
-                        const val = alloc[key]
-                        const color = colors[key]
-                        if (val === 0) return null
-                        const strokeDashOffset = circ - (val / 100) * circ
-                        const currentRotationOffset = currentOffset
-                        currentOffset += (val / 100) * circ
-                        return (
-                          <circle
-                            key={key} cx="60" cy="60" r={radius} fill="transparent"
-                            stroke={color} strokeWidth="14"
-                            strokeDasharray={circ} strokeDashoffset={strokeDashOffset}
-                            style={{
-                              transformOrigin: '60px 60px',
-                              transform: `rotate(${(currentRotationOffset / circ) * 360}deg)`,
-                              transition: 'stroke-dashoffset 0.3s'
-                            }}
-                          />
-                        )
-                      })}
-                    </svg>
-                    <div style={{
-                      position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column',
-                      alignItems: 'center', justifyContent: 'center', pointerEvents: 'none'
-                    }}>
-                      <span style={{ fontSize: 18, fontWeight: 900, color: isLight ? '#ea580c' : '#fbbf24', lineHeight: 1 }}>{yieldRate}%</span>
-                      <span style={{ fontSize: 9, color: isLight ? '#475569' : '#9ca3af', fontWeight: 800, marginTop: 2 }}>EST. YIELD</span>
+              {/* Assumption Sliders */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 20 }}>
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, fontWeight: 800, color: isLight ? '#0f172a' : '#ffffff', marginBottom: 6 }}>
+                    <span>Monthly Investment</span>
+                    <span style={{ color: isLight ? '#ea580c' : '#fbbf24', fontWeight: 900 }}>₹{matrixAmount.toLocaleString('en-IN')}/mo</span>
+                  </div>
+                  <input
+                    type="range" min="1000" max="50000" step="1000" value={matrixAmount}
+                    onChange={e => setMatrixAmount(Number(e.target.value))}
+                    style={{ width: '100%', accentColor: '#f59e0b', height: 6, cursor: 'pointer' }}
+                  />
+                </div>
+
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, fontWeight: 800, color: isLight ? '#0f172a' : '#ffffff', marginBottom: 6 }}>
+                    <span>Investment Period</span>
+                    <span style={{ color: isLight ? '#ea580c' : '#fbbf24', fontWeight: 900 }}>{matrixYears} Years</span>
+                  </div>
+                  <input
+                    type="range" min="1" max="15" step="1" value={matrixYears}
+                    onChange={e => setMatrixYears(Number(e.target.value))}
+                    style={{ width: '100%', accentColor: '#f59e0b', height: 6, cursor: 'pointer' }}
+                  />
+                </div>
+
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, fontWeight: 800, color: isLight ? '#0f172a' : '#ffffff', marginBottom: 6 }}>
+                    <span>Assumed Inflation Rate</span>
+                    <span style={{ color: '#ef4444', fontWeight: 900 }}>{matrixInflation}% p.a.</span>
+                  </div>
+                  <input
+                    type="range" min="3" max="10" step="0.5" value={matrixInflation}
+                    onChange={e => setMatrixInflation(Number(e.target.value))}
+                    style={{ width: '100%', accentColor: '#ef4444', height: 6, cursor: 'pointer' }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Brief Educational Note on Nominal vs Real Return */}
+            <div style={{
+              background: isLight ? '#ffedd5' : 'rgba(245, 158, 11, 0.12)',
+              border: isLight ? '2px solid #000000' : '2px solid rgba(245, 158, 11, 0.3)',
+              borderRadius: 14, padding: '12px 16px', marginBottom: 20, fontSize: 12,
+              color: isLight ? '#7c2d12' : '#fef3c7', fontWeight: 700
+            }}>
+              💡 <strong>Educational Note:</strong> <em>Nominal return</em> shows total growth before considering inflation. <em>Inflation-adjusted return</em> estimates real purchasing-power growth after accounting for a <strong>{matrixInflation}% p.a.</strong> price rise.
+            </div>
+
+            {/* Comparison Matrix Table */}
+            {(() => {
+              const MATRIX_DB = {
+                PPF: { key: 'PPF', name: 'PPF', fullName: 'Public Provident Fund', emoji: '🏛️', rate: advRates.PPF || 7.1, risk: 'Low (Govt)', riskBadge: '🟢 Low', lockin: '15 Years', lockinBadge: '🔒 15 Yrs', tax: 'EEE (100% Tax Free)', taxBadge: '🍀 EEE Tax-Free', liquidity: 'Low (Partial after 7 Yrs)', liquidityBadge: '💧 Low' },
+                FD: { key: 'FD', name: 'FD', fullName: 'Fixed Deposit', emoji: '🏦', rate: advRates.FD || 7.25, risk: 'Low/Med (Bank Insured)', riskBadge: '🟢 Low', lockin: '7 Days – 10 Yrs', lockinBadge: '🔒 Flexible', tax: 'Taxable as per Income Slab', taxBadge: '💸 Taxable', liquidity: 'Medium (Premature penalty)', liquidityBadge: '💧 Medium' },
+                NSC: { key: 'NSC', name: 'NSC', fullName: 'National Savings Cert.', emoji: '📜', rate: advRates.NSC || 7.7, risk: 'Low (Post Office)', riskBadge: '🟢 Low', lockin: '5 Years Fixed', lockinBadge: '🔒 5 Yrs', tax: 'Sec 80C Tax Deduction', taxBadge: '📝 Sec 80C', liquidity: 'Low (Locked till maturity)', liquidityBadge: '💧 Low' },
+                GOLD: { key: 'GOLD', name: 'Gold', fullName: 'Sovereign / Digital Gold', emoji: '🪙', rate: 9.5, risk: 'Medium (Market Volatility)', riskBadge: '🟡 Moderate', lockin: '8 Years (SGB)', lockinBadge: '🔒 8 Yrs / Flex', tax: 'Capital Gains Tax', taxBadge: '📈 Capital Gains', liquidity: 'High (Traded on exchange)', liquidityBadge: '💧 High' },
+                SSY: { key: 'SSY', name: 'SSY', fullName: 'Sukanya Samriddhi', emoji: '👧', rate: advRates.SSY || 8.2, risk: 'Low (Govt Backed)', riskBadge: '🟢 Low', lockin: '21 Years', lockinBadge: '🔒 21 Yrs', tax: 'EEE (100% Tax Free)', taxBadge: '🍀 EEE Tax-Free', liquidity: 'Low (Locked for girl child)', liquidityBadge: '💧 Low' },
+                RD: { key: 'RD', name: 'RD', fullName: 'Recurring Deposit', emoji: '🔄', rate: advRates.RD || 6.5, risk: 'Low (Bank Deposit)', riskBadge: '🟢 Low', lockin: '1 – 5 Years', lockinBadge: '🔒 1–5 Yrs', tax: 'Taxable Interest', taxBadge: '💸 Taxable', liquidity: 'Medium (Monthly plan)', liquidityBadge: '💧 Medium' }
+              }
+
+              const activeSchemes = matrixSelected.map(k => MATRIX_DB[k]).filter(Boolean)
+              const totalMonths = matrixYears * 12
+              const totalInvested = matrixAmount * totalMonths
+
+              return (
+                <div>
+                  <div style={{ background: isLight ? '#ffffff' : '#080705', padding: 20, borderRadius: 20, border: isLight ? '2px solid #000000' : '2px solid #ffffff', overflowX: 'auto', marginBottom: 24 }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, textAlign: 'left' }}>
+                      <thead>
+                        <tr style={{ borderBottom: isLight ? '2px solid #000000' : '2px solid rgba(255,255,255,0.2)', color: isLight ? '#0f172a' : '#fbbf24' }}>
+                          <th style={{ padding: '12px 14px', fontSize: 13, fontWeight: 900 }}>COMPARISON METRIC</th>
+                          {activeSchemes.map(s => (
+                            <th key={s.key} style={{ padding: '12px 14px', fontSize: 14, fontWeight: 900, textAlign: 'center' }}>
+                              <div>{s.emoji} {s.name}</div>
+                              <div style={{ fontSize: 10, color: isLight ? '#475569' : '#9ca3af', fontWeight: 700 }}>{s.fullName}</div>
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {/* 1. Risk / Safety Level */}
+                        <tr style={{ borderBottom: isLight ? '1px solid #e2e8f0' : '1px solid rgba(255,255,255,0.08)' }}>
+                          <td style={{ padding: '12px 14px', fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff' }}>🛡️ Risk / Safety Level</td>
+                          {activeSchemes.map(s => (
+                            <td key={s.key} style={{ padding: '12px 14px', textAlign: 'center', fontWeight: 800, color: isLight ? '#334155' : '#cbd5e1' }}>
+                              <span style={{ padding: '4px 10px', borderRadius: 8, background: isLight ? '#f1f5f9' : 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                                {s.riskBadge}
+                              </span>
+                            </td>
+                          ))}
+                        </tr>
+
+                        {/* 2. Lock-in Period */}
+                        <tr style={{ borderBottom: isLight ? '1px solid #e2e8f0' : '1px solid rgba(255,255,255,0.08)' }}>
+                          <td style={{ padding: '12px 14px', fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff' }}>🔒 Lock-in Period</td>
+                          {activeSchemes.map(s => (
+                            <td key={s.key} style={{ padding: '12px 14px', textAlign: 'center', fontWeight: 800, color: isLight ? '#334155' : '#cbd5e1' }}>
+                              <div>{s.lockinBadge}</div>
+                              <div style={{ fontSize: 10, color: isLight ? '#64748b' : '#9ca3af', marginTop: 2 }}>{s.lockin}</div>
+                            </td>
+                          ))}
+                        </tr>
+
+                        {/* 3. Tax Benefits */}
+                        <tr style={{ borderBottom: isLight ? '1px solid #e2e8f0' : '1px solid rgba(255,255,255,0.08)' }}>
+                          <td style={{ padding: '12px 14px', fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff' }}>🧾 Tax Treatment</td>
+                          {activeSchemes.map(s => (
+                            <td key={s.key} style={{ padding: '12px 14px', textAlign: 'center', fontWeight: 800 }}>
+                              <span style={{ padding: '4px 8px', borderRadius: 8, background: s.tax.includes('EEE') ? 'rgba(16, 185, 129, 0.15)' : (isLight ? '#f1f5f9' : 'rgba(255,255,255,0.06)'), color: s.tax.includes('EEE') ? '#10b981' : (isLight ? '#334155' : '#cbd5e1') }}>
+                                {s.taxBadge}
+                              </span>
+                            </td>
+                          ))}
+                        </tr>
+
+                        {/* 4. Liquidity */}
+                        <tr style={{ borderBottom: isLight ? '1px solid #e2e8f0' : '1px solid rgba(255,255,255,0.08)' }}>
+                          <td style={{ padding: '12px 14px', fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff' }}>💧 Liquidity</td>
+                          {activeSchemes.map(s => (
+                            <td key={s.key} style={{ padding: '12px 14px', textAlign: 'center', fontWeight: 800, color: isLight ? '#334155' : '#cbd5e1' }}>
+                              <div>{s.liquidityBadge}</div>
+                            </td>
+                          ))}
+                        </tr>
+
+                        {/* 5. Expected / Nominal Return */}
+                        <tr style={{ borderBottom: isLight ? '1px solid #e2e8f0' : '1px solid rgba(255,255,255,0.08)' }}>
+                          <td style={{ padding: '12px 14px', fontWeight: 900, color: isLight ? '#ea580c' : '#fbbf24' }}>📈 Nominal Return (% p.a.)</td>
+                          {activeSchemes.map(s => {
+                            const rMonthly = (s.rate / 100) / 12
+                            const projNominal = Math.round(matrixAmount * ((Math.pow(1 + rMonthly, totalMonths) - 1) / rMonthly) * (1 + rMonthly))
+                            return (
+                              <td key={s.key} style={{ padding: '12px 14px', textAlign: 'center' }}>
+                                <div style={{ fontSize: 15, fontWeight: 900, color: isLight ? '#ea580c' : '#fbbf24' }}>{s.rate}% p.a.</div>
+                                <div style={{ fontSize: 11, fontWeight: 800, color: '#10b981', marginTop: 2 }}>₹{projNominal.toLocaleString('en-IN')}</div>
+                              </td>
+                            )
+                          })}
+                        </tr>
+
+                        {/* 6. Real Return (Inflation-Adjusted) */}
+                        <tr>
+                          <td style={{ padding: '12px 14px', fontWeight: 900, color: '#ef4444' }}>📉 Real Return (After {matrixInflation}% Inf)</td>
+                          {activeSchemes.map(s => {
+                            const rMonthly = (s.rate / 100) / 12
+                            const projNominal = Math.round(matrixAmount * ((Math.pow(1 + rMonthly, totalMonths) - 1) / rMonthly) * (1 + rMonthly))
+                            const projReal = Math.round(projNominal / Math.pow(1 + matrixInflation / 100, matrixYears))
+                            const realRate = (s.rate - matrixInflation).toFixed(2)
+                            const isPos = Number(realRate) >= 0
+
+                            return (
+                              <td key={s.key} style={{ padding: '12px 14px', textAlign: 'center' }}>
+                                <div style={{ fontSize: 14, fontWeight: 900, color: isPos ? '#10b981' : '#ef4444' }}>
+                                  {isPos ? `+${realRate}%` : `${realRate}%`} p.a.
+                                </div>
+                                <div style={{ fontSize: 11, fontWeight: 800, color: isLight ? '#475569' : '#d1d5db', marginTop: 2 }}>
+                                  Real Power: ₹{projReal.toLocaleString('en-IN')}
+                                </div>
+                              </td>
+                            )
+                          })}
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* 💡 What You Should Notice (Dynamic Observations) */}
+                  <div style={{ background: isLight ? '#f8fafc' : 'rgba(255,255,255,0.03)', padding: 20, borderRadius: 18, border: isLight ? '2px solid #000000' : '2.5px solid #ffffff', marginBottom: 24 }}>
+                    <h3 style={{ fontSize: 15, fontWeight: 900, color: isLight ? '#ea580c' : '#fbbf24', marginTop: 0, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span>💡</span>
+                      <span>What Should You Notice?</span>
+                    </h3>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: 12, fontWeight: 700, color: isLight ? '#334155' : '#d1d5db', lineHeight: 1.6 }}>
+                      {matrixSelected.includes('PPF') && (
+                        <div>• <strong>Long-term Lock-in vs Tax Exemption:</strong> PPF locks your funds for 15 years, but offers 100% tax-free growth (EEE), making it a powerful long-term compounder.</div>
+                      )}
+                      {matrixSelected.includes('FD') && (
+                        <div>• <strong>Tax Impact on FD Returns:</strong> Fixed Deposit offers guaranteed bank security and flexible tenures, but interest earned is taxable under your income tax slab.</div>
+                      )}
+                      {matrixSelected.includes('GOLD') && (
+                        <div>• <strong>Inflation Hedging vs Volatility:</strong> Sovereign/Digital Gold yields a higher return (~9.5%) and hedges against inflation, but carries short-term market price fluctuations.</div>
+                      )}
+                      <div>• <strong>Purchasing Power Erosion:</strong> At <strong>{matrixInflation}%</strong> assumed inflation, fixed-rate schemes with ~7% yield produce an effective real purchasing power gain of only <strong>~{(7.25 - matrixInflation).toFixed(2)}% p.a.</strong></div>
                     </div>
                   </div>
 
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                    {Object.keys(alloc).map((key) => (
-                      <div key={key} style={{
-                        display: 'flex', alignItems: 'center', gap: 8, fontSize: 11,
-                        fontWeight: 800, color: alloc[key] > 0 ? (isLight ? '#0f172a' : '#ffffff') : (isLight ? '#94a3b8' : '#71717a'),
-                      }}>
-                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: colors[key] }}/>
-                        <span>{key}: {alloc[key]}%</span>
-                      </div>
-                    ))}
+                  {/* 🎯 Learning Challenge (Interactive Trade-off Question) */}
+                  <div style={{ background: isLight ? '#ffffff' : '#080705', padding: 20, borderRadius: 18, border: isLight ? '2px solid #000000' : '2px solid #ffffff' }}>
+                    <h3 style={{ fontSize: 15, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff', marginTop: 0, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span>🎯</span>
+                      <span>Learning Challenge: Which factor matters most for your goal?</span>
+                    </h3>
+                    <p style={{ fontSize: 12, color: isLight ? '#475569' : '#9ca3af', fontWeight: 600, marginBottom: 14 }}>
+                      Select a primary priority to explore its financial trade-offs:
+                    </p>
 
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 10, marginBottom: 16 }}>
+                      {[
+                        { id: 'safety', label: '🛡️ Safety & Capital Protection', tradeOff: 'Focusing on Safety keeps your principal 100% risk-free, but may yield lower real growth when inflation spikes.' },
+                        { id: 'liquidity', label: '💧 Instant Liquidity & Access', tradeOff: 'Prioritizing Liquidity ensures immediate cash for unexpected emergencies (FD/Liquid), but often comes with taxable interest or premature withdrawal penalties.' },
+                        { id: 'growth', label: '📈 High Long-Term Wealth Growth', tradeOff: 'Targeting Growth (Gold/Equity) beats inflation over long horizons, but requires surviving short-term price fluctuations.' },
+                        { id: 'tax', label: '🧾 Tax Exemption (EEE Status)', tradeOff: 'Maximizing Tax Benefits (PPF/SSY) keeps 100% of compound interest in your pocket, but requires committing to multi-year lock-in tenures.' }
+                      ].map(opt => (
+                        <button
+                          key={opt.id}
+                          onClick={() => setMatrixFactorChoice(opt.id)}
+                          style={{
+                            padding: '12px 14px', borderRadius: 12, fontSize: 12, fontWeight: 900, textAlign: 'left',
+                            border: matrixFactorChoice === opt.id ? '2px solid #f59e0b' : (isLight ? '2px solid #cbd5e1' : '2px solid rgba(255,255,255,0.15)'),
+                            background: matrixFactorChoice === opt.id ? (isLight ? '#ffedd5' : 'rgba(245, 158, 11, 0.15)') : (isLight ? '#f8fafc' : 'rgba(255,255,255,0.03)'),
+                            color: matrixFactorChoice === opt.id ? (isLight ? '#7c2d12' : '#fbbf24') : (isLight ? '#334155' : '#d1d5db'),
+                            cursor: 'pointer', transition: 'all 0.2s'
+                          }}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Trade-off Educational Feedback Box */}
+                    {matrixFactorChoice && (() => {
+                      const tradeOffs = {
+                        safety: '🛡️ Capital Protection preserves your money from loss, but low-yield safe assets can lag behind high inflation.',
+                        liquidity: '💧 High Liquidity guarantees instant emergency access, but flexible accounts often carry lower net yields.',
+                        growth: '📈 High Growth protects real buying power against inflation, but requires patience through market ups and downs.',
+                        tax: '🧾 Tax-Free EEE Status maximizes net returns, but requires committing to long-term lock-in timelines (15 yrs).'
+                      }
+                      return (
+                        <div className="anim-fade" style={{ background: isLight ? '#ffedd5' : 'rgba(245, 158, 11, 0.12)', padding: 14, borderRadius: 12, border: '2px solid #f59e0b' }}>
+                          <div style={{ fontSize: 12, fontWeight: 900, color: isLight ? '#7c2d12' : '#fbbf24', marginBottom: 4 }}>
+                            💡 EDUCATIONAL TRADE-OFF ANALYSIS:
+                          </div>
+                          <div style={{ fontSize: 12, color: isLight ? '#0f172a' : '#d1d5db', fontWeight: 700, lineHeight: 1.5 }}>
+                            {tradeOffs[matrixFactorChoice]}
+                          </div>
+                        </div>
+                      )
+                    })()}
                   </div>
                 </div>
+              )
+            })()}
+          </div>
 
                 {/* Compound Growth Projector */}
                 <div style={{
@@ -1164,11 +1356,6 @@ export default function Intermediate({
                   )}
                 </div>
               </div>
-            </div>
-          </div>
-
-
-        </div>
       )}
 
       {activeTab === 'portfolio' && (
