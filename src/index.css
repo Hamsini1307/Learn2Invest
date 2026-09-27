@@ -717,10 +717,10 @@ input[type=range] {
   border: 1.5px solid var(--border-light, rgba(217, 119, 6, 0.3));
   border-radius: var(--radius-sm);
   padding: 10px 14px;
-  color: var(--text-main, #fef3c7);
-  font-size: 13px;
+  color: #ffffff !important;
+  font-size: 14px;
   font-family: 'Outfit', sans-serif;
-  font-weight: 600;
+  font-weight: 700;
   outline: none;
   transition: all 0.2s;
 }
@@ -729,7 +729,7 @@ input[type=range] {
   box-shadow: 0 0 12px var(--gold-bg, rgba(245, 158, 11, 0.3));
 }
 .input-light::placeholder {
-  color: var(--text-muted, #9ca3af);
+  color: #9ca3af;
 }
 
 /* Autofill override */
