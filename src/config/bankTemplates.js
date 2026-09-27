@@ -248,21 +248,23 @@ export const BANK_TEMPLATES_CONFIG = {
     image: '/slips/postoffice_deposit.jpg',
     fields: [
       // Left Counterfoil
-      { id: 'cfBranch', bindKey: 'branch', label: 'Post Office (Left)', x: 5.5, y: 14.0, fontSize: '0.85rem', renderingMode: 'text' },
-      { id: 'cfAccNo', bindKey: 'accountNumber', label: 'Account Number (Left)', x: 13.5, y: 27.0, gap: 7, boxWidth: '13px', fontSize: '0.88rem', renderingMode: 'characterBoxes' },
-      { id: 'cfName', bindKey: 'name', label: 'Payee Name (Left)', x: 20.0, y: 33.5, fontSize: '0.85rem', renderingMode: 'text' },
-      { id: 'cfWords', bindKey: 'amountInWords', label: 'Rupees Words (Left)', x: 12.0, y: 38.0, width: 24, fontSize: '0.75rem', renderingMode: 'amountInWords' },
-      { id: 'cfStampSig', bindKey: 'signature', label: 'Initial of PA (Left)', x: 23.5, y: 82.0, width: 18, height: 8, renderingMode: 'signature' },
+      { id: 'cfBranch', bindKey: 'branch', label: 'Post Office (Left)', x: 1.5, y: 9.0, fontSize: '0.80rem', renderingMode: 'text' },
+      { id: 'cfDate', bindKey: 'date', label: 'Date Digits (Left)', x: 19.2, y: 7.2, gap: 5.5, boxWidth: '13px', fontSize: '0.80rem', renderingMode: 'dateBoxes' },
+      { id: 'cfAccNo', bindKey: 'accountNumber', label: 'Account Number (Left)', x: 13.8, y: 23.0, gap: 4.8, boxWidth: '12px', fontSize: '0.85rem', renderingMode: 'characterBoxes' },
+      { id: 'cfName', bindKey: 'name', label: 'Payee Name (Left)', x: 21.0, y: 31.5, fontSize: '0.82rem', renderingMode: 'text' },
+      { id: 'cfWords', bindKey: 'amountInWords', label: 'Rupees Words (Left)', x: 16.0, y: 36.0, width: 20, fontSize: '0.68rem', renderingMode: 'amountInWords' },
+      { id: 'cfAmount', bindKey: 'amount', label: 'Amount Box (Left)', x: 28.5, y: 41.5, fontSize: '0.90rem', renderingMode: 'amount' },
+      { id: 'cfStampSig', bindKey: 'signature', label: 'Initial of PA (Left)', x: 23.5, y: 85.0, width: 12, height: 7, renderingMode: 'signature' },
 
       // Right Main Section
-      { id: 'mainBranch', bindKey: 'branch', label: 'Post Office (Right)', x: 73.0, y: 9.0, fontSize: '0.85rem', renderingMode: 'text' },
-      { id: 'mainDateTop', bindKey: 'date', label: 'Date Digits (Top Right)', x: 88.0, y: 7.0, gap: 5, boxWidth: '12px', fontSize: '0.82rem', renderingMode: 'dateBoxes' },
-      { id: 'mainAccNo', bindKey: 'accountNumber', label: 'Account Number (Right)', x: 52.5, y: 21.5, gap: 8, boxWidth: '14px', fontSize: '0.88rem', renderingMode: 'characterBoxes' },
-      { id: 'mainName', bindKey: 'name', label: 'Payee Name (Right)', x: 58.0, y: 28.0, fontSize: '0.85rem', renderingMode: 'text' },
-      { id: 'mainWords', bindKey: 'amountInWords', label: 'Rupees Words (Right)', x: 50.0, y: 33.5, width: 35, fontSize: '0.78rem', renderingMode: 'amountInWords' },
-      { id: 'mainDateMid', bindKey: 'date', label: 'Date Digits (Mid Right)', x: 88.0, y: 32.5, gap: 5, boxWidth: '12px', fontSize: '0.82rem', renderingMode: 'dateBoxes' },
-      { id: 'mainAmount', bindKey: 'amount', label: 'Amount Box (Right)', x: 59.0, y: 70.0, fontSize: '0.95rem', renderingMode: 'amount' },
-      { id: 'mainSig', bindKey: 'signature', label: 'Depositor Signature', x: 83.0, y: 70.0, width: 18, height: 8, renderingMode: 'signature' }
+      { id: 'mainBranch', bindKey: 'branch', label: 'Post Office (Right)', x: 40.0, y: 12.0, fontSize: '0.82rem', renderingMode: 'text' },
+      { id: 'mainDateTop', bindKey: 'date', label: 'Date Digits (Top Right)', x: 83.2, y: 15.5, gap: 3.5, boxWidth: '11px', fontSize: '0.82rem', renderingMode: 'dateBoxes' },
+      { id: 'mainAccNo', bindKey: 'accountNumber', label: 'Account Number (Right)', x: 52.2, y: 15.5, gap: 5.2, boxWidth: '13px', fontSize: '0.88rem', renderingMode: 'characterBoxes' },
+      { id: 'mainName', bindKey: 'name', label: 'Payee Name (Right)', x: 50.0, y: 26.5, fontSize: '0.85rem', renderingMode: 'text' },
+      { id: 'mainWords', bindKey: 'amountInWords', label: 'Rupees Words (Right)', x: 46.0, y: 32.5, width: 40, fontSize: '0.75rem', renderingMode: 'amountInWords' },
+      { id: 'mainDateMid', bindKey: 'date', label: 'Date Digits (Mid Right)', x: 70.0, y: 38.5, fontSize: '0.82rem', renderingMode: 'text' },
+      { id: 'mainAmount', bindKey: 'amount', label: 'Amount Box (Right)', x: 89.5, y: 38.5, fontSize: '0.90rem', renderingMode: 'amount' },
+      { id: 'mainSig', bindKey: 'signature', label: 'Depositor Signature', x: 88.0, y: 74.0, width: 10, height: 6, renderingMode: 'signature' }
     ]
   },
 
