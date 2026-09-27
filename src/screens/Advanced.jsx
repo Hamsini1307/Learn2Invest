@@ -733,6 +733,13 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
   const renderFieldValue = (field) => {
     let value = userData[field.bindKey]
 
+    if (field.bindKey === 'date' && value) {
+      const parts = String(value).split(/[-/]/)
+      if (parts.length === 3 && parts[0].length === 4) {
+        value = `${parts[2].padStart(2, '0')}-${parts[1].padStart(2, '0')}-${parts[0]}`
+      }
+    }
+
     // Special binding overrides
     if (field.id.startsWith('denom500')) value = userData.notes500 > 0 ? `${userData.notes500}` : ''
     if (field.id.startsWith('denom200')) value = userData.notes200 > 0 ? `${userData.notes200}` : ''
