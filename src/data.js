@@ -266,3 +266,244 @@ export function isLevel3Completed(state) {
   return completed.includes('paper_slip') && completed.includes('cyber_game')
 }
 
+// ──────────────────────────────────────────────
+//  Portfolio Simulator Catalog & Calculation Helpers
+// ──────────────────────────────────────────────
+
+export const PORTFOLIO_OPTIONS_CATALOG = [
+  { typeKey: 'PPF', shortName: 'PPF', fullName: 'Public Provident Fund', emoji: '🏦', defaultRate: 7.1, defaultYears: 15, defaultMonthly: 3000, color: '#10b981' },
+  { typeKey: 'FD', shortName: 'FD', fullName: 'Fixed Deposit', emoji: '💳', defaultRate: 7.25, defaultYears: 5, defaultMonthly: 5000, color: '#3b82f6' },
+  { typeKey: 'NSC', shortName: 'NSC', fullName: 'National Savings Cert.', emoji: '📮', defaultRate: 7.7, defaultYears: 5, defaultMonthly: 3000, color: '#f59e0b' },
+  { typeKey: 'SSY', shortName: 'SSY', fullName: 'Sukanya Samriddhi', emoji: '👧', defaultRate: 8.2, defaultYears: 15, defaultMonthly: 2000, color: '#ec4899' },
+  { typeKey: 'RD', shortName: 'RD', fullName: 'Recurring Deposit', emoji: '📅', defaultRate: 6.5, defaultYears: 3, defaultMonthly: 2000, color: '#8b5cf6' },
+  { typeKey: 'MIS', shortName: 'MIS', fullName: 'Post Office MIS', emoji: '🏤', defaultRate: 7.4, defaultYears: 5, defaultMonthly: 5000, color: '#6366f1' },
+  { typeKey: 'GOLD', shortName: 'GOLD', fullName: 'Sovereign Gold Bond', emoji: '🪙', defaultRate: 9.5, defaultYears: 8, defaultMonthly: 3000, color: '#eab308' },
+]
+
+export function fmtINR(num) {
+  const val = Math.round(Number(num) || 0)
+  if (Math.abs(val) >= 10000000) {
+    return '₹' + (val / 10000000).toFixed(2) + ' Cr'
+  }
+  if (Math.abs(val) >= 100000) {
+    return '₹' + (val / 100000).toFixed(2) + ' L'
+  }
+  return '₹' + val.toLocaleString('en-IN')
+}
+
+export function calcSchemeFV(monthly, rate, years) {
+  const m = Math.max(0, Number(monthly) || 0)
+  const r = Math.max(0, Number(rate) || 0) / 100 / 12
+  const n = Math.max(1, Number(years) || 1) * 12
+  if (r === 0) return Math.round(m * n)
+  return Math.round(m * ((Math.pow(1 + r, n) - 1) / r) * (1 + r))
+}
+
+/**
+ * Generates default names for investment options inside a portfolio simulation:
+ * - If multiple of the same typeKey are selected: "FD 1", "FD 2", etc.
+ * - If only one of that typeKey is selected: "RD", "FD", "PPF", etc.
+ * - Preserves user-supplied customName if non-empty.
+ */
+export function getNamedPortfolioRows(rows = []) {
+  const counts = {}
+  rows.forEach(r => {
+    const key = (r.typeKey || r.key || r.type || 'FD').toUpperCase()
+    counts[key] = (counts[key] || 0) + 1
+  })
+  const seen = {}
+  return rows.map(r => {
+    const key = (r.typeKey || r.key || r.type || 'FD').toUpperCase()
+    seen[key] = (seen[key] || 0) + 1
+    const defaultName = counts[key] > 1 ? `${key} ${seen[key]}` : key
+    const cat = PORTFOLIO_OPTIONS_CATALOG.find(c => c.typeKey === key) || PORTFOLIO_OPTIONS_CATALOG[1]
+    const hasCustom = typeof r.customName === 'string' && r.customName.trim() !== ''
+    return {
+      ...r,
+      typeKey: key,
+      emoji: r.emoji || cat.emoji || '💳',
+      color: r.color || cat.color || '#f59e0b',
+      defaultName,
+      name: hasCustom ? r.customName.trim() : defaultName,
+    }
+  })
+}
+
+/**
+ * Divides the combined monthly investment across all selected investment rows
+ * so that overall profit is maximized with respect to each row's Rate of Interest
+ * and Time Period (Years), while keeping every selected row active (> 0).
+ */
+export function computeSmartMonthlyAllocations(rows = [], totalMonthlyBudget = 0) {
+  const k = rows.length
+  if (k === 0) return []
+  const M = Math.max(k, Math.round(Number(totalMonthlyBudget) || 0))
+  if (k === 1) return [M]
+
+  // Profit per ₹1/month invested for each row based on its rate & time period
+  const unitProfits = rows.map(r => {
+    const rate = Math.max(0, Number(r.rate) || 0)
+    const years = Math.max(1, Number(r.years ?? r.tenure) || 1)
+    const n = years * 12
+    const mRate = rate / 100 / 12
+    const fv1 = mRate > 0 ? ((Math.pow(1 + mRate, n) - 1) / mRate) * (1 + mRate) : n
+    return Math.max(0, fv1 - n)
+  })
+
+  const maxP = Math.max(...unitProfits)
+  const minP = Math.min(...unitProfits)
+  const maxIdx = unitProfits.indexOf(maxP)
+
+  // If all selected options have identical profit multipliers, split equally
+  if (maxP - minP < 1e-9) {
+    const base = Math.floor(M / k)
+    const rem = M - base * k
+    return rows.map((_, i) => (i === 0 ? base + rem : base))
+  }
+
+  // Reserve a small minimum floor per selected option so every chosen investment remains active,
+  // and allocate the remaining budget heavily toward the highest profit-multiplier investment(s).
+  const manualSum = rows.reduce((s, r) => s + (Math.max(0, Number(r.monthly) || 0)), 0)
+  const hasMatchingManual = Math.abs(manualSum - M) <= k
+
+  const floors = rows.map((r, idx) => {
+    const defaultFloor = Math.max(1, Math.floor((M / k) * 0.15))
+    if (hasMatchingManual && unitProfits[idx] < maxP) {
+      const manualVal = Math.max(1, Math.round(Number(r.monthly) || defaultFloor))
+      return Math.max(1, Math.min(defaultFloor, Math.floor(manualVal * 0.5)))
+    }
+    return defaultFloor
+  })
+
+  const floorSum = floors.reduce((s, v) => s + v, 0)
+  const distributable = Math.max(0, M - floorSum)
+
+  // Strongly weight toward maximum unit profit
+  const weights = unitProfits.map(p => {
+    const norm = (p - minP) / (maxP - minP)
+    return Math.pow(norm, 4) + (p === maxP ? 0.25 : 0.01 * norm)
+  })
+  const weightSum = weights.reduce((s, w) => s + w, 0) || 1
+
+  const allocations = floors.map((fl, i) => fl + Math.floor((distributable * weights[i]) / weightSum))
+  const currentSum = allocations.reduce((s, v) => s + v, 0)
+  allocations[maxIdx] += M - currentSum
+
+  return allocations
+}
+
+/**
+ * Runs the combined portfolio simulation across all selected rows and generates:
+ * - itemSummaries (each row's invested, returns, profit, profitPct)
+ * - totalInvested, totalReturns, totalProfit, profitPct
+ * - investedBarPct, returnsBarPct (for the Invested vs Returns breakdown bar)
+ * - maxHorizon & gapPeriods (detailed gap period analysis for investments maturing earlier)
+ */
+export function calculatePortfolioSimulation(rows = [], allocationMode = 'manual', totalMonthlyInput = null) {
+  const namedRows = getNamedPortfolioRows(rows)
+  const manualSum = namedRows.reduce((s, r) => s + Math.max(0, Math.round(Number(r.monthly) || 0)), 0)
+  const effectiveTotalMonthly =
+    allocationMode === 'smart' && totalMonthlyInput !== null && totalMonthlyInput !== undefined
+      ? Math.max(namedRows.length, Math.round(Number(totalMonthlyInput) || 0))
+      : manualSum
+
+  const smartAllocations = computeSmartMonthlyAllocations(namedRows, effectiveTotalMonthly)
+
+  let totalInvested = 0
+  let totalReturns = 0
+  let maxHorizon = 0
+  let minHorizon = Infinity
+
+  const itemSummaries = namedRows.map((row, idx) => {
+    const monthly =
+      allocationMode === 'smart'
+        ? smartAllocations[idx]
+        : Math.max(0, Math.round(Number(row.monthly) || 0))
+    const rate = Math.max(0, Number(row.rate) || 0)
+    const years = Math.max(1, Number(row.years ?? row.tenure) || 1)
+    const invested = monthly * years * 12
+    const returns = calcSchemeFV(monthly, rate, years)
+    const profit = Math.max(0, returns - invested)
+    const profitPct = invested > 0 ? ((profit / invested) * 100).toFixed(1) : '0.0'
+
+    totalInvested += invested
+    totalReturns += returns
+    if (years > maxHorizon) maxHorizon = years
+    if (years < minHorizon) minHorizon = years
+
+    return {
+      ...row,
+      monthly,
+      manualMonthly: Math.max(0, Math.round(Number(row.monthly) || 0)),
+      smartMonthly: smartAllocations[idx],
+      rate,
+      years,
+      tenure: years,
+      invested,
+      returns,
+      profit,
+      profitPct,
+      profitPercentage: profitPct,
+    }
+  })
+
+  if (minHorizon === Infinity) minHorizon = 0
+
+  const totalProfit = Math.max(0, totalReturns - totalInvested)
+  const profitPct = totalInvested > 0 ? ((totalProfit / totalInvested) * 100).toFixed(1) : '0.0'
+  const investedBarPct = totalReturns > 0 ? Math.min(100, Math.max(0, (totalInvested / totalReturns) * 100)).toFixed(1) : '100.0'
+  const returnsBarPct = totalReturns > 0 ? Math.max(0, 100 - Number(investedBarPct)).toFixed(1) : '0.0'
+
+  const longestItems = itemSummaries.filter(it => it.years === maxHorizon)
+  const longestNames = longestItems.map(it => it.name).join(', ')
+
+  const gapPeriods = itemSummaries
+    .filter(item => item.years < maxHorizon)
+    .map(item => {
+      const gapYears = maxHorizon - item.years
+      const analysisText = `${item.name} matures in ${item.years} year${item.years > 1 ? 's' : ''} with a total payout of ${fmtINR(item.returns)} (Invested: ${fmtINR(item.invested)}, Profit: +${fmtINR(item.profit)}), while your longest investment (${longestNames}) runs for ${maxHorizon} years — leaving a ${gapYears}-year gap period.`
+      let smartTip = ''
+      if (gapYears >= 10) {
+        smartTip = `You have a long ${gapYears}-year gap period (Year ${item.years} to Year ${maxHorizon}). You can reinvest the matured amount of ${fmtINR(item.returns)} into long-term instruments like Sovereign Gold Bonds, NSC, or another Fixed Deposit to earn additional compounding returns, or use it for major life goals.`
+      } else if (gapYears >= 5) {
+        smartTip = `You have a ${gapYears}-year gap period (Year ${item.years} to Year ${maxHorizon}) after ${item.name} matures. You can redeploy the matured ${fmtINR(item.returns)} into a ${gapYears}-year FD, NSC, or Post Office MIS for extra returns while waiting for ${longestNames} to mature, or utilize it for planned medium-term expenses.`
+      } else {
+        smartTip = `You have a ${gapYears}-year gap period (Year ${item.years} to Year ${maxHorizon}) after ${item.name} matures. You can utilize the matured ${fmtINR(item.returns)} in a short-term RD/FD for ${gapYears} year${gapYears > 1 ? 's' : ''} until ${longestNames} matures, or use the funds for other immediate purposes.`
+      }
+      return {
+        id: item.id,
+        name: item.name,
+        emoji: item.emoji || '💳',
+        maturesAt: item.years,
+        maxHorizon,
+        gapYears,
+        maturedCorpus: item.returns,
+        invested: item.invested,
+        profit: item.profit,
+        longestNames,
+        analysisText,
+        smartTip,
+      }
+    })
+    .sort((a, b) => a.maturesAt - b.maturesAt)
+
+  return {
+    allocationMode,
+    totalMonthly: effectiveTotalMonthly,
+    totalInvested,
+    totalReturns,
+    totalProfit,
+    profitPct,
+    profitPercentage: profitPct,
+    investedBarPct,
+    investedSharePct: investedBarPct,
+    returnsBarPct,
+    returnsSharePct: returnsBarPct,
+    minHorizon,
+    maxHorizon,
+    itemSummaries,
+    gapPeriods,
+  }
+}
+
+

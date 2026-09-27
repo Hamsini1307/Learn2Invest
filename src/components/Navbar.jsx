@@ -199,33 +199,31 @@ export default function Navbar({
               <span style={{ color: 'inherit' }}>Campus Map</span>
             </button>
 
-            {state?.intermediateUnlocked && (
-              <button
-                onClick={() => go('saved-simulations')}
-                style={{
-                  background: currentScreen === 'saved-simulations' 
-                    ? 'linear-gradient(135deg, #7c3aed, #a855f7)' 
-                    : (themeMode === 'light' ? '#f3e8ff' : 'rgba(168, 85, 247, 0.2)'),
-                  border: currentScreen === 'saved-simulations'
-                    ? '2px solid #6b21a8'
-                    : `2px solid ${themeMode === 'light' ? '#7c3aed' : '#a855f7'}`,
-                  color: currentScreen === 'saved-simulations' ? '#ffffff' : (themeMode === 'light' ? '#0f172a' : '#e9d5ff'),
-                  borderRadius: '999px',
-                  padding: '7px 16px',
-                  fontSize: '12px',
-                  fontWeight: 900,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 6,
-                  transition: 'all 0.2s',
-                  boxShadow: themeMode === 'light' ? '0 2px 8px rgba(124,58,237,0.2)' : 'none'
-                }}
-              >
-                <span>📁</span>
-                <span style={{ color: 'inherit' }}>Saved Sims</span>
-              </button>
-            )}
+            <button
+              onClick={() => go('saved-simulations')}
+              style={{
+                background: currentScreen === 'saved-simulations' 
+                  ? 'linear-gradient(135deg, #7c3aed, #a855f7)' 
+                  : (themeMode === 'light' ? '#f3e8ff' : 'rgba(168, 85, 247, 0.2)'),
+                border: currentScreen === 'saved-simulations'
+                  ? '2px solid #6b21a8'
+                  : `2px solid ${themeMode === 'light' ? '#7c3aed' : '#a855f7'}`,
+                color: currentScreen === 'saved-simulations' ? '#ffffff' : (themeMode === 'light' ? '#0f172a' : '#e9d5ff'),
+                borderRadius: '999px',
+                padding: '7px 16px',
+                fontSize: '12px',
+                fontWeight: 900,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                transition: 'all 0.2s',
+                boxShadow: themeMode === 'light' ? '0 2px 8px rgba(124,58,237,0.2)' : 'none'
+              }}
+            >
+              <span>📁</span>
+              <span style={{ color: 'inherit' }}>Saved Simulations</span>
+            </button>
           </div>
 
           {/* Center-Right: Ask AI & Utility Buttons */}

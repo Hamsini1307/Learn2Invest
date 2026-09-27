@@ -3,7 +3,7 @@ import { AI_AVATARS } from '../components/AiAvatarSelector.jsx'
 import { getText } from '../data/translations.js'
 import { isLevel1Completed, isLevel2Unlocked, isLevel2Completed, isLevel3Unlocked, isLevel3Completed } from '../data.js'
 
-export default function LandingJourney({ go, goBack, canGoBack, state, aiGuideAvatar = 'female', openAvatarModal, themeMode, lang = 'en' }) {
+export default function LandingJourney({ go, goBack, canGoBack, state, aiGuideAvatar = 'female', openAvatarModal, themeMode, lang = 'en', savedSimulations = [], savedPortfolioSimulations = [] }) {
   const activeAvatar = AI_AVATARS[aiGuideAvatar] || AI_AVATARS.female
   const { xp = 0, lessonsWatched = [] } = state || {}
 
@@ -346,6 +346,118 @@ export default function LandingJourney({ go, goBack, canGoBack, state, aiGuideAv
             </div>
           </div>
 
+        </div>
+      </section>
+
+      {/* ─── SAVED SIMULATIONS SECTION (MAIN PAGE) ─── */}
+      <section style={{ padding: '24px 0' }}>
+        <div
+          className="glass-card-sm"
+          style={{
+            padding: '28px',
+            borderRadius: '24px',
+            background: isLight ? '#ffffff' : 'var(--bg-card-deep, #12100c)',
+            border: isLight ? '2px solid rgba(124, 58, 237, 0.35)' : '2px solid rgba(168, 85, 247, 0.35)',
+            boxShadow: isLight ? '0 10px 30px rgba(124, 58, 237, 0.08)' : '0 10px 30px rgba(0,0,0,0.45)',
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '20px' }}>
+            <div>
+              <span className="sticker-badge sticker-yellow" style={{ marginBottom: '8px', display: 'inline-block' }}>
+                📂 SAVED SIMULATIONS ARCHIVE
+              </span>
+              <h2 style={{ fontSize: '24px', fontWeight: 900, color: isLight ? '#0f172a' : 'var(--heading-color, #ffffff)', margin: '0 0 4px 0', fontFamily: 'Space Grotesk' }}>
+                Saved Simulations
+              </h2>
+              <p style={{ fontSize: '13px', color: isLight ? '#475569' : 'var(--text-sub, #d1d5db)', margin: 0 }}>
+                View, edit, or delete your saved Lab Simulations and Portfolio Simulations anytime (0 XP).
+              </p>
+            </div>
+            <button
+              onClick={() => go('saved-simulations')}
+              className="btn-primary"
+              style={{
+                padding: '10px 22px',
+                fontSize: '13px',
+                borderRadius: '999px',
+                fontWeight: 900,
+              }}
+            >
+              📂 Open Saved Simulations →
+            </button>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '16px' }}>
+            {/* Folder 1: Lab Simulations */}
+            <div
+              onClick={() => {
+                localStorage.setItem('l2i_savedFolderTab', 'lab')
+                go('saved-simulations')
+              }}
+              style={{
+                padding: '20px',
+                borderRadius: '18px',
+                background: isLight ? '#fff7ed' : 'rgba(245, 158, 11, 0.08)',
+                border: '1.5px solid #f59e0b',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '14px',
+                transition: 'all 0.2s',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                <div style={{ fontSize: '32px' }}>📁</div>
+                <div>
+                  <div style={{ fontSize: '16px', fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff' }}>
+                    Lab Simulations
+                  </div>
+                  <div style={{ fontSize: '12px', color: isLight ? '#9a3412' : '#fbbf24', fontWeight: 700, marginTop: '2px' }}>
+                    {savedSimulations.length} Saved Simulation{savedSimulations.length === 1 ? '' : 's'}
+                  </div>
+                </div>
+              </div>
+              <span style={{ fontSize: '12px', fontWeight: 900, color: isLight ? '#ea580c' : '#fbbf24' }}>
+                View →
+              </span>
+            </div>
+
+            {/* Folder 2: Portfolio Simulations */}
+            <div
+              onClick={() => {
+                localStorage.setItem('l2i_savedFolderTab', 'portfolio')
+                go('saved-simulations')
+              }}
+              style={{
+                padding: '20px',
+                borderRadius: '18px',
+                background: isLight ? '#ecfdf5' : 'rgba(16, 185, 129, 0.08)',
+                border: '1.5px solid #10b981',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '14px',
+                transition: 'all 0.2s',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                <div style={{ fontSize: '32px' }}>📁</div>
+                <div>
+                  <div style={{ fontSize: '16px', fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff' }}>
+                    Portfolio Simulations
+                  </div>
+                  <div style={{ fontSize: '12px', color: isLight ? '#047857' : '#10b981', fontWeight: 700, marginTop: '2px' }}>
+                    {savedPortfolioSimulations.length} Saved Portfolio{savedPortfolioSimulations.length === 1 ? '' : 's'}
+                  </div>
+                </div>
+              </div>
+              <span style={{ fontSize: '12px', fontWeight: 900, color: '#10b981' }}>
+                View →
+              </span>
+            </div>
+          </div>
         </div>
       </section>
 

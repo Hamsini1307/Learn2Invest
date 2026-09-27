@@ -1,7 +1,18 @@
 import { useState, useEffect } from 'react'
-import { modules, advRates } from '../data.js'
+import {
+  modules,
+  advRates,
+  PORTFOLIO_OPTIONS_CATALOG,
+  fmtINR,
+  calcSchemeFV,
+  getNamedPortfolioRows,
+  computeSmartMonthlyAllocations,
+  calculatePortfolioSimulation,
+} from '../data.js'
 import { AI_AVATARS } from '../components/AiAvatarSelector.jsx'
 import MessageScamAnalyzer from '../components/MessageScamAnalyzer.jsx'
+
+const fmt = fmtINR
 
 const CYBER_SCENARIOS = [
   {
@@ -46,79 +57,6 @@ const CYBER_SCENARIOS = [
   }
 ]
 
-
-const VIDEOS_DB = {
-  upi_working: {
-    title: "🏦 Part 1: Digital Banking Overview",
-    url: "https://www.youtube.com/embed/zvPyqN-FEPQ?rel=0",
-    desc: "An overview of digital banking and mobile channels."
-  },
-  safety_phishing: {
-    title: "🛡️ Spam & Phishing Safety",
-    url: "https://www.youtube.com/embed/NI37JI7KnSc?rel=0",
-    desc: "An animated guide explaining email spam and password protection."
-  },
-  card_basics: {
-    title: "💳 Debit & Credit Cards Guide",
-    url: "https://www.youtube.com/embed/mllbYh0DFMc?rel=0",
-    desc: "A breakdown of Credit vs Debit cards and interest calculation."
-  }
-}
-
-const SCHEME_NAMES = {
-  PPF: 'Public Provident Fund (15-Yr Tax-Free)',
-  FD: 'Fixed Deposit (Guaranteed Bank Yield)',
-  NSC: 'National Savings Certificate (5-Yr Govt)',
-  SSY: 'Sukanya Samriddhi (Girl Child 8.2%)',
-  RD: 'Recurring Deposit (Monthly Systematic)',
-  MIS: 'Post Office Monthly Income Scheme'
-}
-
-
-const SCHEMES = Object.keys(advRates)
-
-const SCHEME_TENURES = { PPF: 15, FD: 5, GOLD: 8, NSC: 5, SSY: 21, RD: 3 }
-
-const COLORS = { PPF: '#f59e0b', FD: '#d97706', GOLD: '#eab308', NSC: '#fbbf24', SSY: '#ec4899', RD: '#10b981' }
-const EMOJIS = { PPF: '🏦', FD: '💳', GOLD: '🪙', NSC: '📮', SSY: '👧', RD: '📅' }
-
-const DESCRIPTIONS = {
-  PPF: 'Government-backed 15-year tax-free savings. Ideal for long term wealth creation.',
-  FD: 'Safe & steady bank deposits. Highly flexible tenures but interest is taxable.',
-  GOLD: 'Sovereign Gold Bonds & Digital Gold with market appreciation and fixed annual yield.',
-  NSC: 'Post Office 5-year certificate with guaranteed compounded annual returns.',
-  SSY: 'High interest savings scheme dedicated for the girl child. Completely tax-free.',
-  RD: 'Disciplined monthly savings plan with bank compounded interest payouts.',
-}
-
-const DETAILS = {
-  PPF: '🔒 15-Year Lock-in · 🍀 EEE Tax Free',
-  FD: '🔒 7 Days-10 Yrs · 💸 Taxable Interest',
-  GOLD: '🔒 8-Year Maturity · 📈 Capital Appreciation + 2.5% p.a.',
-  NSC: '🔒 5-Year Lock-in · 📝 80C Tax Benefit',
-  SSY: '🔒 21-Year Lock-in · 🍀 EEE Tax Free',
-  RD: '🔒 1-10 Yrs Tenure · 💸 Taxable Interest',
-}
-
-const PORTFOLIO_OPTIONS = [
-  { id: 'ppf', name: 'Public Provident Fund (PPF)', emoji: '🏛️', rate: 7.1, years: 15, monthly: 5000 },
-  { id: 'fd', name: 'Fixed Deposit (FD)', emoji: '🏦', rate: 7.25, years: 5, monthly: 5000 },
-  { id: 'gold', name: 'Sovereign Gold Bonds (SGB / Gold)', emoji: '🪙', rate: 9.5, years: 8, monthly: 3000 },
-  { id: 'nsc', name: 'National Savings Certificate (NSC)', emoji: '📜', rate: 7.7, years: 5, monthly: 3000 },
-  { id: 'ssy', name: 'Sukanya Samriddhi Yojana (SSY)', emoji: '👧', rate: 8.2, years: 15, monthly: 4000 },
-  { id: 'rd', name: 'Recurring Deposit (RD)', emoji: '🔄', rate: 6.5, years: 3, monthly: 2000 },
-  { id: 'mis', name: 'Post Office MIS', emoji: '📮', rate: 7.4, years: 5, monthly: 3000 }
-]
-
-const PORTFOLIO_CATALOG = [
-  { key: 'PPF', name: 'PPF', rate: 7.1, tenure: 15, sub: '7.1% • 15 Yrs', icon: '🏰' },
-  { key: 'FD', name: 'FD', rate: 7.2, tenure: 5, sub: '7.2% • 5 Yrs', icon: '🔒' },
-  { key: 'NSC', name: 'NSC', rate: 7.7, tenure: 5, sub: '7.7% • 5 Yrs', icon: '📜' },
-  { key: 'SSY', name: 'SSY', rate: 8.2, tenure: 21, sub: '8.2% • 21 Yrs', icon: '👧' },
-  { key: 'RD', name: 'RD', rate: 6.8, tenure: 3, sub: '6.8% • 3 Yrs', icon: '🗓️' },
-  { key: 'MIS', name: 'MIS', rate: 7.4, tenure: 5, sub: '7.4% • 5 Yrs', icon: '💵' },
-]
-
 export default function Intermediate({
   go,
   goBack,
@@ -131,6 +69,8 @@ export default function Intermediate({
   openAvatarModal,
   savedPortfolioSimulations = [],
   onSavePortfolio,
+  onUpdateSavedPortfolio,
+  onDeleteSavedPortfolio,
   themeMode = 'dark'
 }) {
 
@@ -141,13 +81,254 @@ export default function Intermediate({
   const modulesDone = state.completedModules || []
   const [activeTab, setActiveTab] = useState('simulators')
 
-  // Multi-Asset Portfolio Simulator State
-  const [portfolioItems, setPortfolioItems] = useState([
-    { id: 1, key: 'PPF', name: 'PPF', monthly: 5000, rate: 7.1, tenure: 15, icon: '🏰' },
-    { id: 2, key: 'FD', name: 'FD', monthly: 5000, rate: 7.2, tenure: 5, icon: '🔒' }
+  // ─── NEW LEVEL 2 PORTFOLIO SIMULATOR STATE ───
+  const [portfolioSubView, setPortfolioSubView] = useState('simulator') // 'simulator' | 'saved'
+  const [portfolioRows, setPortfolioRows] = useState([
+    { id: 'row_init_1', typeKey: 'FD', customName: '', monthly: 5000, rate: 7.25, years: 5, emoji: '💳', color: '#3b82f6' },
+    { id: 'row_init_2', typeKey: 'RD', customName: '', monthly: 3000, rate: 6.5, years: 7, emoji: '📅', color: '#8b5cf6' },
   ])
-  const [allocStrategy, setAllocStrategy] = useState('manual') // 'manual' | 'smart'
-  const [hasSimulatedPortfolio, setHasSimulatedPortfolio] = useState(false)
+  const [allocationMode, setAllocationMode] = useState('manual') // 'manual' | 'smart'
+  const [smartTotalMonthly, setSmartTotalMonthly] = useState(8000)
+  const [customPortfolioName, setCustomPortfolioName] = useState('')
+  const [hasRunSim, setHasRunSim] = useState(false)
+  const [manualBaselineProfit, setManualBaselineProfit] = useState(null)
+  const [showSaveModal, setShowSaveModal] = useState(false)
+  const [saveModalPortName, setSaveModalPortName] = useState('')
+  const [saveModalItemNames, setSaveModalItemNames] = useState({})
+  const [portfolioToast, setPortfolioToast] = useState('')
+  const [portfolioError, setPortfolioError] = useState('')
+
+  // In-window Saved Portfolio Simulations State (Read-Only / Edit / Delete)
+  const [selectedSavedPort, setSelectedSavedPort] = useState(null)
+  const [isEditingSavedPort, setIsEditingSavedPort] = useState(false)
+  const [editPortDraft, setEditPortDraft] = useState({ name: '', allocationMode: 'manual', totalMonthlyBudget: 10000, items: [] })
+  const [deletePortConfirm, setDeletePortConfirm] = useState(null)
+
+  const defaultPortfolioName = `Portfolio simulation ${(savedPortfolioSimulations?.length || 0) + 1}`
+  const effectivePortfolioName = customPortfolioName.trim() !== '' ? customPortfolioName.trim() : defaultPortfolioName
+
+  // Live computed portfolio simulation (for current rows & allocationMode)
+  const namedPortfolioRows = getNamedPortfolioRows(portfolioRows)
+  const currentPortfolioCalc = calculatePortfolioSimulation(
+    namedPortfolioRows,
+    allocationMode,
+    allocationMode === 'smart' ? smartTotalMonthly : null
+  )
+
+  // Add an investment option from the horizontal top bar (+ button)
+  const handleAddInvestmentOption = (opt) => {
+    setPortfolioError('')
+    const newRow = {
+      id: `row_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+      typeKey: opt.typeKey,
+      customName: '',
+      monthly: opt.defaultMonthly || 3000,
+      rate: opt.defaultRate,
+      years: opt.defaultYears,
+      emoji: opt.emoji,
+      color: opt.color,
+    }
+    const nextRows = [...portfolioRows, newRow]
+    setPortfolioRows(nextRows)
+    if (allocationMode === 'smart') {
+      // Keep smartTotalMonthly or add default if it was 0
+      if (!smartTotalMonthly || smartTotalMonthly <= 0) {
+        setSmartTotalMonthly(nextRows.reduce((s, r) => s + (Number(r.monthly) || 0), 0))
+      }
+    }
+  }
+
+  // Remove a row
+  const handleRemoveInvestmentRow = (rowId) => {
+    setPortfolioError('')
+    const nextRows = portfolioRows.filter(r => r.id !== rowId)
+    setPortfolioRows(nextRows)
+    if (nextRows.length < 2) {
+      setHasRunSim(false)
+    }
+  }
+
+  // Update a field in a row
+  const handleUpdateRowField = (rowId, field, value) => {
+    setPortfolioError('')
+    setPortfolioRows(prev =>
+      prev.map(r => {
+        if (r.id !== rowId) return r
+        if (field === 'customName') {
+          return { ...r, customName: value }
+        }
+        return { ...r, [field]: value }
+      })
+    )
+  }
+
+  // Switch to Manual Allocation
+  const handleSwitchToManual = () => {
+    setAllocationMode('manual')
+  }
+
+  // Switch to Smart Allocation (combines all monthly allocations and divides them optimally for max profit)
+  const handleSwitchToSmart = (fromPostSimulation = false) => {
+    const combinedMonthly = portfolioRows.reduce((s, r) => s + Math.max(0, Math.round(Number(r.monthly) || 0)), 0) || 10000
+    if (fromPostSimulation && allocationMode === 'manual') {
+      const manualCalc = calculatePortfolioSimulation(portfolioRows, 'manual', null)
+      setManualBaselineProfit(manualCalc.totalProfit)
+    }
+    const totalToUse = allocationMode === 'smart' ? (Number(smartTotalMonthly) || combinedMonthly) : combinedMonthly
+    setSmartTotalMonthly(totalToUse)
+    setAllocationMode('smart')
+    if (fromPostSimulation) {
+      setHasRunSim(true)
+      setPortfolioToast(`🧠 Smart Allocation applied! Combined ₹${totalToUse.toLocaleString('en-IN')}/mo divided across your selected investments for maximum overall profit.`)
+      setTimeout(() => setPortfolioToast(''), 4500)
+    }
+  }
+
+  // Run Portfolio Simulation
+  const handleRunPortfolioSimulator = () => {
+    setPortfolioError('')
+    if (portfolioRows.length < 2) {
+      setPortfolioError('Please select at least 2 investment options using the + buttons above to run a Portfolio Simulation.')
+      return
+    }
+    if (allocationMode === 'manual') {
+      const manualCalc = calculatePortfolioSimulation(portfolioRows, 'manual', null)
+      setManualBaselineProfit(manualCalc.totalProfit)
+    }
+    setHasRunSim(true)
+
+    // Complete Level 2 Section 3 ('portfolio') on first simulation run
+    const currentCompleted = state.completedModules || []
+    if (!currentCompleted.includes('portfolio')) {
+      if (addXP) addXP(100)
+      const nextCompleted = [...currentCompleted, 'portfolio']
+      const allSims = modules.every(m => nextCompleted.includes(m.id))
+      const allThreeDone = allSims && nextCompleted.includes('mixer') && nextCompleted.includes('portfolio')
+      update({
+        completedModules: nextCompleted,
+        ...(allThreeDone ? { advancedUnlocked: true, level2Completed: true } : {}),
+      })
+    }
+  }
+
+  // Open Save Portfolio Simulation Modal (Saving is optional and gives 0 XP)
+  const handleOpenSavePortfolioModal = () => {
+    if (portfolioRows.length < 2) {
+      setPortfolioError('Please select at least 2 investment options before saving.')
+      return
+    }
+    setSaveModalPortName(effectivePortfolioName)
+    const itemMap = {}
+    currentPortfolioCalc.itemSummaries.forEach(it => {
+      itemMap[it.id] = it.name
+    })
+    setSaveModalItemNames(itemMap)
+    setShowSaveModal(true)
+  }
+
+  // Confirm Save Portfolio Simulation (0 XP awarded)
+  const handleConfirmSavePortfolio = () => {
+    const finalPortName = (saveModalPortName || '').trim() || defaultPortfolioName
+    const updatedRows = namedPortfolioRows.map(r => {
+      const editedItemName = (saveModalItemNames[r.id] || '').trim()
+      const nextCustom = editedItemName && editedItemName !== r.defaultName ? editedItemName : r.customName
+      return {
+        ...r,
+        customName: nextCustom,
+      }
+    })
+    setPortfolioRows(updatedRows)
+
+    const finalCalc = calculatePortfolioSimulation(
+      updatedRows,
+      allocationMode,
+      allocationMode === 'smart' ? smartTotalMonthly : null
+    )
+
+    const newSavedPortfolio = {
+      id: `port_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+      name: finalPortName,
+      allocationMode,
+      totalMonthlyBudget: finalCalc.totalMonthly,
+      createdAt: new Date().toLocaleDateString('en-IN', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      }),
+      date: new Date().toLocaleDateString('en-IN'),
+      items: finalCalc.itemSummaries,
+      results: finalCalc,
+    }
+
+    if (onSavePortfolio) {
+      onSavePortfolio(newSavedPortfolio)
+    }
+
+    setShowSaveModal(false)
+    setCustomPortfolioName('')
+    setPortfolioToast(`✅ "${finalPortName}" saved to Portfolio Simulations! (Optional • 0 XP awarded)`)
+    setTimeout(() => setPortfolioToast(''), 4500)
+  }
+
+  // Saved Portfolio Simulations Handlers inside Portfolio Simulator Window
+  const handleOpenSavedPortInWindow = (sim, startEditing = false) => {
+    const rawItems = sim.items || sim.results?.itemSummaries || []
+    const named = getNamedPortfolioRows(rawItems)
+    setSelectedSavedPort(sim)
+    setIsEditingSavedPort(startEditing)
+    setEditPortDraft({
+      name: sim.name,
+      allocationMode: sim.allocationMode || 'manual',
+      totalMonthlyBudget:
+        sim.totalMonthlyBudget ||
+        named.reduce((s, it) => s + (Number(it.monthly) || 0), 0) ||
+        10000,
+      items: JSON.parse(JSON.stringify(named)),
+    })
+  }
+
+  const handleSaveEditedPortInWindow = () => {
+    if (!selectedSavedPort) return
+    const items = editPortDraft.items || []
+    if (items.length < 2) {
+      alert('A portfolio simulation requires at least 2 investment options.')
+      return
+    }
+    const mode = editPortDraft.allocationMode || 'manual'
+    const budget =
+      mode === 'smart'
+        ? Number(editPortDraft.totalMonthlyBudget) ||
+          items.reduce((s, it) => s + (Number(it.monthly) || 0), 0)
+        : null
+    const recalc = calculatePortfolioSimulation(items, mode, budget)
+    const updated = {
+      ...selectedSavedPort,
+      name: (editPortDraft.name || '').trim() || selectedSavedPort.name,
+      allocationMode: mode,
+      totalMonthlyBudget: recalc.totalMonthly,
+      items: recalc.itemSummaries,
+      results: recalc,
+    }
+    if (onUpdateSavedPortfolio) {
+      onUpdateSavedPortfolio(updated)
+    }
+    setSelectedSavedPort(updated)
+    setIsEditingSavedPort(false)
+    setPortfolioToast(`✅ Saved changes to "${updated.name}"! (0 XP)`)
+    setTimeout(() => setPortfolioToast(''), 4000)
+  }
+
+  const handleConfirmDeleteSavedPortInWindow = () => {
+    if (!deletePortConfirm) return
+    if (onDeleteSavedPortfolio) {
+      onDeleteSavedPortfolio(deletePortConfirm.id)
+    }
+    if (selectedSavedPort?.id === deletePortConfirm.id) {
+      setSelectedSavedPort(null)
+      setIsEditingSavedPort(false)
+    }
+    setDeletePortConfirm(null)
+  }
 
   // Mixer State Variables
   const [alloc, setAlloc] = useState({
@@ -189,364 +370,6 @@ export default function Intermediate({
   const [digitalFeedback, setDigitalFeedback] = useState('')
   const [selectedOpt, setSelectedOpt] = useState(null)
   const [cyberGameCompleted, setCyberGameCompleted] = useState(false)
-  const [selectedVideo, setSelectedVideo] = useState('upi_working')
-  // Portfolio Tower / Combined Wealth Metrics 2-Step State Variables
-  const [portfolioStep, setPortfolioStep] = useState('select') // 'select' | 'simulate'
-  const [selectedSchemes, setSelectedSchemes] = useState(['PPF', 'FD', 'GOLD', 'NSC'])
-  const [portfolioAlloc, setPortfolioAlloc] = useState({ PPF: 25, FD: 25, GOLD: 25, NSC: 25 })
-  const [monthlyTotal, setMonthlyTotal] = useState(10000)
-  const [portfolioYears, setPortfolioYears] = useState(10)
-  const [simDone, setSimDone] = useState(false)
-  const [allocationMode, setAllocationMode] = useState('manual')
-
-  const [hasRunSim, setHasRunSim] = useState(false)
-  const [portfolioResults, setPortfolioResults] = useState(null)
-  const [showSaveModal, setShowSaveModal] = useState(false)
-  const [portfolioName, setPortfolioName] = useState('My Multi-Asset Portfolio')
-
-
-
-  const toggleScheme = (k) => {
-    if (selectedSchemes.includes(k)) {
-      if (selectedSchemes.length === 1) return
-      setSelectedSchemes(prev => prev.filter(s => s !== k))
-    } else {
-      setSelectedSchemes(prev => [...prev, k])
-    }
-  }
-
-  const handleStartPortfolioSimulation = () => {
-    if (selectedSchemes.length === 0) return
-
-    const n = selectedSchemes.length
-    const share = Math.floor(100 / n)
-    const newAlloc = {}
-    
-    selectedSchemes.forEach((s, idx) => {
-      newAlloc[s] = idx === 0 ? share + (100 - share * n) : share
-    })
-
-    setPortfolioAlloc(newAlloc)
-    setPortfolioStep('simulate')
-  }
-
-  const setSchemeAlloc = (k, v) => {
-    const activeSchemes = selectedSchemes
-    const others = activeSchemes.filter(s => s !== k)
-    
-    if (others.length === 0) {
-      setPortfolioAlloc({ [k]: 100 })
-      return
-    }
-
-    const remaining = 100 - v
-    const otherTotal = others.reduce((sum, s) => sum + (portfolioAlloc[s] || 0), 0)
-    const ratio = otherTotal > 0 ? remaining / otherTotal : 1 / others.length
-    
-    const newAlloc = { ...portfolioAlloc, [k]: v }
-    others.forEach(s => {
-      newAlloc[s] = Math.max(0, Math.round((portfolioAlloc[s] || 0) * ratio))
-    })
-
-    const sum = activeSchemes.reduce((acc, s) => acc + (newAlloc[s] || 0), 0)
-    if (sum !== 100) {
-      newAlloc[others[0]] = Math.max(0, (newAlloc[others[0]] || 0) + (100 - sum))
-    }
-
-    setPortfolioAlloc(newAlloc)
-  }
-
-  const handleRunPortfolioAllocSim = () => {
-    if (addXP) addXP(100)
-    const currentCompleted = state.completedModules || []
-    const nextCompleted = currentCompleted.includes('portfolio')
-      ? currentCompleted
-      : [...currentCompleted, 'portfolio']
-    const allSims = modules.every(m => nextCompleted.includes(m.id))
-    const allThreeDone = allSims && nextCompleted.includes('mixer') && nextCompleted.includes('portfolio')
-    update({
-      allocations: portfolioAlloc,
-      completedModules: nextCompleted,
-      ...(allThreeDone ? { advancedUnlocked: true, level2Completed: true } : {}),
-    })
-    setSimDone(true)
-
-    let totalInvestedAcc = 0
-    let totalReturnsAcc = 0
-    let maxHorizonAcc = 0
-
-    const itemSummaries = selectedSchemes.map(k => {
-      const rate = advRates[k] || 7.0
-      const years = SCHEME_TENURES[k] || portfolioYears
-      const monthly = Math.round(((portfolioAlloc[k] || 0) / 100) * monthlyTotal)
-      const mRate = (rate / 100) / 12
-      const tMonths = years * 12
-      const inv = monthly * tMonths
-      const ret = mRate > 0
-        ? Math.round(monthly * ((Math.pow(1 + mRate, tMonths) - 1) / mRate) * (1 + mRate))
-        : inv
-      totalInvestedAcc += inv
-      totalReturnsAcc += ret
-      if (years > maxHorizonAcc) maxHorizonAcc = years
-      return {
-        id: k.toLowerCase(),
-        name: SCHEME_NAMES[k] || k,
-        emoji: EMOJIS[k] || '🔒',
-        rate,
-        years,
-        monthly,
-        invested: inv,
-        returns: ret,
-        profit: Math.max(0, ret - inv)
-      }
-    })
-
-    const totalProfitAcc = Math.max(0, totalReturnsAcc - totalInvestedAcc)
-    const profitPctAcc = totalInvestedAcc > 0 ? ((totalProfitAcc / totalInvestedAcc) * 100).toFixed(1) : 0
-
-    const gapPeriods = itemSummaries
-      .filter(item => item.years < maxHorizonAcc)
-      .map(item => {
-        const gapYears = maxHorizonAcc - item.years
-        let smartTip = ''
-        if (gapYears >= 10) {
-          smartTip = `You can redeploy this matured ${fmt(item.returns)} into equity index mutual funds, multi-asset allocation funds, or 10-year Sovereign Gold Bonds to maximize compounding returns over the long ${gapYears}-year window!`
-        } else if (gapYears >= 5) {
-          smartTip = `You can redeploy this matured ${fmt(item.returns)} into corporate FDs, hybrid conservative mutual funds, or high-yield bonds for steady, low-volatility growth over ${gapYears} gap years!`
-        } else {
-          smartTip = `You can park this matured ${fmt(item.returns)} into short-term liquid funds, arbitrage funds, or high-yield savings to preserve capital for immediate life goals maturing in ${gapYears} years!`
-        }
-        return {
-          name: item.name,
-          emoji: item.emoji || '🔒',
-          maturesAt: item.years,
-          gapYears: gapYears,
-          maturedCorpus: item.returns,
-          smartTip
-        }
-      })
-      .sort((a, b) => a.maturesAt - b.maturesAt)
-
-    setPortfolioResults({
-      totalInvested: totalInvestedAcc,
-      totalReturns: totalReturnsAcc,
-      totalProfit: totalProfitAcc,
-      profitPct: profitPctAcc,
-      maxHorizon: maxHorizonAcc,
-      itemSummaries,
-      gapPeriods
-    })
-    setHasRunSim(true)
-  }
-
-  const fmt = (num) => {
-    const val = Math.round(num || 0)
-    if (Math.abs(val) >= 10000000) {
-      return '₹' + (val / 10000000).toFixed(2) + ' Cr'
-    }
-    if (Math.abs(val) >= 100000) {
-      return '₹' + (val / 100000).toFixed(2) + ' L'
-    }
-    return '₹' + val.toLocaleString('en-IN')
-  }
-
-  const handleAddPortfolioOption = (opt) => {
-    const newItem = {
-      ...opt,
-      uid: Date.now() + Math.random()
-    }
-    setPortfolioItems([...portfolioItems, newItem])
-  }
-
-  const handleRemovePortfolioOption = (uid) => {
-    setPortfolioItems(portfolioItems.filter(item => item.uid !== uid))
-  }
-
-
-
-
-  const handleSmartAllocation = () => {
-    setAllocationMode('smart')
-    if (portfolioItems.length === 0) return
-    const totalCurrentMonthly = portfolioItems.reduce((sum, item) => sum + (item.monthly || 0), 0) || 10000
-    const sumRates = portfolioItems.reduce((sum, item) => sum + (item.rate || 0), 0) || 1
-    const updated = portfolioItems.map(item => {
-      const weight = (item.rate || 1) / sumRates
-      const allocatedMonthly = Math.round(totalCurrentMonthly * weight)
-      return { ...item, monthly: allocatedMonthly }
-    })
-    setPortfolioItems(updated)
-  }
-
-  const runPortfolioSimulation = () => {
-    if (portfolioItems.length === 0) return
-
-    let totalInvested = 0
-    let totalReturns = 0
-    let maxHorizon = 0
-
-    const itemSummaries = portfolioItems.map(item => {
-      const mRate = (item.rate / 100) / 12
-      const tMonths = item.years * 12
-      const inv = item.monthly * tMonths
-      const ret = mRate > 0
-        ? Math.round(item.monthly * ((Math.pow(1 + mRate, tMonths) - 1) / mRate) * (1 + mRate))
-        : inv
-      totalInvested += inv
-      totalReturns += ret
-      if (item.years > maxHorizon) maxHorizon = item.years
-      return {
-        ...item,
-        invested: inv,
-        returns: ret,
-        profit: Math.max(0, ret - inv)
-      }
-    })
-
-    const totalProfit = Math.max(0, totalReturns - totalInvested)
-    const profitPct = totalInvested > 0 ? ((totalProfit / totalInvested) * 100).toFixed(1) : 0
-
-    const gapPeriods = itemSummaries
-      .filter(item => item.years < maxHorizon)
-      .map(item => {
-        const gapYears = maxHorizon - item.years
-        let smartTip = ''
-        if (gapYears >= 10) {
-          smartTip = `You can redeploy this matured ${fmt(item.returns)} into equity index mutual funds, multi-asset allocation funds, or 10-year Sovereign Gold Bonds to maximize compounding returns over the long ${gapYears}-year window!`
-        } else if (gapYears >= 5) {
-          smartTip = `You can redeploy this matured ${fmt(item.returns)} into corporate FDs, hybrid conservative mutual funds, or high-yield bonds for steady, low-volatility growth over ${gapYears} gap years!`
-        } else {
-          smartTip = `You can park this matured ${fmt(item.returns)} into short-term liquid funds, arbitrage funds, or high-yield savings to preserve capital for immediate life goals maturing in ${gapYears} years!`
-        }
-        return {
-          name: item.name,
-          emoji: item.emoji || '🔒',
-          maturesAt: item.years,
-          gapYears: gapYears,
-          maturedCorpus: item.returns,
-          smartTip
-        }
-      })
-      .sort((a, b) => a.maturesAt - b.maturesAt)
-
-    setPortfolioResults({
-      totalInvested,
-      totalReturns,
-      totalProfit,
-      profitPct,
-      maxHorizon,
-      itemSummaries,
-      gapPeriods
-    })
-    setHasRunSim(true)
-  }
-
-  const handleConfirmSavePortfolio = () => {
-    if (onSavePortfolio && portfolioResults) {
-      onSavePortfolio({
-        id: Date.now(),
-        name: portfolioName.trim() || 'My Multi-Asset Portfolio',
-        date: new Date().toLocaleDateString('en-IN'),
-        results: portfolioResults,
-        items: portfolioItems
-      })
-    }
-    setShowSaveModal(false)
-  }
-
-  const handleAddPortfolioItem = (cat) => {
-    trackMixerInteraction()
-    const newItem = {
-      id: Date.now() + Math.random(),
-      key: cat.key,
-      name: cat.name,
-      monthly: 5000,
-      rate: cat.rate,
-      tenure: cat.tenure,
-      icon: cat.icon
-    }
-    setPortfolioItems(prev => [...prev, newItem])
-  }
-
-  const handleRemovePortfolioItem = (id) => {
-    trackMixerInteraction()
-    setPortfolioItems(prev => prev.filter(item => item.id !== id))
-  }
-
-  const handleUpdatePortfolioItem = (id, field, val) => {
-    trackMixerInteraction()
-    setPortfolioItems(prev => prev.map(item => item.id === id ? { ...item, [field]: val } : item))
-  }
-
-  const handleRunPortfolioSimulation = () => {
-    trackMixerInteraction()
-    if (portfolioItems.length < 2) {
-      alert('A portfolio requires at least 2 investment options.')
-      return
-    }
-    setHasSimulatedPortfolio(true)
-  }
-
-  const handleSmartAllocationOpt = () => {
-    trackMixerInteraction()
-    setAllocStrategy('smart')
-    if (portfolioItems.length === 0) return
-    const totalMonthly = portfolioItems.reduce((sum, item) => sum + (Number(item.monthly) || 5000), 0)
-    const totalRates = portfolioItems.reduce((sum, item) => sum + (Number(item.rate) || 1), 0)
-    setPortfolioItems(prev => prev.map(item => {
-      const weight = (Number(item.rate) || 1) / totalRates
-      const smartM = Math.round((totalMonthly * weight) / 500) * 500 || 1000
-      return { ...item, monthly: smartM }
-    }))
-  }
-
-  const fmtLakhs = (val) => {
-    if (!val || isNaN(val)) return '₹0'
-    if (val >= 10000000) {
-      return `₹${(val / 10000000).toFixed(2)} Cr`
-    } else if (val >= 100000) {
-      return `₹${(val / 100000).toFixed(2)} L`
-    } else {
-      return `₹${Math.round(val).toLocaleString('en-IN')}`
-    }
-  }
-
-  // Portfolio calculations
-  let portTotalInvested = 0
-  let portTotalReturns = 0
-  let portLongestTenure = 0
-
-  const portItemDetails = portfolioItems.map(item => {
-    const m = Number(item.monthly) || 0
-    const r = Number(item.rate) || 0
-    const t = Number(item.tenure) || 1
-    if (t > portLongestTenure) portLongestTenure = t
-
-    const months = t * 12
-    const i = (r / 100) / 12
-    const invested = m * months
-    let returns = invested
-    if (i > 0) {
-      returns = Math.round(m * ((Math.pow(1 + i, months) - 1) / i) * (1 + i))
-    }
-    const profit = Math.max(0, returns - invested)
-
-    portTotalInvested += invested
-    portTotalReturns += returns
-
-    return {
-      ...item,
-      months,
-      invested,
-      returns,
-      profit
-    }
-  })
-
-  const portTotalProfit = Math.max(0, portTotalReturns - portTotalInvested)
-  const portProfitPct = portTotalInvested > 0 ? ((portTotalProfit / portTotalInvested) * 100).toFixed(1) : '0.0'
-  const portInvestedBarPct = portTotalReturns > 0 ? ((portTotalInvested / portTotalReturns) * 100).toFixed(1) : '0.0'
-  const portProfitBarPct = portTotalReturns > 0 ? ((portTotalProfit / portTotalReturns) * 100).toFixed(1) : '0.0'
 
 
   const handleAddGoal = () => {
@@ -745,7 +568,7 @@ export default function Intermediate({
           <div style={{ fontSize: 12, fontWeight: 700, color: isLight ? '#475569' : '#d1d5db' }}>
             {allDone
               ? '🎉 All 3 sections of Level 2 are completed! Level 3 (Portfolio Tower) is now unlocked!'
-              : 'Complete all 3 sections below (Simulator Modules, Savings Mixer, and Combined Metrics) to unlock Level 3.'}
+              : 'Complete all 3 sections below (Simulator Modules, Savings Mixer, and Portfolio Simulator) to unlock Level 3.'}
           </div>
         </div>
         {allDone && (
@@ -833,7 +656,7 @@ export default function Intermediate({
               : (isLight ? '0 2px 8px rgba(234, 88, 12, 0.1)' : 'none')
           }}
         >
-          🏢 3. COMBINED METRICS {portfolioDone ? '✅' : '📊'}
+          🏢 3. PORTFOLIO SIMULATOR {portfolioDone ? '✅' : '📊'}
         </button>
       </div>
 
@@ -1442,7 +1265,7 @@ export default function Intermediate({
                     }}
                   >
                     {mixerDone
-                      ? '✅ SAVINGS MIXER SECTION COMPLETED — PROCEED TO COMBINED METRICS →'
+                      ? '✅ SAVINGS MIXER SECTION COMPLETED — PROCEED TO PORTFOLIO SIMULATOR →'
                       : '✅ COMPLETE SAVINGS MIXER SECTION (+50 XP) →'}
                   </button>
                 </div>
@@ -1450,432 +1273,1462 @@ export default function Intermediate({
       )}
 
       {activeTab === 'portfolio' && (
-        <div className="anim-fade">
-          {portfolioStep === 'select' ? (
-            <div className="anim-fade">
-              {/* Step 1: Scheme Selector */}
+        <div className="anim-fade" style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
+          {/* Portfolio Simulator Header & In-Window Saved Simulations Switcher */}
+          <div className="glass-card-deep" style={{
+            padding: '24px 28px',
+            borderRadius: 24,
+            background: isLight ? '#ffffff' : 'var(--bg-card-deep, #12100c)',
+            border: isLight ? '2.5px solid #000000' : '2.5px solid #ffffff',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: 16
+          }}>
+            <div>
+              <div className="sticker-badge sticker-yellow" style={{ marginBottom: 8, display: 'inline-block' }}>
+                LEVEL 2 · SECTION 3 · MULTI-ASSET ENGINE
+              </div>
+              <h2 className="font-display" style={{ fontSize: 30, color: isLight ? '#0f172a' : '#ffffff', margin: 0 }}>
+                🏢 PORTFOLIO SIMULATOR
+              </h2>
+              <p style={{ fontSize: 13, color: isLight ? '#475569' : '#d1d5db', fontWeight: 600, margin: '4px 0 0' }}>
+                Select 2 or more investment options (including multiple of the same type), compare Manual vs. Smart Allocation, and analyze combined returns & maturity gap periods.
+              </p>
+            </div>
+
+            {/* Sub-View Switcher: Simulator vs Saved Portfolio Simulations */}
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+              <button
+                onClick={() => {
+                  setPortfolioSubView('simulator')
+                  setSelectedSavedPort(null)
+                  setIsEditingSavedPort(false)
+                }}
+                style={{
+                  padding: '10px 18px',
+                  borderRadius: 12,
+                  fontSize: 12,
+                  fontWeight: 900,
+                  cursor: 'pointer',
+                  background: portfolioSubView === 'simulator'
+                    ? 'linear-gradient(135deg, #ea580c, #f59e0b)'
+                    : (isLight ? '#f8fafc' : 'rgba(255,255,255,0.05)'),
+                  color: portfolioSubView === 'simulator' ? '#ffffff' : (isLight ? '#0f172a' : '#fbbf24'),
+                  border: isLight ? '2px solid #000000' : '2px solid #ffffff',
+                }}
+              >
+                🧮 Portfolio Simulator
+              </button>
+              <button
+                onClick={() => setPortfolioSubView('saved')}
+                style={{
+                  padding: '10px 18px',
+                  borderRadius: 12,
+                  fontSize: 12,
+                  fontWeight: 900,
+                  cursor: 'pointer',
+                  background: portfolioSubView === 'saved'
+                    ? 'linear-gradient(135deg, #10b981, #059669)'
+                    : (isLight ? '#f8fafc' : 'rgba(255,255,255,0.05)'),
+                  color: portfolioSubView === 'saved' ? '#ffffff' : (isLight ? '#0f172a' : '#6ee7b7'),
+                  border: isLight ? '2px solid #000000' : '2px solid #ffffff',
+                }}
+              >
+                📂 Saved Simulations ({savedPortfolioSimulations.length})
+              </button>
+            </div>
+          </div>
+
+          {/* Toast Notification */}
+          {portfolioToast && (
+            <div className="anim-fade" style={{
+              padding: '14px 18px',
+              borderRadius: 14,
+              background: isLight ? '#d1fae5' : 'rgba(16, 185, 129, 0.18)',
+              border: '2px solid #10b981',
+              color: isLight ? '#065f46' : '#6ee7b7',
+              fontSize: 13,
+              fontWeight: 800,
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}>
+              <span>{portfolioToast}</span>
+              <button
+                onClick={() => setPortfolioToast('')}
+                style={{ background: 'none', border: 'none', color: 'inherit', fontWeight: 900, cursor: 'pointer', fontSize: 14 }}
+              >
+                ✕
+              </button>
+            </div>
+          )}
+
+          {/* SUB-VIEW 1: ACTIVE PORTFOLIO SIMULATOR */}
+          {portfolioSubView === 'simulator' && (
+            <>
+              {/* Top Horizontal Investment Options Bar */}
               <div className="glass-card-deep" style={{
-                padding: 28, marginBottom: 24,
-                background: isLight ? '#ffffff' : '#12100c',
-                border: isLight ? '2px solid rgba(234,88,12,0.35)' : '2px solid rgba(217,119,6,0.3)',
-                borderRadius: 24,
-                boxShadow: isLight ? '0 10px 30px rgba(194,65,12,0.1)' : 'none'
+                padding: '22px 24px',
+                borderRadius: 22,
+                background: isLight ? '#ffffff' : 'var(--bg-card-deep, #12100c)',
+                border: isLight ? '2.5px solid #000000' : '2.5px solid #ffffff',
               }}>
-                <h2 className="font-display" style={{ fontSize: 24, color: isLight ? '#0f172a' : '#ffffff', marginBottom: 6 }}>
-                  STEP 1: CHOOSE ASSET CLASSES
-                </h2>
-                <p style={{ fontSize: 13, color: isLight ? '#334155' : '#d1d5db', fontWeight: 600, marginBottom: 20 }}>
-                  Select the assets you want to include in your portfolio simulator. We recommend selecting at least <strong style={{ color: isLight ? '#ea580c' : '#fbbf24' }}>two</strong> different schemes to diversify your risk.
-                </p>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, flexWrap: 'wrap', gap: 10 }}>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 900, color: isLight ? '#ea580c' : '#fbbf24', textTransform: 'uppercase' }}>
+                      1. SELECT INVESTMENT OPTIONS (CLICK + TO ADD ROW BELOW)
+                    </div>
+                    <div style={{ fontSize: 12, color: isLight ? '#475569' : '#9ca3af', fontWeight: 600 }}>
+                      Choose 2 or more investment options. You can click <strong>+</strong> on the same option multiple times (e.g., FD 1, FD 2)!
+                    </div>
+                  </div>
+                  <span style={{
+                    padding: '5px 12px',
+                    borderRadius: 999,
+                    fontSize: 11,
+                    fontWeight: 900,
+                    background: portfolioRows.length >= 2 ? 'rgba(16, 185, 129, 0.15)' : 'rgba(245, 158, 11, 0.15)',
+                    color: portfolioRows.length >= 2 ? '#10b981' : '#f59e0b',
+                    border: `1.5px solid ${portfolioRows.length >= 2 ? '#10b981' : '#f59e0b'}`
+                  }}>
+                    {portfolioRows.length} Option{portfolioRows.length === 1 ? '' : 's'} Selected (Min 2)
+                  </span>
+                </div>
 
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 24 }}>
-                  {SCHEMES.map(k => {
-                    const selected = selectedSchemes.includes(k)
+                {/* Horizontal Order Investment Option Pills with + Symbol */}
+                <div style={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: 10,
+                  alignItems: 'center',
+                }}>
+                  {PORTFOLIO_OPTIONS_CATALOG.map(opt => {
+                    const countSelected = portfolioRows.filter(r => r.typeKey === opt.typeKey).length
                     return (
                       <div
-                        key={k}
-                        onClick={() => toggleScheme(k)}
+                        key={opt.typeKey}
                         style={{
-                          padding: '16px 20px', borderRadius: 18, cursor: 'pointer',
-                          background: selected
-                            ? (isLight ? '#fff7ed' : 'rgba(245,158,11,0.12)')
-                            : (isLight ? '#f8fafc' : 'rgba(255,255,255,0.03)'),
-                          border: selected
-                            ? `2.5px solid ${isLight ? '#ea580c' : '#f59e0b'}`
-                            : (isLight ? '1.5px solid #cbd5e1' : '1.5px solid rgba(217,119,6,0.2)'),
-                          boxShadow: selected ? `0 0 20px ${isLight ? 'rgba(234,88,12,0.2)' : 'rgba(245,158,11,0.2)'}` : 'none',
-                          transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-                          display: 'flex', alignItems: 'center', gap: 14,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 10,
+                          padding: '10px 14px',
+                          borderRadius: 14,
+                          background: countSelected > 0
+                            ? (isLight ? '#fff7ed' : 'rgba(245, 158, 11, 0.12)')
+                            : (isLight ? '#f8fafc' : 'rgba(255,255,255,0.04)'),
+                          border: countSelected > 0
+                            ? `2px solid ${opt.color || '#f59e0b'}`
+                            : (isLight ? '2px solid #000000' : '2px solid rgba(255,255,255,0.2)'),
+                          transition: 'all 0.2s',
                         }}
                       >
-                        <div style={{
-                          width: 26, height: 26, borderRadius: '50%',
-                          border: `2px solid ${selected ? (isLight ? '#ea580c' : '#f59e0b') : (isLight ? '#94a3b8' : '#71717a')}`,
-                          background: selected ? (isLight ? '#ea580c' : '#f59e0b') : 'transparent',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          color: selected ? '#ffffff' : (isLight ? '#0f172a' : '#ffffff'), fontWeight: 900, fontSize: 13,
-                        }}>
-                          {selected ? '✓' : ''}
-                        </div>
-
-                        <div style={{
-                          width: 46, height: 46, borderRadius: 14,
-                          background: isLight ? '#ffffff' : 'rgba(255,255,255,0.05)',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          fontSize: 22, border: `2px solid ${COLORS[k]}`,
-                        }}>{EMOJIS[k]}</div>
-
-                        <div style={{ flex: 1 }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <span style={{ fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff', fontSize: 15 }}>{k}</span>
-                            <span className="sticker-badge sticker-yellow" style={{ fontSize: 10, padding: '2px 6px' }}>
-                              {advRates[k]}% P.A.
+                        <span style={{ fontSize: 20 }}>{opt.emoji}</span>
+                        <div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <span style={{ fontSize: 13, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff' }}>
+                              {opt.shortName}
                             </span>
+                            {countSelected > 0 && (
+                              <span style={{
+                                fontSize: 10,
+                                fontWeight: 900,
+                                padding: '1px 6px',
+                                borderRadius: 999,
+                                background: opt.color || '#f59e0b',
+                                color: '#080705'
+                              }}>
+                                ×{countSelected}
+                              </span>
+                            )}
                           </div>
-                          <div style={{ fontSize: 12, color: isLight ? '#334155' : '#d1d5db', fontWeight: 600, marginTop: 4 }}>
-                            {DESCRIPTIONS[k]}
-                          </div>
-                          <div style={{ fontSize: 10, color: COLORS[k], fontWeight: 800, marginTop: 4 }}>
-                            {DETAILS[k]}
+                          <div style={{ fontSize: 10, fontWeight: 700, color: isLight ? '#64748b' : '#9ca3af' }}>
+                            {opt.defaultRate}% p.a. · {opt.defaultYears}Y
                           </div>
                         </div>
+
+                        <button
+                          onClick={() => handleAddInvestmentOption(opt)}
+                          title={`Add ${opt.name} to Portfolio`}
+                          style={{
+                            width: 32,
+                            height: 32,
+                            borderRadius: 10,
+                            border: isLight ? '2px solid #000000' : '2px solid #ffffff',
+                            background: 'linear-gradient(135deg, #ea580c, #f59e0b)',
+                            color: '#ffffff',
+                            fontSize: 18,
+                            fontWeight: 900,
+                             lineHeight: 1,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            boxShadow: '0 3px 10px rgba(234, 88, 12, 0.3)',
+                          }}
+                        >
+                          +
+                        </button>
                       </div>
                     )
                   })}
                 </div>
-
-                <button
-                  onClick={handleStartPortfolioSimulation}
-                  disabled={selectedSchemes.length === 0}
-                  className="btn-primary"
-                  style={{
-                    width: '100%', fontSize: 15, padding: '16px', fontWeight: 900,
-                    opacity: selectedSchemes.length === 0 ? 0.5 : 1,
-                    cursor: selectedSchemes.length === 0 ? 'not-allowed' : 'pointer',
-                  }}
-                >
-                  🚀 CONFIGURE PORTFOLIO ALLOCATION ({selectedSchemes.length} SELECTED)
-                </button>
               </div>
-            </div>
-          ) : (
-            <div className="anim-fade">
-              {/* Step 2: Allocation & Simulation */}
-              <button className="btn-outline" onClick={() => setPortfolioStep('select')} style={{ marginBottom: 20 }}>
-                ← MODIFY INVESTMENT TYPES
-              </button>
 
-              {/* Global settings */}
-              <div className="glass-card-sm anim-fade delay-1" style={{
-                padding: '22px', marginBottom: 20,
-                background: isLight ? '#ffffff' : '#12100c',
-                border: isLight ? '1.5px solid rgba(234,88,12,0.35)' : '1.5px solid rgba(217,119,6,0.3)',
-                borderRadius: 20
+              {/* Step 2: Allocation Mode (Manual vs Smart at the beginning) & Selected Investment Rows */}
+              <div className="glass-card-deep" style={{
+                padding: '24px',
+                borderRadius: 22,
+                background: isLight ? '#ffffff' : 'var(--bg-card-deep, #12100c)',
+                border: isLight ? '2.5px solid #000000' : '2.5px solid #ffffff',
               }}>
-                <h3 style={{ fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff', fontSize: 14, marginBottom: 16 }}>⚙️ PORTFOLIO SETTINGS</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 20 }}>
-                  <div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                      <span style={{ fontSize: 12, fontWeight: 800, color: isLight ? '#334155' : '#d1d5db' }}>MONTHLY BUDGET</span>
-                      <span style={{ fontWeight: 900, color: isLight ? '#ea580c' : '#fbbf24', fontSize: 13 }}>₹{monthlyTotal.toLocaleString('en-IN')}</span>
-                    </div>
-                    <input type="range" min={1000} max={100000} step={1000} value={monthlyTotal}
-                      onChange={e => setMonthlyTotal(Number(e.target.value))}
-                      style={{ width: '100%', accentColor: isLight ? '#ea580c' : '#f59e0b' }} />
+                {/* Portfolio Simulation Name & Allocation Mode Selector Bar */}
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'flex-end',
+                  flexWrap: 'wrap',
+                  gap: 16,
+                  marginBottom: 20,
+                  paddingBottom: 18,
+                  borderBottom: isLight ? '1.5px solid #e2e8f0' : '1.5px solid rgba(255,255,255,0.1)'
+                }}>
+                  <div style={{ flex: '1 1 240px' }}>
+                    <label style={{ fontSize: 11, fontWeight: 900, color: isLight ? '#ea580c' : '#fbbf24', display: 'block', marginBottom: 6 }}>
+                      PORTFOLIO SIMULATION NAME (DEFAULT: {defaultPortfolioName.toUpperCase()})
+                    </label>
+                    <input
+                      type="text"
+                      value={customPortfolioName}
+                      placeholder={defaultPortfolioName}
+                      onChange={e => setCustomPortfolioName(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '10px 14px',
+                        borderRadius: 12,
+                        fontSize: 14,
+                        fontWeight: 800,
+                        background: isLight ? '#f8fafc' : '#1a1610',
+                        color: isLight ? '#0f172a' : '#fef3c7',
+                        border: isLight ? '2px solid #000000' : '2px solid #ffffff',
+                      }}
+                    />
                   </div>
-                  <div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                      <span style={{ fontSize: 12, fontWeight: 800, color: isLight ? '#334155' : '#d1d5db' }}>DURATION</span>
-                      <span style={{ fontWeight: 900, color: isLight ? '#ea580c' : '#fbbf24', fontSize: 13 }}>{portfolioYears} YEARS</span>
-                    </div>
-                    <input type="range" min={1} max={30} step={1} value={portfolioYears}
-                      onChange={e => setPortfolioYears(Number(e.target.value))}
-                      style={{ width: '100%', accentColor: isLight ? '#ea580c' : '#f59e0b' }} />
-                  </div>
-                </div>
 
-                {/* Total allocation check */}
-                {(() => {
-                  const totalPct = selectedSchemes.reduce((acc, s) => acc + (portfolioAlloc[s] || 0), 0)
-                  return (
-                    <div style={{ marginTop: 16, display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <div className="progress-track" style={{ flex: 1 }}>
-                        <div className="progress-fill" style={{
-                          width: `${Math.min(totalPct, 100)}%`,
-                          background: totalPct === 100
-                            ? '#f59e0b'
-                            : totalPct > 100
-                            ? '#e11d48'
-                            : '#d97706',
-                        }} />
-                      </div>
-                      <span style={{ fontWeight: 900, fontSize: 13,
-                        color: totalPct === 100 ? '#fbbf24' : totalPct > 100 ? '#e11d48' : '#d97706'
-                      }}>{totalPct}%</span>
+                  {/* Manual Allocation vs Smart Allocation Toggle at the Beginning */}
+                  <div style={{ flex: '1 1 320px' }}>
+                    <div style={{ fontSize: 11, fontWeight: 900, color: isLight ? '#ea580c' : '#fbbf24', marginBottom: 6 }}>
+                      2. CHOOSE ALLOCATION MODE (AVAILABLE BEFORE & AFTER SIMULATION)
                     </div>
-                  )
-                })()}
-              {/* Allocation Sliders */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 24 }}>
-                {selectedSchemes.map((k, i) => (
-                  <div key={k} className={`glass-card-sm anim-fade delay-${i+2}`} style={{
-                    padding: '20px 22px',
-                    background: isLight ? '#ffffff' : '#12100c',
-                    border: isLight ? '1.5px solid rgba(234,88,12,0.3)' : '1.5px solid rgba(217,119,6,0.25)',
-                    borderRadius: 18
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
-                      <div style={{
-                        width: 42, height: 42, borderRadius: 14,
-                        background: isLight ? '#f8fafc' : 'rgba(255,255,255,0.05)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: 20, border: `2px solid ${COLORS[k]}`,
-                      }}>{EMOJIS[k]}</div>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                          <span style={{ fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff', fontSize: 14 }}>{k}</span>
-                          <span style={{ fontWeight: 900, color: COLORS[k], fontSize: 14 }}>{portfolioAlloc[k] || 0}%</span>
-                        </div>
-                        <div style={{ fontSize: 11, color: isLight ? '#334155' : '#d1d5db', fontWeight: 600 }}>
-                          ₹{Math.round(((portfolioAlloc[k] || 0)/100)*monthlyTotal).toLocaleString('en-IN')}/mo · {advRates[k]}% p.a.
-                        </div>
-                      </div>
-                    </div>
-                    <input type="range" min={0} max={100} step={1} value={portfolioAlloc[k] || 0}
-                      onChange={e => setSchemeAlloc(k, Number(e.target.value))}
-                      style={{ width: '100%', accentColor: COLORS[k], height: 6 }} />
-
-                    <div style={{ marginTop: 10, fontSize: 12, color: isLight ? '#334155' : '#d1d5db', fontWeight: 700 }}>
-                      Projected after {portfolioYears}yr: <strong style={{ color: COLORS[k] }}>
-                        {fmt((((portfolioAlloc[k] || 0)/100)*monthlyTotal) > 0 ? ((((portfolioAlloc[k] || 0)/100)*monthlyTotal) * ((Math.pow(1 + (advRates[k]/100/12), portfolioYears*12) - 1) / (advRates[k]/100/12)) * (1 + (advRates[k]/100/12))) : 0)}
-                      </strong>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Summary Card */}
-              {(() => {
-                const totalPct = selectedSchemes.reduce((acc, s) => acc + (portfolioAlloc[s] || 0), 0)
-                const totalInvestedVal = monthlyTotal * 12 * portfolioYears
-                const schemeResults = selectedSchemes.map(k => {
-                  const monthly = ((portfolioAlloc[k] || 0) / 100) * monthlyTotal
-                  const r = (advRates[k] || 7) / 100 / 12
-                  const n = portfolioYears * 12
-                  const fv = r > 0 ? monthly * ((Math.pow(1 + r, n) - 1) / r) * (1 + r) : monthly * n
-                  return { k, fv }
-                })
-                const totalFVVal = schemeResults.reduce((acc, item) => acc + item.fv, 0)
-                const totalGainVal = Math.max(0, totalFVVal - totalInvestedVal)
-
-                return (
-                  <div className="glass-card-deep anim-fade" style={{
-                    padding: '28px 32px', marginBottom: 24,
-                    background: isLight ? '#ffffff' : '#12100c',
-                    border: isLight ? '2px solid rgba(234,88,12,0.4)' : '2px solid rgba(217,119,6,0.4)',
-                    borderRadius: 24
-                  }}>
-                    <h3 className="font-display" style={{ fontSize: 24, color: isLight ? '#0f172a' : '#ffffff', marginBottom: 20 }}>
-                      📊 PORTFOLIO SUMMARY
-                    </h3>
-
-                    {/* Allocation Bar */}
-                    <div style={{ display: 'flex', height: 16, borderRadius: 999, overflow: 'hidden', marginBottom: 12, border: isLight ? '1.5px solid rgba(234,88,12,0.3)' : '1.5px solid rgba(217,119,6,0.3)' }}>
-                      {selectedSchemes.map(k => (
-                        (portfolioAlloc[k] || 0) > 0 && (
-                          <div key={k} style={{
-                            width: `${portfolioAlloc[k]}%`, background: COLORS[k],
-                            transition: 'width 0.3s ease',
-                          }} />
-                        )
-                      ))}
-                    </div>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginBottom: 24 }}>
-                      {selectedSchemes.map(k => (
-                        <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                          <div style={{ width: 10, height: 10, borderRadius: 2, background: COLORS[k] }} />
-                          <span style={{ fontSize: 11, fontWeight: 800, color: isLight ? '#334155' : '#d1d5db' }}>{k} {portfolioAlloc[k] || 0}%</span>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, marginBottom: 24 }}>
-                      {[
-                        { label: 'TOTAL INVESTED', value: fmt(totalInvestedVal), color: isLight ? '#0f172a' : '#ffffff' },
-                        { label: 'TOTAL VALUE', value: fmt(totalFVVal), color: isLight ? '#ea580c' : '#fbbf24' },
-                        { label: 'WEALTH GAINED', value: fmt(totalGainVal), color: '#10b981' },
-                      ].map(c => (
-                        <div key={c.label} style={{
-                          background: isLight ? '#f8fafc' : '#080705', borderRadius: 14, padding: '14px 10px',
-                          textAlign: 'center', border: isLight ? '1.5px solid #cbd5e1' : '1.5px solid rgba(217,119,6,0.3)',
-                        }}>
-                          <div className="font-display" style={{ fontSize: 20, color: c.color, lineHeight: 1 }}>{c.value}</div>
-                          <div style={{ fontSize: 10, color: isLight ? '#475569' : '#9ca3af', fontWeight: 800, marginTop: 4 }}>{c.label}</div>
-                        </div>
-                      ))}
-                    </div>
-
-                    {simDone ? (
-                      <div style={{
-                        textAlign: 'center', padding: '18px',
-                        background: isLight ? '#fff7ed' : 'rgba(245,158,11,0.12)',
-                        borderRadius: 16, border: isLight ? '2px solid #ea580c' : '2px solid #f59e0b',
-                        marginBottom: 20
-                      }}>
-                        <div style={{ fontSize: 32, marginBottom: 6 }}>🎊</div>
-                        <div style={{ fontWeight: 900, color: isLight ? '#ea580c' : '#fbbf24', fontSize: 16 }}>+100 XP EARNED! AMAZING WORK!</div>
-                      </div>
-                    ) : (
+                    <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                       <button
-                        className="btn-primary"
-                        onClick={handleRunPortfolioAllocSim}
-                        disabled={totalPct !== 100}
+                        onClick={handleSwitchToManual}
                         style={{
-                          width: '100%', fontSize: 15, padding: '16px', fontWeight: 900, marginBottom: 20,
-                          opacity: totalPct !== 100 ? 0.5 : 1,
-                          cursor: totalPct !== 100 ? 'not-allowed' : 'pointer',
+                          flex: 1,
+                          padding: '10px 14px',
+                          borderRadius: 12,
+                          fontSize: 12,
+                          fontWeight: 900,
+                          cursor: 'pointer',
+                          background: allocationMode === 'manual'
+                            ? 'linear-gradient(135deg, #ea580c, #f59e0b)'
+                            : (isLight ? '#f8fafc' : 'rgba(255,255,255,0.05)'),
+                          color: allocationMode === 'manual' ? '#ffffff' : (isLight ? '#334155' : '#d1d5db'),
+                          border: isLight ? '2px solid #000000' : '2px solid #ffffff',
                         }}
                       >
-                        {totalPct !== 100 ? `ALLOCATIONS MUST TOTAL 100% (${totalPct}%)` : '🚀 RUN PORTFOLIO SIMULATION (+100 XP)'}
+                        ✍️ Manual Allocation
                       </button>
-                    )}
-                  </div>
-                )
-              })()}
-            </div>
-          </div>
-        )}
-
-          {/* COMBINED WEALTH METRICS REPORT BOX */}
-          {hasRunSim && portfolioResults && (() => {
-            const totalRet = portfolioResults.totalReturns || 1
-            const invPctVal = ((portfolioResults.totalInvested / totalRet) * 100).toFixed(1)
-            const profPctVal = ((portfolioResults.totalProfit / totalRet) * 100).toFixed(1)
-            return (
-              <div className="glass-card-deep anim-scale" style={{
-                padding: 28, borderRadius: 24, marginBottom: 24,
-                background: isLight ? '#ffffff' : 'rgba(8, 20, 36, 0.95)',
-                border: '2px solid #0284c7',
-                boxShadow: isLight ? '0 10px 30px rgba(2, 132, 199, 0.15)' : '0 0 30px rgba(2, 132, 199, 0.25)'
-              }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 10 }}>
-                  <div>
-                    <div className="sticker-badge" style={{ marginBottom: 6, background: isLight ? '#e0f2fe' : 'rgba(2, 132, 199, 0.2)', color: isLight ? '#0284c7' : '#38bdf8', border: '1px solid #0284c7', padding: '4px 12px', fontSize: 10, fontWeight: 900, borderRadius: 999 }}>
-                      OVERALL PORTFOLIO REPORT
+                      <button
+                        onClick={() => handleSwitchToSmart(false)}
+                        style={{
+                          flex: 1,
+                          padding: '10px 14px',
+                          borderRadius: 12,
+                          fontSize: 12,
+                          fontWeight: 900,
+                          cursor: 'pointer',
+                          background: allocationMode === 'smart'
+                            ? 'linear-gradient(135deg, #10b981, #059669)'
+                            : (isLight ? '#f8fafc' : 'rgba(255,255,255,0.05)'),
+                          color: allocationMode === 'smart' ? '#ffffff' : (isLight ? '#334155' : '#d1d5db'),
+                          border: isLight ? '2px solid #000000' : '2px solid #ffffff',
+                        }}
+                      >
+                        🧠 Smart Allocation (Max Profit)
+                      </button>
                     </div>
-                    <h2 className="font-display" style={{ fontSize: 26, color: isLight ? '#0f172a' : '#ffffff', margin: 0 }}>
-                      COMBINED WEALTH METRICS
-                    </h2>
-                  </div>
-                  <div style={{ fontSize: 12, fontWeight: 900, color: isLight ? '#ea580c' : '#fbbf24', background: isLight ? '#ffedd5' : 'rgba(245, 158, 11, 0.15)', padding: '6px 14px', borderRadius: 999, border: isLight ? '1px solid #ea580c' : '1px solid #f59e0b' }}>
-                    Longest Investment Horizon: {portfolioResults.maxHorizon} Years
                   </div>
                 </div>
 
-                {/* 4 Cards Grid */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 14, marginBottom: 24 }}>
-                  <div style={{ background: isLight ? '#e0f2fe' : 'rgba(2, 132, 199, 0.15)', border: '1.5px solid #0284c7', padding: 18, borderRadius: 16, textAlign: 'center' }}>
-                    <div style={{ fontSize: 11, fontWeight: 800, color: isLight ? '#0369a1' : '#38bdf8', textTransform: 'uppercase', marginBottom: 4 }}>TOTAL INVESTMENT</div>
-                    <div style={{ fontSize: 22, fontWeight: 900, color: isLight ? '#0284c7' : '#38bdf8' }}>{fmt(portfolioResults.totalInvested)}</div>
-                  </div>
-
-                  <div style={{ background: isLight ? '#f8fafc' : 'rgba(255, 255, 255, 0.06)', border: isLight ? '1.5px solid #cbd5e1' : '1.5px solid rgba(255, 255, 255, 0.2)', padding: 18, borderRadius: 16, textAlign: 'center' }}>
-                    <div style={{ fontSize: 11, fontWeight: 800, color: isLight ? '#334155' : '#d1d5db', textTransform: 'uppercase', marginBottom: 4 }}>TOTAL RETURNS</div>
-                    <div style={{ fontSize: 22, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff' }}>{fmt(portfolioResults.totalReturns)}</div>
-                  </div>
-
-                  <div style={{ background: isLight ? '#d1fae5' : 'rgba(16, 185, 129, 0.15)', border: '1.5px solid #10b981', padding: 18, borderRadius: 16, textAlign: 'center' }}>
-                    <div style={{ fontSize: 11, fontWeight: 800, color: isLight ? '#047857' : '#6ee7b7', textTransform: 'uppercase', marginBottom: 4 }}>TOTAL PROFIT</div>
-                    <div style={{ fontSize: 22, fontWeight: 900, color: isLight ? '#059669' : '#10b981' }}>+{fmt(portfolioResults.totalProfit)}</div>
-                  </div>
-
-                  <div style={{ background: isLight ? '#d1fae5' : 'rgba(16, 185, 129, 0.15)', border: '1.5px solid #10b981', padding: 18, borderRadius: 16, textAlign: 'center' }}>
-                    <div style={{ fontSize: 11, fontWeight: 800, color: isLight ? '#047857' : '#6ee7b7', textTransform: 'uppercase', marginBottom: 4 }}>PROFIT PERCENTAGE</div>
-                    <div style={{ fontSize: 22, fontWeight: 900, color: isLight ? '#059669' : '#10b981' }}>+{portfolioResults.profitPct}%</div>
-                  </div>
-                </div>
-
-                {/* Combined Invested vs Returns Breakdown Bar */}
-                <div style={{ background: isLight ? '#f8fafc' : 'rgba(255, 255, 255, 0.03)', border: isLight ? '1.5px solid rgba(2, 132, 199, 0.3)' : '1.5px solid rgba(2, 132, 199, 0.3)', padding: 18, borderRadius: 16, marginBottom: 24 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, fontWeight: 800, marginBottom: 10 }}>
-                    <span style={{ color: isLight ? '#0f172a' : '#ffffff' }}>COMBINED INVESTED VS RETURNS BREAKDOWN</span>
-                    <span style={{ color: isLight ? '#475569' : '#94a3b8' }}>Portfolio Value: {fmt(portfolioResults.totalReturns)} (100%)</span>
-                  </div>
-                  <div style={{ height: 26, background: '#10b981', borderRadius: 999, overflow: 'hidden', display: 'flex', marginBottom: 12, fontWeight: 900, fontSize: 11, color: '#ffffff' }}>
-                    <div style={{ width: `${invPctVal}%`, background: '#0284c7', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      {invPctVal}%
-                    </div>
-                    <div style={{ width: `${profPctVal}%`, background: '#10b981', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      {profPctVal}%
-                    </div>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10, fontSize: 11, fontWeight: 800 }}>
-                    <span style={{ color: isLight ? '#0284c7' : '#38bdf8' }}>🟦 TOTAL INVESTED: {invPctVal}% ({fmt(portfolioResults.totalInvested)})</span>
-                    <span style={{ color: isLight ? '#059669' : '#6ee7b7' }}>🟩 TOTAL RETURNS (PROFIT): {profPctVal}% ({fmt(portfolioResults.totalProfit)})</span>
-                  </div>
-                </div>
-
-                {/* Gap Periods & Reinvestment Analysis */}
-                {portfolioResults.gapPeriods && portfolioResults.gapPeriods.length > 0 && (
-                  <div style={{ background: isLight ? '#f8fafc' : 'rgba(255, 255, 255, 0.03)', border: isLight ? '1.5px solid rgba(234, 88, 12, 0.3)' : '1.5px solid rgba(245, 158, 11, 0.3)', padding: 20, borderRadius: 18, marginBottom: 20 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-                      <span style={{ fontSize: 22 }}>⌛</span>
-                      <div>
-                        <h4 style={{ fontSize: 16, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff', margin: 0 }}>
-                          GAP PERIODS & REINVESTMENT ANALYSIS
-                        </h4>
-                        <p style={{ fontSize: 11, color: isLight ? '#475569' : '#9ca3af', margin: '2px 0 0' }}>
-                          Understand when earlier investments mature and how to put the matured corpus to work during the remaining gap years.
-                        </p>
+                {/* Smart Allocation Banner & Total Monthly Investment Input when Smart Allocation is active */}
+                {allocationMode === 'smart' && (
+                  <div className="anim-fade" style={{
+                    padding: '16px 20px',
+                    borderRadius: 16,
+                    marginBottom: 20,
+                    background: isLight ? '#ecfdf5' : 'rgba(16, 185, 129, 0.12)',
+                    border: '2px solid #10b981',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    flexWrap: 'wrap',
+                    gap: 16,
+                  }}>
+                    <div style={{ flex: '1 1 280px' }}>
+                      <div style={{ fontSize: 13, fontWeight: 900, color: isLight ? '#065f46' : '#6ee7b7', marginBottom: 4 }}>
+                        🧠 SMART ALLOCATION MODE ACTIVE
+                      </div>
+                      <div style={{ fontSize: 12, color: isLight ? '#047857' : '#d1fae5', fontWeight: 600 }}>
+                        Enter only your <strong>Total Monthly Investment</strong> below and fill Rate of Interest & Time Period manually. The system automatically divides your monthly investment across the selected options to <strong>maximize overall profit</strong>!
                       </div>
                     </div>
-
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                      {portfolioResults.gapPeriods.map((gap, gIdx) => (
-                        <div key={gIdx} style={{ background: isLight ? '#ffffff' : 'rgba(18, 16, 12, 0.9)', border: isLight ? '1.5px solid #ea580c' : '1.5px solid #f59e0b', padding: 16, borderRadius: 14 }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, flexWrap: 'wrap', gap: 8 }}>
-                            <span style={{ fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff', fontSize: 14 }}>
-                              {gap.emoji || '🔒'} {gap.name} matures at Year {gap.maturesAt}
-                            </span>
-                            <span style={{ fontSize: 10, fontWeight: 900, color: isLight ? '#c2410c' : '#fbbf24', background: isLight ? '#ffedd5' : 'rgba(245, 158, 11, 0.2)', padding: '4px 10px', borderRadius: 999, border: isLight ? '1px solid #ea580c' : '1px solid #f59e0b' }}>
-                              {gap.gapYears} YEARS GAP AVAILABLE
-                            </span>
-                          </div>
-                          <p style={{ fontSize: 12, color: isLight ? '#334155' : '#d1d5db', lineHeight: 1.5, margin: 0 }}>
-                            At <strong>Year {gap.maturesAt}</strong>, <strong>{gap.name}</strong> will fully mature with an estimated payout corpus of <strong style={{ color: '#10b981' }}>{fmt(gap.maturedCorpus)}</strong>. Because your overall portfolio horizon runs for <strong>{portfolioResults.maxHorizon} years</strong>, you have a <strong>{gap.gapYears}-year gap period</strong> before longer-term investments conclude.
-                          </p>
-                          <div style={{ marginTop: 10, fontSize: 11, color: isLight ? '#9a3412' : '#fbbf24', fontWeight: 700, background: isLight ? '#fff7ed' : 'rgba(245, 158, 11, 0.1)', padding: '10px 14px', borderRadius: 10, border: isLight ? '1px solid rgba(234, 88, 12, 0.3)' : '1.5px solid rgba(245, 158, 11, 0.2)' }}>
-                            💡 <strong>Smart Utilization Tip:</strong> {gap.smartTip}
-                          </div>
-                        </div>
-                      ))}
+                    <div style={{ minWidth: 220 }}>
+                      <label style={{ fontSize: 10, fontWeight: 900, color: isLight ? '#065f46' : '#6ee7b7', display: 'block', marginBottom: 4 }}>
+                        TOTAL MONTHLY INVESTMENT (₹/MO)
+                      </label>
+                      <input
+                        type="number"
+                        min="500"
+                        step="500"
+                        value={smartTotalMonthly}
+                        onChange={e => setSmartTotalMonthly(Math.max(0, Number(e.target.value)))}
+                        style={{
+                          width: '100%',
+                          padding: '10px 14px',
+                          borderRadius: 12,
+                          fontSize: 16,
+                          fontWeight: 900,
+                          background: isLight ? '#ffffff' : '#080705',
+                          color: '#10b981',
+                          border: '2px solid #10b981',
+                        }}
+                      />
                     </div>
                   </div>
                 )}
 
-                <button
-                  className="btn-primary"
-                  onClick={() => setShowSaveModal(true)}
-                  style={{ width: '100%', fontSize: 14, padding: '12px 20px', fontWeight: 900 }}
-                >
-                  💾 SAVE PORTFOLIO SIMULATION
-                </button>
+                {/* Selected Investment Rows Table/List */}
+                {portfolioRows.length === 0 ? (
+                  <div style={{
+                    padding: '36px 20px',
+                    textAlign: 'center',
+                    borderRadius: 16,
+                    background: isLight ? '#f8fafc' : 'rgba(255,255,255,0.03)',
+                    border: isLight ? '2px dashed #94a3b8' : '2px dashed rgba(255,255,255,0.2)'
+                  }}>
+                    <div style={{ fontSize: 36, marginBottom: 8 }}>➕</div>
+                    <div style={{ fontSize: 15, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff' }}>
+                      No Investment Options Selected Yet
+                    </div>
+                    <p style={{ fontSize: 12, color: isLight ? '#475569' : '#9ca3af', margin: '4px 0 0' }}>
+                      Click the <strong>+</strong> button beside any investment option in the horizontal bar above to add rows here.
+                    </p>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    <div style={{ fontSize: 12, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff' }}>
+                      SELECTED INVESTMENT ROWS ({portfolioRows.length}) — ENTER VALUES IN THIS WINDOW:
+                    </div>
 
+                    {currentPortfolioCalc.itemSummaries.map((item, idx) => (
+                      <div
+                        key={item.id}
+                        style={{
+                          padding: '16px 18px',
+                          borderRadius: 16,
+                          background: isLight ? '#f8fafc' : 'rgba(255,255,255,0.03)',
+                          border: isLight ? '2px solid #000000' : '2px solid rgba(255,255,255,0.2)',
+                          display: 'grid',
+                          gridTemplateColumns: 'repeat(auto-fit, minmax(145px, 1fr))',
+                          gap: 12,
+                          alignItems: 'center',
+                        }}
+                      >
+                        {/* Option Name Input (Default: FD 1, FD 2 or RD) */}
+                        <div>
+                          <label style={{ fontSize: 10, fontWeight: 900, color: isLight ? '#475569' : '#9ca3af', display: 'block', marginBottom: 4 }}>
+                            ROW #{idx + 1} NAME ({item.typeKey})
+                          </label>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <span style={{ fontSize: 18 }}>{item.emoji}</span>
+                            <input
+                              type="text"
+                              value={portfolioRows[idx]?.customName ?? ''}
+                              placeholder={item.defaultName}
+                              onChange={e => handleUpdateRowField(item.id, 'customName', e.target.value)}
+                              style={{
+                                width: '100%',
+                                padding: '8px 10px',
+                                borderRadius: 10,
+                                fontSize: 12,
+                                fontWeight: 800,
+                                background: isLight ? '#ffffff' : '#12100c',
+                                color: isLight ? '#0f172a' : '#fef3c7',
+                                border: isLight ? '1.5px solid #000000' : '1.5px solid rgba(255,255,255,0.25)',
+                              }}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Monthly Investment Input (Manual editable vs Smart auto-optimized) */}
+                        <div>
+                          <label style={{ fontSize: 10, fontWeight: 900, color: allocationMode === 'smart' ? '#10b981' : (isLight ? '#475569' : '#9ca3af'), display: 'block', marginBottom: 4 }}>
+                            {allocationMode === 'smart' ? '🧠 SMART MONTHLY (₹)' : 'MONTHLY INVEST (₹)'}
+                          </label>
+                          <input
+                            type="number"
+                            min="100"
+                            step="500"
+                            disabled={allocationMode === 'smart'}
+                            value={allocationMode === 'smart' ? item.monthly : (portfolioRows[idx]?.monthly ?? item.monthly)}
+                            onChange={e => handleUpdateRowField(item.id, 'monthly', Math.max(0, Number(e.target.value)))}
+                            style={{
+                              width: '100%',
+                              padding: '8px 10px',
+                              borderRadius: 10,
+                              fontSize: 13,
+                              fontWeight: 900,
+                              background: allocationMode === 'smart'
+                                ? (isLight ? '#ecfdf5' : 'rgba(16, 185, 129, 0.15)')
+                                : (isLight ? '#ffffff' : '#12100c'),
+                              color: allocationMode === 'smart' ? '#10b981' : (isLight ? '#0f172a' : '#ffffff'),
+                              border: allocationMode === 'smart'
+                                ? '2px solid #10b981'
+                                : (isLight ? '1.5px solid #000000' : '1.5px solid rgba(255,255,255,0.25)'),
+                              cursor: allocationMode === 'smart' ? 'not-allowed' : 'text',
+                            }}
+                          />
+                        </div>
+
+                        {/* Rate of Interest (% p.a.) */}
+                        <div>
+                          <label style={{ fontSize: 10, fontWeight: 900, color: isLight ? '#475569' : '#9ca3af', display: 'block', marginBottom: 4 }}>
+                            INTEREST RATE (% P.A.)
+                          </label>
+                          <input
+                            type="number"
+                            min="1"
+                            max="30"
+                            step="0.1"
+                            value={portfolioRows[idx]?.rate ?? item.rate}
+                            onChange={e => handleUpdateRowField(item.id, 'rate', Math.max(0.1, Number(e.target.value)))}
+                            style={{
+                              width: '100%',
+                              padding: '8px 10px',
+                              borderRadius: 10,
+                              fontSize: 13,
+                              fontWeight: 900,
+                              background: isLight ? '#ffffff' : '#12100c',
+                              color: isLight ? '#ea580c' : '#fbbf24',
+                              border: isLight ? '1.5px solid #000000' : '1.5px solid rgba(255,255,255,0.25)',
+                            }}
+                          />
+                        </div>
+
+                        {/* Time Period (Years) */}
+                        <div>
+                          <label style={{ fontSize: 10, fontWeight: 900, color: isLight ? '#475569' : '#9ca3af', display: 'block', marginBottom: 4 }}>
+                            TIME PERIOD (YEARS)
+                          </label>
+                          <input
+                            type="number"
+                            min="1"
+                            max="40"
+                            step="1"
+                            value={portfolioRows[idx]?.years ?? item.years}
+                            onChange={e => handleUpdateRowField(item.id, 'years', Math.max(1, parseInt(e.target.value) || 1))}
+                            style={{
+                              width: '100%',
+                              padding: '8px 10px',
+                              borderRadius: 10,
+                              fontSize: 13,
+                              fontWeight: 900,
+                              background: isLight ? '#ffffff' : '#12100c',
+                              color: isLight ? '#0f172a' : '#ffffff',
+                              border: isLight ? '1.5px solid #000000' : '1.5px solid rgba(255,255,255,0.25)',
+                            }}
+                          />
+                        </div>
+
+                        {/* Row Preview & Remove Button */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+                          <div>
+                            <div style={{ fontSize: 10, fontWeight: 800, color: isLight ? '#64748b' : '#9ca3af' }}>
+                              MATURITY ({item.years}Y)
+                            </div>
+                            <div style={{ fontSize: 13, fontWeight: 900, color: '#10b981' }}>
+                              {fmtINR(item.returns)}
+                            </div>
+                            <div style={{ fontSize: 10, fontWeight: 700, color: isLight ? '#475569' : '#9ca3af' }}>
+                              Profit: +{fmtINR(item.profit)}
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => handleRemoveInvestmentRow(item.id)}
+                            title="Remove row"
+                            style={{
+                              padding: '7px 10px',
+                              borderRadius: 10,
+                              background: 'rgba(239, 68, 68, 0.12)',
+                              border: '1.5px solid #ef4444',
+                              color: '#ef4444',
+                              fontWeight: 900,
+                              fontSize: 12,
+                              cursor: 'pointer'
+                            }}
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {portfolioError && (
+                  <div style={{
+                    marginTop: 14,
+                    padding: '10px 14px',
+                    borderRadius: 12,
+                    background: 'rgba(239, 68, 68, 0.12)',
+                    border: '1.5px solid #ef4444',
+                    color: '#ef4444',
+                    fontSize: 12,
+                    fontWeight: 800
+                  }}>
+                    ⚠️ {portfolioError}
+                  </div>
+                )}
+
+                {/* Run Portfolio Simulation CTA Button */}
+                <div style={{ marginTop: 20, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                  <button
+                    onClick={handleRunPortfolioSimulator}
+                    disabled={portfolioRows.length < 2}
+                    className="btn-primary"
+                    style={{
+                      flex: '1 1 280px',
+                      padding: '15px 24px',
+                      fontSize: 15,
+                      fontWeight: 900,
+                      opacity: portfolioRows.length < 2 ? 0.5 : 1,
+                      cursor: portfolioRows.length < 2 ? 'not-allowed' : 'pointer',
+                      border: isLight ? '2px solid #000000' : '2px solid #ffffff',
+                    }}
+                  >
+                    🚀 {portfolioRows.length < 2
+                      ? 'SELECT AT LEAST 2 INVESTMENT OPTIONS ABOVE'
+                      : `RUN PORTFOLIO SIMULATION (${portfolioDone ? 'COMPLETED ✅' : '+100 XP'})`}
+                  </button>
+                </div>
               </div>
-            )
-          })()}
+
+              {/* Step 3: Combined Portfolio Results, Breakdown Bar, Post-Run Smart Allocation, Gap Periods Analysis & Optional Save */}
+              {hasRunSim && portfolioRows.length >= 2 && (
+                <div className="glass-card-deep anim-fade" style={{
+                  padding: '28px',
+                  borderRadius: 24,
+                  background: isLight ? '#ffffff' : 'var(--bg-card-deep, #12100c)',
+                  border: '2.5px solid #10b981',
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, marginBottom: 20 }}>
+                    <div>
+                      <div className="sticker-badge sticker-yellow" style={{ marginBottom: 6, display: 'inline-block' }}>
+                        {allocationMode === 'smart' ? '🧠 SMART ALLOCATION RESULTS' : '✍️ MANUAL ALLOCATION RESULTS'}
+                      </div>
+                      <h3 className="font-display" style={{ fontSize: 26, color: isLight ? '#0f172a' : '#ffffff', margin: 0 }}>
+                        📊 {effectivePortfolioName.toUpperCase()} — COMBINED ANALYSIS
+                      </h3>
+                    </div>
+                    <div style={{
+                      padding: '6px 14px',
+                      borderRadius: 999,
+                      background: isLight ? '#ffedd5' : 'rgba(245, 158, 11, 0.15)',
+                      border: '1.5px solid #f59e0b',
+                      color: isLight ? '#9a3412' : '#fbbf24',
+                      fontSize: 12,
+                      fontWeight: 900
+                    }}>
+                      Total Monthly: {fmtINR(currentPortfolioCalc.totalMonthly)}/mo · Max Horizon: {currentPortfolioCalc.maxHorizon} Yrs
+                    </div>
+                  </div>
+
+                  {/* Post-Simulation Manual vs Smart Allocation Optimizer Bar */}
+                  <div style={{
+                    padding: '16px 20px',
+                    borderRadius: 16,
+                    marginBottom: 22,
+                    background: allocationMode === 'smart'
+                      ? (isLight ? '#ecfdf5' : 'rgba(16, 185, 129, 0.12)')
+                      : (isLight ? '#fff7ed' : 'rgba(245, 158, 11, 0.12)'),
+                    border: `2px solid ${allocationMode === 'smart' ? '#10b981' : '#f59e0b'}`,
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    flexWrap: 'wrap',
+                    gap: 14,
+                  }}>
+                    <div style={{ flex: '1 1 300px' }}>
+                      <div style={{ fontSize: 13, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff', marginBottom: 4 }}>
+                        {allocationMode === 'manual'
+                          ? '💡 Want to see how your monthly investments can be smartly allocated for maximum profit?'
+                          : '🧠 Smart Allocation Applied! Monthly investments have been optimally divided for maximum profit.'}
+                      </div>
+                      <div style={{ fontSize: 12, color: isLight ? '#475569' : '#d1d5db', fontWeight: 600 }}>
+                        {allocationMode === 'manual'
+                          ? `Clicking "Smart Allocation" combines all your monthly investments (${fmtINR(currentPortfolioCalc.totalMonthly)}/mo) and divides them across your selected options to maximize overall profit with respect to interest rate and time period.`
+                          : (manualBaselineProfit !== null && currentPortfolioCalc.totalProfit >= manualBaselineProfit
+                              ? `Smart Allocation boosted your overall portfolio profit by +${fmtINR(currentPortfolioCalc.totalProfit - manualBaselineProfit)} compared to your manual allocation!`
+                              : 'Only the monthly investment per row was adjusted to maximize your combined portfolio return.')}
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                      <button
+                        onClick={handleSwitchToManual}
+                        style={{
+                          padding: '10px 16px',
+                          borderRadius: 12,
+                          fontSize: 12,
+                          fontWeight: 900,
+                          cursor: 'pointer',
+                          background: allocationMode === 'manual' ? '#ea580c' : (isLight ? '#ffffff' : '#12100c'),
+                          color: allocationMode === 'manual' ? '#ffffff' : (isLight ? '#0f172a' : '#fef3c7'),
+                          border: isLight ? '2px solid #000000' : '2px solid #ffffff',
+                        }}
+                      >
+                        ✍️ Manual Allocation
+                      </button>
+                      <button
+                        onClick={() => handleSwitchToSmart(true)}
+                        style={{
+                          padding: '10px 16px',
+                          borderRadius: 12,
+                          fontSize: 12,
+                          fontWeight: 900,
+                          cursor: 'pointer',
+                          background: allocationMode === 'smart'
+                            ? 'linear-gradient(135deg, #10b981, #059669)'
+                            : 'linear-gradient(135deg, #ea580c, #f59e0b)',
+                          color: '#ffffff',
+                          border: isLight ? '2px solid #000000' : '2px solid #ffffff',
+                        }}
+                      >
+                        🧠 Smart Allocation (Optimize Profit)
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* 4 Combined Metric Summary Cards */}
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+                    gap: 14,
+                    marginBottom: 22
+                  }}>
+                    <div style={{
+                      background: isLight ? '#e0f2fe' : 'rgba(2, 132, 199, 0.15)',
+                      border: '2px solid #0284c7',
+                      padding: 18,
+                      borderRadius: 16,
+                      textAlign: 'center'
+                    }}>
+                      <div style={{ fontSize: 11, fontWeight: 900, color: isLight ? '#0369a1' : '#38bdf8', marginBottom: 4 }}>
+                        TOTAL INVESTMENT
+                      </div>
+                      <div style={{ fontSize: 22, fontWeight: 900, color: isLight ? '#0284c7' : '#38bdf8' }}>
+                        {fmtINR(currentPortfolioCalc.totalInvested)}
+                      </div>
+                    </div>
+
+                    <div style={{
+                      background: isLight ? '#d1fae5' : 'rgba(16, 185, 129, 0.15)',
+                      border: '2px solid #10b981',
+                      padding: 18,
+                      borderRadius: 16,
+                      textAlign: 'center'
+                    }}>
+                      <div style={{ fontSize: 11, fontWeight: 900, color: isLight ? '#047857' : '#6ee7b7', marginBottom: 4 }}>
+                        TOTAL PROFIT
+                      </div>
+                      <div style={{ fontSize: 22, fontWeight: 900, color: isLight ? '#059669' : '#10b981' }}>
+                        +{fmtINR(currentPortfolioCalc.totalProfit)}
+                      </div>
+                    </div>
+
+                    <div style={{
+                      background: isLight ? '#fef3c7' : 'rgba(245, 158, 11, 0.15)',
+                      border: '2px solid #f59e0b',
+                      padding: 18,
+                      borderRadius: 16,
+                      textAlign: 'center'
+                    }}>
+                      <div style={{ fontSize: 11, fontWeight: 900, color: isLight ? '#92400e' : '#fbbf24', marginBottom: 4 }}>
+                        TOTAL RETURNS
+                      </div>
+                      <div style={{ fontSize: 22, fontWeight: 900, color: isLight ? '#b45309' : '#fbbf24' }}>
+                        {fmtINR(currentPortfolioCalc.totalReturns)}
+                      </div>
+                    </div>
+
+                    <div style={{
+                      background: isLight ? '#d1fae5' : 'rgba(16, 185, 129, 0.15)',
+                      border: '2px solid #10b981',
+                      padding: 18,
+                      borderRadius: 16,
+                      textAlign: 'center'
+                    }}>
+                      <div style={{ fontSize: 11, fontWeight: 900, color: isLight ? '#047857' : '#6ee7b7', marginBottom: 4 }}>
+                        PROFIT PERCENTAGE
+                      </div>
+                      <div style={{ fontSize: 22, fontWeight: 900, color: isLight ? '#059669' : '#10b981' }}>
+                        +{currentPortfolioCalc.profitPercentage ?? currentPortfolioCalc.profitPct ?? '0.0'}%
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Invested vs Returns Breakdown Bar (Combined across all investments) */}
+                  {(() => {
+                    const invShare = currentPortfolioCalc.investedSharePct ?? currentPortfolioCalc.investedBarPct ?? (currentPortfolioCalc.totalReturns > 0 ? ((currentPortfolioCalc.totalInvested / currentPortfolioCalc.totalReturns) * 100).toFixed(1) : '100.0')
+                    const retShare = currentPortfolioCalc.returnsSharePct ?? currentPortfolioCalc.returnsBarPct ?? (currentPortfolioCalc.totalReturns > 0 ? (100 - Number(invShare)).toFixed(1) : '0.0')
+                    return (
+                      <div style={{
+                        background: isLight ? '#f8fafc' : 'rgba(255,255,255,0.03)',
+                        border: isLight ? '2px solid #000000' : '2px solid rgba(255,255,255,0.2)',
+                        padding: 20,
+                        borderRadius: 18,
+                        marginBottom: 22
+                      }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, fontWeight: 900, marginBottom: 10, flexWrap: 'wrap', gap: 8 }}>
+                          <span style={{ color: isLight ? '#0f172a' : '#ffffff' }}>
+                            📊 INVESTED VS RETURNS BREAKDOWN (ALL INVESTMENTS COMBINED)
+                          </span>
+                          <span style={{ color: isLight ? '#475569' : '#9ca3af' }}>
+                            Combined Maturity Value: {fmtINR(currentPortfolioCalc.totalReturns)} (100%)
+                          </span>
+                        </div>
+
+                        <div style={{
+                          width: '100%',
+                          height: 30,
+                          borderRadius: 999,
+                          overflow: 'hidden',
+                          display: 'flex',
+                          marginBottom: 12,
+                          fontWeight: 900,
+                          fontSize: 11,
+                          color: '#ffffff',
+                          background: '#10b981',
+                          border: isLight ? '1.5px solid #000000' : '1.5px solid rgba(255,255,255,0.3)'
+                        }}>
+                          <div style={{
+                            width: `${invShare}%`,
+                            background: '#0284c7',
+                            height: '100%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            transition: 'width 0.3s ease',
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden'
+                          }}>
+                            {Number(invShare) >= 10 ? `${invShare}%` : ''}
+                          </div>
+                          <div style={{
+                            width: `${retShare}%`,
+                            background: '#10b981',
+                            height: '100%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            transition: 'width 0.3s ease',
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden'
+                          }}>
+                            {Number(retShare) >= 10 ? `${retShare}%` : ''}
+                          </div>
+                        </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10, fontSize: 12, fontWeight: 800 }}>
+                          <span style={{ color: isLight ? '#0284c7' : '#38bdf8' }}>
+                            🟦 Total Invested Principal: {invShare}% ({fmtINR(currentPortfolioCalc.totalInvested)})
+                          </span>
+                          <span style={{ color: isLight ? '#059669' : '#6ee7b7' }}>
+                            🟩 Total Profit Earned: {retShare}% (+{fmtINR(currentPortfolioCalc.totalProfit)})
+                          </span>
+                        </div>
+                      </div>
+                    )
+                  })()}
+
+                  {/* Gap Periods Analysis & Details */}
+                  <div style={{
+                    background: isLight ? '#fff7ed' : 'rgba(245, 158, 11, 0.08)',
+                    border: isLight ? '2px solid #ea580c' : '2px solid #f59e0b',
+                    padding: 20,
+                    borderRadius: 18,
+                    marginBottom: 22
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+                      <span style={{ fontSize: 24 }}>⏳</span>
+                      <div>
+                        <h4 style={{ fontSize: 16, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff', margin: 0 }}>
+                          GAP PERIODS ANALYSIS & DETAILS
+                        </h4>
+                        <p style={{ fontSize: 12, color: isLight ? '#475569' : '#d1d5db', margin: '2px 0 0', fontWeight: 600 }}>
+                          When selected investments have different time horizons, shorter investments mature earlier—creating a gap period where matured funds can be reinvested or used for intermediate goals.
+                        </p>
+                      </div>
+                    </div>
+
+                    {currentPortfolioCalc.gapPeriods.length === 0 ? (
+                      <div style={{
+                        padding: '14px 16px',
+                        borderRadius: 12,
+                        background: isLight ? '#ffffff' : 'rgba(0,0,0,0.35)',
+                        border: isLight ? '1.5px solid #cbd5e1' : '1.5px solid rgba(255,255,255,0.15)',
+                        fontSize: 12,
+                        fontWeight: 700,
+                        color: isLight ? '#334155' : '#d1d5db'
+                      }}>
+                        ✅ All selected investments share the same maturity period of <strong>{currentPortfolioCalc.maxHorizon} years</strong>. There are <strong>0 gap years</strong> between maturities—all payouts arrive together at Year {currentPortfolioCalc.maxHorizon}. Try setting different time periods (e.g., 5 years and 7 years) to analyze maturity gap periods!
+                      </div>
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                        {currentPortfolioCalc.gapPeriods.map((gap, gIdx) => (
+                          <div
+                            key={gIdx}
+                            style={{
+                              padding: 16,
+                              borderRadius: 14,
+                              background: isLight ? '#ffffff' : 'rgba(18, 16, 12, 0.92)',
+                              border: isLight ? '1.5px solid #ea580c' : '1.5px solid #f59e0b',
+                            }}
+                          >
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
+                              <span style={{ fontSize: 14, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff' }}>
+                                {gap.emoji} {gap.name} — Matures in {gap.maturesAt} Years
+                              </span>
+                              <span style={{
+                                padding: '4px 10px',
+                                borderRadius: 999,
+                                fontSize: 11,
+                                fontWeight: 900,
+                                background: isLight ? '#ffedd5' : 'rgba(245, 158, 11, 0.2)',
+                                color: isLight ? '#c2410c' : '#fbbf24',
+                                border: '1px solid #f59e0b'
+                              }}>
+                                ⏳ {gap.gapYears}-Year Gap Period (Yr {gap.maturesAt} → Yr {gap.maxHorizon})
+                              </span>
+                            </div>
+                            <p style={{ fontSize: 12, color: isLight ? '#334155' : '#d1d5db', fontWeight: 600, lineHeight: 1.5, margin: '0 0 8px' }}>
+                              {gap.analysisText || `${gap.name} matures at Year ${gap.maturesAt} with a total payout of ${fmtINR(gap.maturedCorpus)}, leaving a ${gap.gapYears}-year gap period until Year ${gap.maxHorizon}.`}
+                            </p>
+                            <div style={{
+                              fontSize: 11,
+                              fontWeight: 800,
+                              color: isLight ? '#065f46' : '#6ee7b7',
+                              background: isLight ? '#ecfdf5' : 'rgba(16, 185, 129, 0.12)',
+                              padding: '8px 12px',
+                              borderRadius: 10,
+                              border: '1px solid #10b981'
+                            }}>
+                              💡 <strong>Gap Period Utilization:</strong> {gap.smartTip}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Optional Save Portfolio Simulation Button (0 XP) */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: isLight ? '#475569' : '#9ca3af' }}>
+                      📌 Saving this simulation is optional (0 XP) and lets you view or edit it anytime in Saved Simulations.
+                    </div>
+                    <button
+                      onClick={handleOpenSavePortfolioModal}
+                      className="btn-primary"
+                      style={{
+                        padding: '12px 22px',
+                        fontSize: 13,
+                        fontWeight: 900,
+                        background: 'linear-gradient(135deg, #10b981, #059669)',
+                        color: '#ffffff',
+                        border: isLight ? '2px solid #000000' : '2px solid #ffffff',
+                      }}
+                    >
+                      💾 Save Portfolio Simulation (Optional)
+                    </button>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* SUB-VIEW 2: SAVED PORTFOLIO SIMULATIONS IN THIS WINDOW */}
+          {portfolioSubView === 'saved' && (
+            <div className="glass-card-deep anim-fade" style={{
+              padding: '24px',
+              borderRadius: 22,
+              background: isLight ? '#ffffff' : 'var(--bg-card-deep, #12100c)',
+              border: isLight ? '2.5px solid #000000' : '2.5px solid #ffffff',
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18, flexWrap: 'wrap', gap: 10 }}>
+                <div>
+                  <h3 className="font-display" style={{ fontSize: 24, color: isLight ? '#0f172a' : '#ffffff', margin: 0 }}>
+                    📂 SAVED PORTFOLIO SIMULATIONS ({savedPortfolioSimulations.length})
+                  </h3>
+                  <p style={{ fontSize: 12, color: isLight ? '#475569' : '#9ca3af', fontWeight: 600, margin: '4px 0 0' }}>
+                    Click any saved simulation to inspect its details and results. Values are locked in read-only mode until you click <strong>Edit</strong>.
+                  </p>
+                </div>
+                <button
+                  onClick={() => go('savedSimulations')}
+                  className="btn-outline"
+                  style={{ padding: '8px 14px', fontSize: 12, fontWeight: 900 }}
+                >
+                  📁 Open Full Saved Simulations Manager →
+                </button>
+              </div>
+
+              {savedPortfolioSimulations.length === 0 ? (
+                <div style={{
+                  padding: '36px 20px',
+                  textAlign: 'center',
+                  borderRadius: 16,
+                  background: isLight ? '#f8fafc' : 'rgba(255,255,255,0.03)',
+                  border: isLight ? '2px dashed #94a3b8' : '2px dashed rgba(255,255,255,0.2)'
+                }}>
+                  <div style={{ fontSize: 34, marginBottom: 8 }}>📂</div>
+                  <div style={{ fontSize: 15, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff' }}>
+                    No Saved Portfolio Simulations Yet
+                  </div>
+                  <p style={{ fontSize: 12, color: isLight ? '#475569' : '#9ca3af', margin: '4px 0 14px' }}>
+                    Run a simulation in the Portfolio Simulator tab and click &ldquo;Save Portfolio Simulation&rdquo; to store it here.
+                  </p>
+                  <button
+                    onClick={() => setPortfolioSubView('simulator')}
+                    className="btn-primary"
+                    style={{ padding: '10px 18px', fontSize: 12, fontWeight: 900 }}
+                  >
+                    ← Back to Portfolio Simulator
+                  </button>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  {/* Saved List */}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 12 }}>
+                    {savedPortfolioSimulations.map(sim => {
+                      const isSelected = selectedSavedPort?.id === sim.id
+                      const res = calculatePortfolioSimulation(sim.items || sim.results?.itemSummaries || [], sim.allocationMode || 'manual', sim.totalMonthlyBudget)
+                      return (
+                        <div
+                          key={sim.id}
+                          onClick={() => handleOpenSavedPortInWindow(sim, false)}
+                          style={{
+                            padding: 16,
+                            borderRadius: 16,
+                            cursor: 'pointer',
+                            background: isSelected
+                              ? (isLight ? '#fff7ed' : 'rgba(245, 158, 11, 0.14)')
+                              : (isLight ? '#f8fafc' : 'rgba(255,255,255,0.04)'),
+                            border: isSelected
+                              ? '2.5px solid #f59e0b'
+                              : (isLight ? '2px solid #000000' : '2px solid rgba(255,255,255,0.2)'),
+                          }}
+                        >
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
+                            <div>
+                              <div style={{ fontSize: 15, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff' }}>
+                                📊 {sim.name}
+                              </div>
+                              <div style={{ fontSize: 11, color: isLight ? '#64748b' : '#9ca3af', fontWeight: 700, marginTop: 2 }}>
+                                {(sim.items || []).length} Options · {fmtINR(res.totalReturns)} Returns (+{res.profitPercentage ?? res.profitPct}%)
+                              </div>
+                            </div>
+                            <div style={{ display: 'flex', gap: 6 }} onClick={e => e.stopPropagation()}>
+                              <button
+                                onClick={() => handleOpenSavedPortInWindow(sim, true)}
+                                style={{
+                                  padding: '5px 10px',
+                                  borderRadius: 8,
+                                  fontSize: 11,
+                                  fontWeight: 900,
+                                  background: isLight ? '#ffedd5' : 'rgba(245, 158, 11, 0.2)',
+                                  color: isLight ? '#9a3412' : '#fbbf24',
+                                  border: '1px solid #f59e0b',
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                ✏️ Edit
+                              </button>
+                              <button
+                                onClick={() => setDeletePortConfirm(sim)}
+                                style={{
+                                  padding: '5px 10px',
+                                  borderRadius: 8,
+                                  fontSize: 11,
+                                  fontWeight: 900,
+                                  background: 'rgba(239, 68, 68, 0.15)',
+                                  color: '#ef4444',
+                                  border: '1px solid #ef4444',
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                🗑️ Delete
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+
+                  {/* Selected Saved Simulation Detail & Read-Only / Edit View */}
+                  {selectedSavedPort && (() => {
+                    const liveCalc = isEditingSavedPort
+                      ? calculatePortfolioSimulation(
+                          editPortDraft.items || [],
+                          editPortDraft.allocationMode || 'manual',
+                          editPortDraft.allocationMode === 'smart' ? editPortDraft.totalMonthlyBudget : null
+                        )
+                      : calculatePortfolioSimulation(
+                          selectedSavedPort.items || selectedSavedPort.results?.itemSummaries || [],
+                          selectedSavedPort.allocationMode || 'manual',
+                          selectedSavedPort.totalMonthlyBudget
+                        )
+                    const savedInvShare = liveCalc.investedSharePct ?? liveCalc.investedBarPct ?? '100.0'
+                    const savedRetShare = liveCalc.returnsSharePct ?? liveCalc.returnsBarPct ?? '0.0'
+
+                    return (
+                      <div style={{
+                        marginTop: 8,
+                        padding: 22,
+                        borderRadius: 18,
+                        background: isLight ? '#f8fafc' : 'rgba(0,0,0,0.35)',
+                        border: isEditingSavedPort ? '2.5px solid #f59e0b' : '2.5px solid #10b981'
+                      }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10, marginBottom: 16 }}>
+                          <div>
+                            <span style={{
+                              fontSize: 10,
+                              fontWeight: 900,
+                              padding: '3px 10px',
+                              borderRadius: 999,
+                              background: isEditingSavedPort ? 'rgba(245, 158, 11, 0.2)' : 'rgba(16, 185, 129, 0.2)',
+                              color: isEditingSavedPort ? '#f59e0b' : '#10b981',
+                              border: `1px solid ${isEditingSavedPort ? '#f59e0b' : '#10b981'}`
+                            }}>
+                              {isEditingSavedPort ? '✏️ EDIT MODE ENABLED' : '🔒 READ-ONLY VIEW (CLICK EDIT TO MODIFY)'}
+                            </span>
+                            {isEditingSavedPort ? (
+                              <input
+                                type="text"
+                                value={editPortDraft.name}
+                                onChange={e => setEditPortDraft(prev => ({ ...prev, name: e.target.value }))}
+                                style={{
+                                  display: 'block',
+                                  marginTop: 8,
+                                  padding: '8px 12px',
+                                  borderRadius: 10,
+                                  fontSize: 16,
+                                  fontWeight: 900,
+                                  background: isLight ? '#ffffff' : '#12100c',
+                                  color: isLight ? '#0f172a' : '#ffffff',
+                                  border: '2px solid #f59e0b'
+                                }}
+                              />
+                            ) : (
+                              <h4 style={{ fontSize: 20, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff', margin: '8px 0 0' }}>
+                                {selectedSavedPort.name}
+                              </h4>
+                            )}
+                          </div>
+
+                          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                            {!isEditingSavedPort ? (
+                              <button
+                                onClick={() => setIsEditingSavedPort(true)}
+                                className="btn-primary"
+                                style={{ padding: '8px 16px', fontSize: 12, fontWeight: 900 }}
+                              >
+                                ✏️ Edit
+                              </button>
+                            ) : (
+                              <>
+                                <button
+                                  onClick={handleSaveEditedPortInWindow}
+                                  className="btn-primary"
+                                  style={{
+                                    padding: '8px 18px',
+                                    fontSize: 12,
+                                    fontWeight: 900,
+                                    background: 'linear-gradient(135deg, #10b981, #059669)',
+                                    color: '#ffffff'
+                                  }}
+                                >
+                                  💾 Edit changes
+                                </button>
+                                <button
+                                  onClick={() => handleOpenSavedPortInWindow(selectedSavedPort, false)}
+                                  className="btn-outline"
+                                  style={{ padding: '8px 14px', fontSize: 12, fontWeight: 800 }}
+                                >
+                                  Cancel
+                                </button>
+                              </>
+                            )}
+                            <button
+                              onClick={() => setDeletePortConfirm(selectedSavedPort)}
+                              style={{
+                                padding: '8px 14px',
+                                borderRadius: 10,
+                                fontSize: 12,
+                                fontWeight: 900,
+                                background: 'rgba(239, 68, 68, 0.15)',
+                                color: '#ef4444',
+                                border: '1.5px solid #ef4444',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              🗑️ Delete
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Items inside saved simulation */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 16 }}>
+                          {liveCalc.itemSummaries.map((item, idx) => (
+                            <div
+                              key={item.id || idx}
+                              style={{
+                                padding: 12,
+                                borderRadius: 12,
+                                background: isLight ? '#ffffff' : '#12100c',
+                                border: isLight ? '1.5px solid #cbd5e1' : '1.5px solid rgba(255,255,255,0.15)',
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
+                                gap: 10,
+                                alignItems: 'center'
+                              }}
+                            >
+                              <div>
+                                <div style={{ fontSize: 10, fontWeight: 800, color: isLight ? '#64748b' : '#9ca3af' }}>OPTION ({item.typeKey})</div>
+                                {isEditingSavedPort ? (
+                                  <input
+                                    type="text"
+                                    value={editPortDraft.items[idx]?.customName || editPortDraft.items[idx]?.name || item.name}
+                                    onChange={e => {
+                                      const val = e.target.value
+                                      setEditPortDraft(prev => ({
+                                        ...prev,
+                                        items: prev.items.map((it, i) => i === idx ? { ...it, customName: val, name: val } : it)
+                                      }))
+                                    }}
+                                    style={{ width: '100%', padding: '6px 8px', borderRadius: 8, fontSize: 12, fontWeight: 800 }}
+                                  />
+                                ) : (
+                                  <div style={{ fontSize: 13, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff' }}>
+                                    {item.emoji} {item.name}
+                                  </div>
+                                )}
+                              </div>
+
+                              <div>
+                                <div style={{ fontSize: 10, fontWeight: 800, color: isLight ? '#64748b' : '#9ca3af' }}>MONTHLY (₹)</div>
+                                {isEditingSavedPort && editPortDraft.allocationMode !== 'smart' ? (
+                                  <input
+                                    type="number"
+                                    value={editPortDraft.items[idx]?.monthly ?? item.monthly}
+                                    onChange={e => {
+                                      const val = Math.max(0, Number(e.target.value))
+                                      setEditPortDraft(prev => ({
+                                        ...prev,
+                                        items: prev.items.map((it, i) => i === idx ? { ...it, monthly: val } : it)
+                                      }))
+                                    }}
+                                    style={{ width: '100%', padding: '6px 8px', borderRadius: 8, fontSize: 12, fontWeight: 800 }}
+                                  />
+                                ) : (
+                                  <div style={{ fontSize: 13, fontWeight: 900, color: '#0284c7' }}>{fmtINR(item.monthly)}/mo</div>
+                                )}
+                              </div>
+
+                              <div>
+                                <div style={{ fontSize: 10, fontWeight: 800, color: isLight ? '#64748b' : '#9ca3af' }}>RATE (% P.A.)</div>
+                                {isEditingSavedPort ? (
+                                  <input
+                                    type="number"
+                                    step="0.1"
+                                    value={editPortDraft.items[idx]?.rate ?? item.rate}
+                                    onChange={e => {
+                                      const val = Math.max(0.1, Number(e.target.value))
+                                      setEditPortDraft(prev => ({
+                                        ...prev,
+                                        items: prev.items.map((it, i) => i === idx ? { ...it, rate: val } : it)
+                                      }))
+                                    }}
+                                    style={{ width: '100%', padding: '6px 8px', borderRadius: 8, fontSize: 12, fontWeight: 800 }}
+                                  />
+                                ) : (
+                                  <div style={{ fontSize: 13, fontWeight: 900, color: '#f59e0b' }}>{item.rate}% p.a.</div>
+                                )}
+                              </div>
+
+                              <div>
+                                <div style={{ fontSize: 10, fontWeight: 800, color: isLight ? '#64748b' : '#9ca3af' }}>YEARS</div>
+                                {isEditingSavedPort ? (
+                                  <input
+                                    type="number"
+                                    min="1"
+                                    value={editPortDraft.items[idx]?.years ?? item.years}
+                                    onChange={e => {
+                                      const val = Math.max(1, parseInt(e.target.value) || 1)
+                                      setEditPortDraft(prev => ({
+                                        ...prev,
+                                        items: prev.items.map((it, i) => i === idx ? { ...it, years: val } : it)
+                                      }))
+                                    }}
+                                    style={{ width: '100%', padding: '6px 8px', borderRadius: 8, fontSize: 12, fontWeight: 800 }}
+                                  />
+                                ) : (
+                                  <div style={{ fontSize: 13, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff' }}>{item.years} Yrs</div>
+                                )}
+                              </div>
+
+                              <div>
+                                <div style={{ fontSize: 10, fontWeight: 800, color: isLight ? '#64748b' : '#9ca3af' }}>MATURITY</div>
+                                <div style={{ fontSize: 13, fontWeight: 900, color: '#10b981' }}>{fmtINR(item.returns)}</div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Combined Summary in Saved Detail */}
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10, marginBottom: 14 }}>
+                          <div style={{ padding: 12, borderRadius: 12, background: isLight ? '#e0f2fe' : 'rgba(2,132,199,0.15)', textAlign: 'center' }}>
+                            <div style={{ fontSize: 10, fontWeight: 900, color: '#0284c7' }}>TOTAL INVESTED</div>
+                            <div style={{ fontSize: 16, fontWeight: 900, color: '#0284c7' }}>{fmtINR(liveCalc.totalInvested)}</div>
+                          </div>
+                          <div style={{ padding: 12, borderRadius: 12, background: isLight ? '#d1fae5' : 'rgba(16,185,129,0.15)', textAlign: 'center' }}>
+                            <div style={{ fontSize: 10, fontWeight: 900, color: '#10b981' }}>TOTAL PROFIT</div>
+                            <div style={{ fontSize: 16, fontWeight: 900, color: '#10b981' }}>+{fmtINR(liveCalc.totalProfit)}</div>
+                          </div>
+                          <div style={{ padding: 12, borderRadius: 12, background: isLight ? '#fef3c7' : 'rgba(245,158,11,0.15)', textAlign: 'center' }}>
+                            <div style={{ fontSize: 10, fontWeight: 900, color: '#f59e0b' }}>TOTAL RETURNS</div>
+                            <div style={{ fontSize: 16, fontWeight: 900, color: '#f59e0b' }}>{fmtINR(liveCalc.totalReturns)}</div>
+                          </div>
+                          <div style={{ padding: 12, borderRadius: 12, background: isLight ? '#d1fae5' : 'rgba(16,185,129,0.15)', textAlign: 'center' }}>
+                            <div style={{ fontSize: 10, fontWeight: 900, color: '#10b981' }}>PROFIT PERCENTAGE</div>
+                            <div style={{ fontSize: 16, fontWeight: 900, color: '#10b981' }}>+{liveCalc.profitPercentage ?? liveCalc.profitPct}%</div>
+                          </div>
+                        </div>
+
+                        {/* Combined Invested vs Returns Breakdown Bar in Saved Detail */}
+                        <div style={{
+                          background: isLight ? '#ffffff' : '#12100c',
+                          border: isLight ? '1.5px solid #cbd5e1' : '1.5px solid rgba(255,255,255,0.15)',
+                          padding: 14,
+                          borderRadius: 14
+                        }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, fontWeight: 900, marginBottom: 8 }}>
+                            <span style={{ color: isLight ? '#0f172a' : '#ffffff' }}>📊 INVESTED VS RETURNS BREAKDOWN (ALL INVESTMENTS COMBINED)</span>
+                            <span style={{ color: isLight ? '#475569' : '#9ca3af' }}>{fmtINR(liveCalc.totalReturns)} (100%)</span>
+                          </div>
+                          <div style={{ width: '100%', height: 24, borderRadius: 999, overflow: 'hidden', display: 'flex', background: '#10b981', marginBottom: 8, fontSize: 10, fontWeight: 900, color: '#ffffff' }}>
+                            <div style={{ width: `${savedInvShare}%`, background: '#0284c7', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              {Number(savedInvShare) >= 10 ? `${savedInvShare}%` : ''}
+                            </div>
+                            <div style={{ width: `${savedRetShare}%`, background: '#10b981', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              {Number(savedRetShare) >= 10 ? `${savedRetShare}%` : ''}
+                            </div>
+                          </div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, fontWeight: 800 }}>
+                            <span style={{ color: '#0284c7' }}>🟦 Invested: {savedInvShare}% ({fmtINR(liveCalc.totalInvested)})</span>
+                            <span style={{ color: '#10b981' }}>🟩 Profit: {savedRetShare}% (+{fmtINR(liveCalc.totalProfit)})</span>
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })()}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 
-
-
-      {/* Save Portfolio Modal */}
+      {/* Save Portfolio Simulation Modal (Names for Main Portfolio Simulation & Each Investment Option Inside It) */}
       {showSaveModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(8, 7, 5, 0.85)', backdropFilter: 'blur(8px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-          <div className="glass-card-deep anim-scale" style={{ maxWidth: 460, width: '100%', borderRadius: 20, padding: 24, background: isLight ? '#ffffff' : 'var(--bg-card-deep, #12100c)', border: '2px solid #10b981' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-              <span style={{ fontSize: 24 }}>💾</span>
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(8, 7, 5, 0.85)',
+          backdropFilter: 'blur(8px)',
+          zIndex: 1000,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 20
+        }}>
+          <div className="glass-card-deep anim-scale" style={{
+            maxWidth: 520,
+            width: '100%',
+            maxHeight: '88vh',
+            overflowY: 'auto',
+            borderRadius: 22,
+            padding: 26,
+            background: isLight ? '#ffffff' : 'var(--bg-card-deep, #12100c)',
+            border: '2.5px solid #10b981'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+              <span style={{ fontSize: 26 }}>💾</span>
               <div>
-                <h3 style={{ fontSize: 18, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff', margin: 0 }}>SAVE PORTFOLIO SIMULATION</h3>
-                <p style={{ fontSize: 11, color: isLight ? '#475569' : '#9ca3af', margin: '2px 0 0' }}>Name this overall portfolio model</p>
+                <h3 style={{ fontSize: 19, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff', margin: 0 }}>
+                  SAVE PORTFOLIO SIMULATION (OPTIONAL · 0 XP)
+                </h3>
+                <p style={{ fontSize: 12, color: isLight ? '#475569' : '#9ca3af', margin: '2px 0 0', fontWeight: 600 }}>
+                  Customize the name of your main portfolio simulation and each investment option inside it.
+                </p>
               </div>
             </div>
 
-            <div style={{ marginBottom: 16 }}>
-              <label style={{ fontSize: 11, fontWeight: 800, color: isLight ? '#334155' : '#9ca3af', display: 'block', marginBottom: 6 }}>PORTFOLIO SIMULATION NAME</label>
+            {/* Main Portfolio Simulation Name */}
+            <div style={{ marginBottom: 18 }}>
+              <label style={{ fontSize: 11, fontWeight: 900, color: isLight ? '#0f172a' : '#fbbf24', display: 'block', marginBottom: 6 }}>
+                MAIN PORTFOLIO SIMULATION NAME
+              </label>
               <input
                 type="text"
-                className="input-light"
-                value={portfolioName}
-                onChange={e => setPortfolioName(e.target.value)}
-                style={{ width: '100%', padding: '10px 14px', fontSize: 13, fontWeight: 700, background: isLight ? '#fff7ed' : '#1a1610', color: isLight ? '#0f172a' : '#fef3c7', border: isLight ? '1.5px solid #cbd5e1' : '1.5px solid rgba(217,119,6,0.3)' }}
+                value={saveModalPortName}
+                placeholder={defaultPortfolioName}
+                onChange={e => setSaveModalPortName(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px 14px',
+                  fontSize: 14,
+                  fontWeight: 800,
+                  borderRadius: 12,
+                  background: isLight ? '#f8fafc' : '#1a1610',
+                  color: isLight ? '#0f172a' : '#fef3c7',
+                  border: isLight ? '2px solid #000000' : '2px solid #ffffff'
+                }}
               />
             </div>
 
+            {/* Individual Investment Option Names Inside Portfolio */}
+            <div style={{ marginBottom: 20 }}>
+              <label style={{ fontSize: 11, fontWeight: 900, color: isLight ? '#0f172a' : '#fbbf24', display: 'block', marginBottom: 8 }}>
+                INVESTMENT OPTIONS INSIDE THIS PORTFOLIO (DEFAULT: FD 1, FD 2 OR RD)
+              </label>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {namedPortfolioRows.map((row, rIdx) => (
+                  <div key={row.id} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span style={{ fontSize: 18, width: 28, textAlign: 'center' }}>{row.emoji}</span>
+                    <span style={{ fontSize: 11, fontWeight: 900, color: isLight ? '#475569' : '#9ca3af', minWidth: 65 }}>
+                      #{rIdx + 1} ({row.typeKey})
+                    </span>
+                    <input
+                      type="text"
+                      value={saveModalItemNames[row.id] ?? row.name}
+                      placeholder={row.defaultName}
+                      onChange={e => setSaveModalItemNames(prev => ({ ...prev, [row.id]: e.target.value }))}
+                      style={{
+                        flex: 1,
+                        padding: '8px 12px',
+                        fontSize: 13,
+                        fontWeight: 800,
+                        borderRadius: 10,
+                        background: isLight ? '#f8fafc' : '#1a1610',
+                        color: isLight ? '#0f172a' : '#fef3c7',
+                        border: isLight ? '1.5px solid #000000' : '1.5px solid rgba(255,255,255,0.3)'
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
-              <button className="btn-outline" onClick={() => setShowSaveModal(false)} style={{ padding: '8px 18px', fontSize: 12 }}>Cancel</button>
-              <button className="btn-primary" onClick={handleConfirmSavePortfolio} style={{ padding: '8px 22px', fontSize: 12, fontWeight: 900 }}>Save Portfolio</button>
+              <button
+                className="btn-outline"
+                onClick={() => setShowSaveModal(false)}
+                style={{ padding: '10px 18px', fontSize: 12, fontWeight: 800 }}
+              >
+                Cancel
+              </button>
+              <button
+                className="btn-primary"
+                onClick={handleConfirmSavePortfolio}
+                style={{
+                  padding: '10px 22px',
+                  fontSize: 13,
+                  fontWeight: 900,
+                  background: 'linear-gradient(135deg, #10b981, #059669)',
+                  color: '#ffffff'
+                }}
+              >
+                💾 Confirm & Save Portfolio
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Verification Modal inside Portfolio Simulator Window */}
+      {deletePortConfirm && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(8, 7, 5, 0.85)',
+          backdropFilter: 'blur(8px)',
+          zIndex: 1100,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 20
+        }}>
+          <div className="glass-card-deep anim-scale" style={{
+            maxWidth: 420,
+            width: '100%',
+            borderRadius: 20,
+            padding: 24,
+            background: isLight ? '#ffffff' : '#12100c',
+            border: '2.5px solid #ef4444'
+          }}>
+            <div style={{ fontSize: 28, marginBottom: 8 }}>⚠️</div>
+            <h3 style={{ fontSize: 18, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff', margin: '0 0 8px' }}>
+              Delete Saved Portfolio Simulation?
+            </h3>
+            <p style={{ fontSize: 13, color: isLight ? '#475569' : '#d1d5db', fontWeight: 600, margin: '0 0 20px', lineHeight: 1.5 }}>
+              Are you sure you want to permanently delete <strong>&ldquo;{deletePortConfirm.name}&rdquo;</strong>? This action cannot be undone.
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+              <button
+                className="btn-outline"
+                onClick={() => setDeletePortConfirm(null)}
+                style={{ padding: '8px 16px', fontSize: 12, fontWeight: 800 }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmDeleteSavedPortInWindow}
+                style={{
+                  padding: '8px 18px',
+                  borderRadius: 10,
+                  fontSize: 12,
+                  fontWeight: 900,
+                  background: '#ef4444',
+                  color: '#ffffff',
+                  border: 'none',
+                  cursor: 'pointer'
+                }}
+              >
+                🗑️ Yes, Delete
+              </button>
             </div>
           </div>
         </div>

@@ -412,7 +412,7 @@ export default function App() {
 
   const openAvatarModal = () => setAvatarModalOpen(true)
 
-  const p = { go, goBack, canGoBack, state, update, addXP, showLockMessage, aiGuideAvatar, aiGuideName, openAvatarModal, themeMode, lang, setLang, parentChildMode, toggleParentChildMode }
+  const p = { go, goBack, canGoBack, state, update, addXP, showLockMessage, aiGuideAvatar, aiGuideName, openAvatarModal, themeMode, lang, setLang, parentChildMode, toggleParentChildMode, savedSimulations, savedPortfolioSimulations }
 
 
   const screens = {
@@ -429,6 +429,8 @@ export default function App() {
         {...p}
         savedPortfolioSimulations={savedPortfolioSimulations}
         onSavePortfolio={handleSavePortfolio}
+        onUpdateSavedPortfolio={handleUpdateSavedPortfolio}
+        onDeleteSavedPortfolio={handleDeleteSavedPortfolio}
       />
     ),
     simulation: (
@@ -591,7 +593,7 @@ export default function App() {
                 }}>
                   {lockModalMessage === 'Complete Level 1 to Unlock'
                     ? 'Please finish Level 1 (watch all lessons and pass the quiz with 60%+) to unlock Level 2!'
-                    : 'Please finish all 3 sections in Level 2 (Simulator Modules, Savings Mixer, and Combined Metrics) to unlock Level 3!'}
+                    : 'Please finish all 3 sections in Level 2 (Simulator Modules, Savings Mixer, and Portfolio Simulator) to unlock Level 3!'}
                 </p>
                 <button
                   onClick={() => setLockModalMessage(null)}
