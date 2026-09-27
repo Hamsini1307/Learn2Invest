@@ -789,6 +789,35 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
       )
     }
 
+    // 1B. DATE SLASHES RENDERING (DD / MM / YYYY formatted text)
+    if (field.renderingMode === 'dateSlashes') {
+      let formattedDate = ''
+      if (userData.date) {
+        const parts = userData.date.split(/[-/]/)
+        if (parts.length === 3) {
+          let day = parts[0], month = parts[1], year = parts[2]
+          if (parts[0].length === 4) {
+            year = parts[0]; month = parts[1]; day = parts[2]
+          }
+          formattedDate = `${day.padStart(2, '0')} / ${month.padStart(2, '0')} / ${year}`
+        }
+      }
+      return (
+        <div key={field.id} style={{
+          position: 'absolute',
+          top: `${field.y}%`,
+          left: `${field.x}%`,
+          fontSize: field.fontSize || '0.92rem',
+          color: field.color || '#1d4ed8',
+          fontWeight: field.fontWeight || 900,
+          fontFamily: "'Courier New', monospace",
+          whiteSpace: 'nowrap'
+        }}>
+          {formattedDate || userData.date}
+        </div>
+      )
+    }
+
     // 2. CHARACTER BOXES RENDERING (Account Number / PAN per printed box)
     if (field.renderingMode === 'characterBoxes') {
       const chars = String(value || '').split('')

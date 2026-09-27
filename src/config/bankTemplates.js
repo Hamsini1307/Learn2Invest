@@ -311,26 +311,27 @@ export const BANK_TEMPLATES_CONFIG = {
     formType: 'deposit',
     image: '/slips/pnb_deposit.jpg',
     fields: [
-      // Left Counterfoil
-      { id: 'cfBranch', bindKey: 'branch', label: 'Branch Name (Left)', x: 6.0, y: 15.5, fontSize: '0.85rem', renderingMode: 'text' },
-      { id: 'cfDate', bindKey: 'date', label: 'Date (Left)', x: 23.5, y: 15.5, gap: 5, boxWidth: '12px', fontSize: '0.82rem', renderingMode: 'dateBoxes' },
-      { id: 'cfAccNo', bindKey: 'accountNumber', label: 'Account Number (Left)', x: 3.0, y: 25.5, gap: 7, boxWidth: '13px', fontSize: '0.85rem', renderingMode: 'characterBoxes' },
-      { id: 'cfName', bindKey: 'name', label: 'Name (Left)', x: 7.0, y: 33.0, fontSize: '0.85rem', renderingMode: 'text' },
-      { id: 'cfMobile', bindKey: 'mobileNumber', label: 'Tel (Left)', x: 6.5, y: 38.5, fontSize: '0.82rem', renderingMode: 'text' },
-      { id: 'cfAmount', bindKey: 'amount', label: 'Amount (Left)', x: 6.5, y: 44.5, fontSize: '0.90rem', renderingMode: 'amount' },
-      { id: 'cfWords', bindKey: 'amountInWords', label: 'Amount Words (Left)', x: 3.0, y: 55.0, width: 30, fontSize: '0.75rem', renderingMode: 'amountInWords' },
+      // Left Counterfoil (Customer Receipt Copy)
+      { id: 'cfBranch', bindKey: 'branch', label: 'Branch Name (Left)', x: 6.0, y: 15.0, fontSize: '0.85rem', renderingMode: 'text' },
+      { id: 'cfDate', bindKey: 'date', label: 'Date (Left)', x: 23.2, y: 13.5, gap: 4.5, boxWidth: '10.5px', fontSize: '0.82rem', renderingMode: 'dateBoxes' },
+      { id: 'cfAccNo', bindKey: 'accountNumber', label: 'Account Number (Left)', x: 3.0, y: 24.0, gap: 4.5, boxWidth: '10.5px', fontSize: '0.85rem', renderingMode: 'characterBoxes' },
+      { id: 'cfName', bindKey: 'name', label: 'Name (Left)', x: 6.5, y: 32.2, fontSize: '0.85rem', renderingMode: 'text' },
+      { id: 'cfMobile', bindKey: 'mobileNumber', label: 'Tel (Left)', x: 6.5, y: 38.0, fontSize: '0.82rem', renderingMode: 'text' },
+      { id: 'cfAmount', bindKey: 'amount', label: 'Amount (Left)', x: 7.5, y: 44.0, fontSize: '0.90rem', renderingMode: 'amount' },
+      { id: 'cfWords', bindKey: 'amountInWords', label: 'Amount Words (Left)', x: 3.0, y: 53.5, width: 30, fontSize: '0.78rem', renderingMode: 'amountInWords' },
 
       // Center Cash Denomination Table
-      { id: 'denomTotal', bindKey: 'amount', label: 'Total Cash', x: 52.0, y: 76.5, fontSize: '0.88rem', renderingMode: 'amount' },
+      { id: 'denomTotal', bindKey: 'amount', label: 'Total Cash', x: 52.5, y: 76.5, fontSize: '0.88rem', renderingMode: 'amount' },
 
-      // Right Main Section
+      // Right Main Section (Bank Record Copy)
       { id: 'mainBranch', bindKey: 'branch', label: 'Branch Name (Right)', x: 73.0, y: 6.0, fontSize: '0.85rem', renderingMode: 'text' },
-      { id: 'mainDate', bindKey: 'date', label: 'Date (Right)', x: 87.0, y: 6.0, gap: 5, boxWidth: '12px', fontSize: '0.82rem', renderingMode: 'dateBoxes' },
-      { id: 'mainAccNo', bindKey: 'accountNumber', label: 'Account Number (Right)', x: 62.0, y: 18.5, gap: 8, boxWidth: '14px', fontSize: '0.88rem', renderingMode: 'characterBoxes' },
-      { id: 'mainName', bindKey: 'name', label: 'Name (Right)', x: 67.0, y: 25.5, fontSize: '0.85rem', renderingMode: 'text' },
-      { id: 'mainMobile', bindKey: 'mobileNumber', label: 'Mobile Number (Right)', x: 73.0, y: 31.0, fontSize: '0.82rem', renderingMode: 'text' },
-      { id: 'mainWords', bindKey: 'amountInWords', label: 'Amount Words (Right)', x: 77.0, y: 47.5, width: 22, fontSize: '0.75rem', renderingMode: 'amountInWords' },
-      { id: 'mainSig', bindKey: 'signature', label: 'Depositor Signature', x: 89.0, y: 81.0, width: 18, height: 8, renderingMode: 'signature' }
+      { id: 'mainDate', bindKey: 'date', label: 'Date (Right)', x: 87.0, y: 5.2, gap: 4.5, boxWidth: '11.5px', fontSize: '0.82rem', renderingMode: 'dateBoxes' },
+      { id: 'mainAccNo', bindKey: 'accountNumber', label: 'Account Number (Right)', x: 62.0, y: 17.5, gap: 4.5, boxWidth: '11.5px', fontSize: '0.88rem', renderingMode: 'characterBoxes' },
+      { id: 'mainName', bindKey: 'name', label: 'Name (Right)', x: 67.0, y: 24.5, fontSize: '0.85rem', renderingMode: 'text' },
+      { id: 'mainMobile', bindKey: 'mobileNumber', label: 'Mobile Number (Right)', x: 72.5, y: 30.2, fontSize: '0.82rem', renderingMode: 'text' },
+      { id: 'mainAddress', bindKey: 'address', label: 'Address (Right)', x: 67.0, y: 36.5, fontSize: '0.80rem', renderingMode: 'text' },
+      { id: 'mainWords', bindKey: 'amountInWords', label: 'Amount Words (Right)', x: 76.5, y: 46.5, width: 22, fontSize: '0.78rem', renderingMode: 'amountInWords' },
+      { id: 'mainSig', bindKey: 'signature', label: 'Depositor Signature', x: 88.5, y: 80.0, width: 11, height: 7, renderingMode: 'signature' }
     ]
   },
 
@@ -339,12 +340,12 @@ export const BANK_TEMPLATES_CONFIG = {
     formType: 'withdrawal',
     image: '/slips/pnb_withdrawal.jpg',
     fields: [
-      { id: 'mainDate', bindKey: 'date', label: 'Date', x: 81.0, y: 25.0, fontSize: '0.88rem', renderingMode: 'text' },
-      { id: 'mainWords', bindKey: 'amountInWords', label: 'Sum in Words', x: 33.0, y: 26.0, width: 38, fontSize: '0.88rem', renderingMode: 'amountInWords' },
-      { id: 'mainAmount', bindKey: 'amount', label: 'Numeric Amount', x: 73.0, y: 32.5, fontSize: '1.05rem', renderingMode: 'amount' },
-      { id: 'mainAccNo', bindKey: 'accountNumber', label: 'Savings Fund A/c No.', x: 5.8, y: 48.5, gap: 11, boxWidth: '16px', fontSize: '0.95rem', renderingMode: 'characterBoxes' },
-      { id: 'mainSig', bindKey: 'signature', label: 'Holder Signature', x: 66.0, y: 51.5, width: 20, height: 8, renderingMode: 'signature' },
-      { id: 'mainName', bindKey: 'name', label: 'Account Holder Name', x: 66.0, y: 55.5, fontSize: '0.85rem', renderingMode: 'text' }
+      { id: 'mainDate', bindKey: 'date', label: 'Date', x: 81.5, y: 23.8, fontSize: '0.92rem', renderingMode: 'dateSlashes' },
+      { id: 'mainWords', bindKey: 'amountInWords', label: 'Sum in Words', x: 32.5, y: 24.5, width: 36, fontSize: '0.92rem', renderingMode: 'amountInWords' },
+      { id: 'mainAmount', bindKey: 'amount', label: 'Numeric Amount', x: 73.0, y: 31.5, fontSize: '1.15rem', renderingMode: 'amount' },
+      { id: 'mainAccNo', bindKey: 'accountNumber', label: 'Savings Fund A/c No.', x: 5.5, y: 46.0, gap: 7, boxWidth: '15.5px', fontSize: '0.95rem', renderingMode: 'characterBoxes' },
+      { id: 'mainSig', bindKey: 'signature', label: 'Sig. of A/c Holder', x: 66.0, y: 49.5, width: 22, height: 6.5, renderingMode: 'signature' },
+      { id: 'mainName', bindKey: 'name', label: 'Account Holder Name', x: 66.0, y: 52.2, fontSize: '0.92rem', renderingMode: 'text' }
     ]
   },
 
