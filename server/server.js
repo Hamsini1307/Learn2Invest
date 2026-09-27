@@ -250,7 +250,7 @@ app.post('/api/chat', async (req, res) => {
     return res.status(400).json({ error: 'Gemini API key is not configured. Provide an API key in .env or via Chatbot settings.' })
   }
 
-  const models = ['gemini-1.5-flash', 'gemini-1.5-flash-latest', 'gemini-2.0-flash-exp', 'gemini-2.0-flash', 'gemini-1.5-pro', 'gemini-1.5-pro-latest', 'gemini-pro']
+  const models = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-2.5-pro', 'gemini-flash-latest']
   let lastError = null
 
   for (const model of models) {

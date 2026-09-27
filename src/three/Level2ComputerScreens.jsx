@@ -371,13 +371,27 @@ export function Computer1SimulatorScreen({
     setAmount(m.defaultAmount)
     setDuration(m.defaultDuration)
     if (!localExplored.includes(m.id)) {
-      setLocalExplored((prev) => [...prev, m.id])
+      const updated = [...localExplored, m.id]
+      setLocalExplored(updated)
+      if (update) {
+        const nextMods = Array.from(new Set([...(state?.completedModules || []), ...updated]))
+        update({ completedModules: nextMods })
+      }
     }
   }
 
   const stats = useMemo(() => computeModuleStats(mod, amount, duration), [mod, amount, duration])
   const completedMods = Array.from(new Set([...(state?.completedModules || []), ...localExplored]))
   const isCompleted = completedMods.includes(mod.id)
+  const allSixDone = completedMods.length >= 6
+
+  const handleNextClick = () => {
+    if (!allSixDone) {
+      alert(`Please explore all 6 out of 6 schemes to unlock Computer 2! (Currently completed: ${completedMods.length}/6)`)
+      return
+    }
+    if (handleNext) handleNext()
+  }
 
   const handleMarkComplete = () => {
     if (!localExplored.includes(mod.id)) {
@@ -396,8 +410,8 @@ export function Computer1SimulatorScreen({
       style={{
         width: '100%',
         height: '100%',
-        background: 'linear-gradient(160deg, #070D19 0%, #0F172A 100%)',
-        color: '#F8FAFC',
+        background: 'linear-gradient(160deg, #F8FAFC 0%, #F1F5F9 100%)',
+        color: '#000000',
         fontFamily: "'Inter', 'Segoe UI', sans-serif",
         display: 'flex',
         flexDirection: 'column',
@@ -408,42 +422,42 @@ export function Computer1SimulatorScreen({
       }}
     >
       {/* Top Header Bar */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(56,189,248,0.22)', paddingBottom: '6px', marginBottom: '7px', flexShrink: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '2px solid #000000', paddingBottom: '6px', marginBottom: '7px', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ background: '#0284C7', color: '#fff', fontWeight: 900, fontSize: '10px', padding: '3px 8px', borderRadius: '6px', letterSpacing: '0.7px' }}>
+          <span style={{ background: '#0284C7', color: '#ffffff', fontWeight: 900, fontSize: '10px', padding: '3.5px 9px', borderRadius: '6px', letterSpacing: '0.7px', border: '1.5px solid #000000', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
             🖥️ COMPUTER 1 • ALL 6 SIMULATORS
           </span>
-          <span style={{ fontSize: '12.5px', fontWeight: 800, color: '#E2E8F0' }}>
+          <span style={{ fontSize: '12.5px', fontWeight: 900, color: '#000000' }}>
             PPF • Fixed Deposit • NSC • Sukanya Samriddhi • RD • Post Office MIS
           </span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '10.5px', color: '#38BDF8', fontWeight: 800, background: 'rgba(56,189,248,0.12)', padding: '3px 8px', borderRadius: '999px', border: '1px solid rgba(56,189,248,0.3)' }}>
-            ✓ {completedMods.length}/6 Schemes
+          <span style={{ fontSize: '10.5px', color: '#000000', fontWeight: 900, background: '#E0F2FE', padding: '3px 9px', borderRadius: '999px', border: '1.5px solid #000000' }}>
+            {allSixDone ? '✓ 6/6 Schemes Completed' : `🔒 ${completedMods.length}/6 Schemes Completed`}
           </span>
           {handleNext && (
             <button
-              onClick={handleNext}
+              onClick={handleNextClick}
               style={{
-                background: 'linear-gradient(135deg, #10B981, #059669)',
-                color: '#fff',
-                border: 'none',
+                background: allSixDone ? 'linear-gradient(135deg, #059669, #10B981)' : '#E2E8F0',
+                color: allSixDone ? '#ffffff' : '#64748B',
+                border: '2px solid #000000',
                 borderRadius: '7px',
                 padding: '5px 11px',
                 fontSize: '11px',
-                fontWeight: 800,
-                cursor: 'pointer',
-                boxShadow: '0 2px 10px rgba(16,185,129,0.35)',
+                fontWeight: 900,
+                cursor: allSixDone ? 'pointer' : 'not-allowed',
+                boxShadow: allSixDone ? '0 2px 8px rgba(16,185,129,0.25)' : 'none',
               }}
             >
-              Complete & Walk to Computer 2 →
+              {allSixDone ? '✓ 6/6 Complete! Walk to Computer 2 →' : `🔒 Explore 6/6 Schemes (${completedMods.length}/6)`}
             </button>
           )}
         </div>
       </div>
 
-      {/* 6 Scheme Tabs with FULL Names */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '5px', marginBottom: '8px', flexShrink: 0 }}>
+      {/* 6 Scheme Tabs with Black Card Outlines */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '6px', marginBottom: '8px', flexShrink: 0 }}>
         {SIMULATOR_MODULES.map((m) => {
           const active = m.id === selectedId
           const done = completedMods.includes(m.id)
@@ -452,13 +466,13 @@ export function Computer1SimulatorScreen({
               key={m.id}
               onClick={() => handleSelectMod(m)}
               style={{
-                background: active ? `${m.color}28` : 'rgba(30,41,59,0.75)',
-                border: active ? `2px solid ${m.color}` : '1px solid rgba(148,163,184,0.22)',
+                background: active ? '#FFFFFF' : '#F8FAFC',
+                border: active ? '2.5px solid #000000' : '2px solid #000000',
                 borderRadius: '8px',
-                padding: '5px 4px',
-                color: active ? '#FFFFFF' : '#CBD5E1',
+                padding: '6px 4px',
+                color: '#000000',
                 fontSize: '10.5px',
-                fontWeight: active ? 900 : 700,
+                fontWeight: 900,
                 cursor: 'pointer',
                 display: 'flex',
                 flexDirection: 'column',
@@ -468,14 +482,15 @@ export function Computer1SimulatorScreen({
                 transition: 'all 0.15s',
                 textAlign: 'center',
                 lineHeight: 1.15,
+                boxShadow: active ? '0 2px 10px rgba(0,0,0,0.15)' : '0 1px 3px rgba(0,0,0,0.05)',
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
                 <span style={{ fontSize: '12px' }}>{m.icon}</span>
-                <span style={{ fontSize: '9.5px', color: active ? '#38BDF8' : '#94A3B8', fontWeight: 800 }}>{m.rate}%</span>
-                {done && <span style={{ color: '#4ADE80', fontSize: '9.5px' }}>✓</span>}
+                <span style={{ fontSize: '9.5px', color: '#000000', fontWeight: 900 }}>{m.rate}%</span>
+                {done && <span style={{ color: '#059669', fontSize: '9.5px', fontWeight: 900 }}>✓</span>}
               </div>
-              <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }}>
+              <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%', color: '#000000', fontWeight: 900 }}>
                 {m.name}
               </span>
             </button>
@@ -485,31 +500,31 @@ export function Computer1SimulatorScreen({
 
       {/* Main Content Split */}
       <div style={{ display: 'grid', gridTemplateColumns: '1.18fr 1fr', gap: '10px', flex: 1, minHeight: 0 }}>
-        {/* Left Column: Sliders & Results */}
-        <div style={{ background: 'rgba(15,23,42,0.85)', border: '1px solid rgba(148,163,184,0.18)', borderRadius: '11px', padding: '10px 12px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+        {/* Left Column: Sliders & Results (Black Border Card) */}
+        <div style={{ background: '#FFFFFF', border: '2px solid #000000', borderRadius: '12px', padding: '10px 12px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxShadow: '0 4px 12px rgba(0,0,0,0.04)' }}>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '5px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
-                <span style={{ fontSize: '20px' }}>{mod.icon}</span>
+                <span style={{ fontSize: '22px' }}>{mod.icon}</span>
                 <div>
-                  <div style={{ fontSize: '14px', fontWeight: 900, color: '#F8FAFC' }}>{mod.fullName}</div>
-                  <div style={{ fontSize: '10.5px', color: '#94A3B8' }}>{mod.name} • Govt / RBI Regulated</div>
+                  <div style={{ fontSize: '14px', fontWeight: 900, color: '#000000' }}>{mod.fullName}</div>
+                  <div style={{ fontSize: '10.5px', color: '#000000', fontWeight: 800 }}>{mod.name} • Govt / RBI Regulated</div>
                 </div>
               </div>
-              <span style={{ background: `${mod.color}25`, border: `1px solid ${mod.color}`, color: '#F8FAFC', fontWeight: 900, fontSize: '11.5px', padding: '2px 8px', borderRadius: '999px' }}>
+              <span style={{ background: '#FFF7ED', border: '2px solid #000000', color: '#000000', fontWeight: 900, fontSize: '11.5px', padding: '2px 9px', borderRadius: '999px' }}>
                 {mod.rate}% p.a.
               </span>
             </div>
 
-            <p style={{ fontSize: '10.5px', color: '#CBD5E1', lineHeight: 1.38, margin: '0 0 8px 0' }}>
+            <p style={{ fontSize: '10.5px', color: '#000000', lineHeight: 1.4, margin: '0 0 8px 0', fontWeight: 700 }}>
               {mod.description}
             </p>
 
-            {/* Amount Slider */}
-            <div style={{ marginBottom: '8px', background: 'rgba(30,41,59,0.55)', padding: '7px 9px', borderRadius: '8px' }}>
+            {/* Amount Slider Card */}
+            <div style={{ marginBottom: '8px', background: '#F8FAFC', border: '2px solid #000000', padding: '7px 9px', borderRadius: '9px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11.5px', marginBottom: '3px' }}>
-                <span style={{ color: '#94A3B8', fontWeight: 700 }}>{mod.amountLabel}</span>
-                <span style={{ color: '#38BDF8', fontWeight: 900, fontSize: '12.5px' }}>{fmtINR(amount)}</span>
+                <span style={{ color: '#000000', fontWeight: 900 }}>{mod.amountLabel}</span>
+                <span style={{ color: '#000000', fontWeight: 900, fontSize: '13px' }}>{fmtINR(amount)}</span>
               </div>
               <input
                 type="range"
@@ -520,22 +535,22 @@ export function Computer1SimulatorScreen({
                 onChange={(e) => setAmount(Number(e.target.value))}
                 style={{ width: '100%', accentColor: mod.color, cursor: 'pointer', height: '5px' }}
               />
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9.5px', color: '#64748B', marginTop: '2px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9.5px', color: '#000000', marginTop: '2px', fontWeight: 800 }}>
                 <span>Min: {fmtINR(mod.minAmount)}</span>
                 <span>Max: {fmtINR(mod.maxAmount)}</span>
               </div>
             </div>
 
-            {/* Duration Slider */}
-            <div style={{ background: 'rgba(30,41,59,0.55)', padding: '7px 9px', borderRadius: '8px' }}>
+            {/* Duration Slider Card */}
+            <div style={{ background: '#F8FAFC', border: '2px solid #000000', padding: '7px 9px', borderRadius: '9px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11.5px', marginBottom: '3px' }}>
-                <span style={{ color: '#94A3B8', fontWeight: 700 }}>Duration ({mod.durationUnit})</span>
-                <span style={{ color: '#FBBF24', fontWeight: 900, fontSize: '12.5px' }}>
+                <span style={{ color: '#000000', fontWeight: 900 }}>Duration ({mod.durationUnit})</span>
+                <span style={{ color: '#000000', fontWeight: 900, fontSize: '13px' }}>
                   {duration} {mod.durationUnit}
                 </span>
               </div>
               {mod.durationFixed ? (
-                <div style={{ fontSize: '10.5px', color: '#FBBF24', fontWeight: 700, padding: '2px 0' }}>
+                <div style={{ fontSize: '10.5px', color: '#000000', fontWeight: 900, padding: '2px 0' }}>
                   🔒 Fixed Statutory Tenure: {mod.defaultDuration} Years
                 </div>
               ) : (
@@ -546,53 +561,55 @@ export function Computer1SimulatorScreen({
                   step={1}
                   value={duration}
                   onChange={(e) => setDuration(Number(e.target.value))}
-                  style={{ width: '100%', accentColor: '#F59E0B', cursor: 'pointer', height: '5px' }}
+                  style={{ width: '100%', accentColor: '#D97706', cursor: 'pointer', height: '5px' }}
                 />
               )}
             </div>
           </div>
 
-          {/* Calculated Output Boxes */}
-          <div style={{ display: 'grid', gridTemplateColumns: stats.extraLabel ? 'repeat(4, 1fr)' : 'repeat(3, 1fr)', gap: '6px', marginTop: '6px' }}>
-            <div style={{ background: 'rgba(15,23,42,0.9)', border: '1px solid rgba(148,163,184,0.2)', borderRadius: '7px', padding: '6px' }}>
-              <div style={{ fontSize: '9.5px', color: '#94A3B8', fontWeight: 700 }}>Total Invested</div>
-              <div style={{ fontSize: '12.5px', fontWeight: 900, color: '#E2E8F0', marginTop: '2px' }}>{fmtINR(stats.totalInvested)}</div>
+          {/* Calculated Output Cards */}
+          <div style={{ display: 'grid', gridTemplateColumns: stats.extraLabel ? 'repeat(4, 1fr)' : 'repeat(3, 1fr)', gap: '6px', marginTop: '7px' }}>
+            <div style={{ background: '#F8FAFC', border: '2px solid #000000', borderRadius: '8px', padding: '6px 8px' }}>
+              <div style={{ fontSize: '9.5px', color: '#000000', fontWeight: 800 }}>Total Invested</div>
+              <div style={{ fontSize: '12.5px', fontWeight: 900, color: '#000000', marginTop: '2px' }}>{fmtINR(stats.totalInvested)}</div>
             </div>
-            <div style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.35)', borderRadius: '7px', padding: '6px' }}>
-              <div style={{ fontSize: '9.5px', color: '#6EE7B7', fontWeight: 700 }}>Interest Earned</div>
-              <div style={{ fontSize: '12.5px', fontWeight: 900, color: '#34D399', marginTop: '2px' }}>+{fmtINR(stats.totalInterest)}</div>
+            <div style={{ background: '#ECFDF5', border: '2px solid #000000', borderRadius: '8px', padding: '6px 8px' }}>
+              <div style={{ fontSize: '9.5px', color: '#000000', fontWeight: 800 }}>Interest Earned</div>
+              <div style={{ fontSize: '12.5px', fontWeight: 900, color: '#000000', marginTop: '2px' }}>+{fmtINR(stats.totalInterest)}</div>
             </div>
-            <div style={{ background: 'rgba(99,102,241,0.16)', border: '1px solid rgba(99,102,241,0.45)', borderRadius: '7px', padding: '6px' }}>
-              <div style={{ fontSize: '9.5px', color: '#A5B4FC', fontWeight: 700 }}>Maturity Value</div>
-              <div style={{ fontSize: '13px', fontWeight: 900, color: '#818CF8', marginTop: '2px' }}>{fmtINR(stats.maturityValue)}</div>
+            <div style={{ background: '#EEF2FF', border: '2px solid #000000', borderRadius: '8px', padding: '6px 8px' }}>
+              <div style={{ fontSize: '9.5px', color: '#000000', fontWeight: 800 }}>Maturity Value</div>
+              <div style={{ fontSize: '13px', fontWeight: 900, color: '#000000', marginTop: '2px' }}>{fmtINR(stats.maturityValue)}</div>
             </div>
             {stats.extraLabel && (
-              <div style={{ background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.4)', borderRadius: '7px', padding: '6px' }}>
-                <div style={{ fontSize: '9.5px', color: '#FDE68A', fontWeight: 700 }}>{stats.extraLabel}</div>
-                <div style={{ fontSize: '12.5px', fontWeight: 900, color: '#FBBF24', marginTop: '2px' }}>{stats.extraVal}</div>
+              <div style={{ background: '#FFFBEB', border: '2px solid #000000', borderRadius: '8px', padding: '6px 8px' }}>
+                <div style={{ fontSize: '9.5px', color: '#000000', fontWeight: 800 }}>{stats.extraLabel}</div>
+                <div style={{ fontSize: '12.5px', fontWeight: 900, color: '#000000', marginTop: '2px' }}>{stats.extraVal}</div>
               </div>
             )}
           </div>
         </div>
 
-        {/* Right Column: Key Facts & Action */}
-        <div style={{ background: 'rgba(15,23,42,0.85)', border: '1px solid rgba(148,163,184,0.18)', borderRadius: '11px', padding: '10px 12px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+        {/* Right Column: Key Facts & Action (Black Border Card) */}
+        <div style={{ background: '#FFFFFF', border: '2px solid #000000', borderRadius: '12px', padding: '10px 12px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxShadow: '0 4px 12px rgba(0,0,0,0.04)' }}>
           <div>
-            <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#38BDF8', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: '7px' }}>
-              📋 Scheme Key Takeaways & Rules
+            <div style={{ fontSize: '11.5px', fontWeight: 900, color: '#000000', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: '7px' }}>
+              📋 SCHEME KEY TAKEAWAYS & RULES
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
               {(mod.keyFacts || []).map((fact, idx) => (
                 <div
                   key={idx}
                   style={{
-                    background: 'rgba(30,41,59,0.65)',
-                    borderLeft: `3px solid ${mod.color}`,
-                    borderRadius: '6px',
-                    padding: '5px 8px',
+                    background: '#FFFFFF',
+                    border: '2px solid #000000',
+                    borderLeft: `5px solid ${mod.color}`,
+                    borderRadius: '7px',
+                    padding: '6px 9px',
                     fontSize: '10.5px',
-                    color: '#E2E8F0',
-                    lineHeight: 1.32,
+                    color: '#000000',
+                    fontWeight: 800,
+                    lineHeight: 1.35,
                   }}
                 >
                   {fact}
@@ -603,12 +620,12 @@ export function Computer1SimulatorScreen({
 
           {/* Visual Principal vs Interest Bar */}
           <div style={{ marginTop: '6px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9.5px', color: '#94A3B8', marginBottom: '3px', fontWeight: 700 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9.5px', color: '#000000', marginBottom: '3px', fontWeight: 900 }}>
               <span>Principal ({Math.round((stats.totalInvested / Math.max(1, stats.maturityValue)) * 100)}%)</span>
               <span>Interest ({Math.round((stats.totalInterest / Math.max(1, stats.maturityValue)) * 100)}%)</span>
             </div>
-            <div style={{ height: '8px', borderRadius: '999px', background: '#1E293B', overflow: 'hidden', display: 'flex' }}>
-              <div style={{ width: `${(stats.totalInvested / Math.max(1, stats.maturityValue)) * 100}%`, background: '#38BDF8' }} />
+            <div style={{ height: '9px', borderRadius: '999px', background: '#E2E8F0', overflow: 'hidden', display: 'flex', border: '1.5px solid #000000' }}>
+              <div style={{ width: `${(stats.totalInvested / Math.max(1, stats.maturityValue)) * 100}%`, background: '#0284C7' }} />
               <div style={{ flex: 1, background: '#10B981' }} />
             </div>
 
@@ -617,33 +634,35 @@ export function Computer1SimulatorScreen({
                 onClick={handleMarkComplete}
                 style={{
                   flex: 1,
-                  background: isCompleted ? 'rgba(16,185,129,0.2)' : `linear-gradient(135deg, ${mod.color}, #4F46E5)`,
-                  color: isCompleted ? '#4ADE80' : '#fff',
-                  border: isCompleted ? '1px solid #10B981' : 'none',
+                  background: isCompleted ? '#ECFDF5' : `linear-gradient(135deg, ${mod.color}, #4F46E5)`,
+                  color: isCompleted ? '#000000' : '#ffffff',
+                  border: '2px solid #000000',
                   borderRadius: '7px',
                   padding: '7px 9px',
                   fontSize: '11px',
-                  fontWeight: 800,
+                  fontWeight: 900,
                   cursor: 'pointer',
+                  boxShadow: isCompleted ? 'none' : '0 2px 8px rgba(99,102,241,0.25)',
                 }}
               >
                 {isCompleted ? '✓ Explored (+25 XP)' : '✓ Mark Explored (+25 XP)'}
               </button>
               {handleNext && (
                 <button
-                  onClick={handleNext}
+                  onClick={handleNextClick}
                   style={{
-                    background: 'linear-gradient(135deg, #0EA5E9, #2563EB)',
-                    color: '#fff',
-                    border: 'none',
+                    background: allSixDone ? 'linear-gradient(135deg, #0284C7, #2563EB)' : '#E2E8F0',
+                    color: allSixDone ? '#ffffff' : '#64748B',
+                    border: '2px solid #000000',
                     borderRadius: '7px',
                     padding: '7px 11px',
                     fontSize: '11px',
-                    fontWeight: 800,
-                    cursor: 'pointer',
+                    fontWeight: 900,
+                    cursor: allSixDone ? 'pointer' : 'not-allowed',
+                    boxShadow: allSixDone ? '0 2px 8px rgba(2,132,199,0.25)' : 'none',
                   }}
                 >
-                  Computer 2 →
+                  {allSixDone ? 'Computer 2 →' : `🔒 (${completedMods.length}/6)`}
                 </button>
               )}
             </div>
@@ -660,30 +679,43 @@ export function Computer1SimulatorScreen({
 const MIXER_CHALLENGES = [
   {
     id: 'ch1',
-    title: 'Challenge 1: Tax-Free Retirement Champion',
+    title: '🏆 Challenge 1: Tax-Free Retirement Champion',
     question:
-      'Asha wants to invest ₹1,00,000/year for 15 years with 100% tax-free maturity under Section 80C (EEE status) for anyone. Which scheme should she add to the mixer?',
+      'Asha wants to invest ₹1,00,000/year for 15 years with 100% tax-free maturity under Section 80C (EEE status). Which scheme is best?',
     options: ['Fixed Deposit', 'PPF Simulator', 'Post Office MIS', 'Recurring Deposit'],
     correct: 'PPF Simulator',
     explanation: 'PPF offers 7.1% p.a. with full EEE (Exempt-Exempt-Exempt) tax status over 15 years!',
+    proTip: '💡 EEE Status means your Deposit, Interest Earned, AND Final Maturity are 100% Tax-Free.',
   },
   {
     id: 'ch2',
-    title: 'Challenge 2: Highest Girl-Child Return',
+    title: '👧 Challenge 2: Highest Girl-Child Guaranteed Yield',
     question:
-      'Rohan wants to save for his 5-year-old daughter’s higher education and wants the highest guaranteed government interest rate (8.2% p.a.). Which scheme wins?',
+      'Rohan wants to save for his 5-year-old daughter’s higher education at the highest government-guaranteed rate (8.2% p.a.). Which scheme wins?',
     options: ['NSC Calculator', 'Sukanya Samriddhi', 'Recurring Deposit', 'Fixed Deposit'],
     correct: 'Sukanya Samriddhi',
     explanation: 'Sukanya Samriddhi Yojana (SSY) gives 8.2% p.a. tax-free — the highest among all small savings schemes!',
+    proTip: '💡 Up to 50% of the corpus can be withdrawn when she turns 18 for higher education fees.',
   },
   {
     id: 'ch3',
-    title: 'Challenge 3: Monthly Pocket-Money Payout',
+    title: '💵 Challenge 3: Monthly Passive Income Payout',
     question:
-      'Retiree Meena has ₹5,00,000 lump sum and needs a guaranteed monthly cash payout every month for 5 years. Which scheme should she choose?',
+      'Retiree Meena has a ₹5,00,000 lump sum and needs a guaranteed cash payout every single month for 5 years. Which scheme should she pick?',
     options: ['Post Office MIS', 'PPF Simulator', 'NSC Calculator', 'Sukanya Samriddhi'],
     correct: 'Post Office MIS',
-    explanation: 'Post Office MIS pays 7.4% p.a. distributed as a guaranteed monthly income!',
+    explanation: 'Post Office MIS (POMIS) pays 7.4% p.a. distributed as a guaranteed monthly income stream!',
+    proTip: '💡 A ₹3,00,000 POMIS deposit pays ₹1,850 cash into your account every month for 5 years.',
+  },
+  {
+    id: 'ch4',
+    title: '📈 Challenge 4: Beating 6% Inflation',
+    question:
+      'If inflation is 6.0% p.a. and you invest in NSC paying 7.7% p.a., what is your real purchasing power growth?',
+    options: ['+1.7% p.a.', '+7.7% p.a.', '-1.7% p.a.', '0% p.a.'],
+    correct: '+1.7% p.a.',
+    explanation: 'Real Return = Nominal Interest (7.7%) − Inflation (6.0%) = +1.7% p.a. real growth!',
+    proTip: '💡 Real returns reflect your true increase in purchasing power after prices rise.',
   },
 ]
 
@@ -719,6 +751,7 @@ const WHAT_YOU_SHOULD_KNOW_CARDS = [
 ]
 
 export function Computer2SavingsMixerScreen({
+  state,
   addXP,
   onCompleteComputer2,
   onNextComputer,
@@ -726,27 +759,28 @@ export function Computer2SavingsMixerScreen({
 }) {
   const handleNext = onCompleteComputer2 || onNextComputer
 
-  // Active schemes in the simultaneous mixer (user can + Add or ✕ Remove any of the 6 schemes)
-  const [activeSchemeIds, setActiveSchemeIds] = useState(['ppf', 'fd', 'nsc', 'ssy'])
+  // Track completed 6 schemes
+  const completedMods = Array.from(new Set([...(state?.completedModules || [])]))
+  const allSixDone = completedMods.length >= 6
+
+  const handleNextClick = () => {
+    if (!allSixDone) {
+      alert(`Please explore all 6 out of 6 schemes in Computer 1 before advancing to Computer 3! (Currently completed: ${completedMods.length}/6)`)
+      return
+    }
+    if (handleNext) handleNext()
+  }
+
+  // Active schemes in the simultaneous mixer (All 6 schemes active)
+  const [activeSchemeIds, setActiveSchemeIds] = useState(['ppf', 'fd', 'nsc', 'ssy', 'rd', 'pomis'])
   const [mixerAmount, setMixerAmount] = useState(50000)
   const [mixerYears, setMixerYears] = useState(10)
 
-  // Sub-feature view switcher inside Computer 2 so all 7 required items are one click away and fit cleanly
-  const [activeSection, setActiveSection] = useState('mixer')
+  // Educational Notes is the 1st default tab
+  const [activeSection, setActiveSection] = useState('notes')
 
   // Challenge state
   const [challengeAnswers, setChallengeAnswers] = useState({})
-
-  // Multi-Goal Savings Planner state
-  const [goals, setGoals] = useState([
-    { id: 'g1', name: '💻 Coding Laptop', targetCost: 65000, years: 2, schemeId: 'rd' },
-    { id: 'g2', name: '🎓 Higher Education Fund', targetCost: 500000, years: 5, schemeId: 'nsc' },
-    { id: 'g3', name: '🏠 Long-Term Wealth Corpus', targetCost: 1500000, years: 15, schemeId: 'ppf' },
-  ])
-  const [newGoalName, setNewGoalName] = useState('')
-  const [newGoalCost, setNewGoalCost] = useState(100000)
-  const [newGoalYears, setNewGoalYears] = useState(5)
-  const [newGoalScheme, setNewGoalScheme] = useState('ppf')
 
   const toggleSchemeInMixer = (id) => {
     setActiveSchemeIds((prev) => {
@@ -777,34 +811,13 @@ export function Computer2SavingsMixerScreen({
     [projections]
   )
 
-  const handleAddGoal = () => {
-    const label = newGoalName.trim() || `🎯 Goal #${goals.length + 1}`
-    setGoals((prev) => [
-      ...prev,
-      {
-        id: 'g_' + Date.now(),
-        name: label,
-        targetCost: Math.max(1000, Number(newGoalCost) || 50000),
-        years: Math.max(1, Number(newGoalYears) || 3),
-        schemeId: newGoalScheme,
-      },
-    ])
-    setNewGoalName('')
-    if (addXP) addXP(15)
-  }
-
-  const handleRemoveGoal = (id) => {
-    setGoals((prev) => prev.filter((g) => g.id !== id))
-  }
-
+  // Computer 2 Tab Navigation List
   const SECTION_TABS = [
-    { id: 'mixer', label: '🎛️ Simultaneous Mixer', badge: `${activeSchemeIds.length}/6` },
     { id: 'notes', label: '📚 Educational Notes' },
     { id: 'comparison', label: '📊 Comparison Metric' },
     { id: 'know', label: '💡 What Should You Know' },
+    { id: 'mixer', label: '🎛️ Simultaneous Mixer (6/6)' },
     { id: 'challenges', label: '🎯 Learning Challenges' },
-    { id: 'projector', label: '🔮 Growth Projector' },
-    { id: 'planner', label: '🎯 Multi-Goal Planner' },
   ]
 
   return (
@@ -813,8 +826,8 @@ export function Computer2SavingsMixerScreen({
       style={{
         width: '100%',
         height: '100%',
-        background: 'radial-gradient(circle at 15% 15%, #0F172A 0%, #060B16 100%)',
-        color: '#F8FAFC',
+        background: 'linear-gradient(160deg, #F8FAFC 0%, #F1F5F9 100%)',
+        color: '#000000',
         fontFamily: "'Inter', 'Segoe UI', sans-serif",
         display: 'flex',
         flexDirection: 'column',
@@ -824,28 +837,31 @@ export function Computer2SavingsMixerScreen({
         userSelect: 'none',
       }}
     >
-      {/* Top Neon Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(16,185,129,0.28)', paddingBottom: '6px', marginBottom: '6px', flexShrink: 0 }}>
+      {/* Top Header Bar */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '2px solid #000000', paddingBottom: '6px', marginBottom: '6px', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ background: 'linear-gradient(135deg, #10B981, #059669)', color: '#042F2E', fontWeight: 900, fontSize: '10px', padding: '3px 8px', borderRadius: '6px', letterSpacing: '0.7px' }}>
+          <span style={{ background: '#10B981', color: '#FFFFFF', fontWeight: 900, fontSize: '10px', padding: '3.5px 9px', borderRadius: '6px', letterSpacing: '0.7px', border: '1.5px solid #000000', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
             🎛️ COMPUTER 2 • SAVINGS MIXER STUDIO
           </span>
-          <span style={{ fontSize: '12.5px', fontWeight: 900, color: '#ECFDF5' }}>
-            Simultaneous Scheme Mixer, Notes, Metrics, Challenges & Goal Planner
+          <span style={{ fontSize: '12.5px', fontWeight: 900, color: '#000000' }}>
+            Simultaneous Scheme Mixer, Notes, Metrics & Mastery Challenges
           </span>
         </div>
-        <div style={{ display: 'flex', gap: '6px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span style={{ fontSize: '10.5px', color: '#000000', fontWeight: 900, background: '#E0F2FE', padding: '3px 9px', borderRadius: '999px', border: '1.5px solid #000000' }}>
+            {allSixDone ? '✓ 6/6 Schemes Completed' : `🔒 ${completedMods.length}/6 Schemes Completed`}
+          </span>
           {onPrevComputer && (
             <button
               onClick={onPrevComputer}
               style={{
-                background: 'rgba(30,41,59,0.85)',
-                color: '#CBD5E1',
-                border: '1px solid rgba(148,163,184,0.3)',
+                background: '#FFFFFF',
+                color: '#000000',
+                border: '2px solid #000000',
                 borderRadius: '7px',
                 padding: '4px 9px',
                 fontSize: '10px',
-                fontWeight: 700,
+                fontWeight: 900,
                 cursor: 'pointer',
               }}
             >
@@ -854,27 +870,27 @@ export function Computer2SavingsMixerScreen({
           )}
           {handleNext && (
             <button
-              onClick={handleNext}
+              onClick={handleNextClick}
               style={{
-                background: 'linear-gradient(135deg, #F59E0B, #D97706)',
-                color: '#fff',
-                border: 'none',
+                background: allSixDone ? 'linear-gradient(135deg, #059669, #10B981)' : '#E2E8F0',
+                color: allSixDone ? '#ffffff' : '#64748B',
+                border: '2px solid #000000',
                 borderRadius: '7px',
                 padding: '5px 11px',
                 fontSize: '11px',
-                fontWeight: 800,
-                cursor: 'pointer',
-                boxShadow: '0 2px 10px rgba(245,158,11,0.35)',
+                fontWeight: 900,
+                cursor: allSixDone ? 'pointer' : 'not-allowed',
+                boxShadow: allSixDone ? '0 2px 8px rgba(16,185,129,0.25)' : 'none',
               }}
             >
-              Complete & Walk to Computer 3 →
+              {allSixDone ? 'Complete & Walk to Computer 3 →' : `🔒 Explore 6/6 Schemes (${completedMods.length}/6)`}
             </button>
           )}
         </div>
       </div>
 
-      {/* 7 Required Feature Navigation Pills */}
-      <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginBottom: '6px', flexShrink: 0 }}>
+      {/* 5 Section Navigation Pills with Black Outlines */}
+      <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap', marginBottom: '6px', flexShrink: 0 }}>
         {SECTION_TABS.map((tab) => {
           const active = activeSection === tab.id
           return (
@@ -882,22 +898,23 @@ export function Computer2SavingsMixerScreen({
               key={tab.id}
               onClick={() => setActiveSection(tab.id)}
               style={{
-                background: active ? 'linear-gradient(135deg, #0EA5E9, #6366F1)' : 'rgba(30,41,59,0.8)',
-                color: active ? '#FFFFFF' : '#CBD5E1',
-                border: active ? '1px solid #38BDF8' : '1px solid rgba(148,163,184,0.2)',
+                background: active ? '#0284C7' : '#FFFFFF',
+                color: active ? '#FFFFFF' : '#000000',
+                border: active ? '2.5px solid #000000' : '2px solid #000000',
                 borderRadius: '999px',
-                padding: '4px 9px',
-                fontSize: '10px',
-                fontWeight: active ? 900 : 700,
+                padding: '4px 11px',
+                fontSize: '10.5px',
+                fontWeight: 900,
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '4px',
+                gap: '5px',
+                boxShadow: active ? '0 2px 8px rgba(2,132,199,0.3)' : '0 1px 3px rgba(0,0,0,0.05)',
               }}
             >
               <span>{tab.label}</span>
               {tab.badge && (
-                <span style={{ background: 'rgba(15,23,42,0.6)', padding: '1px 5px', borderRadius: '999px', fontSize: '9px', color: '#38BDF8' }}>
+                <span style={{ background: '#E0F2FE', padding: '1px 6px', borderRadius: '999px', fontSize: '9px', color: '#000000', border: '1px solid #000000', fontWeight: 900 }}>
                   {tab.badge}
                 </span>
               )}
@@ -906,83 +923,15 @@ export function Computer2SavingsMixerScreen({
         })}
       </div>
 
-      {/* Always-Accessible Scheme Add/Remove Strip */}
-      <div style={{ background: 'rgba(15,23,42,0.9)', border: '1px solid rgba(56,189,248,0.22)', borderRadius: '9px', padding: '5px 9px', marginBottom: '6px', flexShrink: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
-          <span style={{ fontSize: '10px', fontWeight: 800, color: '#38BDF8' }}>
-            ⚡ CHECK SIMULTANEOUSLY — Click [+ Add] or [✕ Remove] on any scheme below:
-          </span>
-          <button
-            onClick={addAllSchemes}
-            style={{
-              background: 'rgba(16,185,129,0.18)',
-              border: '1px solid rgba(16,185,129,0.45)',
-              color: '#34D399',
-              borderRadius: '5px',
-              padding: '2px 7px',
-              fontSize: '9.5px',
-              fontWeight: 800,
-              cursor: 'pointer',
-            }}
-          >
-            + Add All 6 Schemes
-          </button>
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '5px' }}>
-          {SIX_CORE_SCHEMES.map((s) => {
-            const isAdded = activeSchemeIds.includes(s.id)
-            return (
-              <div
-                key={s.id}
-                onClick={() => toggleSchemeInMixer(s.id)}
-                style={{
-                  background: isAdded ? `${s.color}24` : 'rgba(30,41,59,0.5)',
-                  border: isAdded ? `1.5px solid ${s.color}` : '1px dashed rgba(148,163,184,0.3)',
-                  borderRadius: '6px',
-                  padding: '3px 6px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  cursor: 'pointer',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '3px', minWidth: 0 }}>
-                  <span style={{ fontSize: '11px' }}>{s.icon}</span>
-                  <div style={{ overflow: 'hidden' }}>
-                    <div style={{ fontSize: '9.5px', fontWeight: 800, color: isAdded ? '#FFF' : '#94A3B8', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {s.name}
-                    </div>
-                    <div style={{ fontSize: '8.5px', color: s.color, fontWeight: 800 }}>{s.rate}% p.a.</div>
-                  </div>
-                </div>
-                <span
-                  style={{
-                    fontSize: '9px',
-                    fontWeight: 900,
-                    padding: '1px 4px',
-                    borderRadius: '4px',
-                    background: isAdded ? 'rgba(239,68,68,0.22)' : 'rgba(16,185,129,0.22)',
-                    color: isAdded ? '#FCA5A5' : '#6EE7B7',
-                    flexShrink: 0,
-                  }}
-                >
-                  {isAdded ? '✕' : '+Add'}
-                </span>
-              </div>
-            )
-          })}
-        </div>
-      </div>
-
       {/* Main Dynamic Workspace Area */}
       <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', paddingRight: '4px' }}>
         {activeSection === 'mixer' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(148,163,184,0.18)', borderRadius: '9px', padding: '6px 10px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', background: '#FFFFFF', border: '2px solid #000000', borderRadius: '9px', padding: '6px 10px' }}>
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10.5px', marginBottom: '2px' }}>
-                  <span style={{ color: '#94A3B8', fontWeight: 700 }}>Simultaneous Investment Base</span>
-                  <span style={{ color: '#38BDF8', fontWeight: 900 }}>{fmtINR(mixerAmount)}</span>
+                  <span style={{ color: '#000000', fontWeight: 900 }}>Simultaneous Investment Base</span>
+                  <span style={{ color: '#000000', fontWeight: 900 }}>{fmtINR(mixerAmount)}</span>
                 </div>
                 <input
                   type="range"
@@ -991,13 +940,13 @@ export function Computer2SavingsMixerScreen({
                   step={5000}
                   value={mixerAmount}
                   onChange={(e) => setMixerAmount(Number(e.target.value))}
-                  style={{ width: '100%', accentColor: '#38BDF8', cursor: 'pointer', height: '5px' }}
+                  style={{ width: '100%', accentColor: '#0284C7', cursor: 'pointer', height: '5px' }}
                 />
               </div>
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10.5px', marginBottom: '2px' }}>
-                  <span style={{ color: '#94A3B8', fontWeight: 700 }}>Comparison Horizon (Years)</span>
-                  <span style={{ color: '#FBBF24', fontWeight: 900 }}>{mixerYears} Years</span>
+                  <span style={{ color: '#000000', fontWeight: 900 }}>Comparison Horizon (Years)</span>
+                  <span style={{ color: '#000000', fontWeight: 900 }}>{mixerYears} Years</span>
                 </div>
                 <input
                   type="range"
@@ -1006,7 +955,7 @@ export function Computer2SavingsMixerScreen({
                   step={1}
                   value={mixerYears}
                   onChange={(e) => setMixerYears(Number(e.target.value))}
-                  style={{ width: '100%', accentColor: '#F59E0B', cursor: 'pointer', height: '5px' }}
+                  style={{ width: '100%', accentColor: '#D97706', cursor: 'pointer', height: '5px' }}
                 />
               </div>
             </div>
@@ -1018,48 +967,43 @@ export function Computer2SavingsMixerScreen({
                   <div
                     key={scheme.id}
                     style={{
-                      background: 'linear-gradient(145deg, rgba(15,23,42,0.95), rgba(30,41,59,0.8))',
-                      border: `1.5px solid ${scheme.color}66`,
+                      background: '#FFFFFF',
+                      border: '2.5px solid #000000',
+                      borderLeft: `6px solid ${scheme.color}`,
                       borderRadius: '9px',
                       padding: '8px 10px',
                       display: 'flex',
                       flexDirection: 'column',
                       justifyContent: 'space-between',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
                     }}
                   >
                     <div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3px' }}>
-                        <span style={{ fontSize: '11.5px', fontWeight: 900, color: '#FFF' }}>
+                        <span style={{ fontSize: '11.5px', fontWeight: 900, color: '#000000' }}>
                           {scheme.icon} {scheme.name}
                         </span>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <span style={{ fontSize: '10px', fontWeight: 900, color: scheme.color, background: `${scheme.color}20`, padding: '1px 5px', borderRadius: '999px' }}>
+                          <span style={{ fontSize: '10px', fontWeight: 900, color: '#000000', background: '#FEF3C7', padding: '1px 5px', borderRadius: '999px', border: '1.5px solid #000000' }}>
                             {scheme.rate}%
                           </span>
-                          <button
-                            onClick={() => toggleSchemeInMixer(scheme.id)}
-                            title="Remove from Mixer"
-                            style={{ background: 'rgba(239,68,68,0.2)', border: 'none', color: '#FCA5A5', borderRadius: '4px', fontSize: '9.5px', cursor: 'pointer', padding: '1px 4px', fontWeight: 800 }}
-                          >
-                            ✕
-                          </button>
                         </div>
                       </div>
-                      <div style={{ fontSize: '9.5px', color: '#94A3B8', marginBottom: '5px' }}>
-                        Mode: <strong style={{ color: '#CBD5E1' }}>{modeLabel}</strong> • Lock-in: {scheme.lockIn}
+                      <div style={{ fontSize: '9.5px', color: '#000000', fontWeight: 800, marginBottom: '5px' }}>
+                        Mode: <strong style={{ color: '#000000', fontWeight: 900 }}>{modeLabel}</strong> • Lock-in: {scheme.lockIn}
                       </div>
                     </div>
 
                     <div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', marginBottom: '2px' }}>
-                        <span style={{ color: '#94A3B8' }}>Invested: {fmtINR(invested)}</span>
-                        <span style={{ color: '#34D399', fontWeight: 800 }}>+{fmtINR(interest)} Int.</span>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', marginBottom: '2px', color: '#000000', fontWeight: 900 }}>
+                        <span>Invested: {fmtINR(invested)}</span>
+                        <span style={{ color: '#047857', fontWeight: 900 }}>+{fmtINR(interest)} Int.</span>
                       </div>
-                      <div style={{ fontSize: '13px', fontWeight: 900, color: '#F8FAFC', marginBottom: '4px' }}>
-                        Maturity: <span style={{ color: '#38BDF8' }}>{fmtINR(maturity)}</span>
+                      <div style={{ fontSize: '13px', fontWeight: 900, color: '#000000', marginBottom: '4px' }}>
+                        Maturity: <span style={{ color: '#000000', fontWeight: 900 }}>{fmtINR(maturity)}</span>
                       </div>
-                      <div style={{ height: '6px', background: '#0F172A', borderRadius: '999px', overflow: 'hidden' }}>
-                        <div style={{ width: `${barPct}%`, height: '100%', background: `linear-gradient(90deg, ${scheme.color}, #38BDF8)`, borderRadius: '999px' }} />
+                      <div style={{ height: '7px', background: '#E2E8F0', borderRadius: '999px', overflow: 'hidden', border: '1px solid #000000' }}>
+                        <div style={{ width: `${barPct}%`, height: '100%', background: scheme.color, borderRadius: '999px' }} />
                       </div>
                     </div>
                   </div>
@@ -1070,29 +1014,33 @@ export function Computer2SavingsMixerScreen({
         )}
 
         {activeSection === 'notes' && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '7px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
             {SIX_CORE_SCHEMES.map((s) => (
               <div
                 key={s.id}
                 style={{
-                  background: 'rgba(15,23,42,0.9)',
-                  border: `1px solid ${s.color}55`,
-                  borderLeft: `4px solid ${s.color}`,
-                  borderRadius: '8px',
-                  padding: '8px 10px',
+                  background: '#FFFFFF',
+                  border: '2.5px solid #000000',
+                  borderLeft: `6px solid ${s.color}`,
+                  borderRadius: '10px',
+                  padding: '10px 12px',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+                  color: '#000000',
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3px' }}>
-                  <span style={{ fontSize: '11.5px', fontWeight: 900, color: '#F8FAFC' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                  <span style={{ fontSize: '12px', fontWeight: 900, color: '#000000' }}>
                     {s.icon} {s.name} ({s.rate}% p.a.)
                   </span>
-                  <span style={{ fontSize: '9px', color: '#34D399', fontWeight: 800 }}>{s.compounding}</span>
+                  <span style={{ fontSize: '9.5px', color: '#000000', fontWeight: 900, background: '#ECFDF5', padding: '2px 7px', borderRadius: '999px', border: '1.5px solid #000000' }}>
+                    {s.compounding}
+                  </span>
                 </div>
-                <p style={{ fontSize: '10px', color: '#CBD5E1', lineHeight: 1.38, margin: '0 0 4px 0' }}>
+                <p style={{ fontSize: '10.5px', color: '#000000', fontWeight: 700, lineHeight: 1.42, margin: '0 0 6px 0' }}>
                   {s.educationalNote}
                 </p>
-                <div style={{ fontSize: '9.5px', color: '#FBBF24', fontWeight: 700 }}>
-                  ★ Best For: <span style={{ color: '#E2E8F0', fontWeight: 600 }}>{s.bestFor}</span>
+                <div style={{ fontSize: '10px', color: '#000000', fontWeight: 900, background: '#FEF3C7', padding: '3px 8px', borderRadius: '6px', border: '1.5px solid #000000' }}>
+                  ★ Best For: <span style={{ color: '#000000', fontWeight: 900 }}>{s.bestFor}</span>
                 </div>
               </div>
             ))}
@@ -1100,16 +1048,16 @@ export function Computer2SavingsMixerScreen({
         )}
 
         {activeSection === 'comparison' && (
-          <div style={{ background: 'rgba(15,23,42,0.92)', border: '1px solid rgba(148,163,184,0.22)', borderRadius: '9px', overflow: 'hidden' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '10px', textAlign: 'left' }}>
+          <div style={{ background: '#FFFFFF', border: '2.5px solid #000000', borderRadius: '9px', overflow: 'hidden' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '10px', textAlign: 'left', color: '#000000' }}>
               <thead>
-                <tr style={{ background: 'rgba(30,41,59,0.95)', color: '#38BDF8', borderBottom: '1px solid rgba(148,163,184,0.25)' }}>
-                  <th style={{ padding: '6px 8px' }}>Scheme</th>
-                  <th style={{ padding: '6px 8px' }}>Interest Rate</th>
-                  <th style={{ padding: '6px 8px' }}>Lock-In Period</th>
-                  <th style={{ padding: '6px 8px' }}>Tax Benefit (80C)</th>
-                  <th style={{ padding: '6px 8px' }}>Min / Max Limit</th>
-                  <th style={{ padding: '6px 8px' }}>Risk Profile</th>
+                <tr style={{ background: '#F1F5F9', color: '#000000', borderBottom: '2px solid #000000' }}>
+                  <th style={{ padding: '6px 8px', fontWeight: 900 }}>Scheme</th>
+                  <th style={{ padding: '6px 8px', fontWeight: 900 }}>Interest Rate</th>
+                  <th style={{ padding: '6px 8px', fontWeight: 900 }}>Lock-In Period</th>
+                  <th style={{ padding: '6px 8px', fontWeight: 900 }}>Tax Benefit (80C)</th>
+                  <th style={{ padding: '6px 8px', fontWeight: 900 }}>Min / Max Limit</th>
+                  <th style={{ padding: '6px 8px', fontWeight: 900 }}>Risk Profile</th>
                 </tr>
               </thead>
               <tbody>
@@ -1117,20 +1065,20 @@ export function Computer2SavingsMixerScreen({
                   <tr
                     key={s.id}
                     style={{
-                      background: idx % 2 === 0 ? 'rgba(15,23,42,0.6)' : 'rgba(30,41,59,0.4)',
-                      borderBottom: '1px solid rgba(148,163,184,0.12)',
+                      background: idx % 2 === 0 ? '#FFFFFF' : '#F8FAFC',
+                      borderBottom: '1px solid #000000',
                     }}
                   >
-                    <td style={{ padding: '5px 8px', fontWeight: 800, color: '#FFF' }}>
+                    <td style={{ padding: '5px 8px', fontWeight: 900, color: '#000000' }}>
                       {s.icon} {s.name}
                     </td>
-                    <td style={{ padding: '5px 8px', fontWeight: 900, color: '#34D399' }}>{s.rate}% p.a.</td>
-                    <td style={{ padding: '5px 8px', color: '#E2E8F0' }}>{s.lockIn}</td>
-                    <td style={{ padding: '5px 8px', color: '#FBBF24' }}>{s.taxBenefit}</td>
-                    <td style={{ padding: '5px 8px', color: '#CBD5E1' }}>
+                    <td style={{ padding: '5px 8px', fontWeight: 900, color: '#000000' }}>{s.rate}% p.a.</td>
+                    <td style={{ padding: '5px 8px', color: '#000000', fontWeight: 800 }}>{s.lockIn}</td>
+                    <td style={{ padding: '5px 8px', color: '#000000', fontWeight: 800 }}>{s.taxBenefit}</td>
+                    <td style={{ padding: '5px 8px', color: '#000000', fontWeight: 800 }}>
                       {s.minInvest} – {s.maxInvest}
                     </td>
-                    <td style={{ padding: '5px 8px', color: '#38BDF8', fontWeight: 700 }}>{s.risk}</td>
+                    <td style={{ padding: '5px 8px', color: '#000000', fontWeight: 900 }}>{s.risk}</td>
                   </tr>
                 ))}
               </tbody>
@@ -1144,230 +1092,184 @@ export function Computer2SavingsMixerScreen({
               <div
                 key={i}
                 style={{
-                  background: 'rgba(15,23,42,0.9)',
-                  border: `1px solid ${card.color}55`,
-                  borderRadius: '9px',
-                  padding: '9px 11px',
+                  background: '#FFFFFF',
+                  border: '2.5px solid #000000',
+                  borderLeft: `6px solid ${card.color}`,
+                  borderRadius: '10px',
+                  padding: '10px 12px',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+                  color: '#000000',
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                  <span style={{ fontSize: '12px', fontWeight: 900, color: '#FFF' }}>
+                  <span style={{ fontSize: '12px', fontWeight: 900, color: '#000000' }}>
                     {card.icon} {card.title}
                   </span>
-                  <span style={{ fontSize: '9px', fontWeight: 800, background: `${card.color}25`, color: card.color, padding: '2px 6px', borderRadius: '999px' }}>
+                  <span style={{ fontSize: '9.5px', fontWeight: 900, background: '#E0F2FE', color: '#000000', padding: '2px 8px', borderRadius: '999px', border: '1.5px solid #000000' }}>
                     {card.badge}
                   </span>
                 </div>
-                <p style={{ fontSize: '10.5px', color: '#CBD5E1', lineHeight: 1.4, margin: 0 }}>{card.desc}</p>
+                <p style={{ fontSize: '10.5px', color: '#000000', fontWeight: 700, lineHeight: 1.42, margin: 0 }}>
+                  {card.desc}
+                </p>
               </div>
             ))}
           </div>
         )}
 
         {activeSection === 'challenges' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
-            {MIXER_CHALLENGES.map((ch) => {
-              const picked = challengeAnswers[ch.id]
-              const isCorrect = picked === ch.correct
-              return (
-                <div
-                  key={ch.id}
-                  style={{
-                    background: 'rgba(15,23,42,0.9)',
-                    border: '1px solid rgba(148,163,184,0.22)',
-                    borderRadius: '9px',
-                    padding: '8px 11px',
-                  }}
-                >
-                  <div style={{ fontSize: '11.5px', fontWeight: 900, color: '#38BDF8', marginBottom: '2px' }}>{ch.title}</div>
-                  <div style={{ fontSize: '10.5px', color: '#E2E8F0', marginBottom: '6px' }}>{ch.question}</div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '5px' }}>
-                    {ch.options.map((opt) => {
-                      const selected = picked === opt
-                      const right = opt === ch.correct
-                      return (
-                        <button
-                          key={opt}
-                          onClick={() => {
-                            setChallengeAnswers((p) => ({ ...p, [ch.id]: opt }))
-                            if (opt === ch.correct && !challengeAnswers[ch.id] && addXP) {
-                              addXP(20)
-                            }
-                          }}
-                          style={{
-                            background: selected
-                              ? right
-                                ? 'rgba(16,185,129,0.28)'
-                                : 'rgba(239,68,68,0.28)'
-                              : 'rgba(30,41,59,0.8)',
-                            border: selected
-                              ? right
-                                ? '1.5px solid #10B981'
-                                : '1.5px solid #EF4444'
-                              : '1px solid rgba(148,163,184,0.25)',
-                            color: '#F8FAFC',
-                            borderRadius: '6px',
-                            padding: '4px 7px',
-                            fontSize: '10px',
-                            fontWeight: 800,
-                            cursor: 'pointer',
-                          }}
-                        >
-                          {opt}
-                        </button>
-                      )
-                    })}
-                  </div>
-                  {picked && (
-                    <div style={{ marginTop: '4px', fontSize: '10px', color: isCorrect ? '#4ADE80' : '#FCA5A5', fontWeight: 700 }}>
-                      {isCorrect ? `✅ Correct! (+20 XP) ${ch.explanation}` : `❌ Try again! Hint: ${ch.explanation}`}
-                    </div>
-                  )}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {/* Concept Mastery Header */}
+            <div
+              style={{
+                background: '#FFFFFF',
+                border: '2px solid #000000',
+                borderRadius: '12px',
+                padding: '10px 14px',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                gap: '10px',
+              }}
+            >
+              <div>
+                <div style={{ fontSize: '13px', fontWeight: 900, color: '#000000', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span>🎯 Savings Concept Mastery Challenges</span>
+                  <span style={{ fontSize: '10px', background: '#ECFDF5', color: '#000000', padding: '2px 8px', borderRadius: '999px', border: '1.5px solid #000000', fontWeight: 900 }}>
+                    +25 XP Per Challenge
+                  </span>
                 </div>
-              )
-            })}
-          </div>
-        )}
+                <div style={{ fontSize: '11px', color: '#000000', fontWeight: 800 }}>
+                  Test your real-world financial decision skills & unlock Pro Financial Wizard badges!
+                </div>
+              </div>
 
-        {activeSection === 'projector' && (
-          <div style={{ background: 'rgba(15,23,42,0.92)', border: '1px solid rgba(148,163,184,0.22)', borderRadius: '9px', padding: '9px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-              <span style={{ fontSize: '11.5px', fontWeight: 900, color: '#38BDF8' }}>
-                🔮 Multi-Year Wealth Growth Projector (Base: {fmtINR(mixerAmount)})
-              </span>
-              <span style={{ fontSize: '10px', color: '#94A3B8' }}>
-                Showing active mixer schemes across 3Y, 5Y, 10Y, 15Y & 20Y milestones
-              </span>
-            </div>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '10px', textAlign: 'left' }}>
-              <thead>
-                <tr style={{ background: 'rgba(30,41,59,0.95)', color: '#FBBF24' }}>
-                  <th style={{ padding: '5px 7px' }}>Active Scheme</th>
-                  <th style={{ padding: '5px 7px' }}>Rate</th>
-                  <th style={{ padding: '5px 7px' }}>3 Years</th>
-                  <th style={{ padding: '5px 7px' }}>5 Years</th>
-                  <th style={{ padding: '5px 7px' }}>10 Years</th>
-                  <th style={{ padding: '5px 7px' }}>15 Years</th>
-                  <th style={{ padding: '5px 7px' }}>20 Years</th>
-                </tr>
-              </thead>
-              <tbody>
-                {activeSchemes.map((s) => (
-                  <tr key={s.id} style={{ borderBottom: '1px solid rgba(148,163,184,0.12)' }}>
-                    <td style={{ padding: '5px 7px', fontWeight: 800, color: '#FFF' }}>
-                      {s.icon} {s.name}
-                    </td>
-                    <td style={{ padding: '5px 7px', color: s.color, fontWeight: 800 }}>{s.rate}%</td>
-                    {[3, 5, 10, 15, 20].map((yr) => (
-                      <td key={yr} style={{ padding: '5px 7px', color: '#34D399', fontWeight: 700 }}>
-                        {fmtINR(computeSchemeMixerProjection(s, mixerAmount, yr).maturity)}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {activeSection === 'planner' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
-            <div style={{ background: 'rgba(15,23,42,0.9)', border: '1px solid rgba(56,189,248,0.25)', borderRadius: '9px', padding: '7px 9px', display: 'grid', gridTemplateColumns: '1.3fr 1fr 0.8fr 1.1fr auto', gap: '6px', alignItems: 'end' }}>
-              <div>
-                <div style={{ fontSize: '9px', color: '#94A3B8', marginBottom: '2px' }}>Goal Name</div>
-                <input
-                  type="text"
-                  value={newGoalName}
-                  onChange={(e) => setNewGoalName(e.target.value)}
-                  placeholder="e.g. Electric Bike / College"
-                  style={{ width: '100%', background: '#1E293B', border: '1px solid #334155', borderRadius: '5px', padding: '4px 6px', color: '#FFF', fontSize: '10.5px', boxSizing: 'border-box' }}
-                />
+              {/* Progress Meter */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '11px', fontWeight: 900, color: '#000000' }}>
+                  Mastery: {Object.keys(challengeAnswers).length}/{MIXER_CHALLENGES.length}
+                </span>
+                <div style={{ width: '80px', height: '8px', background: '#E2E8F0', borderRadius: '999px', overflow: 'hidden', border: '1.5px solid #000000' }}>
+                  <div
+                    style={{
+                      width: `${(Object.keys(challengeAnswers).length / MIXER_CHALLENGES.length) * 100}%`,
+                      height: '100%',
+                      background: '#10B981',
+                      borderRadius: '999px',
+                    }}
+                  />
+                </div>
               </div>
-              <div>
-                <div style={{ fontSize: '9px', color: '#94A3B8', marginBottom: '2px' }}>Target Cost (₹)</div>
-                <input
-                  type="number"
-                  value={newGoalCost}
-                  onChange={(e) => setNewGoalCost(Number(e.target.value))}
-                  style={{ width: '100%', background: '#1E293B', border: '1px solid #334155', borderRadius: '5px', padding: '4px 6px', color: '#38BDF8', fontSize: '10.5px', fontWeight: 800, boxSizing: 'border-box' }}
-                />
-              </div>
-              <div>
-                <div style={{ fontSize: '9px', color: '#94A3B8', marginBottom: '2px' }}>Timeline (Yrs)</div>
-                <input
-                  type="number"
-                  min={1}
-                  max={30}
-                  value={newGoalYears}
-                  onChange={(e) => setNewGoalYears(Number(e.target.value))}
-                  style={{ width: '100%', background: '#1E293B', border: '1px solid #334155', borderRadius: '5px', padding: '4px 6px', color: '#FBBF24', fontSize: '10.5px', fontWeight: 800, boxSizing: 'border-box' }}
-                />
-              </div>
-              <div>
-                <div style={{ fontSize: '9px', color: '#94A3B8', marginBottom: '2px' }}>Matched Scheme</div>
-                <select
-                  value={newGoalScheme}
-                  onChange={(e) => setNewGoalScheme(e.target.value)}
-                  style={{ width: '100%', background: '#1E293B', border: '1px solid #334155', borderRadius: '5px', padding: '4px 6px', color: '#FFF', fontSize: '10.5px' }}
-                >
-                  {SIX_CORE_SCHEMES.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.name} ({s.rate}%)
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <button
-                onClick={handleAddGoal}
-                style={{
-                  background: 'linear-gradient(135deg, #10B981, #059669)',
-                  color: '#FFF',
-                  border: 'none',
-                  borderRadius: '5px',
-                  padding: '5px 10px',
-                  fontSize: '10.5px',
-                  fontWeight: 800,
-                  cursor: 'pointer',
-                }}
-              >
-                + Add Goal
-              </button>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '7px' }}>
-              {goals.map((g) => {
-                const sch = SIX_CORE_SCHEMES.find((s) => s.id === g.schemeId) || SIX_CORE_SCHEMES[0]
-                const rMonth = sch.rate / 100 / 12
-                const months = Math.max(1, g.years * 12)
-                const monthlyRequired = Math.round((g.targetCost * rMonth) / (Math.pow(1 + rMonth, months) - 1))
+            {/* Interactive Concept Cards */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+              {MIXER_CHALLENGES.map((ch) => {
+                const picked = challengeAnswers[ch.id]
+                const isCorrect = picked === ch.correct
                 return (
                   <div
-                    key={g.id}
+                    key={ch.id}
                     style={{
-                      background: 'rgba(15,23,42,0.92)',
-                      border: `1px solid ${sch.color}66`,
-                      borderRadius: '8px',
-                      padding: '8px 10px',
+                      background: '#FFFFFF',
+                      border: '2.5px solid #000000',
+                      borderLeft: picked ? (isCorrect ? '6px solid #059669' : '6px solid #DC2626') : '6px solid #0284C7',
+                      borderRadius: '12px',
+                      padding: '12px 14px',
+                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
                     }}
                   >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3px' }}>
-                      <span style={{ fontSize: '11.5px', fontWeight: 900, color: '#FFF' }}>{g.name}</span>
-                      <button
-                        onClick={() => handleRemoveGoal(g.id)}
-                        style={{ background: 'rgba(239,68,68,0.2)', border: 'none', color: '#FCA5A5', borderRadius: '4px', fontSize: '9.5px', cursor: 'pointer', padding: '1px 4px' }}
+                    <div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                        <span style={{ fontSize: '12.5px', fontWeight: 900, color: '#000000' }}>
+                          {ch.title}
+                        </span>
+                        {picked && (
+                          <span
+                            style={{
+                              fontSize: '9.5px',
+                              fontWeight: 900,
+                              padding: '2px 8px',
+                              borderRadius: '999px',
+                              background: isCorrect ? '#ECFDF5' : '#FEF2F2',
+                              color: '#000000',
+                              border: '1.5px solid #000000',
+                            }}
+                          >
+                            {isCorrect ? '✓ Mastered' : '✕ Re-try'}
+                          </span>
+                        )}
+                      </div>
+
+                      <p style={{ fontSize: '11px', color: '#000000', fontWeight: 700, lineHeight: 1.45, margin: '0 0 10px 0' }}>
+                        {ch.question}
+                      </p>
+
+                      {/* Options Grid */}
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginBottom: '10px' }}>
+                        {ch.options.map((opt) => {
+                          const selected = picked === opt
+                          const right = opt === ch.correct
+                          return (
+                            <button
+                              key={opt}
+                              onClick={() => {
+                                setChallengeAnswers((p) => ({ ...p, [ch.id]: opt }))
+                                if (opt === ch.correct && !challengeAnswers[ch.id] && addXP) {
+                                  addXP(25)
+                                }
+                              }}
+                              style={{
+                                background: selected
+                                  ? right
+                                    ? '#ECFDF5'
+                                    : '#FEF2F2'
+                                  : '#F8FAFC',
+                                border: '2px solid #000000',
+                                color: '#000000',
+                                borderRadius: '8px',
+                                padding: '6px 8px',
+                                fontSize: '10.5px',
+                                fontWeight: selected ? 900 : 800,
+                                cursor: 'pointer',
+                                transition: 'all 0.15s',
+                                textAlign: 'left',
+                              }}
+                            >
+                              {opt} {selected ? (right ? '✓' : '✕') : ''}
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Educational Concept & Pro Tip Box */}
+                    {picked && (
+                      <div
+                        style={{
+                          background: isCorrect ? '#F0FDF4' : '#FEF2F2',
+                          border: '2px solid #000000',
+                          borderRadius: '8px',
+                          padding: '8px 10px',
+                          fontSize: '10.5px',
+                          color: '#000000',
+                          lineHeight: 1.4,
+                        }}
                       >
-                        ✕
-                      </button>
-                    </div>
-                    <div style={{ fontSize: '10px', color: '#94A3B8', marginBottom: '3px' }}>
-                      Target: <strong style={{ color: '#F8FAFC' }}>{fmtINR(g.targetCost)}</strong> in <strong>{g.years} yrs</strong>
-                    </div>
-                    <div style={{ fontSize: '9.5px', color: sch.color, fontWeight: 800, marginBottom: '4px' }}>
-                      Scheme: {sch.icon} {sch.name} ({sch.rate}%)
-                    </div>
-                    <div style={{ background: 'rgba(16,185,129,0.14)', border: '1px solid rgba(16,185,129,0.35)', borderRadius: '5px', padding: '4px 7px', fontSize: '10.5px', color: '#34D399', fontWeight: 900 }}>
-                      Save {fmtINR(monthlyRequired)} / month
-                    </div>
+                        <div style={{ fontWeight: 900, marginBottom: '3px', color: '#000000' }}>
+                          {isCorrect ? '🎉 Spot On Concept Breakdown:' : '💡 Concept Explanation:'} {ch.explanation}
+                        </div>
+                        {ch.proTip && (
+                          <div style={{ fontSize: '9.5px', color: '#000000', fontWeight: 800, marginTop: '4px', paddingTop: '4px', borderTop: '1px dashed #000000' }}>
+                            {ch.proTip}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )
               })}
@@ -1381,18 +1283,27 @@ export function Computer2SavingsMixerScreen({
 
 // ============================================================================
 // COMPUTER 3: PORTFOLIO SIMULATION
-// - Add/remove PPF Simulator, Fixed Deposit, NSC Calculator, Sukanya Samriddhi, Recurring Deposit, Post Office MIS
-// - At least 1 scheme present by default
-// - Investment Plan ("When Can I Buy?" calculator)
-// - Add or Remove Simulation History
 // ============================================================================
 export function Computer3PortfolioSimulatorScreen({
+  state,
   addXP,
   onCompleteComputer3,
   onCompleteLevel2,
   onPrevComputer,
 }) {
   const handleFinish = onCompleteComputer3 || onCompleteLevel2
+
+  // Track 6/6 scheme completion state
+  const completedMods = Array.from(new Set([...(state?.completedModules || [])]))
+  const allSixDone = completedMods.length >= 6
+
+  const handleFinishClick = () => {
+    if (!allSixDone) {
+      alert(`Please explore all 6 out of 6 schemes in Computer 1 before finishing Level 2! (Currently completed: ${completedMods.length}/6)`)
+      return
+    }
+    if (handleFinish) handleFinish()
+  }
 
   // Portfolio Active Schemes (at least 1 scheme by default)
   const [portfolioItems, setPortfolioItems] = useState([
@@ -1406,9 +1317,8 @@ export function Computer3PortfolioSimulatorScreen({
   const [buyItemName, setBuyItemName] = useState('🏍️ Electric Scooter / Laptop')
   const [buyTargetCost, setBuyTargetCost] = useState(120000)
   const [monthlySaveAmt, setMonthlySaveAmt] = useState(4000)
-  const [buySchemeId, setBuySchemeId] = useState('rd')
 
-  // Simulation History state (add or remove history entries)
+  // Simulation History state
   const [historyList, setHistoryList] = useState([
     {
       id: 'hist_default_1',
@@ -1429,7 +1339,7 @@ export function Computer3PortfolioSimulatorScreen({
   }
 
   const handleRemoveScheme = (schemeId) => {
-    if (portfolioItems.length <= 1) return // Enforce at least 1 scheme present at all times
+    if (portfolioItems.length <= 1) return
     setPortfolioItems((prev) => prev.filter((p) => p.id !== schemeId))
   }
 
@@ -1472,8 +1382,7 @@ export function Computer3PortfolioSimulatorScreen({
   }, [portfolioItems, simYears])
 
   const whenCanIBuyResult = useMemo(() => {
-    const sch = SIX_CORE_SCHEMES.find((s) => s.id === buySchemeId) || SIX_CORE_SCHEMES[0]
-    const rMonthly = sch.rate / 100 / 12
+    const rMonthly = 0.07 / 12
     const target = Math.max(1000, Number(buyTargetCost) || 50000)
     const monthly = Math.max(500, Number(monthlySaveAmt) || 2000)
 
@@ -1491,7 +1400,6 @@ export function Computer3PortfolioSimulatorScreen({
     const targetYear = new Date().getFullYear() + years + (remMonths >= 6 ? 1 : 0)
 
     return {
-      scheme: sch,
       months,
       years,
       remMonths,
@@ -1500,7 +1408,7 @@ export function Computer3PortfolioSimulatorScreen({
       finalAmount: Math.round(balance),
       targetYear,
     }
-  }, [buyTargetCost, monthlySaveAmt, buySchemeId])
+  }, [buyTargetCost, monthlySaveAmt])
 
   const handleSaveToHistory = () => {
     const names = portfolioSummary.breakdown.map((b) => b.scheme.name.split(' ')[0]).join(' + ')
@@ -1531,8 +1439,8 @@ export function Computer3PortfolioSimulatorScreen({
       style={{
         width: '100%',
         height: '100%',
-        background: 'linear-gradient(160deg, #090D1A 0%, #111827 100%)',
-        color: '#F8FAFC',
+        background: 'linear-gradient(160deg, #F8FAFC 0%, #F1F5F9 100%)',
+        color: '#000000',
         fontFamily: "'Inter', 'Segoe UI', sans-serif",
         display: 'flex',
         flexDirection: 'column',
@@ -1543,27 +1451,30 @@ export function Computer3PortfolioSimulatorScreen({
       }}
     >
       {/* Top Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(245,158,11,0.28)', paddingBottom: '6px', marginBottom: '6px', flexShrink: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '2px solid #000000', paddingBottom: '6px', marginBottom: '6px', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ background: 'linear-gradient(135deg, #F59E0B, #D97706)', color: '#fff', fontWeight: 900, fontSize: '10px', padding: '3px 8px', borderRadius: '6px' }}>
-            📊 COMPUTER 3 • PORTFOLIO SIMULATION & INVESTMENT PLAN
+          <span style={{ background: '#F59E0B', color: '#FFFFFF', fontWeight: 900, fontSize: '10px', padding: '3.5px 9px', borderRadius: '6px', border: '1.5px solid #000000' }}>
+            📊 COMPUTER 3 • PORTFOLIO SIMULATION & PLANNER
           </span>
-          <span style={{ fontSize: '12px', fontWeight: 800, color: '#FEF3C7' }}>
+          <span style={{ fontSize: '12.5px', fontWeight: 900, color: '#000000' }}>
             Add/Remove Any Scheme • &ldquo;When Can I Buy?&rdquo; Planner • History Manager
           </span>
         </div>
-        <div style={{ display: 'flex', gap: '6px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span style={{ fontSize: '10.5px', color: '#000000', fontWeight: 900, background: '#E0F2FE', padding: '3px 9px', borderRadius: '999px', border: '1.5px solid #000000' }}>
+            {allSixDone ? '✓ 6/6 Schemes Completed' : `🔒 ${completedMods.length}/6 Schemes Completed`}
+          </span>
           {onPrevComputer && (
             <button
               onClick={onPrevComputer}
               style={{
-                background: 'rgba(30,41,59,0.85)',
-                color: '#CBD5E1',
-                border: '1px solid rgba(148,163,184,0.3)',
+                background: '#FFFFFF',
+                color: '#000000',
+                border: '2px solid #000000',
                 borderRadius: '7px',
                 padding: '4px 9px',
                 fontSize: '10px',
-                fontWeight: 700,
+                fontWeight: 900,
                 cursor: 'pointer',
               }}
             >
@@ -1572,32 +1483,32 @@ export function Computer3PortfolioSimulatorScreen({
           )}
           {handleFinish && (
             <button
-              onClick={handleFinish}
+              onClick={handleFinishClick}
               style={{
-                background: 'linear-gradient(135deg, #10B981, #059669)',
-                color: '#fff',
-                border: 'none',
+                background: allSixDone ? 'linear-gradient(135deg, #059669, #10B981)' : '#E2E8F0',
+                color: allSixDone ? '#ffffff' : '#64748B',
+                border: '2px solid #000000',
                 borderRadius: '7px',
                 padding: '5px 11px',
                 fontSize: '11px',
                 fontWeight: 900,
-                cursor: 'pointer',
-                boxShadow: '0 2px 10px rgba(16,185,129,0.4)',
+                cursor: allSixDone ? 'pointer' : 'not-allowed',
+                boxShadow: allSixDone ? '0 2px 8px rgba(16,185,129,0.25)' : 'none',
               }}
             >
-              Complete Level 2 & Walk to Veranda →
+              {allSixDone ? '✓ Complete Level 2 & Walk to Veranda →' : `🔒 Explore 6/6 Schemes (${completedMods.length}/6)`}
             </button>
           )}
         </div>
       </div>
 
-      {/* Add / Remove Scheme Strip (At least 1 active enforced) */}
-      <div style={{ background: 'rgba(15,23,42,0.9)', border: '1px solid rgba(148,163,184,0.2)', borderRadius: '8px', padding: '5px 9px', marginBottom: '6px', flexShrink: 0 }}>
+      {/* Add / Remove Scheme Strip */}
+      <div style={{ background: '#FFFFFF', border: '2px solid #000000', borderRadius: '8px', padding: '5px 9px', marginBottom: '6px', flexShrink: 0 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-          <span style={{ fontSize: '10px', fontWeight: 800, color: '#FBBF24' }}>
+          <span style={{ fontSize: '10px', fontWeight: 900, color: '#000000' }}>
             ➕ ADD OR REMOVE ANY SCHEME (At least 1 scheme stays active by default):
           </span>
-          <span style={{ fontSize: '10px', color: '#34D399', fontWeight: 800 }}>
+          <span style={{ fontSize: '10px', color: '#000000', fontWeight: 900 }}>
             Active Schemes: {portfolioItems.length} • Blended Return: {portfolioSummary.avgRate}% p.a.
           </span>
         </div>
@@ -1610,13 +1521,13 @@ export function Computer3PortfolioSimulatorScreen({
                 key={s.id}
                 onClick={() => (isActive ? handleRemoveScheme(s.id) : handleAddScheme(s.id))}
                 style={{
-                  background: isActive ? `${s.color}25` : 'rgba(30,41,59,0.55)',
-                  border: isActive ? `1.5px solid ${s.color}` : '1px dashed rgba(148,163,184,0.3)',
+                  background: isActive ? '#FEF3C7' : '#F8FAFC',
+                  border: '2px solid #000000',
                   borderRadius: '6px',
                   padding: '3px 6px',
-                  color: isActive ? '#FFF' : '#94A3B8',
+                  color: '#000000',
                   fontSize: '9.5px',
-                  fontWeight: 800,
+                  fontWeight: 900,
                   cursor: isLastOne ? 'not-allowed' : 'pointer',
                   display: 'flex',
                   alignItems: 'center',
@@ -1624,10 +1535,10 @@ export function Computer3PortfolioSimulatorScreen({
                   gap: '3px',
                 }}
               >
-                <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: '#000000', fontWeight: 900 }}>
                   {s.icon} {s.name}
                 </span>
-                <span style={{ color: isActive ? (isLastOne ? '#FBBF24' : '#FCA5A5') : '#4ADE80', fontWeight: 900 }}>
+                <span style={{ color: '#000000', fontWeight: 900 }}>
                   {isActive ? (isLastOne ? 'Default' : '✕') : '+'}
                 </span>
               </button>
@@ -1639,19 +1550,19 @@ export function Computer3PortfolioSimulatorScreen({
       {/* Main 3-Column Layout */}
       <div style={{ display: 'grid', gridTemplateColumns: '1.15fr 1.1fr 0.9fr', gap: '8px', flex: 1, minHeight: 0 }}>
         {/* Column 1: Portfolio Simulation */}
-        <div style={{ background: 'rgba(15,23,42,0.88)', border: '1px solid rgba(148,163,184,0.2)', borderRadius: '9px', padding: '8px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', overflowY: 'auto' }}>
+        <div style={{ background: '#FFFFFF', border: '2px solid #000000', borderRadius: '9px', padding: '8px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', overflowY: 'auto' }}>
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '5px' }}>
-              <span style={{ fontSize: '11px', fontWeight: 900, color: '#38BDF8' }}>💼 Active Portfolio Allocations</span>
+              <span style={{ fontSize: '11px', fontWeight: 900, color: '#000000' }}>💼 Active Portfolio Allocations</span>
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <span style={{ fontSize: '9.5px', color: '#94A3B8' }}>Years:</span>
+                <span style={{ fontSize: '9.5px', color: '#000000', fontWeight: 900 }}>Years:</span>
                 <input
                   type="number"
                   min={1}
                   max={30}
                   value={simYears}
                   onChange={(e) => setSimYears(Math.max(1, Number(e.target.value) || 1))}
-                  style={{ width: '42px', background: '#1E293B', border: '1px solid #38BDF8', borderRadius: '5px', color: '#FFF', fontSize: '10px', fontWeight: 800, padding: '2px 4px', textAlign: 'center' }}
+                  style={{ width: '42px', background: '#F8FAFC', border: '2px solid #000000', borderRadius: '5px', color: '#000000', fontSize: '10px', fontWeight: 900, padding: '2px 4px', textAlign: 'center' }}
                 />
               </div>
             </div>
@@ -1661,22 +1572,23 @@ export function Computer3PortfolioSimulatorScreen({
                 <div
                   key={b.id}
                   style={{
-                    background: 'rgba(30,41,59,0.65)',
-                    borderLeft: `3px solid ${b.scheme.color}`,
+                    background: '#F8FAFC',
+                    border: '2px solid #000000',
+                    borderLeft: `4px solid ${b.scheme.color}`,
                     borderRadius: '6px',
                     padding: '4px 7px',
                   }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '10px', marginBottom: '2px' }}>
-                    <span style={{ fontWeight: 800, color: '#FFF' }}>
+                    <span style={{ fontWeight: 900, color: '#000000' }}>
                       {b.scheme.icon} {b.scheme.name} ({b.scheme.rate}%)
                     </span>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                      <span style={{ color: '#34D399', fontWeight: 800 }}>→ {fmtINR(b.maturity)}</span>
+                      <span style={{ color: '#047857', fontWeight: 900 }}>→ {fmtINR(b.maturity)}</span>
                       {portfolioItems.length > 1 && (
                         <button
                           onClick={() => handleRemoveScheme(b.id)}
-                          style={{ background: 'rgba(239,68,68,0.2)', border: 'none', color: '#FCA5A5', borderRadius: '4px', fontSize: '9px', cursor: 'pointer', padding: '1px 4px' }}
+                          style={{ background: '#FEF2F2', border: '1px solid #000000', color: '#000000', borderRadius: '4px', fontSize: '9px', cursor: 'pointer', padding: '1px 4px', fontWeight: 900 }}
                         >
                           ✕
                         </button>
@@ -1692,37 +1604,37 @@ export function Computer3PortfolioSimulatorScreen({
                     onChange={(e) => handleAmountChange(b.id, e.target.value)}
                     style={{ width: '100%', accentColor: b.scheme.color, height: '4px', cursor: 'pointer' }}
                   />
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9px', color: '#94A3B8' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9px', color: '#000000', fontWeight: 800 }}>
                     <span>Invested: {fmtINR(b.amount)}</span>
-                    <span>Interest: +{fmtINR(b.interest)}</span>
+                    <span style={{ color: '#047857', fontWeight: 900 }}>Interest: +{fmtINR(b.interest)}</span>
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div style={{ borderTop: '1px solid rgba(148,163,184,0.2)', paddingTop: '5px', marginTop: '5px' }}>
+          <div style={{ borderTop: '2px solid #000000', paddingTop: '5px', marginTop: '5px' }}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '5px', marginBottom: '5px' }}>
-              <div style={{ background: 'rgba(15,23,42,0.9)', padding: '4px 6px', borderRadius: '5px' }}>
-                <div style={{ fontSize: '8.5px', color: '#94A3B8' }}>Total Invested</div>
-                <div style={{ fontSize: '11.5px', fontWeight: 900, color: '#FFF' }}>{fmtINR(portfolioSummary.totalPrincipal)}</div>
+              <div style={{ background: '#F8FAFC', border: '2px solid #000000', padding: '4px 6px', borderRadius: '5px' }}>
+                <div style={{ fontSize: '8.5px', color: '#000000', fontWeight: 800 }}>Total Invested</div>
+                <div style={{ fontSize: '11.5px', fontWeight: 900, color: '#000000' }}>{fmtINR(portfolioSummary.totalPrincipal)}</div>
               </div>
-              <div style={{ background: 'rgba(16,185,129,0.14)', padding: '4px 6px', borderRadius: '5px' }}>
-                <div style={{ fontSize: '8.5px', color: '#6EE7B7' }}>Projected Maturity ({simYears}Y)</div>
-                <div style={{ fontSize: '11.5px', fontWeight: 900, color: '#34D399' }}>{fmtINR(portfolioSummary.totalMaturity)}</div>
+              <div style={{ background: '#ECFDF5', border: '2px solid #000000', padding: '4px 6px', borderRadius: '5px' }}>
+                <div style={{ fontSize: '8.5px', color: '#000000', fontWeight: 800 }}>Projected Maturity ({simYears}Y)</div>
+                <div style={{ fontSize: '11.5px', fontWeight: 900, color: '#000000' }}>{fmtINR(portfolioSummary.totalMaturity)}</div>
               </div>
             </div>
             <button
               onClick={handleSaveToHistory}
               style={{
                 width: '100%',
-                background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
-                color: '#FFF',
-                border: 'none',
+                background: '#4F46E5',
+                color: '#FFFFFF',
+                border: '2px solid #000000',
                 borderRadius: '6px',
                 padding: '5px',
                 fontSize: '10.5px',
-                fontWeight: 800,
+                fontWeight: 900,
                 cursor: 'pointer',
               }}
             >
@@ -1732,29 +1644,29 @@ export function Computer3PortfolioSimulatorScreen({
         </div>
 
         {/* Column 2: Investment Plan ("When Can I Buy?" Calculator) */}
-        <div style={{ background: 'rgba(15,23,42,0.88)', border: '1px solid rgba(245,158,11,0.35)', borderRadius: '9px', padding: '8px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+        <div style={{ background: '#FFFFFF', border: '2px solid #000000', borderRadius: '9px', padding: '8px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
           <div>
-            <div style={{ fontSize: '11px', fontWeight: 900, color: '#FBBF24', marginBottom: '2px' }}>
+            <div style={{ fontSize: '11px', fontWeight: 900, color: '#000000', marginBottom: '2px' }}>
               🛍️ Investment Plan: &ldquo;When Can I Buy?&rdquo;
             </div>
-            <div style={{ fontSize: '9.5px', color: '#94A3B8', marginBottom: '5px' }}>
+            <div style={{ fontSize: '9.5px', color: '#000000', fontWeight: 700, marginBottom: '5px' }}>
               See how many years & months it takes to buy your goal if you save this much monthly!
             </div>
 
             <div style={{ marginBottom: '5px' }}>
-              <div style={{ fontSize: '9px', color: '#CBD5E1', marginBottom: '2px', fontWeight: 700 }}>What do you want to buy?</div>
+              <div style={{ fontSize: '9px', color: '#000000', marginBottom: '2px', fontWeight: 800 }}>What do you want to buy?</div>
               <input
                 type="text"
                 value={buyItemName}
                 onChange={(e) => setBuyItemName(e.target.value)}
-                style={{ width: '100%', background: '#1E293B', border: '1px solid #475569', borderRadius: '5px', padding: '4px 6px', color: '#FFF', fontSize: '10.5px', fontWeight: 700, boxSizing: 'border-box' }}
+                style={{ width: '100%', background: '#F8FAFC', border: '2px solid #000000', borderRadius: '5px', padding: '4px 6px', color: '#000000', fontSize: '10.5px', fontWeight: 800, boxSizing: 'border-box' }}
               />
             </div>
 
             <div style={{ marginBottom: '5px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9.5px', marginBottom: '2px' }}>
-                <span style={{ color: '#94A3B8' }}>Target Purchase Price</span>
-                <span style={{ color: '#FBBF24', fontWeight: 900 }}>{fmtINR(buyTargetCost)}</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9.5px', marginBottom: '2px', color: '#000000', fontWeight: 900 }}>
+                <span>Target Purchase Price</span>
+                <span>{fmtINR(buyTargetCost)}</span>
               </div>
               <input
                 type="range"
@@ -1763,14 +1675,14 @@ export function Computer3PortfolioSimulatorScreen({
                 step={10000}
                 value={buyTargetCost}
                 onChange={(e) => setBuyTargetCost(Number(e.target.value))}
-                style={{ width: '100%', accentColor: '#F59E0B', cursor: 'pointer', height: '4px' }}
+                style={{ width: '100%', accentColor: '#D97706', cursor: 'pointer', height: '4px' }}
               />
             </div>
 
             <div style={{ marginBottom: '5px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9.5px', marginBottom: '2px' }}>
-                <span style={{ color: '#94A3B8' }}>If I Save Every Month</span>
-                <span style={{ color: '#38BDF8', fontWeight: 900 }}>{fmtINR(monthlySaveAmt)} / mo</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9.5px', marginBottom: '2px', color: '#000000', fontWeight: 900 }}>
+                <span>If I Save Every Month</span>
+                <span>{fmtINR(monthlySaveAmt)} / mo</span>
               </div>
               <input
                 type="range"
@@ -1779,57 +1691,42 @@ export function Computer3PortfolioSimulatorScreen({
                 step={500}
                 value={monthlySaveAmt}
                 onChange={(e) => setMonthlySaveAmt(Number(e.target.value))}
-                style={{ width: '100%', accentColor: '#38BDF8', cursor: 'pointer', height: '4px' }}
+                style={{ width: '100%', accentColor: '#0284C7', cursor: 'pointer', height: '4px' }}
               />
-            </div>
-
-            <div>
-              <div style={{ fontSize: '9px', color: '#CBD5E1', marginBottom: '2px', fontWeight: 700 }}>Invest Monthly Savings In:</div>
-              <select
-                value={buySchemeId}
-                onChange={(e) => setBuySchemeId(e.target.value)}
-                style={{ width: '100%', background: '#1E293B', border: '1px solid #475569', borderRadius: '5px', padding: '3px 6px', color: '#FFF', fontSize: '10px', fontWeight: 700 }}
-              >
-                {SIX_CORE_SCHEMES.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.name} ({s.rate}% p.a.)
-                  </option>
-                ))}
-              </select>
             </div>
           </div>
 
-          <div style={{ background: 'linear-gradient(135deg, rgba(245,158,11,0.16), rgba(16,185,129,0.16))', border: '1px solid rgba(245,158,11,0.45)', borderRadius: '7px', padding: '6px 9px', marginTop: '5px' }}>
-            <div style={{ fontSize: '9.5px', color: '#FDE68A', fontWeight: 800 }}>⏱️ YOU CAN BUY IT IN:</div>
-            <div style={{ fontSize: '14px', fontWeight: 900, color: '#4ADE80', margin: '1px 0' }}>
+          <div style={{ background: '#ECFDF5', border: '2px solid #000000', borderRadius: '7px', padding: '6px 9px', marginTop: '5px' }}>
+            <div style={{ fontSize: '9.5px', color: '#000000', fontWeight: 900 }}>⏱️ YOU CAN BUY IT IN:</div>
+            <div style={{ fontSize: '14px', fontWeight: 900, color: '#000000', margin: '1px 0' }}>
               {whenCanIBuyResult.years > 0 ? `${whenCanIBuyResult.years} Yr${whenCanIBuyResult.years > 1 ? 's' : ''} ` : ''}
               {whenCanIBuyResult.remMonths} Mo ({whenCanIBuyResult.months} months)
             </div>
-            <div style={{ fontSize: '9px', color: '#E2E8F0', lineHeight: 1.3 }}>
+            <div style={{ fontSize: '9px', color: '#000000', lineHeight: 1.3, fontWeight: 800 }}>
               • Target Year: <strong>{whenCanIBuyResult.targetYear}</strong>
-              <br />• Saved: <strong>{fmtINR(whenCanIBuyResult.totalPrincipalSaved)}</strong> + Interest: <strong style={{ color: '#34D399' }}>+{fmtINR(whenCanIBuyResult.interestHelp)}</strong>
+              <br />• Saved: <strong>{fmtINR(whenCanIBuyResult.totalPrincipalSaved)}</strong> + Interest: <strong style={{ color: '#047857', fontWeight: 900 }}>+{fmtINR(whenCanIBuyResult.interestHelp)}</strong>
             </div>
           </div>
         </div>
 
-        {/* Column 3: Simulation History (Add or Remove) */}
-        <div style={{ background: 'rgba(15,23,42,0.88)', border: '1px solid rgba(148,163,184,0.2)', borderRadius: '9px', padding: '8px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', overflowY: 'auto' }}>
+        {/* Column 3: Simulation History */}
+        <div style={{ background: '#FFFFFF', border: '2px solid #000000', borderRadius: '9px', padding: '8px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', overflowY: 'auto' }}>
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '5px' }}>
-              <span style={{ fontSize: '11px', fontWeight: 900, color: '#A5B4FC' }}>
+              <span style={{ fontSize: '11px', fontWeight: 900, color: '#000000' }}>
                 🕒 Simulation History ({historyList.length})
               </span>
               {historyList.length > 0 && (
                 <button
                   onClick={handleClearHistory}
                   style={{
-                    background: 'rgba(239,68,68,0.18)',
-                    border: '1px solid rgba(239,68,68,0.4)',
-                    color: '#FCA5A5',
+                    background: '#FEF2F2',
+                    border: '1.5px solid #000000',
+                    color: '#000000',
                     borderRadius: '4px',
                     padding: '2px 5px',
                     fontSize: '9px',
-                    fontWeight: 800,
+                    fontWeight: 900,
                     cursor: 'pointer',
                   }}
                 >
@@ -1839,7 +1736,7 @@ export function Computer3PortfolioSimulatorScreen({
             </div>
 
             {historyList.length === 0 ? (
-              <div style={{ fontSize: '10px', color: '#64748B', textAlign: 'center', padding: '20px 6px' }}>
+              <div style={{ fontSize: '10px', color: '#000000', textAlign: 'center', padding: '20px 6px', fontWeight: 700 }}>
                 No saved history items. Click &ldquo;Save Simulation to History&rdquo; to add snapshots!
               </div>
             ) : (
@@ -1848,24 +1745,24 @@ export function Computer3PortfolioSimulatorScreen({
                   <div
                     key={item.id}
                     style={{
-                      background: 'rgba(30,41,59,0.75)',
-                      border: '1px solid rgba(148,163,184,0.2)',
+                      background: '#F8FAFC',
+                      border: '2px solid #000000',
                       borderRadius: '6px',
                       padding: '5px 7px',
                     }}
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2px' }}>
-                      <span style={{ fontSize: '10px', fontWeight: 800, color: '#F8FAFC' }}>{item.label}</span>
+                      <span style={{ fontSize: '10px', fontWeight: 900, color: '#000000' }}>{item.label}</span>
                       <button
                         onClick={() => handleDeleteHistoryItem(item.id)}
                         title="Remove from history"
                         style={{
-                          background: 'rgba(239,68,68,0.22)',
-                          border: 'none',
-                          color: '#FCA5A5',
+                          background: '#FEF2F2',
+                          border: '1px solid #000000',
+                          color: '#000000',
                           borderRadius: '4px',
                           fontSize: '9px',
-                          fontWeight: 800,
+                          fontWeight: 900,
                           padding: '1px 5px',
                           cursor: 'pointer',
                         }}
@@ -1873,9 +1770,9 @@ export function Computer3PortfolioSimulatorScreen({
                         ✕ Remove
                       </button>
                     </div>
-                    <div style={{ fontSize: '9px', color: '#94A3B8' }}>
-                      Invested: <strong style={{ color: '#E2E8F0' }}>{fmtINR(item.invested)}</strong> → Maturity:{' '}
-                      <strong style={{ color: '#34D399' }}>{fmtINR(item.maturity)}</strong>
+                    <div style={{ fontSize: '9px', color: '#000000', fontWeight: 800 }}>
+                      Invested: <strong style={{ color: '#000000', fontWeight: 900 }}>{fmtINR(item.invested)}</strong> → Maturity:{' '}
+                      <strong style={{ color: '#047857', fontWeight: 900 }}>{fmtINR(item.maturity)}</strong>
                     </div>
                   </div>
                 ))}
@@ -1885,21 +1782,21 @@ export function Computer3PortfolioSimulatorScreen({
 
           {handleFinish && (
             <button
-              onClick={handleFinish}
+              onClick={handleFinishClick}
               style={{
                 width: '100%',
-                background: 'linear-gradient(135deg, #10B981, #059669)',
-                color: '#FFF',
-                border: 'none',
+                background: allSixDone ? 'linear-gradient(135deg, #059669, #10B981)' : '#E2E8F0',
+                color: allSixDone ? '#FFFFFF' : '#64748B',
+                border: '2px solid #000000',
                 borderRadius: '6px',
                 padding: '6px',
                 fontSize: '10.5px',
                 fontWeight: 900,
-                cursor: 'pointer',
+                cursor: allSixDone ? 'pointer' : 'not-allowed',
                 marginTop: '5px',
               }}
             >
-              ✓ Finish Level 2 & Exit Lab →
+              {allSixDone ? '✓ Finish Level 2 & Exit Lab →' : `🔒 Explore 6/6 Schemes (${completedMods.length}/6)`}
             </button>
           )}
         </div>
@@ -1909,3 +1806,4 @@ export function Computer3PortfolioSimulatorScreen({
 }
 
 export { Computer3PortfolioSimulatorScreen as Computer3PortfolioSimScreen }
+

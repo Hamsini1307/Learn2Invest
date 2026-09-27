@@ -49,25 +49,25 @@ export default function Level3BankSectionScreen({
   const cabin1Done = completedSections.includes(1) || (state?.completedModules || []).includes('paper_slip')
 
   return (
-    <div className="pointer-events-auto w-[min(96vw,1120px)] max-h-[86vh] flex flex-col rounded-3xl bg-slate-950/95 backdrop-blur-2xl border-2 border-amber-500/80 shadow-[0_25px_90px_rgba(0,0,0,0.85)] text-white overflow-hidden">
+    <div className="pointer-events-auto w-[min(96vw,1120px)] max-h-[86vh] flex flex-col rounded-3xl bg-white backdrop-blur-2xl border-2 border-amber-500/80 shadow-[0_25px_90px_rgba(0,0,0,0.85)] text-slate-900 overflow-hidden">
       {/* Top 3D Bank Cabin Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-3 bg-slate-900/95 border-b border-amber-500/40 shrink-0">
+      <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-3 bg-amber-500/10 border-b border-amber-500/40 shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-orange-600 to-amber-500 flex items-center justify-center text-2xl shadow-md">
+          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-orange-600 to-amber-500 flex items-center justify-center text-2xl shadow-md text-white">
             {secMeta.icon}
           </div>
           <div>
-            <div className="text-[11px] font-black uppercase tracking-widest text-amber-400">
+            <div className="text-[11px] font-black uppercase tracking-widest text-amber-700">
               Learn2Invest Bank • {secMeta.badge}
             </div>
-            <div className="text-base sm:text-lg font-black text-white leading-tight">
+            <div className="text-base sm:text-lg font-black text-slate-900 leading-tight">
               {secMeta.cabinLabel}: {secMeta.title}
             </div>
           </div>
         </div>
 
         {/* Direct Cabin 1 & Cabin 2 Switcher */}
-        <div className="flex items-center gap-2 bg-slate-950/90 p-1.5 rounded-2xl border border-white/15">
+        <div className="flex items-center gap-2 bg-slate-100 p-1.5 rounded-2xl border border-slate-300">
           {LEVEL3_BANK_SECTIONS.map((cab) => {
             const active = currentSec === cab.num
             const done = completedSections.includes(cab.num)
@@ -82,10 +82,10 @@ export default function Level3BankSectionScreen({
                 }}
                 className={`px-3.5 py-1.5 rounded-xl font-black text-xs transition-all flex items-center gap-1.5 ${
                   active
-                    ? 'bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 shadow-md'
+                    ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md'
                     : locked
-                      ? 'bg-slate-900 text-slate-500 cursor-not-allowed'
-                      : 'bg-slate-800/80 hover:bg-slate-800 text-slate-200 cursor-pointer'
+                      ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                      : 'bg-white hover:bg-slate-50 text-slate-800 border border-amber-500/40 cursor-pointer'
                 }`}
                 title={locked ? 'Complete Cabin 1 first to unlock Cabin 2' : `Walk to ${cab.cabinLabel}`}
               >
@@ -105,7 +105,7 @@ export default function Level3BankSectionScreen({
                 soundEngine.playClick()
                 handleBack()
               }}
-              className="px-3.5 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/25 text-amber-300 font-black text-xs transition-all cursor-pointer"
+              className="px-3.5 py-2 rounded-full bg-slate-100 hover:bg-slate-200 border border-slate-300 text-amber-800 font-black text-xs transition-all cursor-pointer"
             >
               ⬅ Back
             </button>
@@ -118,7 +118,7 @@ export default function Level3BankSectionScreen({
                 onCompleteSection(currentSec, secMeta.xpReward)
               }
             }}
-            className="px-4 py-2 rounded-full bg-gradient-to-r from-emerald-400 to-teal-400 text-slate-950 font-black text-xs sm:text-sm shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer"
+            className="px-4 py-2 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-black text-xs sm:text-sm shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer"
           >
             {currentSec < 2
               ? `✓ Complete Cabin 1 & Walk to Cabin 2: Digital Banking Safety (+${secMeta.xpReward} XP) →`
@@ -131,7 +131,7 @@ export default function Level3BankSectionScreen({
                 soundEngine.playClick()
                 onFinishAllLevel3()
               }}
-              className="px-3.5 py-2 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-black text-xs shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer"
+              className="px-3.5 py-2 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-white font-black text-xs shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer"
               title="Complete all 3 levels and view the School-to-Bank Map"
             >
               🗺️ Complete & View Map
@@ -141,14 +141,14 @@ export default function Level3BankSectionScreen({
       </div>
 
       {/* Exact Untouched Original Level 3 Content (Cabin 1 = Bank Paper Slip Writer | Cabin 2 = Digital Banking Safety) */}
-      <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+      <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-50">
         <Advanced
           key={`cabin_${currentSec}_${secMeta.tab}`}
           state={state}
           update={update}
           addXP={addXP}
           goBack={handleBack}
-          themeMode="dark"
+          themeMode="light"
           initialTab={secMeta.tab}
         />
       </div>

@@ -664,15 +664,12 @@ export default function Level3BankZone3D({
                     style={{
                       width: '100%',
                       height: '100%',
-                      background:
-                        counter.num === 1
-                          ? 'linear-gradient(145deg, #0f172a, #1e1b4b)'
-                          : 'linear-gradient(145deg, #0f172a, #042f2e)',
+                      background: '#ffffff',
                       border: `3px solid ${isDone ? '#10b981' : counter.accent}`,
                       borderRadius: '16px',
                       padding: '16px',
                       boxSizing: 'border-box',
-                      color: '#fff',
+                      color: '#0f172a',
                       display: 'flex',
                       flexDirection: 'column',
                       justifyContent: 'space-between',
@@ -684,7 +681,7 @@ export default function Level3BankZone3D({
                       <span
                         style={{
                           background: counter.accent,
-                          color: '#020617',
+                          color: '#ffffff',
                           fontWeight: 900,
                           fontSize: '12px',
                           padding: '4px 10px',
@@ -693,16 +690,16 @@ export default function Level3BankZone3D({
                       >
                         {counter.cabinName} • SECTION {counter.num} OF 2
                       </span>
-                      <span style={{ fontSize: '13px', fontWeight: 900, color: isDone ? '#4ade80' : '#fbbf24' }}>
+                      <span style={{ fontSize: '13px', fontWeight: 900, color: isDone ? '#059669' : '#d97706' }}>
                         {isDone ? '✓ Completed' : isCurrent ? '● Active Now' : 'Click to Enter'}
                       </span>
                     </div>
 
                     <div>
-                      <div style={{ fontSize: '22px', fontWeight: 900, marginBottom: '6px' }}>
+                      <div style={{ fontSize: '22px', fontWeight: 900, marginBottom: '6px', color: '#0f172a' }}>
                         {counter.icon} {counter.title}
                       </div>
-                      <div style={{ fontSize: '13px', color: '#cbd5e1', lineHeight: 1.4 }}>
+                      <div style={{ fontSize: '13px', color: '#334155', lineHeight: 1.4, fontWeight: 700 }}>
                         {counter.num === 1
                           ? 'Practice filling Indian Bank Deposit Slips, Withdrawal Forms & Cheques with live Razorpay IFSC search.'
                           : 'Defend your savings from UPI Collect Traps, Phishing Links, Fake KYC Calls & SMS Scams.'}
@@ -711,13 +708,14 @@ export default function Level3BankZone3D({
 
                     <div
                       style={{
-                        background: 'rgba(255,255,255,0.1)',
+                        background: '#ffedd5',
                         borderRadius: '10px',
                         padding: '8px 12px',
                         textAlign: 'center',
                         fontWeight: 900,
                         fontSize: '13px',
-                        color: '#38bdf8',
+                        color: '#7c2d12',
+                        border: '1px solid #ea580c'
                       }}
                     >
                       {isCurrent ? `✓ Viewing ${counter.cabinName}` : `🚶 Click to Walk to ${counter.cabinName} →`}
