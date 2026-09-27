@@ -691,7 +691,7 @@ export default function Intermediate({
       {/* Top Back Action Bar */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
         <button
-          onClick={goBack || (() => go('landing'))}
+          onClick={goBack || (() => go('level-map'))}
           style={{
             background: 'var(--bg-card, rgba(18, 16, 12, 0.9))',
             border: isLight ? '2.5px solid #000000' : '2.5px solid #ffffff',

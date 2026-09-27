@@ -373,6 +373,11 @@ export default function App() {
   }
 
   const goBack = () => {
+    if (['intermediate', 'beginner', 'advanced'].includes(screen)) {
+      setHistoryStack([])
+      go('level-map', { replace: true })
+      return
+    }
     if (historyStack.length > 0) {
       const target = historyStack[historyStack.length - 1]
       setHistoryStack(prev => prev.slice(0, prev.length - 1))
@@ -388,8 +393,7 @@ export default function App() {
     } else {
       if (['video', 'quiz', 'beg-complete'].includes(screen)) go('beginner', { replace: true })
       else if (['simulation', 'int-complete'].includes(screen)) go('intermediate', { replace: true })
-      else if (screen === 'intermediate') go('overworld', { replace: true })
-      else if (['unlock-adv', 'adv-result', 'advanced'].includes(screen)) go('overworld', { replace: true })
+      else if (['unlock-adv', 'adv-result'].includes(screen)) go('advanced', { replace: true })
       else if (['overworld', 'level-map'].includes(screen)) go('landing', { replace: true })
       else go('landing', { replace: true })
     }
