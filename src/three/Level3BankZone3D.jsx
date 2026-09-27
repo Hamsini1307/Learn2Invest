@@ -211,6 +211,8 @@ export default function Level3BankZone3D({
   bankDoorOpenRef,
   employeeStateRef,
   onEmployeeInteract,
+  onEmployeeClick,
+  onSelectSection,
   showEmployeePrompt,
   employeePromptLabel,
   activeBankSection,
@@ -230,12 +232,28 @@ export default function Level3BankZone3D({
     }
   })
 
-  // Coordinates of the numbered Level 3 sections inside the Bank Interior (y = 6.68):
-  // Counter 1: Banking Slip Writing, Counter 2: Digital Banking Safety
+  // Two Dedicated Level 3 Cabins inside the Bank Interior (y = 6.68):
+  // Cabin 1 (x = -3.2): Section 1 — Banking Slip Writing
+  // Cabin 2 (x = +3.2): Section 2 — Digital Banking Safety
   const frontCounters = [
-    { num: 1, x: -4.8, title: 'Banking Slip Writing' },
-    { num: 2, x: 0.0, title: 'Digital Banking Safety' },
-    { num: 3, x: 4.8, title: 'Customer Desk' },
+    {
+      num: 1,
+      x: -3.2,
+      cabinName: 'CABIN 1',
+      title: 'Banking Slip Writing',
+      subtitle: 'Deposit, Withdrawal, Cheque & Razorpay IFSC',
+      icon: '📝',
+      accent: '#f59e0b',
+    },
+    {
+      num: 2,
+      x: 3.2,
+      cabinName: 'CABIN 2',
+      title: 'Digital Banking Safety',
+      subtitle: 'UPI Defense, Cyber Scenarios & Scam Shield',
+      icon: '🛡️',
+      accent: '#06b6d4',
+    },
   ]
 
   const glassSuites = [
@@ -552,23 +570,63 @@ export default function Level3BankZone3D({
           </group>
         </group>
 
-        {/* ─── SECTIONS 1, 2, 3: FRONT NUMBERED BANKING COUNTERS (Image 4) ─── */}
+        {/* ─── CABIN 1 & CABIN 2: TWO DEDICATED INTERACTIVE BANKING CABINS ─── */}
         {frontCounters.map((counter) => {
           const isCurrent = activeBankSection === counter.num
           const isDone = completedBankSections.includes(counter.num)
           return (
-            <group key={counter.num} position={[counter.x, 0, -5.2]}>
+            <group
+              key={counter.num}
+              position={[counter.x, 0, -5.2]}
+              onClick={() => {
+                if (onSelectSection) onSelectSection(counter.num)
+              }}
+            >
+              {/* Glass Cabin Side Dividers */}
+              {[-2.2, 2.2].map((gx, gi) => (
+                <RoundedBox key={gi} args={[0.08, 3.2, 2.2]} position={[gx, 1.6, 0.1]} radius={0.02}>
+                  <meshPhysicalMaterial color="#bae6fd" transparent opacity={0.28} roughness={0.1} />
+                </RoundedBox>
+              ))}
+
+              {/* Overhead Cabin Signboard */}
+              <group position={[0, 3.35, 0.55]}>
+                <RoundedBox args={[4.2, 0.62, 0.12]} radius={0.05} castShadow>
+                  <meshStandardMaterial color={isDone ? '#059669' : isCurrent ? '#d97706' : '#0b4f9c'} />
+                </RoundedBox>
+                <Text
+                  position={[0, 0.08, 0.08]}
+                  fontSize={0.2}
+                  color="#ffffff"
+                  anchorX="center"
+                  anchorY="middle"
+                  outlineWidth={0.012}
+                  outlineColor="#020617"
+                >
+                  {`${counter.cabinName} • ${counter.title.toUpperCase()}`}
+                </Text>
+                <Text
+                  position={[0, -0.15, 0.08]}
+                  fontSize={0.12}
+                  color="#fde68a"
+                  anchorX="center"
+                  anchorY="middle"
+                >
+                  {counter.subtitle}
+                </Text>
+              </group>
+
               {/* Warm Oak Counter Desk */}
-              <RoundedBox args={[3.8, 1.1, 1.25]} position={[0, 0.55, 0]} radius={0.03} castShadow receiveShadow>
+              <RoundedBox args={[4.1, 1.1, 1.25]} position={[0, 0.55, 0]} radius={0.03} castShadow receiveShadow>
                 <meshStandardMaterial color="#c88d54" roughness={0.42} />
               </RoundedBox>
               {/* Frosted Glass Teller Partition */}
               <mesh position={[0, 1.65, 0.52]}>
-                <boxGeometry args={[3.6, 1.1, 0.05]} />
+                <boxGeometry args={[3.9, 1.1, 0.05]} />
                 <meshPhysicalMaterial color="#d1fae5" transparent opacity={0.32} roughness={0.15} />
               </mesh>
-              {/* Blue Numbered Counter Badge ("1", "2", "3" - Image 4) */}
-              <group position={[-1.45, 2.05, 0.56]}>
+              {/* Numbered Cabin Badge ("1", "2") */}
+              <group position={[-1.6, 2.05, 0.56]}>
                 <RoundedBox args={[0.56, 0.56, 0.08]} radius={0.06}>
                   <meshStandardMaterial color={isDone ? '#10b981' : isCurrent ? '#f59e0b' : '#0b4f9c'} />
                 </RoundedBox>
@@ -577,31 +635,95 @@ export default function Level3BankZone3D({
                 </Text>
               </group>
 
-              {/* Physical Interactive Banking Monitor on Counter */}
+              {/* Physical Interactive Banking Monitor on Cabin Desk */}
               <group position={[0, 1.72, -0.05]}>
-                <RoundedBox args={[2.55, 1.48, 0.07]} radius={0.03} castShadow>
+                <RoundedBox args={[2.75, 1.55, 0.07]} radius={0.03} castShadow>
                   <meshStandardMaterial color="#0f172a" roughness={0.3} />
                 </RoundedBox>
                 <mesh position={[0, 0, 0.04]}>
-                  <planeGeometry args={[2.4, 1.34]} />
-                  <meshBasicMaterial color="#020617" />
+                  <planeGeometry args={[2.58, 1.4]} />
+                  <meshBasicMaterial color={isCurrent ? '#0f172a' : '#020617'} />
                 </mesh>
 
-                {isCurrent && sectionScreenContent && (
-                  <Html
-                    transform
-                    distanceFactor={1.16}
-                    position={[0, 0, 0.048]}
+                {/* Embedded 3D Cabin Screen Preview */}
+                <Html
+                  transform
+                  distanceFactor={1.6}
+                  position={[0, 0, 0.048]}
+                  style={{
+                    width: '480px',
+                    height: '260px',
+                    pointerEvents: 'auto',
+                    userSelect: 'none',
+                  }}
+                >
+                  <div
+                    onClick={() => {
+                      if (onSelectSection) onSelectSection(counter.num)
+                    }}
                     style={{
-                      width: '840px',
-                      height: '472px',
-                      pointerEvents: 'auto',
-                      userSelect: 'none',
+                      width: '100%',
+                      height: '100%',
+                      background:
+                        counter.num === 1
+                          ? 'linear-gradient(145deg, #0f172a, #1e1b4b)'
+                          : 'linear-gradient(145deg, #0f172a, #042f2e)',
+                      border: `3px solid ${isDone ? '#10b981' : counter.accent}`,
+                      borderRadius: '16px',
+                      padding: '16px',
+                      boxSizing: 'border-box',
+                      color: '#fff',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      cursor: 'pointer',
+                      fontFamily: "'Inter', sans-serif",
                     }}
                   >
-                    {sectionScreenContent}
-                  </Html>
-                )}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span
+                        style={{
+                          background: counter.accent,
+                          color: '#020617',
+                          fontWeight: 900,
+                          fontSize: '12px',
+                          padding: '4px 10px',
+                          borderRadius: '999px',
+                        }}
+                      >
+                        {counter.cabinName} • SECTION {counter.num} OF 2
+                      </span>
+                      <span style={{ fontSize: '13px', fontWeight: 900, color: isDone ? '#4ade80' : '#fbbf24' }}>
+                        {isDone ? '✓ Completed' : isCurrent ? '● Active Now' : 'Click to Enter'}
+                      </span>
+                    </div>
+
+                    <div>
+                      <div style={{ fontSize: '22px', fontWeight: 900, marginBottom: '6px' }}>
+                        {counter.icon} {counter.title}
+                      </div>
+                      <div style={{ fontSize: '13px', color: '#cbd5e1', lineHeight: 1.4 }}>
+                        {counter.num === 1
+                          ? 'Practice filling Indian Bank Deposit Slips, Withdrawal Forms & Cheques with live Razorpay IFSC search.'
+                          : 'Defend your savings from UPI Collect Traps, Phishing Links, Fake KYC Calls & SMS Scams.'}
+                      </div>
+                    </div>
+
+                    <div
+                      style={{
+                        background: 'rgba(255,255,255,0.1)',
+                        borderRadius: '10px',
+                        padding: '8px 12px',
+                        textAlign: 'center',
+                        fontWeight: 900,
+                        fontSize: '13px',
+                        color: '#38bdf8',
+                      }}
+                    >
+                      {isCurrent ? `✓ Viewing ${counter.cabinName}` : `🚶 Click to Walk to ${counter.cabinName} →`}
+                    </div>
+                  </div>
+                </Html>
               </group>
             </group>
           )
@@ -642,22 +764,6 @@ export default function Level3BankZone3D({
                   <planeGeometry args={[2.4, 1.34]} />
                   <meshBasicMaterial color="#020617" />
                 </mesh>
-
-                {isCurrent && sectionScreenContent && (
-                  <Html
-                    transform
-                    distanceFactor={1.16}
-                    position={[0, 0, 0.048]}
-                    style={{
-                      width: '840px',
-                      height: '472px',
-                      pointerEvents: 'auto',
-                      userSelect: 'none',
-                    }}
-                  >
-                    {sectionScreenContent}
-                  </Html>
-                )}
               </group>
             </group>
           )
@@ -667,7 +773,7 @@ export default function Level3BankZone3D({
       {/* 3. LEVEL 3 BANK EMPLOYEE GUIDE ("MAYA", Image 2) */}
       <BankEmployeeGuide3D
         employeeStateRef={employeeStateRef}
-        onInteractClick={onEmployeeInteract}
+        onInteractClick={onEmployeeInteract || onEmployeeClick}
         showPrompt={showEmployeePrompt}
         promptLabel={employeePromptLabel}
       />

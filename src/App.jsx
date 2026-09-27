@@ -28,6 +28,7 @@ import { THEME_CATALOG } from './components/ThemeVaultModal.jsx'
 import Level1SchoolWorld from './three/Level1SchoolWorld.jsx'
 import Level2GovernmentWorld from './three/Level2GovernmentWorld.jsx'
 import Level3FuturisticWorld from './three/Level3FuturisticWorld.jsx'
+import { useGlobalDomTranslator } from './utils/i18n.js'
 
 const INITIAL_STATE = {
   user: null, xp: 0, lessonsWatched: [],
@@ -135,6 +136,8 @@ function AppContent() {
     setLangState(l)
     localStorage.setItem('l2i_lang', l)
   }
+
+  useGlobalDomTranslator(lang)
 
   const toggleParentChildMode = () => {
     setParentChildModeState(prev => {
@@ -407,6 +410,14 @@ function AppContent() {
         {...p}
         initialInside={false}
         onLoginSuccess={handleLoginSuccess}
+        savedSimulations={savedSimulations}
+        savedPortfolioSimulations={savedPortfolioSimulations}
+        onSaveSimulation={handleSaveSimulation}
+        onUpdateSavedSimulation={handleUpdateSavedSimulation}
+        onDeleteSavedSimulation={handleDeleteSavedSimulation}
+        onSavePortfolio={handleSavePortfolio}
+        onUpdateSavedPortfolio={handleUpdateSavedPortfolio}
+        onDeleteSavedPortfolio={handleDeleteSavedPortfolio}
       />
     ),
     beginner: (
@@ -415,6 +426,14 @@ function AppContent() {
         {...p}
         initialInside={true}
         onLoginSuccess={handleLoginSuccess}
+        savedSimulations={savedSimulations}
+        savedPortfolioSimulations={savedPortfolioSimulations}
+        onSaveSimulation={handleSaveSimulation}
+        onUpdateSavedSimulation={handleUpdateSavedSimulation}
+        onDeleteSavedSimulation={handleDeleteSavedSimulation}
+        onSavePortfolio={handleSavePortfolio}
+        onUpdateSavedPortfolio={handleUpdateSavedPortfolio}
+        onDeleteSavedPortfolio={handleDeleteSavedPortfolio}
       />
     ),
     'beginner-2d': <BeginnerLevel {...p} />,

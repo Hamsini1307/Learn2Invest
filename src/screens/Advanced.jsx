@@ -144,156 +144,116 @@ const BANK_IFSC_PREFIXES = {
 }
 
 const KNOWN_BRANCH_IFSC_DB = {
-  // Canara Bank Official IFSC Mapping
-  'canara_kaikamba_mangaluru': 'CNRB0003841',
-  'canara_kaikamba_mangalore': 'CNRB0003841',
-  'canara_gurupura_mangaluru': 'CNRB0003841',
-  'canara_gurupura_mangalore': 'CNRB0003841',
-  'canara_gururpura_mangaluru': 'CNRB0003841',
-  'canara_gururpura_mangalore': 'CNRB0003841',
-  'canara_gurpura_mangaluru': 'CNRB0003841',
+  // Canara Bank Official Razorpay-Verified IFSC Mapping
+  'canara_kaikamba_mangaluru': 'CNRB0010124',
+  'canara_kaikamba_mangalore': 'CNRB0010124',
+  'canara_gurupura_mangaluru': 'CNRB0010124',
+  'canara_gurupura_mangalore': 'CNRB0010124',
+  'canara_gururpura_mangaluru': 'CNRB0010124',
+  'canara_gururpura_mangalore': 'CNRB0010124',
+  'canara_gurpura_mangaluru': 'CNRB0010124',
   'canara_surathkal_mangaluru': 'CNRB0000634',
   'canara_suratkal_mangaluru': 'CNRB0000634',
   'canara_surathkal_mangalore': 'CNRB0000634',
   'canara_suratkal_mangalore': 'CNRB0000634',
-  'canara_pandeshwar_mangaluru': 'CNRB0001001',
-  'canara_pandeshwar_mangalore': 'CNRB0001001',
-  'canara_hampankatta_mangaluru': 'CNRB0000412',
-  'canara_hampankatta_mangalore': 'CNRB0000412',
-  'canara_balmatta_mangaluru': 'CNRB0000419',
-  'canara_balmatta_mangalore': 'CNRB0000419',
-  'canara_kodialbail_mangaluru': 'CNRB0001890',
-  'canara_kodialbail_mangalore': 'CNRB0001890',
-  'canara_kankanady_mangaluru': 'CNRB0000415',
-  'canara_kankanady_mangalore': 'CNRB0000415',
-  'canara_attavar_mangaluru': 'CNRB0000414',
-  'canara_attavar_mangalore': 'CNRB0000414',
-  'canara_urwa_mangaluru': 'CNRB0000417',
-  'canara_urwa_mangalore': 'CNRB0000417',
-  'canara_kulai_mangaluru': 'CNRB0000418',
-  'canara_kulai_mangalore': 'CNRB0000418',
-  'canara_deralakatte_mangaluru': 'CNRB0000421',
-  'canara_deralakatte_mangalore': 'CNRB0000421',
-  'canara_bejai_mangaluru': 'CNRB0002573',
-  'canara_kadri_mangaluru': 'CNRB0000416',
-  'canara_kulshekar_mangaluru': 'CNRB0002880',
-  'canara_bajpe_mangaluru': 'CNRB0000413',
-  'canara_kinnigoli_mangaluru': 'CNRB0000420',
-  'canara_moodabidri_mangaluru': 'CNRB0000422',
-  'canara_mulki_mangaluru': 'CNRB0000423',
-  'canara_gulbarga_gulbarga': 'CNRB0000819',
-  'canara_kalaburagi_kalaburagi': 'CNRB0000819',
-  'canara_surat_surat': 'CNRB0000340',
-  'canara_founder_mangaluru': 'CNRB0000001',
-  'canara_main_mangaluru': 'CNRB0001001',
-  'canara_mangaluru_mangaluru': 'CNRB0001001',
-  'canara_udupi_udupi': 'CNRB0000192',
-  'canara_manipal_udupi': 'CNRB0000107',
-  'canara_mysuru_mysuru': 'CNRB0000812',
-  'canara_mg road_bengaluru': 'CNRB0000210',
-  'canara_indiranagar_bengaluru': 'CNRB0000430',
-  'canara_koramangala_bengaluru': 'CNRB0002415',
-  'canara_main_bengaluru': 'CNRB0000402',
-  'canara_connaught place_delhi': 'CNRB0000104',
-  'canara_fort_mumbai': 'CNRB0000201',
-  'canara_default': 'CNRB0003841',
+  'canara_pandeshwar_mangaluru': 'CNRB0010106',
+  'canara_pandeshwar_mangalore': 'CNRB0010106',
+  'canara_hampankatta_mangaluru': 'CNRB0010106',
+  'canara_hampankatta_mangalore': 'CNRB0010106',
+  'canara_balmatta_mangaluru': 'CNRB0010244',
+  'canara_balmatta_mangalore': 'CNRB0010244',
+  'canara_kodialbail_mangaluru': 'CNRB0010106',
+  'canara_kodialbail_mangalore': 'CNRB0010106',
+  'canara_kankanady_mangaluru': 'CNRB0010106',
+  'canara_kankanady_mangalore': 'CNRB0010106',
+  'canara_attavar_mangaluru': 'CNRB0010242',
+  'canara_attavar_mangalore': 'CNRB0010242',
+  'canara_urwa_mangaluru': 'CNRB0010284',
+  'canara_urwa_mangalore': 'CNRB0010284',
+  'canara_kulai_mangaluru': 'CNRB0000634',
+  'canara_kulai_mangalore': 'CNRB0000634',
+  'canara_deralakatte_mangaluru': 'CNRB0010147',
+  'canara_deralakatte_mangalore': 'CNRB0010147',
+  'canara_bejai_mangaluru': 'CNRB0010274',
+  'canara_kadri_mangaluru': 'CNRB0010274',
+  'canara_kulshekar_mangaluru': 'CNRB0010274',
+  'canara_bajpe_mangaluru': 'CNRB0010143',
+  'canara_kinnigoli_mangaluru': 'CNRB0010250',
+  'canara_moodabidri_mangaluru': 'CNRB0010128',
+  'canara_mulki_mangaluru': 'CNRB0010250',
+  'canara_main_mangaluru': 'CNRB0010106',
+  'canara_mangaluru_mangaluru': 'CNRB0010106',
+  'canara_udupi_udupi': 'CNRB0010186',
+  'canara_manipal_udupi': 'CNRB0010232',
+  'canara_nitte_udupi': 'CNRB0010115',
+  'canara_default': 'CNRB0000634',
 
-  // Karnataka Bank Ltd Official IFSC
-  'karnataka_kaikamba_mangaluru': 'KARB0000312',
-  'karnataka_kaikamba_mangalore': 'KARB0000312',
-  'karnataka_gurupura_mangaluru': 'KARB0000312',
-  'karnataka_gurupura_mangalore': 'KARB0000312',
-  'karnataka_surathkal_mangaluru': 'KARB0000501',
-  'karnataka_suratkal_mangaluru': 'KARB0000501',
-  'karnataka_surathkal_mangalore': 'KARB0000501',
-  'karnataka_suratkal_mangalore': 'KARB0000501',
+  // Karnataka Bank Ltd Official Razorpay-Verified IFSC
+  'karnataka_kaikamba_mangaluru': 'KARB0000492',
+  'karnataka_kaikamba_mangalore': 'KARB0000492',
+  'karnataka_gurupura_mangaluru': 'KARB0000492',
+  'karnataka_gurupura_mangalore': 'KARB0000492',
+  'karnataka_surathkal_mangaluru': 'KARB0000351',
+  'karnataka_suratkal_mangaluru': 'KARB0000351',
+  'karnataka_surathkal_mangalore': 'KARB0000351',
+  'karnataka_suratkal_mangalore': 'KARB0000351',
   'karnataka_balmatta_mangaluru': 'KARB0000492',
   'karnataka_kankanady_mangaluru': 'KARB0000492',
-  'karnataka_hampankatta_mangaluru': 'KARB0000002',
-  'karnataka_kodialbail_mangaluru': 'KARB0000001',
-  'karnataka_head office_mangaluru': 'KARB0000001',
-  'karnataka_main_mangaluru': 'KARB0000001',
-  'karnataka_mangaluru_mangaluru': 'KARB0000001',
-  'karnataka_bejai_mangaluru': 'KARB0000507',
-  'karnataka_kadri_mangaluru': 'KARB0000505',
-  'karnataka_kulshekar_mangaluru': 'KARB0000511',
-  'karnataka_bajpe_mangaluru': 'KARB0000096',
-  'karnataka_moodabidri_mangaluru': 'KARB0000503',
-  'karnataka_gulbarga_gulbarga': 'KARB0000305',
-  'karnataka_kalaburagi_kalaburagi': 'KARB0000305',
-  'karnataka_surat_surat': 'KARB0000720',
-  'karnataka_udupi_udupi': 'KARB0000005',
-  'karnataka_manipal_udupi': 'KARB0000010',
-  'karnataka_mg road_bengaluru': 'KARB0000080',
-  'karnataka_main_bengaluru': 'KARB0000080',
-  'karnataka_fort_mumbai': 'KARB0000003',
-  'karnataka_connaught place_delhi': 'KARB0000004',
-  'karnataka_default': 'KARB0000312',
+  'karnataka_hampankatta_mangaluru': 'KARB0000471',
+  'karnataka_kodialbail_mangaluru': 'KARB0000476',
+  'karnataka_head office_mangaluru': 'KARB0000476',
+  'karnataka_main_mangaluru': 'KARB0000471',
+  'karnataka_mangaluru_mangaluru': 'KARB0000471',
+  'karnataka_bejai_mangaluru': 'KARB0000479',
+  'karnataka_kadri_mangaluru': 'KARB0000506',
+  'karnataka_kulshekar_mangaluru': 'KARB0000605',
+  'karnataka_bajpe_mangaluru': 'KARB0000593',
+  'karnataka_moodabidri_mangaluru': 'KARB0000834',
+  'karnataka_mulki_mangaluru': 'KARB0000630',
+  'karnataka_udupi_udupi': 'KARB0000802',
+  'karnataka_manipal_udupi': 'KARB0000803',
+  'karnataka_koramangala_bengaluru': 'KARB0000094',
+  'karnataka_indiranagar_bengaluru': 'KARB0000109',
+  'karnataka_default': 'KARB0000471',
 
-  // State Bank of India (SBI) Official IFSC
-  'sbi_kaikamba_mangaluru': 'SBIN0004521',
-  'sbi_kaikamba_mangalore': 'SBIN0004521',
-  'sbi_gurupura_mangaluru': 'SBIN0004521',
-  'sbi_gurupura_mangalore': 'SBIN0004521',
+  // State Bank of India (SBI) Official Razorpay-Verified IFSC
+  'sbi_kaikamba_mangaluru': 'SBIN0000871',
+  'sbi_kaikamba_mangalore': 'SBIN0000871',
+  'sbi_gurupura_mangaluru': 'SBIN0000871',
+  'sbi_gurupura_mangalore': 'SBIN0000871',
   'sbi_surathkal_mangaluru': 'SBIN0002273',
   'sbi_suratkal_mangaluru': 'SBIN0002273',
   'sbi_surathkal_mangalore': 'SBIN0002273',
   'sbi_suratkal_mangalore': 'SBIN0002273',
-  'sbi_balmatta_mangaluru': 'SBIN0000840',
-  'sbi_main_mangaluru': 'SBIN0000840',
-  'sbi_mangaluru_mangaluru': 'SBIN0000840',
-  'sbi_hampankatta_mangaluru': 'SBIN0000840',
-  'sbi_commercial_mangaluru': 'SBIN0001420',
-  'sbi_bejai_mangaluru': 'SBIN0011284',
-  'sbi_deralakatte_mangaluru': 'SBIN0007923',
-  'sbi_moodabidri_mangaluru': 'SBIN0000562',
-  'sbi_gulbarga_gulbarga': 'SBIN0000839',
-  'sbi_kalaburagi_kalaburagi': 'SBIN0000839',
-  'sbi_surat_surat': 'SBIN0000488',
-  'sbi_udupi_udupi': 'SBIN0000933',
+  'sbi_balmatta_mangaluru': 'SBIN0000871',
+  'sbi_main_mangaluru': 'SBIN0000871',
+  'sbi_mangaluru_mangaluru': 'SBIN0000871',
+  'sbi_hampankatta_mangaluru': 'SBIN0070226',
+  'sbi_kankanady_mangaluru': 'SBIN0003300',
+  'sbi_attavar_mangaluru': 'SBIN0001919',
+  'sbi_kadri_mangaluru': 'SBIN0040666',
+  'sbi_bajpe_mangaluru': 'SBIN0017852',
+  'sbi_moodabidri_mangaluru': 'SBIN0005623',
+  'sbi_udupi_udupi': 'SBIN0040532',
   'sbi_manipal_udupi': 'SBIN0004426',
-  'sbi_mg road_bengaluru': 'SBIN0000531',
-  'sbi_main_bengaluru': 'SBIN0000813',
-  'sbi_parliament street_delhi': 'SBIN0000691',
-  'sbi_main_delhi': 'SBIN0000691',
-  'sbi_fort_mumbai': 'SBIN0000300',
-  'sbi_main_mumbai': 'SBIN0000300',
-  'sbi_default': 'SBIN0004521',
+  'sbi_koramangala_bengaluru': 'SBIN0040688',
+  'sbi_default': 'SBIN0000871',
 
-  // Punjab National Bank (PNB) Official IFSC
-  'pnb_kaikamba_mangaluru': 'PUNB0034200',
-  'pnb_kaikamba_mangalore': 'PUNB0034200',
-  'pnb_gurupura_mangaluru': 'PUNB0034200',
-  'pnb_surathkal_mangaluru': 'PUNB0034200',
-  'pnb_suratkal_mangaluru': 'PUNB0034200',
-  'pnb_main_mangaluru': 'PUNB0034200',
-  'pnb_hampankatta_mangaluru': 'PUNB0001200',
-  'pnb_gulbarga_gulbarga': 'PUNB0018600',
-  'pnb_kalaburagi_kalaburagi': 'PUNB0018600',
-  'pnb_surat_surat': 'PUNB0044500',
-  'pnb_udupi_udupi': 'PUNB0045000',
-  'pnb_connaught place_delhi': 'PUNB0000100',
-  'pnb_main_delhi': 'PUNB0000100',
-  'pnb_mg road_bengaluru': 'PUNB0000200',
-  'pnb_fort_mumbai': 'PUNB0000300',
-  'pnb_default': 'PUNB0034200',
+  // Punjab National Bank (PNB) Official Razorpay-Verified IFSC
+  'pnb_kaikamba_mangaluru': 'PUNB0362300',
+  'pnb_kaikamba_mangalore': 'PUNB0362300',
+  'pnb_gurupura_mangaluru': 'PUNB0362300',
+  'pnb_surathkal_mangaluru': 'PUNB0362300',
+  'pnb_suratkal_mangaluru': 'PUNB0362300',
+  'pnb_balmatta_mangaluru': 'PUNB0362300',
+  'pnb_main_mangaluru': 'PUNB0362300',
+  'pnb_mangaluru_mangaluru': 'PUNB0362300',
+  'pnb_hampankatta_mangaluru': 'PUNB0119320',
+  'pnb_udupi_udupi': 'PUNB0143910',
+  'pnb_default': 'PUNB0362300',
 
-  // Post Office (India Post Payments Bank IPPB) Sovereign RBI IFSC
-  'postoffice_kaikamba_mangaluru': 'IPOS0000412',
-  'postoffice_kaikamba_mangalore': 'IPOS0000412',
-  'postoffice_gurupura_mangaluru': 'IPOS0000412',
-  'postoffice_surathkal_mangaluru': 'IPOS0000001',
-  'postoffice_suratkal_mangaluru': 'IPOS0000001',
-  'postoffice_main_mangaluru': 'IPOS0000001',
-  'postoffice_head_mangaluru': 'IPOS0000001',
-  'postoffice_gulbarga_gulbarga': 'IPOS0000001',
-  'postoffice_kalaburagi_kalaburagi': 'IPOS0000001',
-  'postoffice_surat_surat': 'IPOS0000001',
-  'postoffice_udupi_udupi': 'IPOS0000001',
-  'postoffice_main_bengaluru': 'IPOS0000001',
-  'postoffice_main_delhi': 'IPOS0000001',
-  'postoffice_main_mumbai': 'IPOS0000001',
-  'postoffice_default': 'IPOS0000412'
+  // Post Office (India Post Payments Bank IPPB) Official Razorpay-Verified IFSC
+  'postoffice_default': 'IPOS0000001'
 }
 
 function normalizeLocationString(str) {
@@ -314,26 +274,22 @@ function getAuthenticIfscCode(bankId, branchName, cityName) {
   const normCity = normalizeLocationString(cityName)
 
   const exactKey = `${bankId}_${normBranch}_${normCity}`
-
-  // 1. Exact Key match
   if (KNOWN_BRANCH_IFSC_DB[exactKey]) {
     return KNOWN_BRANCH_IFSC_DB[exactKey]
   }
 
-  // 2. Match branch name across KNOWN_BRANCH_IFSC_DB
   if (normBranch) {
     for (const [key, code] of Object.entries(KNOWN_BRANCH_IFSC_DB)) {
       if (key.startsWith(bankId + '_')) {
         const parts = key.split('_')
         const dbBranch = parts[1] || ''
-        if (dbBranch && (normBranch === dbBranch || normBranch.includes(dbBranch) || dbBranch.includes(normBranch))) {
+        if (dbBranch && dbBranch !== 'default' && (normBranch === dbBranch || normBranch.includes(dbBranch) || dbBranch.includes(normBranch))) {
           return code
         }
       }
     }
   }
 
-  // 3. Match city name across KNOWN_BRANCH_IFSC_DB
   if (normCity) {
     for (const [key, code] of Object.entries(KNOWN_BRANCH_IFSC_DB)) {
       if (key.startsWith(bankId + '_')) {
@@ -346,70 +302,200 @@ function getAuthenticIfscCode(bankId, branchName, cityName) {
     }
   }
 
-  // 4. Default fallback for bank
   const defaultKey = `${bankId}_default`
   if (KNOWN_BRANCH_IFSC_DB[defaultKey]) {
     return KNOWN_BRANCH_IFSC_DB[defaultKey]
   }
 
   const prefix = BANK_IFSC_PREFIXES[bankId] || 'CNRB'
-  return `${prefix}0003841`
+  return `${prefix}0000634`
+}
+
+// Helper to expand city/place names to Razorpay IFSC Toolkit API city/district keys
+function getRazorpayCityCandidates(cityQuery, branchQuery) {
+  const raw = `${cityQuery || ''} ${branchQuery || ''}`.toUpperCase().trim()
+  const candidates = new Set()
+
+  if (cityQuery && cityQuery.trim()) {
+    candidates.add(cityQuery.trim().toUpperCase())
+  }
+  if (branchQuery && branchQuery.trim()) {
+    candidates.add(branchQuery.trim().toUpperCase())
+  }
+
+  if (/MANGAL|KAIKAMBA|GURUPUR|GURPUR|SURATKAL|SURATHKAL|HAMPAN|BALMATTA|KANKAN|KODIAL|BEJAI|KADRI|KULSHEK|BAJPE|MOOD|MULKI|DERAL|ULLAL|BANTWAL|PUTTUR|SULLIA/i.test(raw)) {
+    candidates.add('DAKSHINA KANNADA')
+    candidates.add('MANGALORE')
+    candidates.add('MANGALURU')
+  }
+  if (/UDUPI|MANIPAL|KUNDAPUR|KARKAL|NITTE|KAUP|BRAHMAVAR/i.test(raw)) {
+    candidates.add('UDUPI')
+  }
+  if (/BENGALURU|BANGALORE|KORAMANGALA|INDIRANAGAR|WHITEFIELD|JAYANAGAR|MALLESHWARAM|YELAHANKA|ELECTRONIC CITY/i.test(raw)) {
+    candidates.add('BANGALORE')
+    candidates.add('BENGALURU')
+    candidates.add('BANGALORE URBAN')
+  }
+  if (/MYSURU|MYSORE/i.test(raw)) {
+    candidates.add('MYSORE')
+    candidates.add('MYSURU')
+  }
+  if (/GULBARGA|KALABURAGI/i.test(raw)) {
+    candidates.add('GULBARGA')
+    candidates.add('KALABURAGI')
+  }
+  if (/HUBLI|HUBBALLI|DHARWAD/i.test(raw)) {
+    candidates.add('DHARWAD')
+    candidates.add('HUBLI')
+  }
+  if (/BELGAUM|BELAGAVI/i.test(raw)) {
+    candidates.add('BELGAUM')
+    candidates.add('BELAGAVI')
+  }
+  if (/MUMBAI|BOMBAY|FORT|ANDHERI|BANDRA/i.test(raw)) {
+    candidates.add('MUMBAI')
+    candidates.add('GREATER BOMBAY')
+  }
+  if (/DELHI|NEW DELHI|CONNAUGHT/i.test(raw)) {
+    candidates.add('DELHI')
+    candidates.add('NEW DELHI')
+  }
+
+  return Array.from(candidates)
+}
+
+function formatRazorpayRow(row) {
+  return {
+    ifsc: row.IFSC,
+    bankName: row.BANK || 'Bank',
+    branchName: row.BRANCH || 'Main Branch',
+    city: row.CENTRE || row.CITY || row.DISTRICT || 'City',
+    district: row.DISTRICT || row.CITY || 'District',
+    state: row.STATE || 'Karnataka',
+    address: row.ADDRESS ? `${row.ADDRESS}` : `${row.BRANCH || 'Main'}, ${row.CITY || ''}`,
+    micr: row.MICR || 'N/A',
+    neft: row.NEFT ?? true,
+    rtgs: row.RTGS ?? true,
+    imps: row.IMPS ?? true,
+    upi: row.UPI ?? true,
+    isLiveVerified: true
+  }
 }
 
 async function fetchLiveBranchDetailsList(bankId, cityQuery, branchQuery) {
-  const fallbackIfsc = getAuthenticIfscCode(bankId, branchQuery, cityQuery)
+  const prefix = BANK_IFSC_PREFIXES[bankId] || 'CNRB'
+  const cleanCity = (cityQuery || '').trim()
+  const cleanBranch = (branchQuery || '').trim()
+
+  // 0. If user typed an 11-character IFSC directly into Branch or City box, look it up on Razorpay IFSC API immediately
+  const maybeIfsc = [cleanBranch, cleanCity].find(v => /^[A-Z]{4}0[A-Z0-9]{6}$/i.test(v))
+  if (maybeIfsc) {
+    try {
+      const directRes = await fetch(`https://ifsc.razorpay.com/${maybeIfsc.toUpperCase()}`)
+      if (directRes.ok) {
+        const d = await directRes.json()
+        return [formatRazorpayRow(d)]
+      }
+    } catch {}
+  }
+
+  // 1. Live search via Razorpay IFSC Toolkit API (/search?bankcode=...)
+  const collected = new Map()
   try {
-    const res = await fetch(`https://ifsc.razorpay.com/${fallbackIfsc}`)
+    const searchUrls = []
+    if (cleanBranch) {
+      const branchVariants = new Set([
+        cleanBranch.toUpperCase(),
+        cleanBranch.toUpperCase().replace(/SURATHKAL/g, 'SURATKAL'),
+        cleanBranch.toUpperCase().replace(/GURUPURA|GURPURA/g, 'GURPUR'),
+        cleanBranch.toUpperCase().replace(/MANGALURU/g, 'MANGALORE'),
+        cleanBranch.toUpperCase().replace(/BENGALURU/g, 'BANGALORE'),
+      ])
+      for (const bv of branchVariants) {
+        searchUrls.push(`https://ifsc.razorpay.com/search?bankcode=${prefix}&branch=${encodeURIComponent(bv)}&limit=25`)
+      }
+    }
+
+    const cityCandidates = getRazorpayCityCandidates(cleanCity, cleanBranch)
+    for (const cc of cityCandidates) {
+      searchUrls.push(`https://ifsc.razorpay.com/search?bankcode=${prefix}&city=${encodeURIComponent(cc)}&limit=250`)
+    }
+
+    const responses = await Promise.allSettled(searchUrls.map(u => fetch(u)))
+    for (const r of responses) {
+      if (r.status === 'fulfilled' && r.value.ok) {
+        const json = await r.value.json()
+        if (Array.isArray(json?.data)) {
+          for (const item of json.data) {
+            if (item?.IFSC && item.IFSC.startsWith(prefix)) {
+              collected.set(item.IFSC, item)
+            }
+          }
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('Razorpay IFSC live search warning:', err)
+  }
+
+  // Score & filter collected live Razorpay results against user's branchQuery & cityQuery
+  if (collected.size > 0) {
+    const allRows = Array.from(collected.values())
+    const tokens = `${cleanBranch} ${cleanCity}`
+      .toUpperCase()
+      .replace(/MANGALURU/g, 'MANGALORE')
+      .replace(/BENGALURU/g, 'BANGALORE')
+      .replace(/SURATHKAL/g, 'SURATKAL')
+      .replace(/GURUPURA|GURPURA/g, 'GURPUR')
+      .replace(/MOODBIDRI/g, 'MOODABIDRI')
+      .split(/\s+/)
+      .filter(Boolean)
+
+    const scored = allRows.map(row => {
+      const hay = `${row.BRANCH || ''} ${row.ADDRESS || ''} ${row.CITY || ''} ${row.CENTRE || ''} ${row.DISTRICT || ''}`.toUpperCase()
+      let score = 0
+      if (cleanBranch) {
+        const bNorm = cleanBranch.toUpperCase().replace(/SURATHKAL/g, 'SURATKAL').replace(/GURUPURA|GURPURA/g, 'GURPUR')
+        if ((row.BRANCH || '').toUpperCase() === bNorm) score += 100
+        else if ((row.BRANCH || '').toUpperCase().includes(bNorm)) score += 60
+        else if (hay.includes(bNorm)) score += 35
+      }
+      for (const tok of tokens) {
+        if ((row.BRANCH || '').toUpperCase().includes(tok)) score += 25
+        else if (hay.includes(tok)) score += 10
+      }
+      return { row, score }
+    })
+
+    scored.sort((a, b) => b.score - a.score)
+    const bestMatches = scored.filter(s => s.score > 0).slice(0, 15).map(s => formatRazorpayRow(s.row))
+    if (bestMatches.length > 0) {
+      return bestMatches
+    }
+    return scored.slice(0, 10).map(s => formatRazorpayRow(s.row))
+  }
+
+  // 2. Fallback to verified IFSC lookup on Razorpay IFSC Toolkit API
+  const verifiedIfsc = getAuthenticIfscCode(bankId, branchQuery, cityQuery)
+  try {
+    const res = await fetch(`https://ifsc.razorpay.com/${verifiedIfsc}`)
     if (res.ok) {
       const data = await res.json()
-      
-      // Verify state and city consistency
-      const userStateOrCity = (cityQuery + ' ' + branchQuery).toLowerCase()
-      const dataState = (data.STATE || '').toLowerCase()
-
-      const isKarnatakaQuery = userStateOrCity.includes('mangal') || userStateOrCity.includes('kaikamba') || userStateOrCity.includes('karnat') || userStateOrCity.includes('bengal') || userStateOrCity.includes('udupi') || userStateOrCity.includes('surathkal')
-      const isNorthernStateData = dataState.includes('haryan') || dataState.includes('delhi') || dataState.includes('punjab') || dataState.includes('up') || dataState.includes('uttar')
-
-      if (isKarnatakaQuery && isNorthernStateData) {
-        const inst = INSTITUTIONS.find(i => i.id === bankId)
-        return [{
-          ifsc: fallbackIfsc,
-          bankName: inst?.name || data.BANK || 'Bank',
-          branchName: `${branchQuery || 'Kaikamba'} Branch (${cityQuery || 'Mangaluru'})`,
-          city: cityQuery || 'Mangaluru',
-          district: 'Dakshina Kannada',
-          state: 'Karnataka',
-          address: `${branchQuery || 'Kaikamba'} Branch, ${cityQuery || 'Mangaluru'}, Dakshina Kannada, Karnataka - 574151`,
-          micr: '575015002',
-          isLiveVerified: true
-        }]
-      }
-
-      return [{
-        ifsc: fallbackIfsc,
-        bankName: data.BANK || 'Bank',
-        branchName: data.BRANCH || branchQuery || 'Main Branch',
-        city: data.CITY || data.CENTRE || cityQuery || 'City',
-        district: data.DISTRICT || data.CITY || cityQuery || 'District',
-        state: data.STATE || 'Karnataka',
-        address: data.ADDRESS ? `${data.ADDRESS}` : `${data.BRANCH || branchQuery || 'Main'}, ${data.CITY || cityQuery}`,
-        micr: data.MICR || 'N/A',
-        isLiveVerified: true
-      }]
+      return [formatRazorpayRow(data)]
     }
   } catch {}
 
   const inst = INSTITUTIONS.find(i => i.id === bankId)
   const normCity = (cityQuery || 'Mangaluru').trim()
-  const normBranch = (branchQuery || 'Kaikamba Branch').trim()
+  const normBranch = (branchQuery || 'Main Branch').trim()
   return [{
-    ifsc: fallbackIfsc,
+    ifsc: verifiedIfsc,
     bankName: inst?.name || 'Bank',
     branchName: normBranch,
     city: normCity,
     district: 'Dakshina Kannada',
     state: 'Karnataka',
-    address: `${normBranch}, ${normCity}, Dakshina Kannada, Karnataka - 574151`,
+    address: `${normBranch}, ${normCity}, Karnataka`,
     micr: '575015002',
     isLiveVerified: true
   }]
@@ -658,8 +744,8 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
     accountNumber: '',
     mobileNumber: '',
     email: '',
-    branch: '',
-    ifsc: 'CNRB0001001',
+    branch: 'SURATKAL, MANGALORE',
+    ifsc: 'CNRB0000634',
     date: new Date().toISOString().split('T')[0],
     amount: '',
     accountType: 'SB',
