@@ -1,0 +1,57 @@
+[
+  {
+    "id": "aq1",
+    "question": "What is the 'Rule of 72' in investing?",
+    "options": [
+      "Invest 72% of income",
+      "Divide 72 by annual return rate to estimate doubling time",
+      "Maximum 72 months lock-in",
+      "72% tax exemption limit"
+    ],
+    "answer": 1,
+    "explanation": "Rule of 72: Divide 72 by the annual rate of return to estimate years needed to double your money. At 8%, money doubles in 72/8 = 9 years!"
+  },
+  {
+    "id": "aq2",
+    "question": "Which of these best describes 'asset allocation'?",
+    "options": [
+      "Putting all savings in one scheme",
+      "Dividing investments across different asset classes to balance risk and return",
+      "Allocating tax deductions",
+      "Setting a monthly budget"
+    ],
+    "answer": 1,
+    "explanation": "Asset allocation means spreading investments across different types (debt, equity, gold, etc.) to optimize risk-adjusted returns based on your goals."
+  },
+  {
+    "id": "aq3",
+    "question": "In portfolio management, what is 'rebalancing'?",
+    "options": [
+      "Moving all funds to the best-performing asset",
+      "Periodically adjusting portfolio back to target allocation",
+      "Withdrawing profits annually",
+      "Changing your investment plan every month"
+    ],
+    "answer": 1,
+    "explanation": "Rebalancing means periodically buying/selling assets to restore your target allocation. If equities surge to 70% from target 60%, you sell some and move to debt."
+  },
+  {
+    "id": "aq4",
+    "question": "What is 'inflation risk' in investing?",
+    "options": [
+      "Risk of market crash",
+      "Risk that returns don't beat inflation, reducing real purchasing power",
+      "Risk of tax on returns",
+      "Risk of early withdrawal penalty"
+    ],
+    "answer": 1,
+    "explanation": "Inflation risk means your investment returns may not outpace inflation. If FD gives 7% but inflation is 8%, you're actually losing purchasing power in real terms!"
+  },
+  {
+    "id": "aq5",
+    "question": "Which scheme is best for a 25-year-old wanting maximum long-term tax-free growth?",
+    "options": ["FD (5-year)", "RD", "PPF", "Post Office MIS"],
+    "answer": 2,
+    "explanation": "For a 25-year-old, PPF is ideal: 7.1% tax-free, EEE status, government guarantee. Starting at 25, the 15-year lock-in ends at 40 — prime wealth-building years!"
+  }
+]

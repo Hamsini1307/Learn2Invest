@@ -1,0 +1,47 @@
+[
+  {
+    "id": "iq1",
+    "question": "What is compound interest?",
+    "options": [
+      "Interest on principal only",
+      "Interest on principal + previously earned interest",
+      "A fixed monthly fee",
+      "Tax on investments"
+    ],
+    "answer": 1,
+    "explanation": "Compound interest is interest calculated on both the principal and the accumulated interest from previous periods — it makes money grow exponentially!"
+  },
+  {
+    "id": "iq2",
+    "question": "PPF allows partial withdrawal from which year onwards?",
+    "options": ["3rd year", "5th year", "7th year", "10th year"],
+    "answer": 2,
+    "explanation": "PPF allows partial withdrawal from the 7th financial year. You can withdraw up to 50% of the balance at the end of 4th year."
+  },
+  {
+    "id": "iq3",
+    "question": "Which section of Income Tax Act covers PPF, NSC and ELSS deductions?",
+    "options": ["Section 80D", "Section 80C", "Section 24", "Section 10(14)"],
+    "answer": 1,
+    "explanation": "Section 80C allows deductions up to ₹1.5 lakh per year for PPF, NSC, ELSS, life insurance premiums, and more."
+  },
+  {
+    "id": "iq4",
+    "question": "What is the maximum amount that can be deposited in Sukanya Samriddhi Yojana per year?",
+    "options": ["₹50,000", "₹1,00,000", "₹1,50,000", "₹2,00,000"],
+    "answer": 2,
+    "explanation": "SSY allows a maximum deposit of ₹1.5 lakh per financial year with a minimum of ₹250."
+  },
+  {
+    "id": "iq5",
+    "question": "What does EEE category mean in taxation?",
+    "options": [
+      "Exempt at investment, taxable on interest, exempt on maturity",
+      "Exempt at investment, exempt on interest, exempt on maturity",
+      "Everything is exempt",
+      "End-to-end earnings exempt"
+    ],
+    "answer": 1,
+    "explanation": "EEE = Exempt at all 3 stages: investment (80C deduction), interest earned, and maturity amount. PPF and SSY are classic EEE instruments."
+  }
+]

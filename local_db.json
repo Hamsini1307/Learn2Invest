@@ -1,0 +1,115 @@
+{
+  "users": [
+    {
+      "email": "b@gmail.com",
+      "name": "Kavya",
+      "passwordHash": "$2a$10$Bd75.E0nuzKP.uAcfEDqdupjl6A4Cuuj1180k6CQGRw2yekk1pMOS",
+      "startLevel": "beginner"
+    },
+    {
+      "email": "h@gmail.com",
+      "name": "hams",
+      "passwordHash": "$2a$10$o0xRgIJkg0KpNyKUjpebBubbWlkeJxxR9vDlVupDfd.bYfYjuH0wq",
+      "startLevel": "beginner"
+    },
+    {
+      "email": "r@gmail.com",
+      "name": "Rak",
+      "passwordHash": "$2a$10$55O9ukcAYSuhkXQKPEXQ8eUJG3cZUxjdWxwH6BhfmMu4Gee1J58.m",
+      "startLevel": "beginner"
+    },
+    {
+      "email": "v@gmail.com",
+      "name": "vani",
+      "passwordHash": "$2a$10$8veGvOJd5jLvpFfcTZDD0e1m1mxD66y90N2X5eNvAoRZWKITb5eEK",
+      "startLevel": "beginner"
+    },
+    {
+      "email": "g@gmail.com",
+      "name": "god",
+      "passwordHash": "$2a$10$RmRbmkck7CM4jSzfd7uDw.Nlv1I9.AOn7YqbxY0/LPcve/o5F5.e6",
+      "startLevel": "beginner"
+    }
+  ],
+  "states": [
+    {
+      "xp": 90,
+      "lessonsWatched": [
+        "video1",
+        "video2",
+        "video3"
+      ],
+      "completedModules": [],
+      "correctCount": 0,
+      "quizScore": 0,
+      "intermediateUnlocked": false,
+      "advancedUnlocked": false,
+      "allocations": {},
+      "startingLevel": "beginner",
+      "email": "b@gmail.com"
+    },
+    {
+      "xp": 540,
+      "lessonsWatched": [
+        "video1",
+        "video2",
+        "video3",
+        "video4"
+      ],
+      "completedModules": [],
+      "correctCount": 8,
+      "quizScore": 80,
+      "intermediateUnlocked": true,
+      "advancedUnlocked": false,
+      "allocations": {},
+      "startingLevel": "beginner",
+      "email": "h@gmail.com"
+    },
+    {
+      "xp": 240,
+      "lessonsWatched": [
+        "video4",
+        "video1",
+        "video2",
+        "video3"
+      ],
+      "completedModules": [],
+      "correctCount": 9,
+      "quizScore": 90,
+      "intermediateUnlocked": true,
+      "advancedUnlocked": false,
+      "allocations": {},
+      "startingLevel": "beginner",
+      "email": "r@gmail.com"
+    },
+    {
+      "xp": 30,
+      "lessonsWatched": [
+        "video4",
+        "video1"
+      ],
+      "completedModules": [],
+      "correctCount": 0,
+      "quizScore": 0,
+      "intermediateUnlocked": false,
+      "advancedUnlocked": false,
+      "allocations": {},
+      "startingLevel": "beginner",
+      "email": "v@gmail.com"
+    },
+    {
+      "xp": 0,
+      "lessonsWatched": [
+        "video4"
+      ],
+      "completedModules": [],
+      "correctCount": 0,
+      "quizScore": 0,
+      "intermediateUnlocked": false,
+      "advancedUnlocked": false,
+      "allocations": {},
+      "startingLevel": "beginner",
+      "email": "g@gmail.com"
+    }
+  ]
+}

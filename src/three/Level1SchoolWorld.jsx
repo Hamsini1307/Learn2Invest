@@ -1,0 +1,5865 @@
+import React, { useState, useEffect, useRef, useMemo, Suspense } from 'react'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
+import { Text, RoundedBox, Float, Sparkles, Sky, ContactShadows, Html } from '@react-three/drei'
+import * as THREE from 'three'
+import gsap from 'gsap'
+import soundEngine from '../utils/soundEngine.js'
+import { CuteChibiAvatarSVG } from '../components/AiAvatarSelector.jsx'
+import Level3BankZone3D from './Level3BankZone3D.jsx'
+import Level3BankSectionScreen, { LEVEL3_BANK_SECTIONS } from './Level3BankSectionScreens.jsx'
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// LEVEL 1 LESSON VIDEOS (Displayed Inside the Physical Classroom Projector Screen)
+// ═══════════════════════════════════════════════════════════════════════════════
+const LEVEL1_VIDEOS = [
+  {
+    id: 'video1',
+    number: 1,
+    title: 'Introduction to Investing',
+    subtitle: 'Why investing matters & how money grows like a seed',
+    durationLabel: '3:45',
+    src: '/videos/video1.mp4',
+    icon: '🌱',
+  },
+  {
+    id: 'video2',
+    number: 2,
+    title: 'Understanding Financial Literacy',
+    subtitle: 'Smart budgeting, saving habits & emergency funds',
+    durationLabel: '4:20',
+    src: '/videos/video2.mp4',
+    icon: '🐷',
+  },
+  {
+    id: 'video3',
+    number: 3,
+    title: 'Key Financial Terms & Compounding',
+    subtitle: 'SIP, Mutual Funds, NAV & the compounding snowball',
+    durationLabel: '5:15',
+    src: '/videos/video3.mp4',
+    icon: '❄️',
+  },
+  {
+    id: 'video4',
+    number: 4,
+    title: 'Tax Saving Schemes (80C & PPF)',
+    subtitle: 'How PPF, ELSS & Section 80C protect your wealth',
+    durationLabel: '4:50',
+    src: '/videos/video4.mp4',
+    icon: '🛡️',
+  },
+  {
+    id: 'video5',
+    number: 5,
+    title: 'Smart Asset Allocation & Planning',
+    subtitle: 'Balancing safety, growth & beating inflation',
+    durationLabel: '6:10',
+    src: '/videos/video5.mp4',
+    icon: '⚖️',
+  },
+]
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// LEVEL 1 EXAMINATION QUESTIONS (10 Questions Displayed One-by-One on Exam Projector)
+// ═══════════════════════════════════════════════════════════════════════════════
+const LEVEL1_QUIZ_QUESTIONS = [
+  {
+    id: 1,
+    icon: '🌱✨',
+    tag: 'Investing Basics',
+    question: 'Why is investing your savings smarter than keeping all your cash idle in a drawer?',
+    options: [
+      'Investing helps your money grow over time and beat inflation',
+      'Idle cash automatically doubles every month',
+      'Banks charge a daily fee for keeping cash at home',
+      'Investing guarantees instant lottery prizes',
+    ],
+    answer: 0,
+  },
+  {
+    id: 2,
+    icon: '🐷👑',
+    tag: 'Interest & Savings',
+    question: 'What is "Interest" when you deposit money into a savings account or Fixed Deposit?',
+    options: [
+      'A penalty charged for saving money',
+      'A reward paid to you by the bank for keeping your money with them',
+      'A tax collected by the school',
+      'The price of buying a new piggy bank',
+    ],
+    answer: 1,
+  },
+  {
+    id: 3,
+    icon: '📊🎀',
+    tag: 'Smart Budgeting',
+    question: 'In the popular 50/30/20 budgeting rule, what should at least 20% of your income go toward?',
+    options: [
+      'Video games and candy',
+      'Savings and long-term investments',
+      'Late payment fees',
+      'Impulse shopping',
+    ],
+    answer: 1,
+  },
+  {
+    id: 4,
+    icon: '🛡️🌸',
+    tag: 'Financial Safety',
+    question: 'Why is building an Emergency Fund of 3–6 months of expenses important?',
+    options: [
+      'So you have a safety net for unexpected medical or family needs',
+      'To buy luxury items on sale',
+      'Because banks require it to open an email account',
+      'It replaces the need for all insurance',
+    ],
+    answer: 0,
+  },
+  {
+    id: 5,
+    icon: '🗓️💎',
+    tag: 'Mutual Funds',
+    question: 'What does SIP stand for in smart investing?',
+    options: [
+      'Simple Instant Profit',
+      'Systematic Investment Plan (investing a fixed amount regularly)',
+      'Super Interest Payout',
+      'Savings In Pocket',
+    ],
+    answer: 1,
+  },
+  {
+    id: 6,
+    icon: '❄️🌟',
+    tag: 'Power of Compounding',
+    question: 'How does "Compounding" make your money grow like a snowball?',
+    options: [
+      'You earn returns on both your original principal AND your past interest',
+      'It freezes your account in winter',
+      'It reduces your interest rate every year',
+      'It only works if you withdraw money daily',
+    ],
+    answer: 0,
+  },
+  {
+    id: 7,
+    icon: '🏦🍀',
+    tag: 'Tax Saving Schemes',
+    question: 'Under Section 80C in India, what is the maximum annual tax deduction you can claim?',
+    options: [
+      'Up to ₹10,000 per year',
+      'Up to ₹1.5 Lakh per year',
+      'Up to ₹50 Lakh per year',
+      'Zero deduction is allowed',
+    ],
+    answer: 1,
+  },
+  {
+    id: 8,
+    icon: '🔒🐣',
+    tag: 'Government Schemes',
+    question: 'What makes the Public Provident Fund (PPF) a favorite safe long-term investment?',
+    options: [
+      'It is government-backed with a 15-year lock-in and tax-free (EEE) returns',
+      'It doubles your money every 24 hours',
+      'It has no lock-in period and high stock market risk',
+      'Only banks can invest in it',
+    ],
+    answer: 0,
+  },
+  {
+    id: 9,
+    icon: '🎈🧸',
+    tag: 'Economic Concepts',
+    question: 'What is "Inflation" and how does it affect your money?',
+    options: [
+      'The general rise in prices over time that reduces what your cash can buy',
+      'A bonus gift added to your bank account',
+      'A discount offered by supermarkets',
+      'The weight of gold coins',
+    ],
+    answer: 0,
+  },
+  {
+    id: 10,
+    icon: '⚖️🏆',
+    tag: 'Smart Strategy',
+    question: 'What is "Asset Allocation" (Diversification)?',
+    options: [
+      'Putting all your money into a single risky stock',
+      'Spreading your money across safe Debt, growth Equity, and Gold to balance risk',
+      'Keeping all money in one piggy bank forever',
+      'Spending all your money before the end of the month',
+    ],
+    answer: 1,
+  },
+]
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 1. 3D CHARACTERS: LUNA (IMAGE 2) & LEO (IMAGE 3) WITH WALKING & SEATED ANIMATION
+// ═══════════════════════════════════════════════════════════════════════════════
+function PlayerCharacter3D({ characterId = 'luna', charStateRef }) {
+  const groupRef = useRef()
+  const leftLegRef = useRef()
+  const rightLegRef = useRef()
+  const leftArmRef = useRef()
+  const rightArmRef = useRef()
+  const headRef = useRef()
+
+  const isLuna = characterId !== 'leo'
+
+  useFrame(({ clock }) => {
+    if (!groupRef.current || !charStateRef.current) return
+    const t = clock.getElapsedTime()
+    const cs = charStateRef.current
+
+    groupRef.current.visible = cs.visible
+    if (!cs.visible) return
+
+    groupRef.current.position.set(cs.x, cs.y, cs.z)
+    // Smooth rotation interpolation
+    const rotDiff = ((cs.rotY - groupRef.current.rotation.y + Math.PI * 3) % (Math.PI * 2)) - Math.PI
+    groupRef.current.rotation.y += rotDiff * 0.14
+
+    if (cs.pose === 'walking') {
+      const cycle = Math.sin(t * 10.5)
+      groupRef.current.position.y = cs.y + Math.abs(cycle) * 0.1
+      if (leftLegRef.current) leftLegRef.current.rotation.x = cycle * 0.65
+      if (rightLegRef.current) rightLegRef.current.rotation.x = -cycle * 0.65
+      if (leftArmRef.current) leftArmRef.current.rotation.x = isLuna ? -0.35 + cycle * 0.15 : -cycle * 0.55
+      if (rightArmRef.current) rightArmRef.current.rotation.x = cycle * 0.55
+      if (headRef.current) {
+        headRef.current.rotation.z = Math.sin(t * 5.2) * 0.04
+        headRef.current.rotation.y = Math.sin(t * 2.6) * 0.06
+      }
+    } else if (cs.pose === 'seated') {
+      groupRef.current.position.y = cs.y - 0.18
+      if (leftLegRef.current) leftLegRef.current.rotation.x = THREE.MathUtils.lerp(leftLegRef.current.rotation.x, -1.25, 0.15)
+      if (rightLegRef.current) rightLegRef.current.rotation.x = THREE.MathUtils.lerp(rightLegRef.current.rotation.x, -1.25, 0.15)
+      if (leftArmRef.current) leftArmRef.current.rotation.x = THREE.MathUtils.lerp(leftArmRef.current.rotation.x, -0.45, 0.15)
+      if (rightArmRef.current) rightArmRef.current.rotation.x = THREE.MathUtils.lerp(rightArmRef.current.rotation.x, -0.45, 0.15)
+      if (headRef.current) {
+        headRef.current.rotation.z = Math.sin(t * 1.5) * 0.02
+        headRef.current.rotation.y = Math.sin(t * 1.2) * 0.05
+      }
+    } else {
+      // Idle / Waving
+      groupRef.current.position.y = cs.y + Math.sin(t * 2.4) * 0.03
+      if (leftLegRef.current) leftLegRef.current.rotation.x = THREE.MathUtils.lerp(leftLegRef.current.rotation.x, 0, 0.15)
+      if (rightLegRef.current) rightLegRef.current.rotation.x = THREE.MathUtils.lerp(rightLegRef.current.rotation.x, 0, 0.15)
+      if (leftArmRef.current) leftArmRef.current.rotation.x = THREE.MathUtils.lerp(leftArmRef.current.rotation.x, isLuna ? -0.4 : 0, 0.15)
+      if (rightArmRef.current) rightArmRef.current.rotation.x = THREE.MathUtils.lerp(rightArmRef.current.rotation.x, 0, 0.15)
+      if (headRef.current) {
+        headRef.current.rotation.y = Math.sin(t * 1.8) * 0.08
+      }
+    }
+  })
+
+  return (
+    <group ref={groupRef} scale={1.15}>
+      {/* Ground Highlight Ring */}
+      <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <circleGeometry args={[0.42, 24]} />
+        <meshBasicMaterial color={isLuna ? '#f472b6' : '#38bdf8'} transparent opacity={0.3} />
+      </mesh>
+
+      {/* ─── LEFT & RIGHT LEGS (Image 2: Light-Blue Wide Jeans / Image 3: Dark Charcoal Cargo Pants) ─── */}
+      <group ref={leftLegRef} position={[-0.13, 0.48, 0]}>
+        <mesh position={[0, -0.2, 0]} castShadow>
+          <cylinderGeometry args={[0.095, 0.115, 0.42, 16]} />
+          <meshStandardMaterial color={isLuna ? '#7da2c8' : '#2d3138'} roughness={0.65} />
+        </mesh>
+        {/* Cuffed hem / Cargo pocket */}
+        <mesh position={[0, -0.38, 0]}>
+          <cylinderGeometry args={[0.118, 0.118, 0.06, 16]} />
+          <meshStandardMaterial color={isLuna ? '#9dbadd' : '#23272e'} roughness={0.6} />
+        </mesh>
+        {/* White Sneaker with Pink Heart (Luna) or Blue Accent (Leo) */}
+        <RoundedBox args={[0.17, 0.1, 0.26]} position={[0, -0.44, 0.04]} radius={0.04} castShadow>
+          <meshStandardMaterial color="#fafaf9" roughness={0.35} />
+        </RoundedBox>
+        <mesh position={[-0.088, -0.44, 0.04]}>
+          <sphereGeometry args={[0.022, 8, 8]} />
+          <meshBasicMaterial color={isLuna ? '#f472b6' : '#3b82f6'} />
+        </mesh>
+      </group>
+
+      <group ref={rightLegRef} position={[0.13, 0.48, 0]}>
+        <mesh position={[0, -0.2, 0]} castShadow>
+          <cylinderGeometry args={[0.095, 0.115, 0.42, 16]} />
+          <meshStandardMaterial color={isLuna ? '#7da2c8' : '#2d3138'} roughness={0.65} />
+        </mesh>
+        <mesh position={[0, -0.38, 0]}>
+          <cylinderGeometry args={[0.118, 0.118, 0.06, 16]} />
+          <meshStandardMaterial color={isLuna ? '#9dbadd' : '#23272e'} roughness={0.6} />
+        </mesh>
+        <RoundedBox args={[0.17, 0.1, 0.26]} position={[0, -0.44, 0.04]} radius={0.04} castShadow>
+          <meshStandardMaterial color="#fafaf9" roughness={0.35} />
+        </RoundedBox>
+        <mesh position={[0.088, -0.44, 0.04]}>
+          <sphereGeometry args={[0.022, 8, 8]} />
+          <meshBasicMaterial color={isLuna ? '#f472b6' : '#3b82f6'} />
+        </mesh>
+      </group>
+
+      {/* ─── TORSO (Image 2: Cream Sweater / Image 3: Cream Hoodie + Steel-Blue Jacket) ─── */}
+      <mesh position={[0, 0.76, 0]} castShadow>
+        <cylinderGeometry args={[0.2, 0.24, 0.54, 20]} />
+        <meshStandardMaterial color={isLuna ? '#faf5ef' : '#5b7fa6'} roughness={0.5} />
+      </mesh>
+      {!isLuna && (
+        /* Leo's inner cream hoodie front panel */
+        <RoundedBox args={[0.2, 0.52, 0.12]} position={[0, 0.76, 0.15]} radius={0.03}>
+          <meshStandardMaterial color="#faf5ef" roughness={0.5} />
+        </RoundedBox>
+      )}
+
+      {/* ─── BACKPACK (Image 2: Dusty-Pink Backpack + White Bunny Keychain / Image 3: Dark Backpack) ─── */}
+      <group position={[0, 0.76, -0.2]}>
+        <RoundedBox args={[0.36, 0.42, 0.18]} radius={0.07} castShadow>
+          <meshStandardMaterial color={isLuna ? '#d98a9c' : '#272422'} roughness={0.45} />
+        </RoundedBox>
+        {isLuna && (
+          /* Cute White Bunny Keychain hanging on Luna's Pink Backpack (Image 2) */
+          <group position={[-0.18, -0.1, 0.04]}>
+            <mesh>
+              <sphereGeometry args={[0.055, 12, 12]} />
+              <meshStandardMaterial color="#ffffff" />
+            </mesh>
+            <mesh position={[0, -0.07, 0]}>
+              <sphereGeometry args={[0.048, 12, 12]} />
+              <meshStandardMaterial color="#ffffff" />
+            </mesh>
+            <mesh position={[-0.02, 0.06, 0]}>
+              <capsuleGeometry args={[0.012, 0.04, 4, 8]} />
+              <meshStandardMaterial color="#fce7f3" />
+            </mesh>
+            <mesh position={[0.02, 0.06, 0]}>
+              <capsuleGeometry args={[0.012, 0.04, 4, 8]} />
+              <meshStandardMaterial color="#fce7f3" />
+            </mesh>
+          </group>
+        )}
+      </group>
+
+      {/* ─── LEFT & RIGHT ARMS ─── */}
+      <group ref={leftArmRef} position={[-0.26, 0.94, 0]}>
+        <mesh position={[-0.03, -0.16, 0]} rotation={[0, 0, 0.18]} castShadow>
+          <capsuleGeometry args={[0.062, 0.24, 8, 12]} />
+          <meshStandardMaterial color={isLuna ? '#faf5ef' : '#5b7fa6'} roughness={0.5} />
+        </mesh>
+        <mesh position={[-0.06, -0.31, 0]}>
+          <sphereGeometry args={[0.058, 12, 12]} />
+          <meshStandardMaterial color="#f9d5b8" />
+        </mesh>
+        {/* Luna's Pastel Pink & Mint Notebooks with Heart (Image 2) */}
+        {isLuna && (
+          <group position={[0.12, -0.22, 0.16]} rotation={[0.2, 0.4, -0.1]}>
+            <RoundedBox args={[0.2, 0.26, 0.04]} position={[0, 0, -0.02]} radius={0.01}>
+              <meshStandardMaterial color="#86efac" />
+            </RoundedBox>
+            <RoundedBox args={[0.2, 0.26, 0.04]} position={[0.02, 0.01, 0.02]} radius={0.01}>
+              <meshStandardMaterial color="#f472b6" />
+            </RoundedBox>
+          </group>
+        )}
+      </group>
+
+      <group ref={rightArmRef} position={[0.26, 0.94, 0]}>
+        <mesh position={[0.03, -0.16, 0]} rotation={[0, 0, -0.18]} castShadow>
+          <capsuleGeometry args={[0.062, 0.24, 8, 12]} />
+          <meshStandardMaterial color={isLuna ? '#faf5ef' : '#5b7fa6'} roughness={0.5} />
+        </mesh>
+        <mesh position={[0.06, -0.31, 0]}>
+          <sphereGeometry args={[0.058, 12, 12]} />
+          <meshStandardMaterial color="#f9d5b8" />
+        </mesh>
+      </group>
+
+      {/* ─── PIXAR-STYLE HEAD, EXPRESSIVE WARM BROWN EYES & WAVY BROWN HAIR ─── */}
+      <group ref={headRef} position={[0, 1.3, 0]}>
+        <mesh castShadow>
+          <sphereGeometry args={[0.29, 24, 24]} />
+          <meshStandardMaterial color="#f9d5b8" roughness={0.38} />
+        </mesh>
+
+        {/* Wavy Dark-Brown Hair Cap */}
+        <mesh position={[0, 0.07, -0.03]} castShadow>
+          <sphereGeometry args={[0.31, 24, 24]} />
+          <meshStandardMaterial color="#3b2219" roughness={0.48} />
+        </mesh>
+
+        {isLuna ? (
+          /* Luna's Long Wavy Flowing Dark-Brown Hair (Image 2) */
+          <>
+            <mesh position={[-0.24, -0.12, -0.02]} rotation={[0, 0, 0.18]} castShadow>
+              <capsuleGeometry args={[0.11, 0.34, 8, 12]} />
+              <meshStandardMaterial color="#3b2219" roughness={0.48} />
+            </mesh>
+            <mesh position={[0.24, -0.12, -0.02]} rotation={[0, 0, -0.18]} castShadow>
+              <capsuleGeometry args={[0.11, 0.34, 8, 12]} />
+              <meshStandardMaterial color="#3b2219" roughness={0.48} />
+            </mesh>
+            <mesh position={[0, -0.14, -0.18]} castShadow>
+              <RoundedBox args={[0.48, 0.45, 0.16]} radius={0.07}>
+                <meshStandardMaterial color="#3b2219" roughness={0.48} />
+              </RoundedBox>
+            </mesh>
+          </>
+        ) : (
+          /* Leo's Fluffy Wavy Top Hair Tufts (Image 3) */
+          <>
+            <mesh position={[-0.1, 0.28, 0.12]} rotation={[0.3, 0, 0.3]}>
+              <sphereGeometry args={[0.12, 14, 14]} scale={[1.3, 0.8, 1]} />
+              <meshStandardMaterial color="#3b2219" roughness={0.48} />
+            </mesh>
+            <mesh position={[0.1, 0.29, 0.1]} rotation={[0.2, 0, -0.25]}>
+              <sphereGeometry args={[0.13, 14, 14]} scale={[1.3, 0.85, 1]} />
+              <meshStandardMaterial color="#3b2219" roughness={0.48} />
+            </mesh>
+          </>
+        )}
+
+        {/* Warm Brown Iris + Pupil + Specular Catchlight */}
+        {[-0.095, 0.095].map((ex, idx) => (
+          <group key={idx} position={[ex, 0.02, 0.255]}>
+            <mesh>
+              <sphereGeometry args={[0.052, 14, 14]} />
+              <meshBasicMaterial color="#ffffff" />
+            </mesh>
+            <mesh position={[0, 0, 0.02]}>
+              <sphereGeometry args={[0.038, 12, 12]} />
+              <meshBasicMaterial color="#451a03" />
+            </mesh>
+            <mesh position={[0.012, 0.014, 0.048]}>
+              <sphereGeometry args={[0.013, 8, 8]} />
+              <meshBasicMaterial color="#ffffff" />
+            </mesh>
+          </group>
+        ))}
+
+        {/* Rosy Cheeks & Cheerful Smile */}
+        <mesh position={[-0.16, -0.05, 0.23]}>
+          <sphereGeometry args={[0.036, 10, 10]} />
+          <meshBasicMaterial color="#fb7185" transparent opacity={0.65} />
+        </mesh>
+        <mesh position={[0.16, -0.05, 0.23]}>
+          <sphereGeometry args={[0.036, 10, 10]} />
+          <meshBasicMaterial color="#fb7185" transparent opacity={0.65} />
+        </mesh>
+      </group>
+    </group>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 1B. LIVING CAMPUS ANIMATION: WALKING STUDENTS, SITTING BENCH STUDENTS,
+//     STUDENTS TALKING IN GROUPS & CLASSROOM TEACHERS / SEATED CLASSMATES
+//     (Strictly NO floating name tags above students!)
+// ═══════════════════════════════════════════════════════════════════════════════
+const CAMPUS_NPC_STUDENTS = [
+  {
+    id: 'aarav',
+    shirtColor: '#3b82f6',
+    pantsColor: '#1e293b',
+    hairColor: '#1c1917',
+    bagColor: '#f59e0b',
+    isFemale: false,
+    speed: 1.45,
+    phase: 0.0,
+    waypoints: [
+      [-2.8, 0, 23.5],
+      [-2.8, 0, 14.5],
+      [-2.2, 0, 7.2],
+      [2.2, 0, 7.2],
+      [2.8, 0, 14.5],
+      [2.8, 0, 23.5],
+    ],
+  },
+  {
+    id: 'diya',
+    shirtColor: '#ec4899',
+    pantsColor: '#60a5fa',
+    hairColor: '#3b2219',
+    bagColor: '#a855f7',
+    isFemale: true,
+    speed: 1.35,
+    phase: 1.7,
+    waypoints: [
+      [3.4, 0, 21.0],
+      [3.2, 0, 11.5],
+      [1.5, 0, 6.4],
+      [-1.5, 0, 10.5],
+      [-3.2, 0, 18.5],
+      [0.0, 0, 22.5],
+    ],
+  },
+  {
+    id: 'rohan',
+    shirtColor: '#10b981',
+    pantsColor: '#334155',
+    hairColor: '#27272a',
+    bagColor: '#0284c7',
+    isFemale: false,
+    speed: 1.55,
+    phase: 3.1,
+    waypoints: [
+      [-4.1, 0, 19.5],
+      [-1.8, 0, 19.5],
+      [1.8, 0, 12.5],
+      [4.1, 0, 12.5],
+      [2.5, 0, 8.5],
+      [-2.5, 0, 8.5],
+    ],
+  },
+  {
+    id: 'meera',
+    shirtColor: '#f59e0b',
+    pantsColor: '#475569',
+    hairColor: '#451a03',
+    bagColor: '#ec4899',
+    isFemale: true,
+    speed: 1.3,
+    phase: 4.4,
+    waypoints: [
+      [3.8, 0, 24.5],
+      [3.6, 0, 15.0],
+      [1.8, 0, 6.8],
+      [-1.8, 0, 6.8],
+      [-3.6, 0, 15.0],
+      [-3.8, 0, 24.5],
+    ],
+  },
+  {
+    id: 'kabir',
+    shirtColor: '#8b5cf6',
+    pantsColor: '#1e293b',
+    hairColor: '#18181b',
+    bagColor: '#10b981',
+    isFemale: false,
+    speed: 1.45,
+    phase: 2.3,
+    waypoints: [
+      [-1.8, 0, -2.5],
+      [-1.8, 0, -14.0],
+      [-1.8, 0, -24.5],
+      [1.8, 0, -24.5],
+      [1.8, 0, -14.0],
+      [1.8, 0, -2.5],
+    ],
+  },
+  {
+    id: 'ananya',
+    shirtColor: '#14b8a6',
+    pantsColor: '#64748b',
+    hairColor: '#3b2219',
+    bagColor: '#f43f5e',
+    isFemale: true,
+    speed: 1.4,
+    phase: 5.2,
+    waypoints: [
+      [1.9, 0, -22.0],
+      [1.9, 0, -9.0],
+      [-1.6, 0, -4.0],
+      [-1.6, 0, -18.0],
+    ],
+  },
+  {
+    id: 'dev',
+    shirtColor: '#f97316',
+    pantsColor: '#1e293b',
+    hairColor: '#1c1917',
+    bagColor: '#3b82f6',
+    isFemale: false,
+    speed: 1.38,
+    phase: 0.9,
+    waypoints: [
+      [-1.4, 6.2, -57.5],
+      [-1.4, 6.2, -66.0],
+      [1.4, 6.2, -66.0],
+      [1.4, 6.2, -57.5],
+    ],
+  },
+  {
+    id: 'tara',
+    shirtColor: '#e879f9',
+    pantsColor: '#334155',
+    hairColor: '#3b2219',
+    bagColor: '#06b6d4',
+    isFemale: true,
+    speed: 1.5,
+    phase: 3.8,
+    waypoints: [
+      [-3.2, 6.2, -70.0],
+      [-3.2, 6.2, -81.0],
+      [3.2, 6.2, -81.0],
+      [3.2, 6.2, -70.0],
+    ],
+  },
+]
+
+function AnimatedNPCStudent3D({ student }) {
+  const groupRef = useRef()
+  const leftLegRef = useRef()
+  const rightLegRef = useRef()
+  const leftArmRef = useRef()
+  const rightArmRef = useRef()
+  const headRef = useRef()
+
+  const progressRef = useRef({
+    wpIndex: 0,
+    tSeg: (student.phase * 0.17) % 1,
+  })
+
+  useFrame(({ clock }, delta) => {
+    if (!groupRef.current) return
+    const t = clock.getElapsedTime() + student.phase
+    const wps = student.waypoints
+    if (!wps || wps.length < 2) return
+
+    const st = progressRef.current
+    const currWp = wps[st.wpIndex]
+    const nextIdx = (st.wpIndex + 1) % wps.length
+    const nextWp = wps[nextIdx]
+
+    const dx = nextWp[0] - currWp[0]
+    const dy = nextWp[1] - currWp[1]
+    const dz = nextWp[2] - currWp[2]
+    const dist = Math.max(0.1, Math.hypot(dx, dy, dz))
+
+    st.tSeg += (delta * student.speed) / dist
+    if (st.tSeg >= 1) {
+      st.tSeg = 0
+      st.wpIndex = nextIdx
+    }
+
+    const x = currWp[0] + dx * st.tSeg
+    const y = currWp[1] + dy * st.tSeg
+    const z = currWp[2] + dz * st.tSeg
+
+    const cycle = Math.sin(t * 9.5)
+    groupRef.current.position.set(x, y + Math.abs(cycle) * 0.07, z)
+
+    const targetRotY = Math.atan2(dx, dz)
+    const rotDiff = ((targetRotY - groupRef.current.rotation.y + Math.PI * 3) % (Math.PI * 2)) - Math.PI
+    groupRef.current.rotation.y += rotDiff * 0.12
+
+    if (leftLegRef.current) leftLegRef.current.rotation.x = cycle * 0.62
+    if (rightLegRef.current) rightLegRef.current.rotation.x = -cycle * 0.62
+    if (leftArmRef.current) leftArmRef.current.rotation.x = -cycle * 0.5
+    if (rightArmRef.current) rightArmRef.current.rotation.x = cycle * 0.5
+    if (headRef.current) {
+      headRef.current.rotation.y = Math.sin(t * 2.2) * 0.12
+      headRef.current.rotation.z = Math.sin(t * 4.5) * 0.03
+    }
+  })
+
+  return (
+    <group ref={groupRef} scale={1.02}>
+      <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <circleGeometry args={[0.32, 16]} />
+        <meshBasicMaterial color="#0f172a" transparent opacity={0.2} />
+      </mesh>
+
+      <group ref={leftLegRef} position={[-0.12, 0.46, 0]}>
+        <mesh position={[0, -0.2, 0]} castShadow>
+          <cylinderGeometry args={[0.085, 0.1, 0.4, 12]} />
+          <meshStandardMaterial color={student.pantsColor} roughness={0.65} />
+        </mesh>
+        <RoundedBox args={[0.15, 0.09, 0.24]} position={[0, -0.42, 0.03]} radius={0.03}>
+          <meshStandardMaterial color="#f8fafc" />
+        </RoundedBox>
+      </group>
+
+      <group ref={rightLegRef} position={[0.12, 0.46, 0]}>
+        <mesh position={[0, -0.2, 0]} castShadow>
+          <cylinderGeometry args={[0.085, 0.1, 0.4, 12]} />
+          <meshStandardMaterial color={student.pantsColor} roughness={0.65} />
+        </mesh>
+        <RoundedBox args={[0.15, 0.09, 0.24]} position={[0, -0.42, 0.03]} radius={0.03}>
+          <meshStandardMaterial color="#f8fafc" />
+        </RoundedBox>
+      </group>
+
+      <mesh position={[0, 0.74, 0]} castShadow>
+        <cylinderGeometry args={[0.18, 0.22, 0.5, 16]} />
+        <meshStandardMaterial color={student.shirtColor} roughness={0.5} />
+      </mesh>
+
+      <RoundedBox args={[0.32, 0.38, 0.16]} position={[0, 0.74, -0.18]} radius={0.06} castShadow>
+        <meshStandardMaterial color={student.bagColor} roughness={0.45} />
+      </RoundedBox>
+
+      <group ref={leftArmRef} position={[-0.24, 0.9, 0]}>
+        <mesh position={[-0.02, -0.15, 0]} rotation={[0, 0, 0.15]}>
+          <capsuleGeometry args={[0.055, 0.22, 6, 10]} />
+          <meshStandardMaterial color={student.shirtColor} roughness={0.5} />
+        </mesh>
+        <mesh position={[-0.05, -0.29, 0]}>
+          <sphereGeometry args={[0.05, 10, 10]} />
+          <meshStandardMaterial color="#f9d5b8" />
+        </mesh>
+      </group>
+
+      <group ref={rightArmRef} position={[0.24, 0.9, 0]}>
+        <mesh position={[0.02, -0.15, 0]} rotation={[0, 0, -0.15]}>
+          <capsuleGeometry args={[0.055, 0.22, 6, 10]} />
+          <meshStandardMaterial color={student.shirtColor} roughness={0.5} />
+        </mesh>
+        <mesh position={[0.05, -0.29, 0]}>
+          <sphereGeometry args={[0.05, 10, 10]} />
+          <meshStandardMaterial color="#f9d5b8" />
+        </mesh>
+        <RoundedBox args={[0.16, 0.22, 0.03]} position={[0.08, -0.26, 0.08]} rotation={[0.3, 0.2, 0]} radius={0.01}>
+          <meshStandardMaterial color="#fef08a" />
+        </RoundedBox>
+      </group>
+
+      <group ref={headRef} position={[0, 1.24, 0]}>
+        <mesh castShadow>
+          <sphereGeometry args={[0.26, 18, 18]} />
+          <meshStandardMaterial color="#f9d5b8" roughness={0.4} />
+        </mesh>
+        <mesh position={[0, 0.06, -0.02]} castShadow>
+          <sphereGeometry args={[0.28, 18, 18]} />
+          <meshStandardMaterial color={student.hairColor} roughness={0.5} />
+        </mesh>
+        {student.isFemale && (
+          <mesh position={[0, -0.1, -0.16]}>
+            <RoundedBox args={[0.42, 0.38, 0.14]} radius={0.06}>
+              <meshStandardMaterial color={student.hairColor} roughness={0.5} />
+            </RoundedBox>
+          </mesh>
+        )}
+        {[-0.085, 0.085].map((ex, i) => (
+          <mesh key={i} position={[ex, 0.02, 0.23]}>
+            <sphereGeometry args={[0.034, 10, 10]} />
+            <meshBasicMaterial color="#1e293b" />
+          </mesh>
+        ))}
+      </group>
+    </group>
+  )
+}
+
+// ─── STUDENTS STANDING & TALKING IN ANIMATED CONVERSATION GROUPS (NO NAMES) ───
+function TalkingStudentMember3D({
+  position,
+  rotationY = 0,
+  shirtColor = '#3b82f6',
+  pantsColor = '#1e293b',
+  hairColor = '#27272a',
+  isFemale = false,
+  phase = 0,
+  holdingBook = false,
+}) {
+  const headRef = useRef()
+  const rightArmRef = useRef()
+  const leftArmRef = useRef()
+
+  useFrame(({ clock }) => {
+    const t = clock.getElapsedTime() + phase
+    if (headRef.current) {
+      headRef.current.rotation.y = Math.sin(t * 2.4) * 0.18
+      headRef.current.rotation.x = Math.sin(t * 3.8) * 0.08
+    }
+    if (rightArmRef.current) {
+      rightArmRef.current.rotation.x = -0.55 + Math.sin(t * 4.2) * 0.32
+      rightArmRef.current.rotation.z = -0.2 + Math.cos(t * 3.1) * 0.12
+    }
+    if (leftArmRef.current) {
+      leftArmRef.current.rotation.x = holdingBook ? -0.65 : -0.25 + Math.cos(t * 3.4) * 0.18
+    }
+  })
+
+  return (
+    <group position={position} rotation={[0, rotationY, 0]} scale={1.0}>
+      <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <circleGeometry args={[0.3, 14]} />
+        <meshBasicMaterial color="#0f172a" transparent opacity={0.18} />
+      </mesh>
+      {[-0.11, 0.11].map((lx, i) => (
+        <group key={i} position={[lx, 0.44, 0]}>
+          <mesh position={[0, -0.2, 0]} castShadow>
+            <cylinderGeometry args={[0.08, 0.095, 0.4, 10]} />
+            <meshStandardMaterial color={pantsColor} roughness={0.65} />
+          </mesh>
+          <RoundedBox args={[0.14, 0.08, 0.22]} position={[0, -0.41, 0.03]} radius={0.02}>
+            <meshStandardMaterial color="#f8fafc" />
+          </RoundedBox>
+        </group>
+      ))}
+      <mesh position={[0, 0.72, 0]} castShadow>
+        <cylinderGeometry args={[0.17, 0.21, 0.48, 14]} />
+        <meshStandardMaterial color={shirtColor} roughness={0.5} />
+      </mesh>
+      <group ref={leftArmRef} position={[-0.22, 0.88, 0]}>
+        <mesh position={[-0.02, -0.14, 0]} rotation={[0, 0, 0.14]}>
+          <capsuleGeometry args={[0.05, 0.2, 6, 10]} />
+          <meshStandardMaterial color={shirtColor} />
+        </mesh>
+        {holdingBook && (
+          <RoundedBox args={[0.18, 0.24, 0.035]} position={[0.06, -0.22, 0.1]} rotation={[0.3, 0.3, 0]} radius={0.01}>
+            <meshStandardMaterial color="#38bdf8" />
+          </RoundedBox>
+        )}
+      </group>
+      <group ref={rightArmRef} position={[0.22, 0.88, 0]}>
+        <mesh position={[0.02, -0.14, 0]} rotation={[0, 0, -0.14]}>
+          <capsuleGeometry args={[0.05, 0.2, 6, 10]} />
+          <meshStandardMaterial color={shirtColor} />
+        </mesh>
+        <mesh position={[0.05, -0.27, 0]}>
+          <sphereGeometry args={[0.048, 8, 8]} />
+          <meshStandardMaterial color="#f9d5b8" />
+        </mesh>
+      </group>
+      <group ref={headRef} position={[0, 1.2, 0]}>
+        <mesh castShadow>
+          <sphereGeometry args={[0.24, 16, 16]} />
+          <meshStandardMaterial color="#f9d5b8" roughness={0.4} />
+        </mesh>
+        <mesh position={[0, 0.06, -0.02]} castShadow>
+          <sphereGeometry args={[0.26, 16, 16]} />
+          <meshStandardMaterial color={hairColor} roughness={0.5} />
+        </mesh>
+        {isFemale && (
+          <mesh position={[0, -0.09, -0.15]}>
+            <RoundedBox args={[0.38, 0.34, 0.12]} radius={0.05}>
+              <meshStandardMaterial color={hairColor} />
+            </RoundedBox>
+          </mesh>
+        )}
+        {[-0.08, 0.08].map((ex, i) => (
+          <mesh key={i} position={[ex, 0.02, 0.21]}>
+            <sphereGeometry args={[0.03, 8, 8]} />
+            <meshBasicMaterial color="#1e293b" />
+          </mesh>
+        ))}
+      </group>
+    </group>
+  )
+}
+
+// ─── STUDENTS SEATED ON COURTYARD BENCHES & CLASSROOM DESKS (NO NAMES) ───
+function SeatedStudentFigure3D({
+  position,
+  rotationY = Math.PI,
+  shirtColor = '#10b981',
+  pantsColor = '#1e293b',
+  hairColor = '#27272a',
+  isFemale = false,
+  phase = 0,
+  isWriting = false,
+}) {
+  const headRef = useRef()
+  const rightArmRef = useRef()
+
+  useFrame(({ clock }) => {
+    const t = clock.getElapsedTime() + phase
+    if (headRef.current) {
+      headRef.current.rotation.y = Math.sin(t * 1.6) * 0.12
+      headRef.current.rotation.x = isWriting ? 0.22 + Math.sin(t * 2.5) * 0.04 : Math.sin(t * 1.9) * 0.05
+    }
+    if (rightArmRef.current) {
+      rightArmRef.current.rotation.x = isWriting ? -0.85 + Math.sin(t * 5.0) * 0.08 : -0.55 + Math.sin(t * 2.4) * 0.12
+    }
+  })
+
+  return (
+    <group position={position} rotation={[0, rotationY, 0]} scale={1.0}>
+      {/* Seated Thighs & Lower Legs on Chair */}
+      {[-0.11, 0.11].map((lx, i) => (
+        <group key={i} position={[lx, 0.44, 0]}>
+          <mesh position={[0, 0.02, 0.14]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+            <cylinderGeometry args={[0.075, 0.085, 0.32, 10]} />
+            <meshStandardMaterial color={pantsColor} roughness={0.65} />
+          </mesh>
+          <mesh position={[0, -0.16, 0.26]} castShadow>
+            <cylinderGeometry args={[0.07, 0.08, 0.34, 10]} />
+            <meshStandardMaterial color={pantsColor} roughness={0.65} />
+          </mesh>
+          <RoundedBox args={[0.13, 0.08, 0.2]} position={[0, -0.35, 0.3]} radius={0.02}>
+            <meshStandardMaterial color="#f8fafc" />
+          </RoundedBox>
+        </group>
+      ))}
+      {/* Seated Torso */}
+      <mesh position={[0, 0.72, 0]} castShadow>
+        <cylinderGeometry args={[0.17, 0.2, 0.48, 14]} />
+        <meshStandardMaterial color={shirtColor} roughness={0.5} />
+      </mesh>
+      {/* Left & Right Arms Resting on Desk / Lap */}
+      <group position={[-0.21, 0.86, 0]}>
+        <mesh position={[0, -0.1, 0.12]} rotation={[-0.75, 0, 0.12]}>
+          <capsuleGeometry args={[0.048, 0.2, 6, 10]} />
+          <meshStandardMaterial color={shirtColor} />
+        </mesh>
+      </group>
+      <group ref={rightArmRef} position={[0.21, 0.86, 0]}>
+        <mesh position={[0, -0.1, 0.12]} rotation={[-0.75, 0, -0.12]}>
+          <capsuleGeometry args={[0.048, 0.2, 6, 10]} />
+          <meshStandardMaterial color={shirtColor} />
+        </mesh>
+      </group>
+      {/* Head & Hair */}
+      <group ref={headRef} position={[0, 1.16, 0]}>
+        <mesh castShadow>
+          <sphereGeometry args={[0.23, 16, 16]} />
+          <meshStandardMaterial color="#f9d5b8" roughness={0.4} />
+        </mesh>
+        <mesh position={[0, 0.05, -0.02]} castShadow>
+          <sphereGeometry args={[0.25, 16, 16]} />
+          <meshStandardMaterial color={hairColor} roughness={0.5} />
+        </mesh>
+        {isFemale && (
+          <mesh position={[0, -0.08, -0.14]}>
+            <RoundedBox args={[0.36, 0.32, 0.12]} radius={0.05}>
+              <meshStandardMaterial color={hairColor} />
+            </RoundedBox>
+          </mesh>
+        )}
+        {[-0.075, 0.075].map((ex, i) => (
+          <mesh key={i} position={[ex, 0.02, 0.2]}>
+            <sphereGeometry args={[0.028, 8, 8]} />
+            <meshBasicMaterial color="#1e293b" />
+          </mesh>
+        ))}
+      </group>
+    </group>
+  )
+}
+
+// ─── 3D TEACHER STANDING AT FRONT OF EACH CLASSROOM & EXAM ROOM ───
+function ClassroomTeacher3D({
+  position = [3.3, 0, -5.2],
+  rotationY = -0.35,
+  jacketColor = '#1e3a8a',
+  shirtColor = '#f8fafc',
+  skirtOrPantsColor = '#334155',
+  hairColor = '#3b2219',
+  isFemale = true,
+}) {
+  const headRef = useRef()
+  const rightArmRef = useRef()
+
+  useFrame(({ clock }) => {
+    const t = clock.getElapsedTime()
+    if (headRef.current) {
+      headRef.current.rotation.y = Math.sin(t * 1.5) * 0.18
+      headRef.current.rotation.z = Math.sin(t * 2.1) * 0.03
+    }
+    if (rightArmRef.current) {
+      rightArmRef.current.rotation.z = -0.55 + Math.sin(t * 2.8) * 0.16
+      rightArmRef.current.rotation.x = -0.35 + Math.cos(t * 2.2) * 0.1
+    }
+  })
+
+  return (
+    <group position={position} rotation={[0, rotationY, 0]} scale={1.14}>
+      <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <circleGeometry args={[0.38, 18]} />
+        <meshBasicMaterial color="#0f172a" transparent opacity={0.22} />
+      </mesh>
+      {[-0.12, 0.12].map((lx, i) => (
+        <group key={i} position={[lx, 0.48, 0]}>
+          <mesh position={[0, -0.22, 0]} castShadow>
+            <cylinderGeometry args={[0.085, 0.095, 0.44, 12]} />
+            <meshStandardMaterial color={skirtOrPantsColor} roughness={0.6} />
+          </mesh>
+          <RoundedBox args={[0.15, 0.09, 0.24]} position={[0, -0.44, 0.03]} radius={0.03}>
+            <meshStandardMaterial color="#1e293b" />
+          </RoundedBox>
+        </group>
+      ))}
+      {/* Teacher Blazer / Jacket & Inner Shirt */}
+      <mesh position={[0, 0.82, 0]} castShadow>
+        <cylinderGeometry args={[0.21, 0.24, 0.54, 18]} />
+        <meshStandardMaterial color={jacketColor} roughness={0.45} />
+      </mesh>
+      <RoundedBox args={[0.16, 0.5, 0.08]} position={[0, 0.82, 0.16]} radius={0.02}>
+        <meshStandardMaterial color={shirtColor} />
+      </RoundedBox>
+      {/* Left Arm Holding Lesson Book */}
+      <group position={[-0.25, 0.98, 0]}>
+        <mesh position={[-0.03, -0.15, 0.05]} rotation={[-0.45, 0, 0.15]}>
+          <capsuleGeometry args={[0.055, 0.22, 8, 12]} />
+          <meshStandardMaterial color={jacketColor} />
+        </mesh>
+        <RoundedBox args={[0.22, 0.28, 0.04]} position={[0.05, -0.22, 0.16]} rotation={[0.2, 0.35, -0.15]} radius={0.01}>
+          <meshStandardMaterial color="#f59e0b" />
+        </RoundedBox>
+      </group>
+      {/* Right Arm Teaching / Pointing Toward Projector Screen */}
+      <group ref={rightArmRef} position={[0.25, 0.98, 0]}>
+        <mesh position={[0.08, -0.12, 0.04]} rotation={[0, 0, -0.45]}>
+          <capsuleGeometry args={[0.055, 0.22, 8, 12]} />
+          <meshStandardMaterial color={jacketColor} />
+        </mesh>
+        <mesh position={[0.18, -0.22, 0.06]}>
+          <sphereGeometry args={[0.052, 10, 10]} />
+          <meshStandardMaterial color="#f9d5b8" />
+        </mesh>
+        {/* Teacher Pointer Stick */}
+        <mesh position={[0.32, -0.12, 0.12]} rotation={[0.2, 0, -0.85]}>
+          <cylinderGeometry args={[0.012, 0.016, 0.48, 8]} />
+          <meshStandardMaterial color="#fde047" />
+        </mesh>
+      </group>
+      {/* Teacher Head, Glasses & Hair */}
+      <group ref={headRef} position={[0, 1.32, 0]}>
+        <mesh castShadow>
+          <sphereGeometry args={[0.26, 20, 20]} />
+          <meshStandardMaterial color="#f9d5b8" roughness={0.38} />
+        </mesh>
+        <mesh position={[0, 0.06, -0.03]} castShadow>
+          <sphereGeometry args={[0.28, 20, 20]} />
+          <meshStandardMaterial color={hairColor} roughness={0.48} />
+        </mesh>
+        {isFemale && (
+          <mesh position={[0, -0.04, -0.25]}>
+            <sphereGeometry args={[0.14, 14, 14]} />
+            <meshStandardMaterial color={hairColor} />
+          </mesh>
+        )}
+        {/* Eyeglasses */}
+        {[-0.09, 0.09].map((ex, i) => (
+          <group key={i} position={[ex, 0.02, 0.24]}>
+            <mesh>
+              <torusGeometry args={[0.052, 0.008, 8, 18]} />
+              <meshStandardMaterial color="#475569" metalness={0.7} roughness={0.2} />
+            </mesh>
+            <mesh position={[0, 0, -0.01]}>
+              <sphereGeometry args={[0.032, 10, 10]} />
+              <meshBasicMaterial color="#1e293b" />
+            </mesh>
+          </group>
+        ))}
+      </group>
+    </group>
+  )
+}
+
+function CampusButterfliesAndBirds3D() {
+  const flockRef = useRef([])
+  useFrame(({ clock }) => {
+    const t = clock.getElapsedTime()
+    flockRef.current.forEach((b, i) => {
+      if (!b) return
+      const angle = t * (0.55 + (i % 3) * 0.15) + i * 1.1
+      const radius = 4.2 + (i % 4) * 2.1
+      const centerZ = i < 6 ? 14.5 : -74.0
+      const baseY = i < 6 ? 2.4 : 8.5
+      b.position.x = Math.cos(angle) * radius
+      b.position.z = centerZ + Math.sin(angle) * radius
+      b.position.y = baseY + Math.sin(t * 3.2 + i) * 0.45
+      b.rotation.y = -angle
+    })
+  })
+
+  const colors = ['#f472b6', '#fbbf24', '#38bdf8', '#a855f7', '#4ade80', '#fb7185', '#fde047', '#60a5fa']
+
+  return (
+    <group>
+      {colors.map((c, i) => (
+        <group key={i} ref={(el) => (flockRef.current[i] = el)}>
+          <mesh position={[-0.08, 0, 0]} rotation={[0, 0, 0.4]}>
+            <planeGeometry args={[0.16, 0.12]} />
+            <meshBasicMaterial color={c} side={THREE.DoubleSide} />
+          </mesh>
+          <mesh position={[0.08, 0, 0]} rotation={[0, 0, -0.4]}>
+            <planeGeometry args={[0.16, 0.12]} />
+            <meshBasicMaterial color={c} side={THREE.DoubleSide} />
+          </mesh>
+        </group>
+      ))}
+    </group>
+  )
+}
+
+function AnimatedCampusStudents3D() {
+  return (
+    <group>
+      {/* 1. Walking Students Going Here & There Across the Courtyard, Veranda & Campus */}
+      {CAMPUS_NPC_STUDENTS.map((st) => (
+        <AnimatedNPCStudent3D key={st.id} student={st} />
+      ))}
+
+      {/* 2. Students Sitting & Talking on the School Yard Wooden Benches */}
+      <SeatedStudentFigure3D
+        position={[-5.95, 0.02, 14.1]}
+        rotationY={Math.PI / 2 - 0.15}
+        shirtColor="#ec4899"
+        pantsColor="#1e293b"
+        hairColor="#3b2219"
+        isFemale={true}
+        phase={0.5}
+      />
+      <SeatedStudentFigure3D
+        position={[-5.85, 0.02, 14.9]}
+        rotationY={Math.PI / 2 + 0.25}
+        shirtColor="#38bdf8"
+        pantsColor="#334155"
+        hairColor="#1c1917"
+        isFemale={false}
+        phase={2.1}
+      />
+      <SeatedStudentFigure3D
+        position={[5.95, 0.02, 14.2]}
+        rotationY={-Math.PI / 2 + 0.2}
+        shirtColor="#a855f7"
+        pantsColor="#1e293b"
+        hairColor="#27272a"
+        isFemale={true}
+        phase={1.3}
+      />
+      <SeatedStudentFigure3D
+        position={[5.85, 0.02, 15.0]}
+        rotationY={-Math.PI / 2 - 0.2}
+        shirtColor="#10b981"
+        pantsColor="#475569"
+        hairColor="#18181b"
+        isFemale={false}
+        phase={3.4}
+      />
+
+      {/* 3. Groups of 2-3 Students Standing & Talking Together in the School Yard & Veranda */}
+      {/* Group A (Left Courtyard Walkway — 3 Students Chatting) */}
+      <group position={[-3.3, 0, 11.2]}>
+        <TalkingStudentMember3D
+          position={[-0.45, 0, 0]}
+          rotationY={1.2}
+          shirtColor="#f43f5e"
+          pantsColor="#1e293b"
+          hairColor="#3b2219"
+          isFemale={true}
+          phase={0.2}
+          holdingBook={true}
+        />
+        <TalkingStudentMember3D
+          position={[0.45, 0, 0.25]}
+          rotationY={-1.8}
+          shirtColor="#0ea5e9"
+          pantsColor="#334155"
+          hairColor="#1c1917"
+          isFemale={false}
+          phase={1.6}
+        />
+        <TalkingStudentMember3D
+          position={[0.05, 0, -0.52]}
+          rotationY={0.1}
+          shirtColor="#eab308"
+          pantsColor="#1e293b"
+          hairColor="#27272a"
+          isFemale={true}
+          phase={2.9}
+        />
+      </group>
+
+      {/* Group B (Right Courtyard Walkway — 2 Students Discussing Notes) */}
+      <group position={[3.4, 0, 17.6]}>
+        <TalkingStudentMember3D
+          position={[-0.42, 0, 0]}
+          rotationY={1.45}
+          shirtColor="#8b5cf6"
+          pantsColor="#334155"
+          hairColor="#18181b"
+          isFemale={false}
+          phase={0.9}
+          holdingBook={true}
+        />
+        <TalkingStudentMember3D
+          position={[0.42, 0, 0.1]}
+          rotationY={-1.6}
+          shirtColor="#14b8a6"
+          pantsColor="#1e293b"
+          hairColor="#451a03"
+          isFemale={true}
+          phase={2.4}
+        />
+      </group>
+
+      {/* Group C (Veranda Atrium Near Indoor Planter — 2 Students Talking) */}
+      <group position={[2.3, 0, -9.8]}>
+        <TalkingStudentMember3D
+          position={[-0.4, 0, 0]}
+          rotationY={1.5}
+          shirtColor="#f97316"
+          pantsColor="#1e293b"
+          hairColor="#27272a"
+          isFemale={false}
+          phase={1.1}
+        />
+        <TalkingStudentMember3D
+          position={[0.4, 0, 0]}
+          rotationY={-1.5}
+          shirtColor="#ec4899"
+          pantsColor="#334155"
+          hairColor="#3b2219"
+          isFemale={true}
+          phase={3.2}
+          holdingBook={true}
+        />
+      </group>
+
+      <CampusButterfliesAndBirds3D />
+    </group>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 2. ZONE 1: 3D SCHOOL YARD (Matching Uploaded Image 3: media_1790501063301.jpg)
+//    NO Water Fountain — Open Stone Walkway, Boxwood Hedges, White Square Planters
+//    Flanking 5 Grey Entrance Steps, Wooden Benches, Street Lamps & Lush Green Trees
+// ═══════════════════════════════════════════════════════════════════════════════
+function WhiteSquarePlanterWithPlant3D({ position = [0, 0, 0], scale = 1, tallLeafy = false }) {
+  return (
+    <group position={position} scale={scale}>
+      {/* Tapered White Square Ceramic Planter Pot */}
+      <RoundedBox args={[0.76, 0.72, 0.76]} position={[0, 0.36, 0]} radius={0.04} castShadow receiveShadow>
+        <meshStandardMaterial color="#f8fafc" roughness={0.32} />
+      </RoundedBox>
+      {/* Rich Soil Top */}
+      <mesh position={[0, 0.71, 0]}>
+        <boxGeometry args={[0.66, 0.04, 0.66]} />
+        <meshStandardMaterial color="#451a03" />
+      </mesh>
+      {/* Lush Green Shrub / Tropical Leaves */}
+      {tallLeafy ? (
+        <group position={[0, 0.75, 0]}>
+          {[0, 1, 2, 3, 4, 5].map((i) => {
+            const ang = (i / 6) * Math.PI * 2
+            return (
+              <mesh
+                key={i}
+                position={[Math.cos(ang) * 0.16, 0.38 + (i % 2) * 0.12, Math.sin(ang) * 0.16]}
+                rotation={[Math.sin(ang) * 0.28, ang, Math.cos(ang) * 0.28]}
+                castShadow
+              >
+                <sphereGeometry args={[0.24, 10, 10]} scale={[0.55, 1.85, 0.85]} />
+                <meshStandardMaterial color={i % 2 === 0 ? '#15803d' : '#22c55e'} roughness={0.55} />
+              </mesh>
+            )
+          })}
+        </group>
+      ) : (
+        <group position={[0, 0.75, 0]}>
+          <mesh position={[0, 0.34, 0]} castShadow>
+            <sphereGeometry args={[0.48, 16, 16]} />
+            <meshStandardMaterial color="#16a34a" roughness={0.65} />
+          </mesh>
+          <mesh position={[-0.18, 0.26, 0.15]} castShadow>
+            <sphereGeometry args={[0.32, 12, 12]} />
+            <meshStandardMaterial color="#22c55e" roughness={0.65} />
+          </mesh>
+          <mesh position={[0.18, 0.28, -0.12]} castShadow>
+            <sphereGeometry args={[0.32, 12, 12]} />
+            <meshStandardMaterial color="#15803d" roughness={0.65} />
+          </mesh>
+          {/* Small White Blossoms on Shrub (Image 3) */}
+          {[-0.22, 0.12, 0.24, -0.08].map((bx, b) => (
+            <mesh key={b} position={[bx, 0.55 + (b % 2) * 0.1, (b - 1.5) * 0.12]}>
+              <sphereGeometry args={[0.055, 8, 8]} />
+              <meshBasicMaterial color="#ffffff" />
+            </mesh>
+          ))}
+        </group>
+      )}
+    </group>
+  )
+}
+
+function ParkBench3D({ position, rotation = [0, 0, 0] }) {
+  return (
+    <group position={position} rotation={rotation}>
+      <RoundedBox args={[2.2, 0.1, 0.65]} position={[0, 0.46, 0]} radius={0.02} castShadow>
+        <meshStandardMaterial color="#c08248" roughness={0.55} />
+      </RoundedBox>
+      <RoundedBox args={[2.2, 0.48, 0.08]} position={[0, 0.76, -0.28]} rotation={[0.12, 0, 0]} radius={0.02} castShadow>
+        <meshStandardMaterial color="#c08248" roughness={0.55} />
+      </RoundedBox>
+      {[-0.95, 0.95].map((lx, i) => (
+        <group key={i} position={[lx, 0, 0]}>
+          <RoundedBox args={[0.1, 0.56, 0.62]} position={[0, 0.28, 0]} radius={0.02} castShadow>
+            <meshStandardMaterial color="#18181b" metalness={0.65} roughness={0.3} />
+          </RoundedBox>
+          {/* Curved Black Cast-Iron Armrest (Image 3) */}
+          <RoundedBox args={[0.08, 0.24, 0.58]} position={[0, 0.62, 0]} radius={0.03} castShadow>
+            <meshStandardMaterial color="#18181b" metalness={0.65} roughness={0.3} />
+          </RoundedBox>
+        </group>
+      ))}
+    </group>
+  )
+}
+
+function StreetLamp3D({ position }) {
+  return (
+    <group position={position}>
+      <mesh position={[0, 1.85, 0]} castShadow>
+        <cylinderGeometry args={[0.06, 0.11, 3.7, 14]} />
+        <meshStandardMaterial color="#18181b" metalness={0.7} roughness={0.3} />
+      </mesh>
+      <mesh position={[0, 3.85, 0]}>
+        <cylinderGeometry args={[0.25, 0.16, 0.44, 6]} />
+        <meshStandardMaterial color="#fef08a" emissive="#f59e0b" emissiveIntensity={1.25} />
+      </mesh>
+      <mesh position={[0, 4.14, 0]}>
+        <coneGeometry args={[0.32, 0.22, 6]} />
+        <meshStandardMaterial color="#18181b" />
+      </mesh>
+    </group>
+  )
+}
+
+function CourtyardTree3D({ position, scale = 1, pink = false }) {
+  const ref = useRef()
+  useFrame(({ clock }) => {
+    if (ref.current) {
+      ref.current.rotation.z = Math.sin(clock.getElapsedTime() * 1.1 + position[0]) * 0.025
+    }
+  })
+  const c1 = pink ? '#f9a8d4' : '#22c55e'
+  const c2 = pink ? '#f472b6' : '#16a34a'
+  const c3 = pink ? '#fbcfe8' : '#4ade80'
+  return (
+    <group position={position} scale={scale}>
+      <mesh position={[0, 1.3, 0]} castShadow>
+        <cylinderGeometry args={[0.22, 0.34, 2.6, 12]} />
+        <meshStandardMaterial color="#6b4423" roughness={0.85} />
+      </mesh>
+      <group ref={ref} position={[0, 2.8, 0]}>
+        <mesh position={[0, 0.4, 0]} castShadow>
+          <sphereGeometry args={[1.45, 16, 16]} />
+          <meshStandardMaterial color={c1} roughness={0.65} />
+        </mesh>
+        <mesh position={[-0.85, 0.1, 0.4]} castShadow>
+          <sphereGeometry args={[1.1, 14, 14]} />
+          <meshStandardMaterial color={c2} roughness={0.65} />
+        </mesh>
+        <mesh position={[0.85, 0.15, -0.3]} castShadow>
+          <sphereGeometry args={[1.15, 14, 14]} />
+          <meshStandardMaterial color={c3} roughness={0.65} />
+        </mesh>
+      </group>
+    </group>
+  )
+}
+
+function SchoolYardAndFacade3D({ frontDoorOpenRef }) {
+  const leftDoorRef = useRef()
+  const rightDoorRef = useRef()
+
+  useFrame(() => {
+    const open = frontDoorOpenRef.current
+    if (leftDoorRef.current) leftDoorRef.current.rotation.y = THREE.MathUtils.lerp(leftDoorRef.current.rotation.y, -open * 1.45, 0.1)
+    if (rightDoorRef.current) rightDoorRef.current.rotation.y = THREE.MathUtils.lerp(rightDoorRef.current.rotation.y, open * 1.45, 0.1)
+  })
+
+  return (
+    <group>
+      {/* Lush Green Campus Lawn & Wide Sunlit Paved Stone Courtyard Walkway (Image 3 — NO Fountain!) */}
+      <mesh position={[0, -0.02, 18]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+        <planeGeometry args={[90, 60]} />
+        <meshStandardMaterial color="#3f8f29" roughness={0.85} />
+      </mesh>
+      <mesh position={[0, 0.01, 16.5]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+        <planeGeometry args={[10.4, 28]} />
+        <meshStandardMaterial color="#ead7c3" roughness={0.55} />
+      </mesh>
+      {/* Stone Tile Grid Lines Along Open Center Walkway (Image 3) */}
+      {[-3.2, -1.6, 0, 1.6, 3.2].map((gx, i) => (
+        <mesh key={i} position={[gx, 0.014, 16.5]} rotation={[-Math.PI / 2, 0, 0]}>
+          <planeGeometry args={[0.04, 26]} />
+          <meshBasicMaterial color="#d5bfa8" />
+        </mesh>
+      ))}
+
+      {/* Manicured Dark-Green Boxwood Hedges & Flowerbeds Lining Left & Right of Walkway (Image 3) */}
+      {[-5.3, 5.3].map((hx, side) => (
+        <group key={side}>
+          {/* Stone Curb Border */}
+          <RoundedBox args={[1.35, 0.24, 20.5]} position={[hx, 0.12, 16.2]} radius={0.03} receiveShadow>
+            <meshStandardMaterial color="#e2d5c6" roughness={0.65} />
+          </RoundedBox>
+          {/* Trimmed Boxwood Hedge Segments */}
+          {[8.2, 11.4, 18.2, 22.0, 25.2].map((hz, idx) => (
+            <RoundedBox
+              key={idx}
+              args={[1.15, 0.72, 2.5]}
+              position={[hx, 0.52, hz]}
+              radius={0.18}
+              castShadow
+              receiveShadow
+            >
+              <meshStandardMaterial color="#15803d" roughness={0.78} />
+            </RoundedBox>
+          ))}
+          {/* Colorful Flower Clusters Behind Hedges (Image 3) */}
+          {[9.5, 13.0, 16.5, 20.0, 23.5].map((fz, f) => (
+            <group key={f} position={[hx + (side === 0 ? -1.15 : 1.15), 0.35, fz]}>
+              <mesh castShadow>
+                <sphereGeometry args={[0.48, 12, 12]} />
+                <meshStandardMaterial color="#16a34a" />
+              </mesh>
+              <mesh position={[0, 0.35, 0]}>
+                <sphereGeometry args={[0.2, 10, 10]} />
+                <meshStandardMaterial color={['#f472b6', '#facc15', '#fb923c', '#ffffff', '#e879f9'][f % 5]} />
+              </mesh>
+            </group>
+          ))}
+        </group>
+      ))}
+
+      {/* Wooden Park Benches Facing the Open Walkway (Image 3) */}
+      <ParkBench3D position={[-6.0, 0, 14.5]} rotation={[0, Math.PI / 2, 0]} />
+      <ParkBench3D position={[6.0, 0, 14.5]} rotation={[0, -Math.PI / 2, 0]} />
+
+      {/* Black Vintage Lantern Street Lamps Flanking Benches & Walkway (Image 3) */}
+      <StreetLamp3D position={[-5.2, 0, 11.8]} />
+      <StreetLamp3D position={[5.2, 0, 11.8]} />
+      <StreetLamp3D position={[-6.4, 0, 19.2]} />
+      <StreetLamp3D position={[6.4, 0, 19.2]} />
+
+      {/* Decorative White Square Planters Along Courtyard & Entrance (Image 3) */}
+      <WhiteSquarePlanterWithPlant3D position={[-4.35, 0, 10.2]} scale={0.95} />
+      <WhiteSquarePlanterWithPlant3D position={[4.35, 0, 10.2]} scale={0.95} />
+      <WhiteSquarePlanterWithPlant3D position={[-4.35, 0, 17.2]} scale={0.95} />
+      <WhiteSquarePlanterWithPlant3D position={[4.35, 0, 17.2]} scale={0.95} />
+
+      {/* Lush Green Courtyard Trees Framing the Facade & Foreground (Image 3) */}
+      <CourtyardTree3D position={[-5.2, 0, 4.8]} scale={1.15} pink={false} />
+      <CourtyardTree3D position={[5.2, 0, 4.8]} scale={1.15} pink={false} />
+      <CourtyardTree3D position={[-9.2, 0, 12.5]} scale={1.4} pink={false} />
+      <CourtyardTree3D position={[9.2, 0, 12.5]} scale={1.4} pink={false} />
+      <CourtyardTree3D position={[-8.8, 0, 22.8]} scale={1.5} pink={false} />
+      <CourtyardTree3D position={[8.8, 0, 22.8]} scale={1.5} pink={false} />
+      <CourtyardTree3D position={[-13.5, 0, 7.5]} scale={1.35} pink={false} />
+      <CourtyardTree3D position={[13.5, 0, 7.5]} scale={1.35} pink={false} />
+
+      {/* ─── CLASSICAL RED-BRICK & CREAM SCHOOL FACADE AT Z = 2.0 (Matching Image 3) ─── */}
+      <group position={[0, 0, 2.0]}>
+        {/* 5 Wide Grey-Stone Entrance Steps Leading Up to Portico (Image 3) */}
+        {[0, 1, 2, 3, 4].map((sIdx) => (
+          <RoundedBox
+            key={sIdx}
+            args={[7.4, 0.11, 2.9 - sIdx * 0.42]}
+            position={[0, 0.055 + sIdx * 0.11, 2.1 - sIdx * 0.21]}
+            radius={0.02}
+            receiveShadow
+            castShadow
+          >
+            <meshStandardMaterial color="#cbd5e1" roughness={0.6} />
+          </RoundedBox>
+        ))}
+
+        {/* Raised Cream-Stone Flower Planter Boxes Flanking the 5 Entrance Steps (Image 3) */}
+        {[-4.65, 4.65].map((px, side) => (
+          <group key={side} position={[px, 0, 2.55]}>
+            <RoundedBox args={[1.9, 0.95, 2.1]} position={[0, 0.48, 0]} radius={0.03} castShadow receiveShadow>
+              <meshStandardMaterial color="#f5ebe0" roughness={0.55} />
+            </RoundedBox>
+            <mesh position={[0, 1.12, 0]} castShadow>
+              <sphereGeometry args={[0.72, 14, 14]} scale={[1.15, 0.75, 0.95]} />
+              <meshStandardMaterial color="#15803d" roughness={0.75} />
+            </mesh>
+            {[-0.35, 0, 0.35].map((fx, f) => (
+              <mesh key={f} position={[fx, 1.48, (f - 1) * 0.18]}>
+                <sphereGeometry args={[0.14, 8, 8]} />
+                <meshStandardMaterial color={f % 2 === 0 ? '#f472b6' : '#ffffff'} />
+              </mesh>
+            ))}
+          </group>
+        ))}
+
+        {/* White Tapered Square Planters with Green Shrubs at Top of Steps Next to Columns (Image 3) */}
+        <WhiteSquarePlanterWithPlant3D position={[-2.95, 0.48, 1.85]} scale={0.95} />
+        <WhiteSquarePlanterWithPlant3D position={[2.95, 0.48, 1.85]} scale={0.95} />
+
+        {/* Left & Right Two-Story Warm Red-Brick & Cream Pilaster Wings (Image 3) */}
+        <RoundedBox args={[11.2, 8.2, 0.9]} position={[-7.8, 4.1, 0]} radius={0.04} castShadow receiveShadow>
+          <meshStandardMaterial color="#b85d43" roughness={0.72} />
+        </RoundedBox>
+        <RoundedBox args={[11.2, 8.2, 0.9]} position={[7.8, 4.1, 0]} radius={0.04} castShadow receiveShadow>
+          <meshStandardMaterial color="#b85d43" roughness={0.72} />
+        </RoundedBox>
+        {/* Cream Horizontal Cornice & Belt Course Trim Across Wings (Image 3) */}
+        {[-7.8, 7.8].map((wx, i) => (
+          <group key={i}>
+            <RoundedBox args={[11.4, 0.48, 1.02]} position={[wx, 4.15, 0]} radius={0.02}>
+              <meshStandardMaterial color="#f5ebe0" roughness={0.55} />
+            </RoundedBox>
+            <RoundedBox args={[11.5, 0.62, 1.08]} position={[wx, 8.1, 0]} radius={0.02}>
+              <meshStandardMaterial color="#f5ebe0" roughness={0.55} />
+            </RoundedBox>
+          </group>
+        ))}
+
+        {/* Wing Windows (Upper & Lower Dark-Framed Multi-Pane Bays - Image 3) */}
+        {[-9.8, -5.6, 5.6, 9.8].map((wx, i) => (
+          <group key={i}>
+            {[2.1, 6.0].map((wy, j) => (
+              <group key={j} position={[wx, wy, 0.48]}>
+                <RoundedBox args={[2.7, 2.2, 0.08]} radius={0.02}>
+                  <meshStandardMaterial color="#334155" />
+                </RoundedBox>
+                <mesh position={[0, 0, 0.05]}>
+                  <planeGeometry args={[2.45, 1.95]} />
+                  <meshStandardMaterial color={j === 0 ? '#fde68a' : '#bae6fd'} metalness={0.35} roughness={0.2} />
+                </mesh>
+              </group>
+            ))}
+          </group>
+        ))}
+
+        {/* Central Classical Cream Stone Tower & Portico ("Learn2Invest School" - Image 3) */}
+        <RoundedBox args={[6.2, 9.5, 0.95]} position={[0, 6.9, 0.1]} radius={0.05} castShadow>
+          <meshStandardMaterial color="#f5ebe0" roughness={0.6} />
+        </RoundedBox>
+
+        {/* Triangular Classical Pediment + Round Clock at Very Top (Image 3) */}
+        <mesh position={[0, 10.65, 0.2]} rotation={[0, Math.PI / 4, 0]} castShadow>
+          <coneGeometry args={[4.5, 1.85, 4]} />
+          <meshStandardMaterial color="#f5e6d3" roughness={0.6} />
+        </mesh>
+        <group position={[0, 9.6, 0.62]}>
+          <mesh rotation={[Math.PI / 2, 0, 0]}>
+            <cylinderGeometry args={[0.74, 0.74, 0.08, 32]} />
+            <meshStandardMaterial color="#ffffff" />
+          </mesh>
+          <mesh position={[0, 0, 0.05]}>
+            <torusGeometry args={[0.74, 0.05, 12, 32]} />
+            <meshStandardMaterial color="#1e293b" />
+          </mesh>
+          <RoundedBox args={[0.04, 0.42, 0.02]} position={[0, 0.15, 0.06]} radius={0.01}>
+            <meshBasicMaterial color="#1e293b" />
+          </RoundedBox>
+          <RoundedBox args={[0.34, 0.04, 0.02]} position={[0.12, 0, 0.06]} rotation={[0, 0, -0.35]} radius={0.01}>
+            <meshBasicMaterial color="#1e293b" />
+          </RoundedBox>
+        </group>
+
+        {/* Central Arched Multi-Pane Glass Window Below Clock (Image 3) */}
+        <mesh position={[0, 7.2, 0.6]}>
+          <circleGeometry args={[1.9, 32, 0, Math.PI]} />
+          <meshStandardMaterial color="#93c5fd" metalness={0.5} roughness={0.15} />
+        </mesh>
+        <mesh position={[0, 6.45, 0.6]}>
+          <planeGeometry args={[3.8, 1.5]} />
+          <meshStandardMaterial color="#93c5fd" metalness={0.5} roughness={0.15} />
+        </mesh>
+
+        {/* Square Cream Portico Pillars with Warm Lantern Sconces (Image 3) */}
+        {[-2.35, 2.35].map((cx, idx) => (
+          <group key={idx} position={[cx, 0, 1.35]}>
+            <RoundedBox args={[0.68, 4.25, 0.68]} position={[0, 2.12, 0]} radius={0.03} castShadow receiveShadow>
+              <meshStandardMaterial color="#f5ebe0" roughness={0.5} />
+            </RoundedBox>
+            <mesh position={[0, 2.65, 0.38]}>
+              <sphereGeometry args={[0.11, 12, 12]} />
+              <meshStandardMaterial color="#fef08a" emissive="#f59e0b" emissiveIntensity={1.4} />
+            </mesh>
+          </group>
+        ))}
+
+        {/* Cream Portico Entablature Signboard ("Learn2Invest School" + Green Sprout on 2 - Image 3) */}
+        <RoundedBox args={[6.1, 1.6, 1.25]} position={[0, 4.68, 1.2]} radius={0.08} castShadow>
+          <meshStandardMaterial color="#f8f1e7" roughness={0.5} />
+        </RoundedBox>
+        <Text position={[0, 4.84, 1.86]} fontSize={0.5} color="#17375e" anchorX="center" anchorY="middle">
+          Learn2Invest
+        </Text>
+        {/* 3D Green Two-Leaf Sprout growing above the "2" (Image 3) */}
+        <group position={[-0.06, 5.26, 1.86]}>
+          <mesh position={[-0.09, 0.05, 0]} rotation={[0, 0, 0.5]}>
+            <sphereGeometry args={[0.095, 12, 12]} scale={[1.65, 0.78, 0.4]} />
+            <meshStandardMaterial color="#4d7c0f" emissive="#3f6212" emissiveIntensity={0.25} />
+          </mesh>
+          <mesh position={[0.09, 0.07, 0]} rotation={[0, 0, -0.45]}>
+            <sphereGeometry args={[0.105, 12, 12]} scale={[1.75, 0.8, 0.4]} />
+            <meshStandardMaterial color="#65a30d" emissive="#4d7c0f" emissiveIntensity={0.25} />
+          </mesh>
+        </group>
+        <Text position={[0, 4.28, 1.86]} fontSize={0.35} color="#17375e" anchorX="center" anchorY="middle">
+          School
+        </Text>
+
+        {/* Animated Warm Glass Double Entrance Doors */}
+        <group ref={leftDoorRef} position={[-1.85, 0.35, 0.2]}>
+          <RoundedBox args={[1.8, 3.4, 0.12]} position={[0.9, 1.7, 0]} radius={0.02}>
+            <meshStandardMaterial color="#fde68a" metalness={0.3} roughness={0.2} transparent opacity={0.78} />
+          </RoundedBox>
+        </group>
+        <group ref={rightDoorRef} position={[1.85, 0.35, 0.2]}>
+          <RoundedBox args={[1.8, 3.4, 0.12]} position={[-0.9, 1.7, 0]} radius={0.02}>
+            <meshStandardMaterial color="#fde68a" metalness={0.3} roughness={0.2} transparent opacity={0.78} />
+          </RoundedBox>
+        </group>
+      </group>
+    </group>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 3. ZONE 2: 3D SUNLIT SCHOOL VERANDA / ATRIUM (Matching Image 4: media_1790443807125.jpg)
+//    Runs from z = 2.0 to z = -30.0 along x = 0
+// ═══════════════════════════════════════════════════════════════════════════════
+function SchoolVeranda3D() {
+  return (
+    <group position={[0, 0, 0]}>
+      {/* Polished Warm Cream Tile Floor of Veranda */}
+      <mesh position={[0, 0.02, -14]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+        <planeGeometry args={[10.4, 32]} />
+        <meshStandardMaterial color="#f5ebe1" roughness={0.25} metalness={0.12} />
+      </mesh>
+
+      {/* Diagonal Golden Sunlight Stripes Across Veranda Floor (Image 4) */}
+      {[-5, -11, -17, -23].map((sz, i) => (
+        <mesh key={i} position={[0, 0.025, sz]} rotation={[-Math.PI / 2, 0, -0.28]}>
+          <planeGeometry args={[8.5, 1.3]} />
+          <meshBasicMaterial color="#fef3c7" transparent opacity={0.35} />
+        </mesh>
+      ))}
+
+      {/* ─── CENTERPIECE CIRCULAR WOODEN PLANTER BENCH + INDOOR TREE + PASTEL OTTOMANS (Image 4) ─── */}
+      <group position={[0.9, 0, -12.8]}>
+        {/* Circular Wooden Bench Ring */}
+        <mesh position={[0, 0.42, 0]} castShadow receiveShadow>
+          <cylinderGeometry args={[1.95, 1.95, 0.12, 32]} />
+          <meshStandardMaterial color="#d69e66" roughness={0.45} />
+        </mesh>
+        {/* Inner White Planter Cylinder */}
+        <mesh position={[0, 0.56, 0]} castShadow>
+          <cylinderGeometry args={[1.25, 1.25, 0.65, 32]} />
+          <meshStandardMaterial color="#f8fafc" roughness={0.4} />
+        </mesh>
+        {/* Indoor Lush Green Tree & Flowers inside Planter */}
+        <mesh position={[0, 1.5, 0]} castShadow>
+          <cylinderGeometry args={[0.12, 0.18, 1.6, 12]} />
+          <meshStandardMaterial color="#6b4423" />
+        </mesh>
+        <mesh position={[0, 2.55, 0]} castShadow>
+          <sphereGeometry args={[1.15, 16, 16]} />
+          <meshStandardMaterial color="#22c55e" roughness={0.6} />
+        </mesh>
+        <mesh position={[-0.45, 2.35, 0.35]} castShadow>
+          <sphereGeometry args={[0.75, 14, 14]} />
+          <meshStandardMaterial color="#16a34a" roughness={0.6} />
+        </mesh>
+        {/* Cute Pastel Pouf Ottomans Around Circular Bench (Mint Green, Sunny Yellow, Pastel Pink - Image 4) */}
+        {[
+          { x: -1.65, z: 1.05, color: '#a7f3d0' },
+          { x: 0.75, z: 1.75, color: '#fde047' },
+          { x: 1.85, z: 0.55, color: '#f9a8d4' },
+          { x: -1.55, z: -1.15, color: '#fde047' },
+        ].map((pouf, idx) => (
+          <mesh key={idx} position={[pouf.x, 0.28, pouf.z]} castShadow>
+            <cylinderGeometry args={[0.44, 0.44, 0.52, 24]} />
+            <meshStandardMaterial color={pouf.color} roughness={0.55} />
+          </mesh>
+        ))}
+      </group>
+
+      {/* ─── LEFT VERANDA WALL WITH WOODEN DOORWAYS "101" (CLASSROOM), "102", AND "103" (EXAM CENTER) ─── */}
+      {[
+        { z: -7.5, num: '101', label: 'CLASSROOM 101' },
+        { z: -15.5, num: '102', label: 'CLASSROOM 102' },
+        { z: -23.5, num: '103', label: 'EXAM CENTER 103' },
+      ].map((door, idx) => (
+        <group key={idx} position={[-5.1, 0, door.z]}>
+          {/* Cream Wall Pillar Between Doors */}
+          <RoundedBox args={[0.45, 4.5, 2.6]} position={[0, 2.25, 3.2]} radius={0.03} castShadow receiveShadow>
+            <meshStandardMaterial color="#f8efe2" roughness={0.7} />
+          </RoundedBox>
+          {/* Warm Oak Door Frame */}
+          <RoundedBox args={[0.48, 3.8, 0.18]} position={[0, 1.9, -1.6]} radius={0.02}>
+            <meshStandardMaterial color="#c08248" />
+          </RoundedBox>
+          <RoundedBox args={[0.48, 3.8, 0.18]} position={[0, 1.9, 1.6]} radius={0.02}>
+            <meshStandardMaterial color="#c08248" />
+          </RoundedBox>
+          <RoundedBox args={[0.5, 0.35, 3.4]} position={[0, 3.75, 0]} radius={0.02}>
+            <meshStandardMaterial color="#c08248" />
+          </RoundedBox>
+
+          {/* Dark Slate Room Number Sign ("101", "102", "103") Above Door Frame (Image 4) */}
+          <RoundedBox args={[0.12, 0.46, 0.92]} position={[0.26, 4.12, 0]} radius={0.04}>
+            <meshStandardMaterial color="#1e293b" />
+          </RoundedBox>
+          <Text
+            position={[0.34, 4.12, 0]}
+            rotation={[0, Math.PI / 2, 0]}
+            fontSize={0.24}
+            color="#ffffff"
+            anchorX="center"
+            anchorY="middle"
+          >
+            {door.num}
+          </Text>
+
+          {/* Potted Leafy Green Plant in White Ceramic Pot Beside Doorway (Image 4) */}
+          <group position={[0.45, 0, 2.15]}>
+            <mesh position={[0, 0.32, 0]} castShadow>
+              <cylinderGeometry args={[0.26, 0.2, 0.64, 16]} />
+              <meshStandardMaterial color="#f5ebe0" />
+            </mesh>
+            <mesh position={[0, 0.88, 0]} castShadow>
+              <sphereGeometry args={[0.42, 12, 12]} scale={[0.85, 1.35, 0.85]} />
+              <meshStandardMaterial color="#15803d" />
+            </mesh>
+          </group>
+        </group>
+      ))}
+
+      {/* ─── RIGHT VERANDA WALL: PASTEL LOCKERS & GLASS LIBRARY LOUNGE (Image 4) ─── */}
+      <group position={[5.1, 0, 0]}>
+        {/* Right Wall Backdrop */}
+        <RoundedBox args={[0.45, 8.2, 32]} position={[0.2, 4.1, -14]} radius={0.03} receiveShadow>
+          <meshStandardMaterial color="#f8efe2" roughness={0.7} />
+        </RoundedBox>
+
+        {/* Pastel Blue & Pastel Pink Student Lockers (Image 4) */}
+        {Array.from({ length: 8 }).map((_, i) => (
+          <RoundedBox
+            key={i}
+            args={[0.55, 2.35, 0.78]}
+            position={[-0.25, 1.18, -11.5 - i * 0.84]}
+            radius={0.02}
+            castShadow
+          >
+            <meshStandardMaterial color={i % 2 === 0 ? '#93c5fd' : '#f9a8d4'} roughness={0.4} />
+          </RoundedBox>
+        ))}
+
+        {/* Glass-Framed Library Book Nook on Right Foreground (Image 4) */}
+        <group position={[-0.35, 0, -6.2]}>
+          <RoundedBox args={[0.8, 3.6, 4.8]} position={[0.2, 1.8, 0]} radius={0.05}>
+            <meshStandardMaterial color="#c08248" roughness={0.5} />
+          </RoundedBox>
+          {[-1.2, 0, 1.2].map((bz, idx) => (
+            <RoundedBox key={idx} args={[0.9, 0.22, 0.9]} position={[0.1, 1.2 + idx * 0.65, bz]} radius={0.02}>
+              <meshStandardMaterial color={idx % 2 === 0 ? '#f472b6' : '#38bdf8'} />
+            </RoundedBox>
+          ))}
+        </group>
+      </group>
+
+      {/* ─── SECOND-FLOOR MEZZANINE BALCONY, GLASS RAILINGS, HANGING VINES & CLOUD LIGHTS (Image 4) ─── */}
+      <RoundedBox args={[1.6, 0.35, 30]} position={[-4.6, 4.65, -14]} radius={0.03}>
+        <meshStandardMaterial color="#f5ebe0" />
+      </RoundedBox>
+      <RoundedBox args={[1.6, 0.35, 30]} position={[4.6, 4.65, -14]} radius={0.03}>
+        <meshStandardMaterial color="#f5ebe0" />
+      </RoundedBox>
+      {/* Glowing Ring & Cloud Ceiling Lights */}
+      {[-6, -13, -20].map((lz, i) => (
+        <mesh key={i} position={[0, 7.6, lz]} rotation={[Math.PI / 2, 0, 0]}>
+          <torusGeometry args={[0.95, 0.07, 12, 32]} />
+          <meshStandardMaterial color="#ffffff" emissive="#fef08a" emissiveIntensity={0.9} />
+        </mesh>
+      ))}
+      {/* Grand Staircase at Far End of Veranda */}
+      {Array.from({ length: 8 }).map((_, i) => (
+        <RoundedBox
+          key={i}
+          args={[5.6, 0.22, 0.65]}
+          position={[0, 0.11 + i * 0.22, -26.5 - i * 0.55]}
+          radius={0.02}
+          receiveShadow
+        >
+          <meshStandardMaterial color="#ead7c3" roughness={0.6} />
+        </RoundedBox>
+      ))}
+    </group>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 4. ZONE 3: 3D CLASSROOM "101" WITH PHYSICAL PROJECTOR SCREEN (Matching Image 5)
+//    Centered at x = -14, z = -10, facing -Z (Projector Screen at z = -16.85)
+// ═══════════════════════════════════════════════════════════════════════════════
+function Classroom101Scene3D({ projectorContent }) {
+  return (
+    <group position={[-14, 0, -10]}>
+      {/* Warm Polished Honey-Cream Classroom Floor */}
+      <mesh position={[0, 0.02, -1]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+        <planeGeometry args={[16.5, 14.5]} />
+        <meshStandardMaterial color="#e8c8a7" roughness={0.32} metalness={0.08} />
+      </mesh>
+
+      {/* Back & Side Classroom Walls */}
+      <mesh position={[0, 3.8, -7.1]} receiveShadow>
+        <boxGeometry args={[16.5, 7.6, 0.35]} />
+        <meshStandardMaterial color="#f5ebe0" roughness={0.75} />
+      </mesh>
+      {/* Left Window Wall */}
+      <mesh position={[-8.1, 3.8, -1]} receiveShadow>
+        <boxGeometry args={[0.35, 7.6, 14.5]} />
+        <meshStandardMaterial color="#f5ebe0" roughness={0.75} />
+      </mesh>
+      {/* Ceiling with Warm Wood Center Panel & White Ceiling Projector (Image 5) */}
+      <mesh position={[0, 7.5, -1]}>
+        <boxGeometry args={[16.5, 0.25, 14.5]} />
+        <meshStandardMaterial color="#fdf8f0" />
+      </mesh>
+      <mesh position={[0, 7.36, -3.5]}>
+        <boxGeometry args={[6.8, 0.08, 6.2]} />
+        <meshStandardMaterial color="#c88d54" roughness={0.55} />
+      </mesh>
+
+      {/* Ceiling-Mounted White Projector (Image 5) */}
+      <group position={[0, 6.72, -2.2]}>
+        <mesh position={[0, 0.35, 0]}>
+          <cylinderGeometry args={[0.05, 0.05, 0.65, 12]} />
+          <meshStandardMaterial color="#1e293b" />
+        </mesh>
+        <RoundedBox args={[0.92, 0.28, 0.72]} radius={0.06} castShadow>
+          <meshStandardMaterial color="#f8fafc" roughness={0.3} />
+        </RoundedBox>
+        <mesh position={[0, 0, -0.37]} rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[0.09, 0.09, 0.05, 16]} />
+          <meshBasicMaterial color="#38bdf8" />
+        </mesh>
+      </group>
+
+      {/* ─── FRONT SAGE-GREEN CHALKBOARD WALL & OAK WOOD TRIM (Matching Image 5) ─── */}
+      <group position={[0, 3.85, -6.9]}>
+        {/* Outer Warm Oak Frame */}
+        <RoundedBox args={[12.4, 4.9, 0.08]} radius={0.03}>
+          <meshStandardMaterial color="#c88d54" roughness={0.5} />
+        </RoundedBox>
+        {/* Sage-Green Board Backdrop */}
+        <RoundedBox args={[12.0, 4.55, 0.1]} position={[0, 0, 0.02]} radius={0.02}>
+          <meshStandardMaterial color="#4f6d54" roughness={0.75} />
+        </RoundedBox>
+
+        {/* Left & Right Black Wall Speakers Flanking Projector Screen (Image 5) */}
+        {[-3.65, 3.65].map((sx, i) => (
+          <RoundedBox key={i} args={[0.42, 0.68, 0.26]} position={[sx, 1.78, 0.18]} radius={0.03} castShadow>
+            <meshStandardMaterial color="#1e293b" roughness={0.4} />
+          </RoundedBox>
+        ))}
+
+        {/* Pinned Study Notes on Right Green Board (Image 5) */}
+        <mesh position={[4.45, 0.25, 0.08]}>
+          <planeGeometry args={[0.85, 1.05]} />
+          <meshBasicMaterial color="#fef9c3" />
+        </mesh>
+        <mesh position={[4.45, -0.85, 0.08]}>
+          <planeGeometry args={[0.85, 0.65]} />
+          <meshBasicMaterial color="#ffffff" />
+        </mesh>
+
+        {/* ─── LARGE PHYSICAL PROJECTOR SCREEN IN CENTER (Image 5) ─── */}
+        <group position={[0, 0.05, 0.14]}>
+          {/* Top White Roller Bar */}
+          <RoundedBox args={[6.95, 0.22, 0.22]} position={[0, 2.02, 0.06]} radius={0.05} castShadow>
+            <meshStandardMaterial color="#f8fafc" roughness={0.3} />
+          </RoundedBox>
+          {/* Black Matte Screen Frame */}
+          <RoundedBox args={[6.55, 3.88, 0.06]} position={[0, 0, 0]} radius={0.02} castShadow>
+            <meshStandardMaterial color="#18181b" roughness={0.4} />
+          </RoundedBox>
+          {/* Blank White Physical Projection Surface */}
+          <mesh position={[0, 0, 0.035]}>
+            <planeGeometry args={[6.25, 3.56]} />
+            <meshBasicMaterial color="#ffffff" />
+          </mesh>
+          {/* Bottom Roller Bar & Pull Ring */}
+          <RoundedBox args={[6.68, 0.1, 0.1]} position={[0, -1.98, 0.04]} radius={0.03}>
+            <meshStandardMaterial color="#e2e8f0" />
+          </RoundedBox>
+
+          {/* ─── INTERACTIVE VIDEO LESSON PLAYER EMBEDDED INSIDE THE PHYSICAL PROJECTOR SCREEN ─── */}
+          {projectorContent && (
+            <Html
+              transform
+              distanceFactor={2.82}
+              position={[0, 0, 0.05]}
+              style={{
+                width: '880px',
+                height: '500px',
+                pointerEvents: 'auto',
+                userSelect: 'none',
+              }}
+            >
+              {projectorContent}
+            </Html>
+          )}
+        </group>
+      </group>
+
+      {/* Low Wooden Storage Credenza Below Projector Screen (Image 5) */}
+      <RoundedBox args={[8.2, 1.1, 0.85]} position={[0, 0.55, -6.45]} radius={0.03} castShadow receiveShadow>
+        <meshStandardMaterial color="#d49963" roughness={0.5} />
+      </RoundedBox>
+
+      {/* ─── LEFT SHELF WITH LARGE CUTE PINK PIGGY BANK + GOLD COINS & PLANTS (Image 5) ─── */}
+      <group position={[-5.15, 0, -6.3]}>
+        <RoundedBox args={[2.3, 1.45, 0.95]} position={[0, 0.72, 0]} radius={0.03} castShadow>
+          <meshStandardMaterial color="#c88d54" roughness={0.5} />
+        </RoundedBox>
+        {/* Cute Chubby Pink Piggy Bank with Gold Coins on Top (Image 5) */}
+        <group position={[-0.35, 1.85, 0.05]}>
+          <mesh castShadow>
+            <sphereGeometry args={[0.42, 24, 24]} scale={[1.22, 0.96, 0.96]} />
+            <meshStandardMaterial color="#f9a8d4" roughness={0.32} />
+          </mesh>
+          {/* Snout */}
+          <mesh position={[0.48, -0.02, 0.08]} rotation={[0, 0, Math.PI / 2]}>
+            <cylinderGeometry args={[0.14, 0.16, 0.12, 16]} />
+            <meshStandardMaterial color="#f472b6" />
+          </mesh>
+          {/* Eyes */}
+          <mesh position={[0.34, 0.12, 0.26]}>
+            <sphereGeometry args={[0.04, 10, 10]} />
+            <meshBasicMaterial color="#0f172a" />
+          </mesh>
+          {/* Gold Coins Sticking Out of Top Slot */}
+          {[-0.08, 0.06].map((cx, i) => (
+            <mesh key={i} position={[cx, 0.44, 0]} rotation={[0, 0, i * 0.2]}>
+              <cylinderGeometry args={[0.13, 0.13, 0.04, 20]} rotation={[Math.PI / 2, 0, 0]} />
+              <meshStandardMaterial color="#fbbf24" metalness={0.85} roughness={0.15} />
+            </mesh>
+          ))}
+        </group>
+        {/* Potted Plant Beside Piggy Bank */}
+        <group position={[0.65, 1.62, 0]}>
+          <mesh>
+            <cylinderGeometry args={[0.16, 0.12, 0.28, 12]} />
+            <meshStandardMaterial color="#f5ebe0" />
+          </mesh>
+          <mesh position={[0, 0.24, 0]}>
+            <sphereGeometry args={[0.25, 12, 12]} />
+            <meshStandardMaterial color="#16a34a" />
+          </mesh>
+        </group>
+      </group>
+
+      {/* ─── RIGHT TEACHER DESK WITH LAPTOP, PLANT & WALL CLOCK (Image 5) ─── */}
+      <group position={[4.55, 0, -5.6]}>
+        <RoundedBox args={[2.5, 1.25, 1.15]} position={[0, 0.62, 0]} radius={0.03} castShadow>
+          <meshStandardMaterial color="#d49963" roughness={0.48} />
+        </RoundedBox>
+        {/* Silver Laptop */}
+        <RoundedBox args={[0.58, 0.36, 0.04]} position={[0, 1.42, 0.1]} rotation={[-0.2, 0, 0]} radius={0.02}>
+          <meshStandardMaterial color="#cbd5e1" metalness={0.6} roughness={0.3} />
+        </RoundedBox>
+      </group>
+      {/* Round Wall Clock on Right Wall Pillar (Image 5) */}
+      <group position={[6.95, 4.95, -6.8]}>
+        <mesh rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[0.46, 0.46, 0.06, 28]} />
+          <meshStandardMaterial color="#ffffff" />
+        </mesh>
+        <mesh position={[0, 0, 0.04]}>
+          <torusGeometry args={[0.46, 0.04, 10, 28]} />
+          <meshStandardMaterial color="#78350f" />
+        </mesh>
+      </group>
+
+      {/* ─── LEFT SUNLIT WINDOWS, POTTED PLANTS & DIAGONAL SUNBEAM RAYS (Image 5) ─── */}
+      {[-4.2, -0.5, 3.2].map((wz, idx) => (
+        <group key={idx} position={[-7.85, 3.8, wz]}>
+          <RoundedBox args={[0.15, 3.8, 3.1]} radius={0.02}>
+            <meshStandardMaterial color="#334155" />
+          </RoundedBox>
+          <mesh position={[0.09, 0, 0]} rotation={[0, Math.PI / 2, 0]}>
+            <planeGeometry args={[2.85, 3.5]} />
+            <meshBasicMaterial color="#dcfce7" />
+          </mesh>
+          {/* Warm Diagonal Sunlight Beam */}
+          <mesh position={[2.8, -1.2, 0]} rotation={[0, 0, -0.52]}>
+            <cylinderGeometry args={[1.0, 2.1, 5.8, 16, 1, true]} />
+            <meshBasicMaterial color="#fef08a" transparent opacity={0.08} side={THREE.DoubleSide} depthWrite={false} />
+          </mesh>
+        </group>
+      ))}
+
+      {/* ─── 3D CLASSROOM TEACHER STANDING AT FRONT OF CLASSROOM 101 ─── */}
+      <ClassroomTeacher3D
+        position={[3.55, 0, -5.15]}
+        rotationY={-0.38}
+        jacketColor="#1e3a8a"
+        shirtColor="#f8fafc"
+        skirtOrPantsColor="#1e293b"
+        hairColor="#3b2219"
+        isFemale={true}
+      />
+
+      {/* ─── ROWS OF STUDENT DESKS WITH SEATED STUDENTS & PLAYER CHAIR AT [-2.1, -3.4] ─── */}
+      {[
+        { dx: -2.1, dz: -3.4, isPlayerSeat: true }, // Front-Left Desk where Player Character sits! (World Chair: x = -16.1, z = -12.68)
+        { dx: 2.1, dz: -3.4, isPlayerSeat: false, shirt: '#ec4899', pants: '#1e293b', hair: '#3b2219', female: true, phase: 0.4 },
+        { dx: -3.2, dz: -1.2, isPlayerSeat: false, shirt: '#3b82f6', pants: '#334155', hair: '#1c1917', female: false, phase: 1.5 },
+        { dx: 0.0, dz: -1.2, isPlayerSeat: false, shirt: '#10b981', pants: '#1e293b', hair: '#27272a', female: true, phase: 2.7 },
+        { dx: 3.2, dz: -1.2, isPlayerSeat: false, shirt: '#f59e0b', pants: '#334155', hair: '#18181b', female: false, phase: 3.8 },
+      ].map((desk, idx) => (
+        <group key={idx} position={[desk.dx, 0, desk.dz]}>
+          <RoundedBox args={[2.0, 0.09, 1.05]} position={[0, 0.78, 0]} radius={0.03} castShadow receiveShadow>
+            <meshStandardMaterial color="#d99b66" roughness={0.42} />
+          </RoundedBox>
+          {[-0.86, 0.86].map((lx, l) => (
+            <RoundedBox key={l} args={[0.08, 0.76, 0.92]} position={[lx, 0.38, 0]} radius={0.02} castShadow>
+              <meshStandardMaterial color="#64748b" />
+            </RoundedBox>
+          ))}
+          {/* Pink Cylindrical Pencil Case on Desk */}
+          <mesh position={[-0.45, 0.88, 0.1]} rotation={[0, 0, Math.PI / 2]}>
+            <cylinderGeometry args={[0.06, 0.06, 0.3, 14]} />
+            <meshStandardMaterial color="#f472b6" />
+          </mesh>
+          {/* Notebook */}
+          <RoundedBox args={[0.46, 0.04, 0.34]} position={[0.28, 0.85, 0.05]} radius={0.01}>
+            <meshStandardMaterial color="#6ee7b7" />
+          </RoundedBox>
+          {/* Sage-Green Student Chair */}
+          <RoundedBox args={[0.82, 0.08, 0.78]} position={[0, 0.44, 0.72]} radius={0.02} castShadow>
+            <meshStandardMaterial color={desk.isPlayerSeat ? '#10b981' : '#6b8e78'} />
+          </RoundedBox>
+          <RoundedBox args={[0.82, 0.48, 0.08]} position={[0, 0.72, 1.08]} radius={0.02} castShadow>
+            <meshStandardMaterial color={desk.isPlayerSeat ? '#10b981' : '#6b8e78'} />
+          </RoundedBox>
+
+          {/* Fellow Seated Student on Non-Player Desks */}
+          {!desk.isPlayerSeat && (
+            <SeatedStudentFigure3D
+              position={[0, 0.02, 0.72]}
+              rotationY={Math.PI}
+              shirtColor={desk.shirt}
+              pantsColor={desk.pants}
+              hairColor={desk.hair}
+              isFemale={desk.female}
+              phase={desk.phase}
+              isWriting={false}
+            />
+          )}
+        </group>
+      ))}
+    </group>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 5. ZONE 4: 3D EXAMINATION CENTER "103" (With Teacher + Seated Students + Player Chair)
+//    Centered at x = -14, y = 0, z = -26, facing -Z (Projector Screen at z = -32.85)
+// ═══════════════════════════════════════════════════════════════════════════════
+function ExaminationCenter103Scene3D({ examProjectorContent }) {
+  return (
+    <group position={[-14, 0, -26]}>
+      {/* Warm Polished Cream-Beige Tile Floor with Sunbeam Reflections */}
+      <mesh position={[0, 0.02, -1]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+        <planeGeometry args={[16.5, 14.5]} />
+        <meshStandardMaterial color="#e6c9a8" roughness={0.28} metalness={0.1} />
+      </mesh>
+      {[-3.2, -0.4, 2.4].map((rz, idx) => (
+        <mesh key={idx} position={[-1.5, 0.03, rz]} rotation={[-Math.PI / 2, 0, -0.18]}>
+          <planeGeometry args={[9.5, 1.15]} />
+          <meshBasicMaterial color="#fef3c7" transparent opacity={0.24} />
+        </mesh>
+      ))}
+
+      {/* Front, Left & Right Walls */}
+      <mesh position={[0, 3.8, -7.1]} receiveShadow>
+        <boxGeometry args={[16.5, 7.6, 0.35]} />
+        <meshStandardMaterial color="#f7efe4" roughness={0.75} />
+      </mesh>
+      <mesh position={[-8.1, 3.8, -1]} receiveShadow>
+        <boxGeometry args={[0.35, 7.6, 14.5]} />
+        <meshStandardMaterial color="#f7efe4" roughness={0.75} />
+      </mesh>
+      {/* Ceiling with Recessed Warm Wood Slatted Panel & Spotlights */}
+      <mesh position={[0, 7.5, -1]}>
+        <boxGeometry args={[16.5, 0.25, 14.5]} />
+        <meshStandardMaterial color="#fdf8f0" />
+      </mesh>
+      <mesh position={[0, 7.36, -3.2]}>
+        <boxGeometry args={[7.4, 0.08, 6.4]} />
+        <meshStandardMaterial color="#b87d46" roughness={0.5} />
+      </mesh>
+      {[-2.2, 2.2].map((lx, i) => (
+        <mesh key={i} position={[lx, 7.3, -3.2]} rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[0.26, 0.26, 0.04, 20]} />
+          <meshBasicMaterial color="#fffbeb" />
+        </mesh>
+      ))}
+
+      {/* Ceiling-Mounted White Projector */}
+      <group position={[0, 6.72, -2.2]}>
+        <mesh position={[0, 0.35, 0]}>
+          <cylinderGeometry args={[0.05, 0.05, 0.65, 12]} />
+          <meshStandardMaterial color="#1e293b" />
+        </mesh>
+        <RoundedBox args={[0.92, 0.28, 0.72]} radius={0.06} castShadow>
+          <meshStandardMaterial color="#f8fafc" roughness={0.3} />
+        </RoundedBox>
+        <mesh position={[0, 0, -0.37]} rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[0.09, 0.09, 0.05, 16]} />
+          <meshBasicMaterial color="#38bdf8" />
+        </mesh>
+      </group>
+
+      {/* ─── FRONT WALL: SAGE-GREEN SIDE BOARDS & LARGE BLANK PROJECTOR SCREEN ─── */}
+      <group position={[0, 3.85, -6.9]}>
+        <RoundedBox args={[11.8, 4.3, 0.08]} radius={0.03}>
+          <meshStandardMaterial color="#c88d54" roughness={0.5} />
+        </RoundedBox>
+        <RoundedBox args={[11.4, 3.95, 0.1]} position={[0, 0, 0.02]} radius={0.02}>
+          <meshStandardMaterial color="#4f6d54" roughness={0.75} />
+        </RoundedBox>
+
+        <mesh position={[-4.5, 0.2, 0.08]}>
+          <planeGeometry args={[0.72, 0.88]} />
+          <meshBasicMaterial color="#fef3c7" />
+        </mesh>
+        <mesh position={[4.5, 0.35, 0.08]}>
+          <planeGeometry args={[0.68, 0.82]} />
+          <meshBasicMaterial color="#fde68a" />
+        </mesh>
+        <mesh position={[4.4, -0.65, 0.08]}>
+          <planeGeometry args={[0.65, 0.75]} />
+          <meshBasicMaterial color="#fef9c3" />
+        </mesh>
+
+        {/* ─── LARGE PHYSICAL PROJECTOR SCREEN IN EXAMINATION CENTER ─── */}
+        <group position={[0, 0.05, 0.14]}>
+          <RoundedBox args={[6.95, 0.22, 0.22]} position={[0, 2.02, 0.06]} radius={0.05} castShadow>
+            <meshStandardMaterial color="#f8fafc" roughness={0.3} />
+          </RoundedBox>
+          <RoundedBox args={[6.55, 3.88, 0.06]} position={[0, 0, 0]} radius={0.02} castShadow>
+            <meshStandardMaterial color="#18181b" roughness={0.4} />
+          </RoundedBox>
+          <mesh position={[0, 0, 0.035]}>
+            <planeGeometry args={[6.25, 3.56]} />
+            <meshBasicMaterial color="#ffffff" />
+          </mesh>
+          <RoundedBox args={[6.68, 0.1, 0.1]} position={[0, -1.98, 0.04]} radius={0.03}>
+            <meshStandardMaterial color="#e2e8f0" />
+          </RoundedBox>
+
+          {/* ─── INTERACTIVE QUIZ EMBEDDED INSIDE THE PHYSICAL PROJECTOR SCREEN ─── */}
+          {examProjectorContent && (
+            <Html
+              transform
+              distanceFactor={2.82}
+              position={[0, 0, 0.05]}
+              style={{
+                width: '880px',
+                height: '500px',
+                pointerEvents: 'auto',
+                userSelect: 'none',
+              }}
+            >
+              {examProjectorContent}
+            </Html>
+          )}
+        </group>
+      </group>
+
+      {/* Right Teacher Desk with Black Monitor, Plant & Round Wall Clock */}
+      <group position={[4.55, 0, -5.5]}>
+        <RoundedBox args={[2.5, 1.25, 1.1]} position={[0, 0.62, 0]} radius={0.03} castShadow>
+          <meshStandardMaterial color="#d49963" roughness={0.48} />
+        </RoundedBox>
+        <RoundedBox args={[0.72, 0.44, 0.05]} position={[0, 1.48, 0.08]} radius={0.02}>
+          <meshStandardMaterial color="#1e293b" roughness={0.35} />
+        </RoundedBox>
+        <group position={[-0.75, 1.38, 0.1]}>
+          <mesh>
+            <cylinderGeometry args={[0.14, 0.11, 0.24, 12]} />
+            <meshStandardMaterial color="#f5ebe0" />
+          </mesh>
+          <mesh position={[0, 0.22, 0]}>
+            <sphereGeometry args={[0.24, 12, 12]} />
+            <meshStandardMaterial color="#16a34a" />
+          </mesh>
+        </group>
+      </group>
+
+      {/* ─── 3D EXAM INVIGILATOR / TEACHER STANDING AT FRONT OF EXAMINATION CENTER 103 ─── */}
+      <ClassroomTeacher3D
+        position={[3.55, 0, -4.65]}
+        rotationY={-0.35}
+        jacketColor="#0f766e"
+        shirtColor="#fef9c3"
+        skirtOrPantsColor="#1e293b"
+        hairColor="#1c1917"
+        isFemale={false}
+      />
+
+      {/* Round Wall Clock on Right Wall */}
+      <group position={[6.55, 4.55, -6.8]}>
+        <mesh rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[0.48, 0.48, 0.06, 28]} />
+          <meshStandardMaterial color="#ffffff" />
+        </mesh>
+        <mesh position={[0, 0, 0.04]}>
+          <torusGeometry args={[0.48, 0.04, 10, 28]} />
+          <meshStandardMaterial color="#78350f" />
+        </mesh>
+      </group>
+
+      {/* Left Windows & Potted Windowsill Plants */}
+      {[-4.2, -0.5, 3.2].map((wz, idx) => (
+        <group key={idx} position={[-7.88, 3.8, wz]}>
+          <mesh rotation={[0, Math.PI / 2, 0]}>
+            <planeGeometry args={[2.8, 3.6]} />
+            <meshBasicMaterial color="#dcfce7" />
+          </mesh>
+          <group position={[0.25, -1.65, 0]}>
+            <mesh>
+              <cylinderGeometry args={[0.16, 0.13, 0.28, 12]} />
+              <meshStandardMaterial color="#f8fafc" />
+            </mesh>
+            <mesh position={[0, 0.24, 0]}>
+              <sphereGeometry args={[0.26, 12, 12]} />
+              <meshStandardMaterial color="#15803d" />
+            </mesh>
+          </group>
+        </group>
+      ))}
+
+      {/* ─── INDIVIDUAL WOODEN EXAMINATION DESKS WITH SEATED STUDENTS & PLAYER CHAIR AT [-2.1, -3.4] ─── */}
+      {[
+        { dx: -2.1, dz: -3.4, isPlayerSeat: true }, // Front-Left Exam Desk where Player sits! (World Chair: x = -16.1, z = -28.68)
+        { dx: 2.1, dz: -3.4, isPlayerSeat: false, shirt: '#8b5cf6', pants: '#1e293b', hair: '#18181b', female: false, phase: 0.7 },
+        { dx: -3.2, dz: -1.1, isPlayerSeat: false, shirt: '#14b8a6', pants: '#334155', hair: '#3b2219', female: true, phase: 1.9 },
+        { dx: 0.0, dz: -1.1, isPlayerSeat: false, shirt: '#f43f5e', pants: '#1e293b', hair: '#27272a', female: true, phase: 2.5 },
+        { dx: 3.2, dz: -1.1, isPlayerSeat: false, shirt: '#0ea5e9', pants: '#334155', hair: '#1c1917', female: false, phase: 3.3 },
+        { dx: 0.0, dz: 1.2, isPlayerSeat: false, shirt: '#eab308', pants: '#1e293b', hair: '#451a03', female: true, phase: 4.1 },
+      ].map((desk, idx) => (
+        <group key={idx} position={[desk.dx, 0, desk.dz]}>
+          <RoundedBox args={[2.0, 0.09, 1.05]} position={[0, 0.78, 0]} radius={0.03} castShadow receiveShadow>
+            <meshStandardMaterial color="#d99b66" roughness={0.42} />
+          </RoundedBox>
+          {[-0.86, 0.86].map((lx, l) => (
+            <RoundedBox key={l} args={[0.08, 0.76, 0.92]} position={[lx, 0.38, 0]} radius={0.02} castShadow>
+              <meshStandardMaterial color="#475569" />
+            </RoundedBox>
+          ))}
+          {/* White Exam Question Sheet on Desk */}
+          <mesh position={[-0.1, 0.835, 0.06]} rotation={[-Math.PI / 2, 0, 0.04]}>
+            <planeGeometry args={[0.62, 0.44]} />
+            <meshBasicMaterial color="#ffffff" />
+          </mesh>
+          {/* Yellow Pencil Beside Exam Sheet */}
+          <mesh position={[0.36, 0.84, 0.12]} rotation={[0, 0.35, Math.PI / 2]}>
+            <cylinderGeometry args={[0.015, 0.015, 0.28, 8]} />
+            <meshStandardMaterial color="#facc15" />
+          </mesh>
+          {/* Navy-Slate Examination Chair */}
+          <RoundedBox args={[0.84, 0.08, 0.78]} position={[0, 0.44, 0.72]} radius={0.02} castShadow>
+            <meshStandardMaterial color={desk.isPlayerSeat ? '#10b981' : '#3b4f6b'} />
+          </RoundedBox>
+          <RoundedBox args={[0.84, 0.48, 0.08]} position={[0, 0.72, 1.08]} radius={0.02} castShadow>
+            <meshStandardMaterial color={desk.isPlayerSeat ? '#10b981' : '#3b4f6b'} />
+          </RoundedBox>
+
+          {/* Fellow Seated Exam Student */}
+          {!desk.isPlayerSeat && (
+            <SeatedStudentFigure3D
+              position={[0, 0.02, 0.72]}
+              rotationY={Math.PI}
+              shirtColor={desk.shirt}
+              pantsColor={desk.pants}
+              hairColor={desk.hair}
+              isFemale={desk.female}
+              phase={desk.phase}
+              isWriting={true}
+            />
+          )}
+        </group>
+      ))}
+    </group>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 6. ZONE 5: GRAND STAIRCASE TO FLOOR 2 ("↑ Floor 2") & FLOOR 2 VERANDA
+//    Stairs rise from y = 0, z = -26.5 to y = 6.2, z = -37.5
+// ═══════════════════════════════════════════════════════════════════════════════
+function StaircaseAndFloor2Veranda3D() {
+  return (
+    <group>
+      {Array.from({ length: 14 }).map((_, i) => {
+        const stepY = 0.22 + i * 0.44
+        const stepZ = -26.5 - i * 0.8
+        return (
+          <RoundedBox
+            key={i}
+            args={[6.2, 0.44, 0.85]}
+            position={[0, stepY, stepZ]}
+            radius={0.02}
+            castShadow
+            receiveShadow
+          >
+            <meshStandardMaterial color="#ead7c3" roughness={0.52} />
+          </RoundedBox>
+        )
+      })}
+
+      {[-3.35, 3.35].map((rx, sideIdx) => (
+        <group key={sideIdx}>
+          <RoundedBox
+            args={[0.16, 0.14, 12.2]}
+            position={[rx, 4.15, -31.8]}
+            rotation={[0.49, 0, 0]}
+            radius={0.03}
+            castShadow
+          >
+            <meshStandardMaterial color="#c88d54" roughness={0.45} />
+          </RoundedBox>
+          <mesh position={[rx, 3.6, -31.8]} rotation={[0.49, 0, 0]}>
+            <boxGeometry args={[0.05, 0.95, 11.8]} />
+            <meshPhysicalMaterial color="#e0f2fe" transparent opacity={0.36} roughness={0.1} />
+          </mesh>
+
+          {[0, 1, 2, 3].map((pIdx) => {
+            const py = 0.85 + pIdx * 1.35
+            const pz = -27.2 - pIdx * 2.45
+            return (
+              <group key={pIdx} position={[rx * 0.82, py, pz]}>
+                <RoundedBox args={[0.78, 0.62, 0.78]} radius={0.03} castShadow>
+                  <meshStandardMaterial color="#d49963" roughness={0.55} />
+                </RoundedBox>
+                <mesh position={[0, 0.45, 0]} castShadow>
+                  <sphereGeometry args={[0.42, 12, 12]} />
+                  <meshStandardMaterial color="#15803d" roughness={0.8} />
+                </mesh>
+                <mesh position={[0.14, 0.62, 0.14]}>
+                  <sphereGeometry args={[0.16, 10, 10]} />
+                  <meshStandardMaterial color={pIdx % 2 === 0 ? '#f472b6' : '#facc15'} />
+                </mesh>
+              </group>
+            )
+          })}
+
+          <group position={[rx * 1.12, 0, -25.8]}>
+            <mesh position={[0, 0.55, 0]} castShadow>
+              <cylinderGeometry args={[0.38, 0.28, 1.1, 18]} />
+              <meshStandardMaterial color="#f8fafc" roughness={0.35} />
+            </mesh>
+            <mesh position={[0, 1.35, 0]} castShadow>
+              <sphereGeometry args={[0.62, 14, 14]} />
+              <meshStandardMaterial color="#16a34a" roughness={0.75} />
+            </mesh>
+          </group>
+        </group>
+      ))}
+
+      <group position={[0, 7.85, -31.5]}>
+        {[-1.2, 1.2].map((hx, i) => (
+          <mesh key={i} position={[hx, 0.85, 0]}>
+            <cylinderGeometry args={[0.025, 0.025, 1.2, 8]} />
+            <meshStandardMaterial color="#475569" />
+          </mesh>
+        ))}
+        <RoundedBox args={[3.6, 1.35, 0.14]} radius={0.18} castShadow>
+          <meshStandardMaterial color="#d99b66" roughness={0.45} />
+        </RoundedBox>
+        <mesh position={[0, 0.68, 0]}>
+          <cylinderGeometry args={[0.58, 0.58, 0.14, 24]} rotation={[Math.PI / 2, 0, 0]} />
+          <meshStandardMaterial color="#d99b66" roughness={0.45} />
+        </mesh>
+        <RoundedBox args={[3.36, 1.14, 0.16]} radius={0.14}>
+          <meshStandardMaterial color="#fde6c4" roughness={0.5} />
+        </RoundedBox>
+        <Text position={[0, 0.42, 0.1]} fontSize={0.42} color="#451a03" anchorX="center" anchorY="middle">
+          ↑
+        </Text>
+        <Text
+          position={[0, -0.1, 0.1]}
+          fontSize={0.46}
+          color="#451a03"
+          anchorX="center"
+          anchorY="middle"
+          outlineWidth={0.012}
+          outlineColor="#451a03"
+        >
+          Floor 2
+        </Text>
+      </group>
+
+      <group position={[0, 6.2, -41.5]}>
+        <mesh position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+          <planeGeometry args={[16.0, 10.5]} />
+          <meshStandardMaterial color="#f6eadc" roughness={0.25} metalness={0.1} />
+        </mesh>
+        <mesh position={[-7.8, 3.6, 0]} receiveShadow>
+          <boxGeometry args={[0.35, 7.2, 10.5]} />
+          <meshStandardMaterial color="#fbf3e8" />
+        </mesh>
+        <mesh position={[7.8, 3.6, 0]} receiveShadow>
+          <boxGeometry args={[0.35, 7.2, 10.5]} />
+          <meshStandardMaterial color="#fbf3e8" />
+        </mesh>
+        <mesh position={[0, 3.4, 4.8]}>
+          <planeGeometry args={[9.2, 4.8]} />
+          <meshBasicMaterial color="#bae6fd" transparent opacity={0.45} />
+        </mesh>
+        {[-3.8, 3.8].map((px, i) => (
+          <group key={i} position={[px, 0, -1.5]}>
+            <mesh position={[0, 0.42, 0]} castShadow>
+              <cylinderGeometry args={[0.32, 0.24, 0.84, 16]} />
+              <meshStandardMaterial color="#f8fafc" />
+            </mesh>
+            <mesh position={[0, 1.1, 0]} castShadow>
+              <sphereGeometry args={[0.55, 14, 14]} />
+              <meshStandardMaterial color="#15803d" />
+            </mesh>
+          </group>
+        ))}
+      </group>
+    </group>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 7. ZONE 6: FLOOR 2 — 3D COMPUTER LABORATORY WITH 3 PHYSICAL MONITORS + TEACHER
+//    Centered at x = 0, y = 6.2, z = -52.0
+// ═══════════════════════════════════════════════════════════════════════════════
+function Floor2ComputerLabScene3D({
+  activeComputerIndex,
+  computer1Content,
+  computer2Content,
+  computer3Content,
+}) {
+  const workstations = [
+    { idx: 1, x: -3.4, label: 'Computer 1 • Simulation Module', content: computer1Content },
+    { idx: 2, x: 0.0, label: 'Computer 2 • Savings Mixer', content: computer2Content },
+    { idx: 3, x: 3.4, label: 'Computer 3 • Combined Metrics', content: computer3Content },
+  ]
+
+  return (
+    <group position={[0, 6.2, -52.0]}>
+      {/* Warm Polished Wood-Toned Computer Lab Floor */}
+      <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+        <planeGeometry args={[17.5, 13.5]} />
+        <meshStandardMaterial color="#e5c49f" roughness={0.3} metalness={0.08} />
+      </mesh>
+
+      {/* Front, Left & Right Computer Lab Walls */}
+      <mesh position={[0, 3.8, -6.6]} receiveShadow>
+        <boxGeometry args={[17.5, 7.6, 0.35]} />
+        <meshStandardMaterial color="#f6ede2" roughness={0.75} />
+      </mesh>
+      <mesh position={[-8.6, 3.8, 0]} receiveShadow>
+        <boxGeometry args={[0.35, 7.6, 13.5]} />
+        <meshStandardMaterial color="#f6ede2" roughness={0.75} />
+      </mesh>
+      <mesh position={[8.6, 3.8, 0]} receiveShadow>
+        <boxGeometry args={[0.35, 7.6, 13.5]} />
+        <meshStandardMaterial color="#f6ede2" roughness={0.75} />
+      </mesh>
+
+      {/* Ceiling with Linear LED Lights */}
+      <mesh position={[0, 7.5, 0]}>
+        <boxGeometry args={[17.5, 0.25, 13.5]} />
+        <meshStandardMaterial color="#fdf8f0" />
+      </mesh>
+      {[-3.2, 3.2].map((lx, i) => (
+        <mesh key={i} position={[lx, 7.34, -1.5]}>
+          <boxGeometry args={[2.6, 0.06, 0.18]} />
+          <meshBasicMaterial color="#ffffff" />
+        </mesh>
+      ))}
+
+      {/* Front Whiteboard & Wall Clock in Background of Lab */}
+      <RoundedBox args={[6.8, 2.5, 0.08]} position={[0, 4.1, -6.38]} radius={0.03}>
+        <meshStandardMaterial color="#f8fafc" roughness={0.25} />
+      </RoundedBox>
+      <group position={[4.8, 4.85, -6.35]}>
+        <mesh rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[0.38, 0.38, 0.06, 24]} />
+          <meshStandardMaterial color="#ffffff" />
+        </mesh>
+        <mesh position={[0, 0, 0.04]}>
+          <torusGeometry args={[0.38, 0.035, 10, 24]} />
+          <meshStandardMaterial color="#1e293b" />
+        </mesh>
+      </group>
+
+      {/* 3D Computer Lab Teacher Standing by Front Whiteboard */}
+      <ClassroomTeacher3D
+        position={[5.1, 0, -4.5]}
+        rotationY={-0.45}
+        jacketColor="#312e81"
+        shirtColor="#e0f2fe"
+        skirtOrPantsColor="#1e293b"
+        hairColor="#27272a"
+        isFemale={true}
+      />
+
+      {/* Left Windows Overlooking Pink Cherry Blossoms */}
+      {[-3.5, 0.5].map((wz, idx) => (
+        <group key={idx} position={[-8.38, 3.9, wz]}>
+          <mesh rotation={[0, Math.PI / 2, 0]}>
+            <planeGeometry args={[2.9, 3.5]} />
+            <meshBasicMaterial color="#fbcfe8" />
+          </mesh>
+        </group>
+      ))}
+
+      {/* Background Row of Secondary Computer Desks with Seated Students */}
+      {[-4.2, -1.4, 1.4, 4.2].map((bx, i) => (
+        <group key={i} position={[bx, 0, -3.5]}>
+          <RoundedBox args={[2.4, 0.08, 1.1]} position={[0, 0.78, 0]} radius={0.02} castShadow>
+            <meshStandardMaterial color="#d49963" roughness={0.45} />
+          </RoundedBox>
+          <RoundedBox args={[1.15, 0.72, 0.06]} position={[0, 1.25, -0.2]} radius={0.02} castShadow>
+            <meshStandardMaterial color="#18181b" roughness={0.35} />
+          </RoundedBox>
+          {(i === 0 || i === 3) && (
+            <SeatedStudentFigure3D
+              position={[0, 0.02, 0.65]}
+              rotationY={Math.PI}
+              shirtColor={i === 0 ? '#06b6d4' : '#ec4899'}
+              pantsColor="#1e293b"
+              hairColor="#27272a"
+              isFemale={i === 3}
+              phase={i * 1.4}
+            />
+          )}
+        </group>
+      ))}
+
+      {/* ─── MAIN INTERACTIVE COMPUTER WORKSTATION ROW: COMPUTERS 1, 2 & 3 ─── */}
+      <RoundedBox args={[10.6, 0.1, 1.45]} position={[0, 0.82, 0]} radius={0.03} castShadow receiveShadow>
+        <meshStandardMaterial color="#d89e68" roughness={0.38} />
+      </RoundedBox>
+      <RoundedBox args={[10.4, 0.62, 0.08]} position={[0, 1.12, -0.66]} radius={0.03} castShadow>
+        <meshStandardMaterial color="#94a3b8" roughness={0.8} />
+      </RoundedBox>
+
+      {workstations.map((ws) => {
+        const isCurrent = activeComputerIndex === ws.idx
+        return (
+          <group key={ws.idx} position={[ws.x, 0, 0]}>
+            {[-1.45, 1.45].map((lx, l) => (
+              <RoundedBox key={l} args={[0.09, 0.8, 1.25]} position={[lx, 0.4, 0]} radius={0.02} castShadow>
+                <meshStandardMaterial color="#475569" />
+              </RoundedBox>
+            ))}
+
+            {/* ─── PHYSICAL BLACK-BEZEL WIDESCREEN COMPUTER MONITOR ─── */}
+            <group position={[0, 1.62, -0.28]}>
+              <RoundedBox args={[0.62, 0.04, 0.4]} position={[0, -0.74, 0.04]} radius={0.01} castShadow>
+                <meshStandardMaterial color="#18181b" roughness={0.35} />
+              </RoundedBox>
+              <RoundedBox args={[0.18, 0.48, 0.08]} position={[0, -0.52, -0.02]} radius={0.01} castShadow>
+                <meshStandardMaterial color="#18181b" roughness={0.35} />
+              </RoundedBox>
+
+              {/* Outer Matte-Black Monitor Bezel */}
+              <RoundedBox args={[2.76, 1.62, 0.07]} position={[0, 0, 0]} radius={0.03} castShadow>
+                <meshStandardMaterial color={isCurrent ? '#0f172a' : '#18181b'} roughness={0.3} />
+              </RoundedBox>
+
+              {/* Physical Active Monitor Screen Surface */}
+              <mesh position={[0, 0, 0.038]}>
+                <planeGeometry args={[2.58, 1.46]} />
+                <meshBasicMaterial color="#020617" />
+              </mesh>
+
+              {/* Power LED on Bottom Right Bezel */}
+              <mesh position={[1.22, -0.75, 0.04]}>
+                <sphereGeometry args={[0.018, 8, 8]} />
+                <meshBasicMaterial color={isCurrent ? '#38bdf8' : '#64748b'} />
+              </mesh>
+
+              {/* ─── EMBEDDED INTERACTIVE MODULE PERFECTLY FITTED INSIDE COMPUTER SCREEN ─── */}
+              {ws.content && (
+                <Html
+                  transform
+                  distanceFactor={1.18}
+                  position={[0, 0, 0.045]}
+                  style={{
+                    width: '820px',
+                    height: '462px',
+                    pointerEvents: 'auto',
+                    userSelect: 'none',
+                    overflow: 'hidden',
+                  }}
+                >
+                  {ws.content}
+                </Html>
+              )}
+            </group>
+
+            {/* Full-Size Black Keyboard */}
+            <group position={[-0.08, 0.88, 0.24]}>
+              <RoundedBox args={[0.92, 0.035, 0.32]} radius={0.01} castShadow>
+                <meshStandardMaterial color="#18181b" roughness={0.4} />
+              </RoundedBox>
+              {[-0.08, 0, 0.08].map((kz, k) => (
+                <RoundedBox key={k} args={[0.84, 0.015, 0.06]} position={[0, 0.02, kz]} radius={0.005}>
+                  <meshStandardMaterial color="#27272a" />
+                </RoundedBox>
+              ))}
+            </group>
+
+            {/* Black Mouse on Mousepad */}
+            <group position={[0.64, 0.875, 0.26]}>
+              <RoundedBox args={[0.34, 0.01, 0.28]} radius={0.01}>
+                <meshStandardMaterial color="#1e293b" roughness={0.7} />
+              </RoundedBox>
+              <RoundedBox args={[0.11, 0.045, 0.17]} position={[0, 0.025, 0]} radius={0.04} castShadow>
+                <meshStandardMaterial color="#0f172a" roughness={0.3} />
+              </RoundedBox>
+            </group>
+
+            {/* Left White Potted Plant & Pencil Holder */}
+            <group position={[-0.95, 0.87, 0.08]}>
+              <mesh position={[0, 0.12, 0]} castShadow>
+                <cylinderGeometry args={[0.12, 0.09, 0.24, 14]} />
+                <meshStandardMaterial color="#f8fafc" />
+              </mesh>
+              <mesh position={[0, 0.3, 0]} castShadow>
+                <sphereGeometry args={[0.2, 12, 12]} />
+                <meshStandardMaterial color="#16a34a" />
+              </mesh>
+              <mesh position={[0.24, 0.1, 0.05]} castShadow>
+                <cylinderGeometry args={[0.065, 0.06, 0.19, 12]} />
+                <meshStandardMaterial color="#18181b" roughness={0.5} />
+              </mesh>
+              {['#f472b6', '#38bdf8', '#facc15'].map((pCol, p) => (
+                <mesh
+                  key={p}
+                  position={[0.22 + p * 0.02, 0.22, 0.05]}
+                  rotation={[0, 0, (p - 1) * 0.15]}
+                >
+                  <cylinderGeometry args={[0.01, 0.01, 0.16, 8]} />
+                  <meshStandardMaterial color={pCol} />
+                </mesh>
+              ))}
+            </group>
+
+            {/* Stacked Books on Desk Edge */}
+            <group position={[1.05, 0.88, 0.18]}>
+              <RoundedBox args={[0.38, 0.045, 0.28]} position={[0, 0, 0]} radius={0.01} castShadow>
+                <meshStandardMaterial color="#f472b6" />
+              </RoundedBox>
+              <RoundedBox args={[0.36, 0.045, 0.26]} position={[0, 0.045, 0]} radius={0.01} castShadow>
+                <meshStandardMaterial color="#6ee7b7" />
+              </RoundedBox>
+            </group>
+
+            {/* Ergonomic Office Chair Placed Slightly to the Left of Monitor so Player is Seated Without Blocking Screen */}
+            <group position={[-0.95, 0, 0.92]}>
+              <RoundedBox args={[0.82, 0.08, 0.76]} position={[0, 0.44, 0]} radius={0.03} castShadow>
+                <meshStandardMaterial color="#1e293b" />
+              </RoundedBox>
+              <RoundedBox args={[0.8, 0.56, 0.09]} position={[0, 0.76, 0.36]} radius={0.04} castShadow>
+                <meshStandardMaterial color="#1e293b" />
+              </RoundedBox>
+            </group>
+          </group>
+        )
+      })}
+    </group>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 8. ZONE 7: OPEN-AIR SUNLIT VERANDA EXIT ("EXIT") & WROUGHT-IRON SCHOOL GATES
+//    (Matching Uploaded Image 1: media_1790500737726.jpg)
+//    Glossy Cream/Grey Tile Veranda, Wooden Classroom Doors & Bulletin Boards on Left,
+//    Open Colonnade Pillars + Metal Railing + Wooden Bench on Right Overlooking Trees,
+//    White Square Planters with Lush Green Leaves Along Both Sides, and Glass Double
+//    Doors with Green "EXIT" Sign Leading Out to Wrought-Iron School Gate!
+//    Located at x = 0, y = 6.2, z = -56.0 to -82.0
+// ═══════════════════════════════════════════════════════════════════════════════
+function SchoolExitCorridorAndExterior3D() {
+  return (
+    <group position={[0, 6.2, -64.0]}>
+      {/* ─── GLOSSY CREAM & CHARCOAL-BORDERED VERANDA TILE FLOOR (Image 1) ─── */}
+      <mesh position={[0, 0.01, 3.2]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+        <planeGeometry args={[9.2, 11.5]} />
+        <meshStandardMaterial color="#ede4d7" roughness={0.14} metalness={0.18} />
+      </mesh>
+      {/* Left & Right Dark Slate-Grey Border Tile Strips (Image 1) */}
+      {[-4.1, 4.1].map((bx, i) => (
+        <mesh key={i} position={[bx, 0.014, 3.2]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+          <planeGeometry args={[0.85, 11.5]} />
+          <meshStandardMaterial color="#475569" roughness={0.25} metalness={0.15} />
+        </mesh>
+      ))}
+      {/* Diagonal Golden Sunlight Stripes Across Glossy Veranda Floor (Image 1) */}
+      {[1.5, 4.2, 6.8].map((sz, i) => (
+        <mesh key={i} position={[0, 0.018, sz]} rotation={[-Math.PI / 2, 0, -0.32]}>
+          <planeGeometry args={[8.4, 1.35]} />
+          <meshBasicMaterial color="#fef3c7" transparent opacity={0.38} />
+        </mesh>
+      ))}
+
+      {/* ─── COFFERED VERANDA CEILING WITH CROSS-BEAMS & ROUND RECESSED DOWNLIGHTS (Image 1) ─── */}
+      <mesh position={[0, 5.45, 3.2]}>
+        <boxGeometry args={[9.6, 0.28, 11.6]} />
+        <meshStandardMaterial color="#f5ebe0" roughness={0.5} />
+      </mesh>
+      {[0.8, 3.6, 6.4].map((bz, i) => (
+        <group key={i} position={[0, 5.18, bz]}>
+          <RoundedBox args={[9.2, 0.36, 0.42]} radius={0.02}>
+            <meshStandardMaterial color="#eadccd" roughness={0.55} />
+          </RoundedBox>
+          <mesh position={[0, -0.19, 1.2]} rotation={[Math.PI / 2, 0, 0]}>
+            <cylinderGeometry args={[0.16, 0.16, 0.03, 18]} />
+            <meshBasicMaterial color="#ffffff" />
+          </mesh>
+        </group>
+      ))}
+
+      {/* ─── LEFT VERANDA WALL: WOODEN CLASSROOM DOORS, CORK BULLETIN BOARDS & WINDOWS (Image 1) ─── */}
+      <group position={[-4.55, 0, 3.2]}>
+        <mesh position={[0, 2.7, 0]} receiveShadow>
+          <boxGeometry args={[0.35, 5.4, 11.5]} />
+          <meshStandardMaterial color="#f4eadf" roughness={0.65} />
+        </mesh>
+
+        {/* Two Warm-Wood Classroom Doors with Vertical Glass Vision Panels & Dark Transoms (Image 1) */}
+        {[3.8, -0.8].map((dz, dIdx) => (
+          <group key={dIdx} position={[0.19, 0, dz]} rotation={[0, Math.PI / 2, 0]}>
+            {/* Dark Charcoal Door Frame & Upper Transom Window */}
+            <RoundedBox args={[1.55, 4.5, 0.08]} position={[0, 2.25, 0]} radius={0.01}>
+              <meshStandardMaterial color="#27272a" />
+            </RoundedBox>
+            {/* Warm Oak Door Leaf */}
+            <RoundedBox args={[1.38, 3.35, 0.1]} position={[0, 1.68, 0.02]} radius={0.01} castShadow>
+              <meshStandardMaterial color="#c88a51" roughness={0.45} />
+            </RoundedBox>
+            {/* Narrow Vertical Glass Vision Panel in Door */}
+            <mesh position={[0, 2.0, 0.08]}>
+              <planeGeometry args={[0.26, 1.65]} />
+              <meshPhysicalMaterial color="#bae6fd" transparent opacity={0.55} roughness={0.1} />
+            </mesh>
+            {/* Silver Door Handle */}
+            <RoundedBox args={[0.04, 0.18, 0.06]} position={[0.52, 1.55, 0.09]} radius={0.01}>
+              <meshStandardMaterial color="#cbd5e1" metalness={0.85} roughness={0.2} />
+            </RoundedBox>
+            {/* Upper Transom Glass Above Door */}
+            <mesh position={[0, 3.9, 0.05]}>
+              <planeGeometry args={[1.38, 0.85]} />
+              <meshPhysicalMaterial color="#bae6fd" transparent opacity={0.45} roughness={0.1} />
+            </mesh>
+          </group>
+        ))}
+
+        {/* Framed Bulletin Board with Colorful Posters Between Doors (Image 1) */}
+        <group position={[0.2, 2.35, 1.9]} rotation={[0, Math.PI / 2, 0]}>
+          <RoundedBox args={[1.45, 1.75, 0.06]} radius={0.02} castShadow>
+            <meshStandardMaterial color="#b46934" roughness={0.5} />
+          </RoundedBox>
+          <mesh position={[0, 0, 0.035]}>
+            <planeGeometry args={[1.32, 1.62]} />
+            <meshBasicMaterial color="#334155" />
+          </mesh>
+          {/* Pinned Poster Flyers */}
+          {[
+            [-0.32, 0.38, '#f8fafc'],
+            [0.32, 0.38, '#fef08a'],
+            [-0.32, -0.35, '#bbf7d0'],
+            [0.32, -0.35, '#bae6fd'],
+          ].map(([px, py, col], p) => (
+            <mesh key={p} position={[px, py, 0.045]}>
+              <planeGeometry args={[0.48, 0.58]} />
+              <meshBasicMaterial color={col} />
+            </mesh>
+          ))}
+        </group>
+
+        {/* Dark-Framed Multi-Pane Classroom Window on Left Wall (Image 1) */}
+        <group position={[0.2, 2.55, -2.45]} rotation={[0, Math.PI / 2, 0]}>
+          <RoundedBox args={[1.65, 2.35, 0.08]} radius={0.01}>
+            <meshStandardMaterial color="#27272a" />
+          </RoundedBox>
+          <mesh position={[0, 0, 0.05]}>
+            <planeGeometry args={[1.48, 2.18]} />
+            <meshPhysicalMaterial color="#bae6fd" transparent opacity={0.45} roughness={0.15} />
+          </mesh>
+        </group>
+      </group>
+
+      {/* ─── RIGHT VERANDA SIDE: OPEN-AIR COLONNADE PILLARS, METAL RAILING, WOODEN BENCH & LUSH TREES (Image 1) ─── */}
+      <group position={[4.45, 0, 3.2]}>
+        {/* 3 Square Cream Colonnade Pillars Along Right Open Edge (Image 1) */}
+        {[4.4, 0.6, -2.8].map((pz, pIdx) => (
+          <RoundedBox
+            key={pIdx}
+            args={[0.78, 5.4, 0.78]}
+            position={[0, 2.7, pz]}
+            radius={0.02}
+            castShadow
+            receiveShadow
+          >
+            <meshStandardMaterial color="#f2e6d8" roughness={0.55} />
+          </RoundedBox>
+        ))}
+
+        {/* Low Cream Parapet Curb & Dark-Grey Horizontal Metal Railings Between Pillars (Image 1) */}
+        {[2.5, -1.1].map((rz, rIdx) => (
+          <group key={rIdx} position={[0, 0, rz]}>
+            <RoundedBox args={[0.36, 0.34, 3.1]} position={[0, 0.17, 0]} radius={0.02} receiveShadow>
+              <meshStandardMaterial color="#e7dacb" roughness={0.6} />
+            </RoundedBox>
+            {/* Top Tubular Handrail */}
+            <RoundedBox args={[0.09, 0.07, 3.1]} position={[0, 1.08, 0]} radius={0.03} castShadow>
+              <meshStandardMaterial color="#334155" metalness={0.75} roughness={0.25} />
+            </RoundedBox>
+            {/* 3 Horizontal Mid-Rails */}
+            {[0.48, 0.68, 0.88].map((ry, m) => (
+              <mesh key={m} position={[0, ry, 0]}>
+                <boxGeometry args={[0.03, 0.025, 3.05]} />
+                <meshStandardMaterial color="#475569" metalness={0.7} roughness={0.3} />
+              </mesh>
+            ))}
+          </group>
+        ))}
+
+        {/* Wooden-Slat Bench with Black Metal Frame on Right Side of Veranda (Image 1) */}
+        <group position={[-0.75, 0, 2.3]} rotation={[0, -Math.PI / 2, 0]}>
+          <ParkBench3D position={[0, 0, 0]} />
+        </group>
+
+        {/* Sunlit Green Trees Immediately Outside the Right Open Veranda Colonnade (Image 1) */}
+        <CourtyardTree3D position={[3.2, -0.4, 3.8]} scale={1.35} />
+        <CourtyardTree3D position={[3.6, -0.4, 0.2]} scale={1.45} />
+        <CourtyardTree3D position={[3.2, -0.4, -3.2]} scale={1.3} />
+      </group>
+
+      {/* ─── WHITE TAPERED SQUARE PLANTERS WITH LUSH GREEN TROPICAL LEAVES ALONG BOTH SIDES (Image 1) ─── */}
+      <WhiteSquarePlanterWithPlant3D position={[-3.65, 0, 6.2]} scale={0.95} tallLeafy={true} />
+      <WhiteSquarePlanterWithPlant3D position={[3.65, 0, 6.2]} scale={0.95} tallLeafy={true} />
+      <WhiteSquarePlanterWithPlant3D position={[-3.65, 0, 3.2]} scale={0.95} tallLeafy={true} />
+      <WhiteSquarePlanterWithPlant3D position={[3.55, 0, 0.9]} scale={0.95} tallLeafy={true} />
+      <WhiteSquarePlanterWithPlant3D position={[-3.45, 0, 0.8]} scale={0.92} tallLeafy={true} />
+      <WhiteSquarePlanterWithPlant3D position={[3.45, 0, -1.8]} scale={0.92} tallLeafy={true} />
+
+      {/* ─── END OF VERANDA: DARK-FRAMED GLASS DOUBLE DOORS & BRIGHT GREEN "EXIT" SIGN (Matching Image 1) ─── */}
+      <group position={[0, 0, 0]}>
+        {/* Left & Right Cream Wall Jambs Flanking Glass Doorway */}
+        {[-3.4, 3.4].map((wx, i) => (
+          <mesh key={i} position={[wx, 2.7, 0]} receiveShadow>
+            <boxGeometry args={[2.2, 5.4, 0.35]} />
+            <meshStandardMaterial color="#f2e6d8" />
+          </mesh>
+        ))}
+        {/* Top Transom Wall Above Door Frame */}
+        <mesh position={[0, 4.85, 0]}>
+          <boxGeometry args={[4.8, 1.1, 0.35]} />
+          <meshStandardMaterial color="#f2e6d8" />
+        </mesh>
+
+        {/* Dark Charcoal-Bronze Outer Door Frame & Glass Sidelights + Upper Transom (Image 1) */}
+        <RoundedBox args={[4.65, 4.35, 0.18]} position={[0, 2.18, 0]} radius={0.02}>
+          <meshStandardMaterial color="#27272a" roughness={0.4} />
+        </RoundedBox>
+        {/* Clear Central Walkthrough Opening */}
+        <mesh position={[0, 1.85, 0]}>
+          <boxGeometry args={[3.1, 3.6, 0.24]} />
+          <meshBasicMaterial color="#ffffff" transparent opacity={0.03} />
+        </mesh>
+
+        {/* Left & Right Open Dark-Framed Glass Double Doors (Image 1) */}
+        {[-1.55, 1.55].map((dx, idx) => (
+          <group
+            key={idx}
+            position={[dx, 1.85, 0.08]}
+            rotation={[0, idx === 0 ? 1.25 : -1.25, 0]}
+          >
+            <RoundedBox
+              args={[1.45, 3.55, 0.08]}
+              position={[idx === 0 ? 0.72 : -0.72, 0, 0]}
+              radius={0.01}
+              castShadow
+            >
+              <meshStandardMaterial color="#27272a" roughness={0.35} />
+            </RoundedBox>
+            <mesh position={[idx === 0 ? 0.72 : -0.72, 0, 0]}>
+              <boxGeometry args={[1.25, 3.3, 0.1]} />
+              <meshPhysicalMaterial color="#e0f2fe" transparent opacity={0.32} roughness={0.1} />
+            </mesh>
+          </group>
+        ))}
+
+        {/* ─── ICONIC BRIGHT GREEN "EXIT" SIGN WITH WHITE BORDER ABOVE GLASS DOORS (Matching Image 1) ─── */}
+        <group position={[0, 3.92, 0.14]}>
+          {/* Outer White Border Plate */}
+          <RoundedBox args={[1.56, 0.56, 0.08]} radius={0.03} castShadow>
+            <meshStandardMaterial color="#ffffff" emissive="#ffffff" emissiveIntensity={0.35} />
+          </RoundedBox>
+          {/* Inner Emerald-Green Sign Face */}
+          <RoundedBox args={[1.46, 0.46, 0.1]} radius={0.02}>
+            <meshStandardMaterial color="#15803d" emissive="#16a34a" emissiveIntensity={0.45} />
+          </RoundedBox>
+          {/* Bold White "EXIT" Text */}
+          <Text
+            position={[0, 0, 0.065]}
+            fontSize={0.28}
+            color="#ffffff"
+            anchorX="center"
+            anchorY="middle"
+            outlineWidth={0.012}
+            outlineColor="#ffffff"
+          >
+            EXIT
+          </Text>
+        </group>
+      </group>
+
+      {/* ─── SUNLIT EXTERIOR PAVED COURTYARD & BLACK WROUGHT-IRON SCHOOL GATES (Matching Image 1) ─── */}
+      <group position={[0, 0, -9.0]}>
+        <mesh position={[0, -0.02, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+          <planeGeometry args={[42, 24]} />
+          <meshStandardMaterial color="#4ade80" roughness={0.85} />
+        </mesh>
+        <mesh position={[0, 0.01, 1.5]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+          <planeGeometry args={[6.4, 16.0]} />
+          <meshStandardMaterial color="#e2d9ce" roughness={0.45} />
+        </mesh>
+
+        {/* Red-Brick Gate Pillars Topped with White Globe Lamps & Black Wrought-Iron Fence/Gate (Image 1) */}
+        {[-3.1, 3.1].map((gx, i) => (
+          <group key={i} position={[gx, 0, 3.2]}>
+            <RoundedBox args={[0.92, 2.65, 0.92]} position={[0, 1.32, 0]} radius={0.03} castShadow>
+              <meshStandardMaterial color="#c2785c" roughness={0.7} />
+            </RoundedBox>
+            <RoundedBox args={[1.08, 0.18, 1.08]} position={[0, 2.72, 0]} radius={0.02}>
+              <meshStandardMaterial color="#f5ebe0" />
+            </RoundedBox>
+            <mesh position={[0, 3.05, 0]} castShadow>
+              <sphereGeometry args={[0.26, 16, 16]} />
+              <meshStandardMaterial color="#ffffff" emissive="#fef08a" emissiveIntensity={0.6} />
+            </mesh>
+            {/* Wrought-Iron Side Fence & Open Gate Bars */}
+            <RoundedBox
+              args={[1.45, 2.15, 0.07]}
+              position={[i === 0 ? 0.65 : -0.65, 1.15, -0.45]}
+              rotation={[0, i === 0 ? 1.05 : -1.05, 0]}
+              radius={0.01}
+              castShadow
+            >
+              <meshStandardMaterial color="#18181b" metalness={0.75} roughness={0.28} />
+            </RoundedBox>
+          </group>
+        ))}
+
+        {/* Lush Green Campus Avenue Trees Beyond the Gate (Image 1) */}
+        {[
+          [-5.8, 1.2],
+          [5.8, 1.2],
+          [-6.4, -3.8],
+          [6.4, -3.8],
+        ].map(([tx, tz], idx) => (
+          <CourtyardTree3D key={idx} position={[tx, 0, tz]} scale={1.25} />
+        ))}
+
+        {/* Exterior Boulevard Road with Crosswalk Leading to Level 3 Bank */}
+        <mesh position={[0, 0.02, -6.8]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+          <planeGeometry args={[36, 5.2]} />
+          <meshStandardMaterial color="#475569" roughness={0.8} />
+        </mesh>
+        {[-1.8, -0.6, 0.6, 1.8].map((cw, i) => (
+          <mesh key={i} position={[cw, 0.03, -6.8]} rotation={[-Math.PI / 2, 0, 0]}>
+            <planeGeometry args={[0.65, 3.4]} />
+            <meshBasicMaterial color="#f8fafc" />
+          </mesh>
+        ))}
+      </group>
+    </group>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 9. DEVICE-AWARE SMOOTH CINEMATIC CAMERA RIG (Section 29 — Adapts to Aspect Ratio)
+// ═══════════════════════════════════════════════════════════════════════════════
+function Level1CinematicCameraRig({ camStateRef, journeyStage }) {
+  const { camera, size } = useThree()
+  const lookAtVec = useRef(new THREE.Vector3(0, 3.4, 2.0))
+
+  useFrame(({ clock }) => {
+    const cs = camStateRef.current
+    const aspect = size.width / Math.max(1, size.height)
+
+    // Device-aware FOV & pullback for narrower viewports (16:10, tablets, mobile, split-screen)
+    const targetFov = aspect < 1.0 ? 58 : aspect < 1.45 ? 51 : aspect > 2.1 ? 42 : 45
+    if (Math.abs(camera.fov - targetFov) > 0.15) {
+      camera.fov = THREE.MathUtils.lerp(camera.fov, targetFov, 0.1)
+      camera.updateProjectionMatrix()
+    }
+
+    // Subtle pullback on narrow screens so projectors/monitors/characters never clip
+    const narrowPullback = aspect < 1.35 ? (1.35 - aspect) * 2.2 : 0
+    // Gentle cinematic orbit on the Final Completion Scene outside the Bank (Section 25)
+    const finalOrbitX =
+      journeyStage === 'journey_complete' ? Math.sin(clock.getElapsedTime() * 0.45) * 1.35 : 0
+
+    const dirZ = Math.sign(cs.z - cs.lookZ) || 1
+    const targetPos = new THREE.Vector3(
+      cs.x + finalOrbitX,
+      cs.y,
+      cs.z + dirZ * narrowPullback
+    )
+
+    camera.position.lerp(targetPos, 0.1)
+    lookAtVec.current.lerp(new THREE.Vector3(cs.lookX, cs.lookY, cs.lookZ), 0.1)
+    camera.lookAt(lookAtVec.current)
+  })
+
+  return null
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 10. MAIN CONTINUOUS LEARN2INVEST 3D EXPERIENCE
+//     (Login -> School Yard -> Veranda -> Classroom Videos -> Examination Quiz ->
+//      Floor 2 Staircase -> Level 2 Computer Lab [1, 2, 3] -> Exit ->
+//      Level 3 Bank Exterior -> Bank Interior -> Employee -> 5 Bank Sections ->
+//      Bank Exit -> Final Exterior Completion)
+// ═══════════════════════════════════════════════════════════════════════════════
+export default function Level1SchoolWorld({
+  state,
+  update,
+  addXP,
+  aiGuideAvatar = 'female',
+  setAiGuideAvatar,
+  openAvatarModal,
+  onChatToggle,
+}) {
+  // Complete Continuous Journey Stages (Section 36):
+  // 'login' -> 'walking_to_classroom' -> 'classroom_projector'
+  // -> 'walking_to_exam' -> 'exam_projector'
+  // -> 'walking_to_floor2_lab' -> 'computer_lab' (1 -> 2 -> 3)
+  // -> 'walking_to_exit' -> 'reached_exit'
+  // -> 'walking_to_bank' -> 'bank_employee' -> 'bank_section' (1 -> 2 -> 3 -> 4 -> 5)
+  // -> 'walking_bank_exit' -> 'journey_complete'
+  const [journeyStage, setJourneyStage] = useState('login')
+  const [hasLoggedIn, setHasLoggedIn] = useState(false)
+  const [showCampusMapModal, setShowCampusMapModal] = useState(false)
+  const [characterChoice, setCharacterChoice] = useState(aiGuideAvatar === 'male' ? 'leo' : 'luna')
+  const [isSceneLoading, setIsSceneLoading] = useState(true)
+
+  // Login Form State
+  const [usernameInput, setUsernameInput] = useState(state?.user?.name || '')
+  const [passwordInput, setPasswordInput] = useState('')
+  const [loginBtnPressed, setLoginBtnPressed] = useState(false)
+  const loginPanelRef = useRef(null)
+
+  // Classroom Video Projector State + Graceful Fallback (Section 35)
+  const [currentVideoIdx, setCurrentVideoIdx] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [currentTime, setCurrentTime] = useState(0)
+  const [duration, setDuration] = useState(0)
+  const [watchPct, setWatchPct] = useState(0)
+  const [completedVideoIds, setCompletedVideoIds] = useState([])
+  const [showLessonCompletedBanner, setShowLessonCompletedBanner] = useState(false)
+  const [videoLoadError, setVideoLoadError] = useState(false)
+
+  const videoElemRef = useRef(null)
+  const nextVideoBtnRef = useRef(null)
+  const xpBannerRef = useRef(null)
+  const floatingXpTextRef = useRef(null)
+
+  // Examination Center Projector State
+  const [quizSubStage, setQuizSubStage] = useState('start_screen')
+  const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0)
+  const [selectedOption, setSelectedOption] = useState(null)
+  const [quizAnswers, setQuizAnswers] = useState({})
+  const quizCompleteBannerRef = useRef(null)
+
+  // Floor 2 & Level 2 Computer Lab State
+  const [showLevel2ArrivalBanner, setShowLevel2ArrivalBanner] = useState(false)
+  const [activeComputerIndex, setActiveComputerIndex] = useState(1)
+  const [computerTransitioning, setComputerTransitioning] = useState(false)
+  const [simCompleted, setSimCompleted] = useState(false)
+  const [mixerCompleted, setMixerCompleted] = useState(false)
+  const [metricsCompleted, setMetricsCompleted] = useState(false)
+  const [computerFeedbackBanner, setComputerFeedbackBanner] = useState(null)
+
+  // Computer 1 — Simulation Module Interactive State
+  const [simScheme, setSimScheme] = useState('PPF')
+  const [simMonthlyAmount, setSimMonthlyAmount] = useState(5000)
+  const [simYears, setSimYears] = useState(15)
+
+  // Computer 2 — Savings Mixer Interactive State
+  const [mixerAlloc, setMixerAlloc] = useState({
+    PPF: 35,
+    FD: 25,
+    SSY: 20,
+    NSC: 20,
+  })
+
+  // Computer 3 — Combined Metrics Interactive State
+  const [metricsScenario, setMetricsScenario] = useState('balanced')
+
+  // Level 3 — Bank Environment State (Sections 11 - 27)
+  const [showLevel3ArrivalBanner, setShowLevel3ArrivalBanner] = useState(false)
+  const [activeBankSection, setActiveBankSection] = useState(1) // 1..5 visited strictly one by one
+  const [completedBankSections, setCompletedBankSections] = useState([])
+  const [bankSectionTransitioning, setBankSectionTransitioning] = useState(false)
+  const [bankSectionFeedbackBanner, setBankSectionFeedbackBanner] = useState(null)
+  const [employeeGreetingDone, setEmployeeGreetingDone] = useState(false)
+
+  const [audioVolume, setAudioVolume] = useState(() =>
+    Math.round((soundEngine?.getVolume ? soundEngine.getVolume() : 0.25) * 100)
+  )
+
+  // 3D Animation Refs
+  const timelineRef = useRef(null)
+  const frontDoorOpenRef = useRef(0)
+  const bankDoorOpenRef = useRef(1)
+  const charStateRef = useRef({
+    visible: false,
+    x: 0,
+    y: 0,
+    z: 24.5,
+    rotY: Math.PI,
+    pose: 'idle',
+  })
+  const employeeStateRef = useRef({
+    x: -1.35,
+    y: 6.68,
+    z: -95.2,
+    rotY: 0,
+  })
+  const camStateRef = useRef({
+    x: 0,
+    y: 3.3,
+    z: 27.2,
+    lookX: 0,
+    lookY: 3.8,
+    lookZ: 4.0,
+  })
+
+  const currentVideo = LEVEL1_VIDEOS[currentVideoIdx] || LEVEL1_VIDEOS[0]
+  const is85PercentReached = watchPct >= 85 || completedVideoIds.includes(currentVideo.id)
+  const currentQuestion = LEVEL1_QUIZ_QUESTIONS[currentQuestionIdx] || LEVEL1_QUIZ_QUESTIONS[0]
+
+  // Section 34: Initial Loading Experience ("Entering Learn2Invest...")
+  useEffect(() => {
+    const timer = setTimeout(() => setIsSceneLoading(false), 750)
+    return () => clearTimeout(timer)
+  }, [])
+
+  // Section 35: Fallback timer if a video file fails to load so 85% progress still works smoothly
+  useEffect(() => {
+    if (journeyStage !== 'classroom_projector' || !videoLoadError || !isPlaying) return
+    const interval = setInterval(() => {
+      setWatchPct((prev) => Math.min(100, prev + 5))
+      setCurrentTime((prev) => prev + 2)
+    }, 400)
+    return () => clearInterval(interval)
+  }, [journeyStage, videoLoadError, isPlaying])
+
+  // GSAP animate the "Next Video" button when 85% is reached
+  useEffect(() => {
+    if (is85PercentReached && nextVideoBtnRef.current) {
+      gsap.fromTo(
+        nextVideoBtnRef.current,
+        { opacity: 0, x: 32, scale: 0.82 },
+        { opacity: 1, x: 0, scale: 1, duration: 0.55, ease: 'back.out(1.7)' }
+      )
+    }
+  }, [is85PercentReached, currentVideoIdx])
+
+  // GSAP animate the "Lesson Completed (+30 XP Claimed)" banner & floating XP reward
+  useEffect(() => {
+    if (showLessonCompletedBanner && xpBannerRef.current) {
+      gsap.fromTo(
+        xpBannerRef.current,
+        { opacity: 0, scale: 0.68, y: 28 },
+        { opacity: 1, scale: 1, y: 0, duration: 0.5, ease: 'back.out(1.8)' }
+      )
+      if (floatingXpTextRef.current) {
+        gsap.fromTo(
+          floatingXpTextRef.current,
+          { opacity: 0, y: 22, scale: 0.75 },
+          { opacity: 1, y: -10, scale: 1.08, duration: 0.85, ease: 'power2.out' }
+        )
+      }
+    }
+  }, [showLessonCompletedBanner])
+
+  // GSAP animate the "Quiz Completed!" banner
+  useEffect(() => {
+    if (quizSubStage === 'completed' && quizCompleteBannerRef.current) {
+      gsap.fromTo(
+        quizCompleteBannerRef.current,
+        { opacity: 0, scale: 0.72, y: 24 },
+        { opacity: 1, scale: 1, y: 0, duration: 0.55, ease: 'back.out(1.8)' }
+      )
+    }
+  }, [quizSubStage])
+
+  // Cleanup timelines on unmount
+  useEffect(() => {
+    return () => {
+      if (timelineRef.current) timelineRef.current.kill()
+    }
+  }, [])
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // LOGIN -> SCHOOL YARD -> VERANDA -> CLASSROOM 101 (Preserved Intact)
+  // ───────────────────────────────────────────────────────────────────────────
+  const handleLoginSubmit = (e) => {
+    e.preventDefault()
+    soundEngine.playClick()
+    setLoginBtnPressed(true)
+    setHasLoggedIn(true)
+
+    const cleanName = usernameInput.trim() || (characterChoice === 'luna' ? 'Luna' : 'Leo')
+    if (update) {
+      update({
+        user: { ...(state?.user || {}), name: cleanName, email: usernameInput.trim() || `${cleanName.toLowerCase()}@learn2invest.edu` },
+      })
+    }
+
+    if (loginPanelRef.current) {
+      gsap.to(loginPanelRef.current, {
+        opacity: 0,
+        scale: 0.88,
+        y: -20,
+        duration: 0.55,
+        ease: 'power2.inOut',
+        onComplete: () => {
+          setLoginBtnPressed(false)
+          beginSchoolEntrySequence()
+        },
+      })
+    } else {
+      beginSchoolEntrySequence()
+    }
+  }
+
+  const beginSchoolEntrySequence = () => {
+    if (timelineRef.current) timelineRef.current.kill()
+    setJourneyStage('walking_to_classroom')
+    soundEngine.startAmbientMusic('exploration', true)
+
+    const cs = charStateRef.current
+    cs.visible = true
+    cs.x = 0
+    cs.y = 0
+    cs.z = 23.0
+    cs.rotY = Math.PI
+    cs.pose = 'walking'
+
+    const cam = camStateRef.current
+
+    const tl = gsap.timeline({
+      onComplete: () => {
+        cs.x = -16.1
+        cs.y = 0.08
+        cs.z = -12.68
+        cs.pose = 'seated'
+        cs.rotY = Math.PI
+        setJourneyStage('classroom_projector')
+        soundEngine.startAmbientMusic('classroom', true)
+      },
+    })
+    timelineRef.current = tl
+
+    // Segment A: Walk straight down the center stone walkway (no fountain)
+    tl.to(cs, { x: 0, z: 13.5, rotY: Math.PI, duration: 2.0, ease: 'none' }, 0)
+    tl.to(
+      cam,
+      { x: 0, y: 2.8, z: 20.5, lookX: 0, lookY: 2.0, lookZ: 8.0, duration: 2.0, ease: 'power1.inOut' },
+      0
+    )
+
+    // Segment B: Up steps through opening entrance doors
+    tl.to(
+      frontDoorOpenRef,
+      { current: 1, duration: 0.8, onStart: () => soundEngine.playDoorOpen() },
+      2.3
+    )
+    tl.to(cs, { x: 0, z: 3.2, rotY: Math.PI, duration: 2.0, ease: 'none' }, 2.0)
+    tl.to(
+      cam,
+      { x: 0, y: 2.6, z: 9.5, lookX: 0, lookY: 2.0, lookZ: -2.0, duration: 2.0, ease: 'power1.inOut' },
+      2.0
+    )
+
+    // Segment C: Walk through Veranda to Door 101
+    tl.to(cs, { x: -1.4, z: -7.5, rotY: Math.PI + 0.2, duration: 2.2, ease: 'none' }, 4.0)
+    tl.to(
+      cam,
+      { x: 1.2, y: 2.6, z: -1.2, lookX: -2.2, lookY: 1.9, lookZ: -10.5, duration: 2.2, ease: 'power1.inOut' },
+      4.0
+    )
+
+    // Segment D: Enter Classroom 101 & sit in the front-left student chair (x: -16.1, y: 0.08, z: -12.68)
+    tl.to(
+      cs,
+      {
+        x: -16.1,
+        y: 0.08,
+        z: -12.68,
+        rotY: Math.PI,
+        duration: 1.8,
+        ease: 'power1.out',
+        onComplete: () => {
+          cs.pose = 'seated'
+          cs.rotY = Math.PI
+        },
+      },
+      6.2
+    )
+    tl.to(
+      cam,
+      { x: -11.2, y: 3.1, z: -8.6, lookX: -14.8, lookY: 2.1, lookZ: -14.2, duration: 1.8, ease: 'power1.inOut' },
+      6.2
+    )
+
+    // Segment E: Camera frames the Classroom Projector Screen while showing the seated player, classmates & teacher
+    tl.to(
+      cam,
+      { x: -14.0, y: 3.55, z: -9.85, lookX: -14.0, lookY: 3.65, lookZ: -16.85, duration: 1.5, ease: 'power2.inOut' },
+      8.0
+    )
+  }
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // CLASSROOM VIDEO PLAYBACK & 85% RULE -> AFTER FINAL VIDEO -> WALK TO EXAM CENTER
+  // ───────────────────────────────────────────────────────────────────────────
+  const handleTimeUpdate = (e) => {
+    const vid = e.target
+    if (!vid || !vid.duration) return
+    const cur = vid.currentTime
+    const dur = vid.duration
+    setCurrentTime(cur)
+    setDuration(dur)
+    const pct = Math.min(100, Math.round((cur / dur) * 100))
+    setWatchPct((prev) => Math.max(prev, pct))
+  }
+
+  const togglePlayPause = () => {
+    const vid = videoElemRef.current
+    if (!vid) return
+    soundEngine.playClick()
+    if (vid.paused) {
+      vid.play().catch(() => {})
+      setIsPlaying(true)
+    } else {
+      vid.pause()
+      setIsPlaying(false)
+    }
+  }
+
+  const handleSeekBarClick = (e) => {
+    const vid = videoElemRef.current
+    if (!vid || !vid.duration) return
+    const rect = e.currentTarget.getBoundingClientRect()
+    const clickRatio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width))
+    vid.currentTime = clickRatio * vid.duration
+    setCurrentTime(vid.currentTime)
+    const pct = Math.min(100, Math.round(clickRatio * 100))
+    setWatchPct((prev) => Math.max(prev, pct))
+  }
+
+  const handleNextVideoClick = () => {
+    if (!is85PercentReached || showLessonCompletedBanner) return
+    if (videoElemRef.current && !videoElemRef.current.paused) {
+      videoElemRef.current.pause()
+      setIsPlaying(false)
+    }
+
+    soundEngine.playLessonCompleteFanfare()
+
+    if (!completedVideoIds.includes(currentVideo.id)) {
+      const updatedCompleted = [...completedVideoIds, currentVideo.id]
+      setCompletedVideoIds(updatedCompleted)
+      if (addXP) addXP(30)
+      if (update) {
+        const mergedWatched = Array.from(new Set([...(state?.lessonsWatched || []), ...updatedCompleted]))
+        update({ lessonsWatched: mergedWatched })
+      }
+    }
+
+    setShowLessonCompletedBanner(true)
+
+    setTimeout(() => {
+      setShowLessonCompletedBanner(false)
+      if (currentVideoIdx < LEVEL1_VIDEOS.length - 1) {
+        const nextIdx = currentVideoIdx + 1
+        setCurrentVideoIdx(nextIdx)
+        setCurrentTime(0)
+        setDuration(0)
+        setWatchPct(completedVideoIds.includes(LEVEL1_VIDEOS[nextIdx].id) ? 100 : 0)
+        setIsPlaying(true)
+        setTimeout(() => {
+          if (videoElemRef.current) {
+            videoElemRef.current.currentTime = 0
+            videoElemRef.current.play().catch(() => {})
+          }
+        }, 120)
+      } else {
+        beginWalkToExaminationCenter()
+      }
+    }, 1900)
+  }
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // SECTION 2 & 3: CLASSROOM -> VERANDA -> EXAMINATION CENTER
+  // ───────────────────────────────────────────────────────────────────────────
+  const beginWalkToExaminationCenter = () => {
+    if (timelineRef.current) timelineRef.current.kill()
+    setJourneyStage('walking_to_exam')
+    setQuizSubStage('start_screen')
+    soundEngine.startAmbientMusic('exploration', true)
+
+    const cs = charStateRef.current
+    cs.visible = true
+    cs.y = 0
+    cs.pose = 'walking'
+    const cam = camStateRef.current
+
+    const tl = gsap.timeline({
+      onComplete: () => {
+        cs.x = -16.1
+        cs.y = 0.08
+        cs.z = -28.68
+        cs.pose = 'seated'
+        cs.rotY = Math.PI
+        setJourneyStage('exam_projector')
+        soundEngine.startAmbientMusic('examination', true)
+      },
+    })
+    timelineRef.current = tl
+
+    // 1. Character stands up and leaves Classroom 101 into the Veranda
+    tl.to(
+      cs,
+      { x: -1.4, y: 0, z: -9.5, rotY: -Math.PI / 2, duration: 1.9, ease: 'none' },
+      0
+    )
+    tl.to(
+      cam,
+      { x: 1.5, y: 2.7, z: -4.0, lookX: -1.5, lookY: 1.8, lookZ: -12.5, duration: 1.9, ease: 'power1.inOut' },
+      0
+    )
+
+    // 2. Character walks through the Veranda toward Doorway 103 (Examination Center)
+    tl.to(
+      cs,
+      { x: -1.4, y: 0, z: -23.5, rotY: Math.PI, duration: 2.4, ease: 'none' },
+      1.9
+    )
+    tl.to(
+      cam,
+      { x: 1.4, y: 2.6, z: -16.5, lookX: -2.0, lookY: 1.8, lookZ: -25.0, duration: 2.4, ease: 'power1.inOut' },
+      1.9
+    )
+
+    // 3. Character enters Examination Center 103 & sits in the front-left chair (x: -16.1, y: 0.08, z: -28.68)
+    tl.to(
+      cs,
+      {
+        x: -16.1,
+        y: 0.08,
+        z: -28.68,
+        rotY: Math.PI,
+        duration: 1.8,
+        ease: 'power1.out',
+        onComplete: () => {
+          cs.pose = 'seated'
+          cs.rotY = Math.PI
+        },
+      },
+      4.3
+    )
+    tl.to(
+      cam,
+      { x: -11.2, y: 3.1, z: -24.6, lookX: -14.8, lookY: 2.1, lookZ: -30.2, duration: 1.8, ease: 'power1.inOut' },
+      4.3
+    )
+
+    // 4. Camera frames the Examination Center Projector Screen with seated player, classmates & teacher visible
+    tl.to(
+      cam,
+      { x: -14.0, y: 3.55, z: -25.85, lookX: -14.0, lookY: 3.65, lookZ: -32.85, duration: 1.5, ease: 'power2.inOut' },
+      6.1
+    )
+  }
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // SECTIONS 4 - 9: EXAMINATION PROJECTOR QUIZ (Start Quiz -> 1/10 .. 10/10 -> Quiz Completed!)
+  // ───────────────────────────────────────────────────────────────────────────
+  const handleStartQuizClick = () => {
+    soundEngine.playClick()
+    setCurrentQuestionIdx(0)
+    setSelectedOption(quizAnswers[0] ?? null)
+    setQuizSubStage('questions')
+  }
+
+  const handleSelectQuizOption = (optIdx) => {
+    if (selectedOption !== null && quizAnswers[currentQuestionIdx] === undefined) return
+    setSelectedOption(optIdx)
+    const isRight = optIdx === currentQuestion.answer
+    if (isRight) {
+      soundEngine.playLessonCompleteFanfare()
+    } else {
+      soundEngine.playClick()
+    }
+
+    const updatedAnswers = { ...quizAnswers, [currentQuestionIdx]: optIdx }
+    setQuizAnswers(updatedAnswers)
+
+    setTimeout(() => {
+      if (currentQuestionIdx < LEVEL1_QUIZ_QUESTIONS.length - 1) {
+        const nextQ = currentQuestionIdx + 1
+        setCurrentQuestionIdx(nextQ)
+        setSelectedOption(updatedAnswers[nextQ] ?? null)
+      } else {
+        soundEngine.playLessonCompleteFanfare()
+        if (addXP) addXP(150)
+        setQuizSubStage('completed')
+        setTimeout(() => {
+          beginWalkToFloor2AndComputerLab()
+        }, 2400)
+      }
+    }, 950)
+  }
+
+  const handleQuizBackOneQuestion = () => {
+    soundEngine.playClick()
+    if (currentQuestionIdx > 0) {
+      const prevQ = currentQuestionIdx - 1
+      setCurrentQuestionIdx(prevQ)
+      setSelectedOption(quizAnswers[prevQ] ?? null)
+    } else {
+      setQuizSubStage('start_screen')
+    }
+  }
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // SECTIONS 10, 11, 12, 13: EXAM CENTER -> STAIRCASE ("↑ Floor 2") -> FLOOR 2 VERANDA -> COMPUTER LAB
+  // ───────────────────────────────────────────────────────────────────────────
+  const beginWalkToFloor2AndComputerLab = () => {
+    if (timelineRef.current) timelineRef.current.kill()
+    setJourneyStage('walking_to_floor2_lab')
+    setShowLevel2ArrivalBanner(false)
+    soundEngine.startAmbientMusic('exploration', true)
+
+    const cs = charStateRef.current
+    cs.visible = true
+    cs.pose = 'walking'
+    const cam = camStateRef.current
+
+    const tl = gsap.timeline({
+      onComplete: () => {
+        cs.x = -3.4 - 0.95
+        cs.y = 6.28
+        cs.z = -51.08
+        cs.pose = 'seated'
+        cs.rotY = Math.PI - 0.22
+        setShowLevel2ArrivalBanner(false)
+        setActiveComputerIndex(1)
+        setJourneyStage('computer_lab')
+        soundEngine.startAmbientMusic('computer_lab', true)
+      },
+    })
+    timelineRef.current = tl
+
+    // Segment 1 (0s - 1.8s): Leave Examination Center 103 & walk to base of the Grand Staircase ("↑ Floor 2")
+    tl.to(
+      cs,
+      { x: 0, y: 0, z: -26.2, rotY: Math.PI, duration: 1.8, ease: 'none' },
+      0
+    )
+    tl.to(
+      cam,
+      { x: 0, y: 3.1, z: -18.5, lookX: 0, lookY: 4.2, lookZ: -32.5, duration: 1.8, ease: 'power1.inOut' },
+      0
+    )
+
+    // Segment 2 (1.8s - 4.8s): Physically climb the 14 steps up to Floor 2 (y: 0 -> 6.2, z: -26.2 -> -37.5)
+    tl.to(
+      cs,
+      {
+        x: 0,
+        y: 6.2,
+        z: -37.5,
+        rotY: Math.PI,
+        duration: 3.0,
+        ease: 'none',
+        onStart: () => {
+          setShowLevel2ArrivalBanner(true)
+          soundEngine.startAmbientMusic('level2', true)
+        },
+      },
+      1.8
+    )
+    tl.to(
+      cam,
+      {
+        x: 0,
+        y: 8.8,
+        z: -29.5,
+        lookX: 0,
+        lookY: 7.4,
+        lookZ: -41.0,
+        duration: 3.0,
+        ease: 'power1.inOut',
+      },
+      1.8
+    )
+
+    // Segment 3 (4.8s - 6.8s): Walk through Floor 2 Veranda into the 3D Computer Lab & sit at Computer 1's chair
+    tl.to(
+      cs,
+      {
+        x: -3.4 - 0.95,
+        y: 6.28,
+        z: -51.08,
+        rotY: Math.PI - 0.22,
+        duration: 2.0,
+        ease: 'power1.out',
+        onComplete: () => {
+          cs.pose = 'seated'
+          cs.rotY = Math.PI - 0.22
+        },
+      },
+      4.8
+    )
+    tl.to(
+      cam,
+      {
+        x: -1.5,
+        y: 8.5,
+        z: -45.2,
+        lookX: -3.4,
+        lookY: 7.5,
+        lookZ: -52.3,
+        duration: 1.6,
+        ease: 'power1.inOut',
+      },
+      4.8
+    )
+
+    // Segment 4 (6.4s - 7.8s): Camera focuses cleanly on Computer 1's Physical Monitor Screen (all buttons 100% visible)
+    tl.to(
+      cam,
+      {
+        x: -3.4,
+        y: 7.82,
+        z: -49.85,
+        lookX: -3.4,
+        lookY: 7.82,
+        lookZ: -52.28,
+        duration: 1.4,
+        ease: 'power2.inOut',
+      },
+      6.4
+    )
+  }
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // SECTIONS 14 - 18: COMPUTER 1 (Simulation) -> COMPUTER 2 (Savings Mixer) -> COMPUTER 3 (Combined Metrics)
+  // ───────────────────────────────────────────────────────────────────────────
+  const focusCameraOnComputer = (compIdx, animateWalk = true) => {
+    const targetX = compIdx === 1 ? -3.4 : compIdx === 2 ? 0.0 : 3.4
+    const chairX = targetX - 0.95
+    const cs = charStateRef.current
+    const cam = camStateRef.current
+
+    if (timelineRef.current) timelineRef.current.kill()
+
+    if (!animateWalk) {
+      cs.visible = true
+      cs.x = chairX
+      cs.y = 6.28
+      cs.z = -51.08
+      cs.rotY = Math.PI - 0.22
+      cs.pose = 'seated'
+      gsap.to(cam, {
+        x: targetX,
+        y: 7.82,
+        z: -49.85,
+        lookX: targetX,
+        lookY: 7.82,
+        lookZ: -52.28,
+        duration: 0.9,
+        ease: 'power2.inOut',
+      })
+      setActiveComputerIndex(compIdx)
+      setComputerTransitioning(false)
+      return
+    }
+
+    setComputerTransitioning(true)
+    cs.pose = 'walking'
+    cs.rotY = chairX > cs.x ? Math.PI / 2 : -Math.PI / 2
+
+    const tl = gsap.timeline({
+      onComplete: () => {
+        cs.x = chairX
+        cs.y = 6.28
+        cs.z = -51.08
+        cs.pose = 'seated'
+        cs.rotY = Math.PI - 0.22
+        setActiveComputerIndex(compIdx)
+        setComputerTransitioning(false)
+      },
+    })
+    timelineRef.current = tl
+
+    tl.to(
+      cam,
+      {
+        x: (cs.x + targetX) / 2,
+        y: 8.35,
+        z: -48.2,
+        lookX: targetX,
+        lookY: 7.6,
+        lookZ: -52.0,
+        duration: 0.85,
+        ease: 'power1.out',
+      },
+      0
+    )
+    tl.to(
+      cs,
+      {
+        x: chairX,
+        y: 6.28,
+        z: -51.08,
+        duration: 1.35,
+        ease: 'power1.inOut',
+      },
+      0.2
+    )
+    tl.to(
+      cam,
+      {
+        x: targetX,
+        y: 7.82,
+        z: -49.85,
+        lookX: targetX,
+        lookY: 7.82,
+        lookZ: -52.28,
+        duration: 1.1,
+        ease: 'power2.inOut',
+      },
+      1.35
+    )
+  }
+
+  // Complete Computer 1 (Simulation Module) -> Stand up & walk to Computer 2
+  const handleCompleteComputer1 = () => {
+    if (computerFeedbackBanner) return
+    soundEngine.playLessonCompleteFanfare()
+    if (!simCompleted) {
+      setSimCompleted(true)
+      if (addXP) addXP(50)
+    }
+    setComputerFeedbackBanner({
+      title: 'Simulation Module Completed!',
+      xp: '+50 XP Claimed',
+      sub: `${characterChoice === 'luna' ? 'Luna' : 'Leo'} is standing up and walking to Computer 2 (Savings Mixer)...`,
+    })
+    setTimeout(() => {
+      setComputerFeedbackBanner(null)
+      focusCameraOnComputer(2, true)
+    }, 1750)
+  }
+
+  // Complete Computer 2 (Savings Mixer) -> Stand up & walk to Computer 3
+  const handleCompleteComputer2 = () => {
+    if (computerFeedbackBanner) return
+    soundEngine.playLessonCompleteFanfare()
+    if (!mixerCompleted) {
+      setMixerCompleted(true)
+      if (addXP) addXP(50)
+      if (update) update({ allocations: mixerAlloc })
+    }
+    setComputerFeedbackBanner({
+      title: 'Savings Mixer Completed!',
+      xp: '+50 XP Claimed',
+      sub: `${characterChoice === 'luna' ? 'Luna' : 'Leo'} is standing up and walking to Computer 3 (Combined Metrics)...`,
+    })
+    setTimeout(() => {
+      setComputerFeedbackBanner(null)
+      focusCameraOnComputer(3, true)
+    }, 1750)
+  }
+
+  // Complete Computer 3 (Combined Metrics) -> Show "Level 2 Completed" -> Walk outside through the Veranda ("EXIT") -> Continue to Level 3 Bank!
+  const handleCompleteComputer3 = () => {
+    if (computerFeedbackBanner) return
+    soundEngine.playLessonCompleteFanfare()
+    if (!metricsCompleted) {
+      setMetricsCompleted(true)
+      if (addXP) addXP(100)
+    }
+    setComputerFeedbackBanner({
+      title: 'Level 2 Completed!',
+      xp: '+100 XP Bonus Claimed',
+      sub: 'All 3 Computer Lab Modules Mastered! Walking outside through the Veranda EXIT toward the Level 3 Bank...',
+    })
+    setTimeout(() => {
+      setComputerFeedbackBanner(null)
+      beginWalkToExit(true)
+    }, 2200)
+  }
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // SECTIONS 19 & 20: COMPUTER LAB -> OPEN VERANDA (Image 1 Reference) -> "EXIT" GLASS DOORS -> LEVEL 3 BANK
+  // ───────────────────────────────────────────────────────────────────────────
+  const beginWalkToExit = (autoContinueToBank = true) => {
+    if (timelineRef.current) timelineRef.current.kill()
+    setJourneyStage('walking_to_exit')
+    soundEngine.startAmbientMusic('exit', true)
+
+    const cs = charStateRef.current
+    cs.visible = true
+    cs.pose = 'walking'
+    const cam = camStateRef.current
+
+    const tl = gsap.timeline({
+      onComplete: () => {
+        cs.pose = 'idle'
+        cs.rotY = Math.PI
+        setJourneyStage('reached_exit')
+        soundEngine.playLessonCompleteFanfare()
+        if (autoContinueToBank) {
+          setTimeout(() => {
+            beginWalkToBank()
+          }, 1600)
+        }
+      },
+    })
+    timelineRef.current = tl
+
+    // 1. Character leaves Computer 3 and steps into the sunlit Veranda (with classroom doors on left, open colonnade on right, white square planters)
+    tl.to(
+      cs,
+      { x: 0, y: 6.2, z: -57.5, rotY: Math.PI, duration: 1.8, ease: 'none' },
+      0
+    )
+    tl.to(
+      cam,
+      { x: 0, y: 8.3, z: -51.5, lookX: 0, lookY: 7.9, lookZ: -64.5, duration: 1.8, ease: 'power1.inOut' },
+      0
+    )
+
+    // 2. Character walks along the glossy tiled Veranda and passes through the open "EXIT" glass doors (z = -64)
+    tl.to(
+      cs,
+      { x: 0, y: 6.2, z: -64.5, rotY: Math.PI, duration: 2.2, ease: 'none' },
+      1.8
+    )
+    tl.to(
+      cam,
+      { x: 0, y: 8.2, z: -57.2, lookX: 0, lookY: 7.9, lookZ: -72.0, duration: 2.2, ease: 'power1.inOut' },
+      1.8
+    )
+
+    // 3. Character walks outside past the wrought-iron school gates looking ahead toward the Level 3 Bank
+    tl.to(
+      cs,
+      { x: 0, y: 6.2, z: -68.4, rotY: Math.PI, duration: 1.6, ease: 'power1.out' },
+      4.0
+    )
+    tl.to(
+      cam,
+      {
+        x: 0,
+        y: 8.5,
+        z: -61.2,
+        lookX: 0,
+        lookY: 8.2,
+        lookZ: -86.0,
+        duration: 1.8,
+        ease: 'power2.inOut',
+      },
+      4.0
+    )
+  }
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // LEVEL 3 — BANK EXTERIOR -> BANK INTERIOR -> BANK EMPLOYEE GUIDE (MAYA) -> 2 SECTIONS -> FINAL COMPLETION
+  // ───────────────────────────────────────────────────────────────────────────
+  const beginWalkToBank = () => {
+    if (timelineRef.current) timelineRef.current.kill()
+    setJourneyStage('walking_to_bank')
+    setShowLevel3ArrivalBanner(true)
+    soundEngine.startAmbientMusic('bank_exterior', true)
+
+    const cs = charStateRef.current
+    cs.visible = true
+    cs.pose = 'walking'
+    cs.rotY = Math.PI
+    const cam = camStateRef.current
+
+    const tl = gsap.timeline({
+      onComplete: () => {
+        cs.pose = 'idle'
+        cs.rotY = Math.PI
+        setShowLevel3ArrivalBanner(false)
+        setEmployeeGreetingDone(false)
+        setJourneyStage('bank_employee')
+        soundEngine.startAmbientMusic('bank_interior', true)
+        soundEngine.playEmployeeGreeting()
+      },
+    })
+    timelineRef.current = tl
+
+    // Segment 1 (0s - 2.4s): Walk along the sunlit boulevard toward the Bank Exterior steps
+    tl.to(
+      cs,
+      { x: 0, y: 6.2, z: -81.8, rotY: Math.PI, duration: 2.4, ease: 'none' },
+      0
+    )
+    tl.to(
+      cam,
+      { x: 0, y: 9.2, z: -72.5, lookX: 0, lookY: 9.2, lookZ: -90.0, duration: 2.4, ease: 'power1.inOut' },
+      0
+    )
+
+    // Segment 2 (2.4s - 4.0s): Climb the 4 stone entrance steps (y: 6.2 -> 6.84) as the Bank sliding glass doors open!
+    tl.to(
+      cs,
+      { x: 0, y: 6.84, z: -85.8, rotY: Math.PI, duration: 1.6, ease: 'none' },
+      2.4
+    )
+    tl.to(
+      bankDoorOpenRef,
+      { current: 1, duration: 1.1, ease: 'power2.out' },
+      2.3
+    )
+    tl.to(
+      cam,
+      { x: 0, y: 9.2, z: -79.2, lookX: 0, lookY: 8.8, lookZ: -93.0, duration: 1.6, ease: 'power1.inOut' },
+      2.4
+    )
+
+    // Segment 3 (4.0s - 6.0s): Enter the Bank Interior Lobby and stop in front of Bank Employee Guide Maya
+    tl.to(
+      cs,
+      { x: 0, y: 6.84, z: -90.0, rotY: Math.PI, duration: 2.0, ease: 'power1.out' },
+      4.0
+    )
+    tl.to(
+      cam,
+      {
+        x: 1.65,
+        y: 8.85,
+        z: -86.4,
+        lookX: -0.2,
+        lookY: 8.45,
+        lookZ: -93.2,
+        duration: 2.0,
+        ease: 'power2.inOut',
+      },
+      4.0
+    )
+  }
+
+  // Bank Employee Guide (Maya) coordinates the 2 sections inside the Bank Lobby:
+  // Section 1: Banking Slip Writing | Section 2: Digital Banking Safety
+  const getBankSectionPose = (secNum) => {
+    if (secNum === 1) {
+      return {
+        charX: -3.2,
+        charZ: -101.6,
+        charRotY: Math.PI,
+        camX: -3.2,
+        camY: 8.95,
+        camZ: -98.8,
+        lookX: -3.2,
+        lookY: 8.9,
+        lookZ: -104.2,
+      }
+    }
+    return {
+      charX: 3.2,
+      charZ: -101.6,
+      charRotY: Math.PI,
+      camX: 3.2,
+      camY: 8.95,
+      camZ: -98.8,
+      lookX: 3.2,
+      lookY: 8.9,
+      lookZ: -104.2,
+    }
+  }
+
+  const focusCameraOnBankSection = (secNum, animateWalk = true) => {
+    const clampedSec = secNum >= 2 ? 2 : 1
+    if (timelineRef.current) timelineRef.current.kill()
+    const target = getBankSectionPose(clampedSec)
+    const cs = charStateRef.current
+    const cam = camStateRef.current
+
+    if (!animateWalk) {
+      cs.visible = true
+      cs.x = target.charX
+      cs.y = 6.84
+      cs.z = target.charZ
+      cs.rotY = target.charRotY
+      cs.pose = 'idle'
+      gsap.to(cam, {
+        x: target.camX,
+        y: target.camY,
+        z: target.camZ,
+        lookX: target.lookX,
+        lookY: target.lookY,
+        lookZ: target.lookZ,
+        duration: 0.9,
+        ease: 'power2.inOut',
+      })
+      setActiveBankSection(clampedSec)
+      setJourneyStage('bank_section')
+      return
+    }
+
+    setJourneyStage('walking_bank_section')
+    cs.visible = true
+    cs.pose = 'walking'
+    const dx = target.charX - cs.x
+    const dz = target.charZ - cs.z
+    cs.rotY = Math.atan2(dx, dz)
+
+    const tl = gsap.timeline({
+      onComplete: () => {
+        cs.pose = 'idle'
+        cs.rotY = target.charRotY
+        setActiveBankSection(clampedSec)
+        setJourneyStage('bank_section')
+      },
+    })
+    timelineRef.current = tl
+
+    // Pull camera slightly higher in the Bank Lobby while the character walks to the section
+    tl.to(
+      cam,
+      {
+        x: (cs.x + target.camX) * 0.5,
+        y: 9.6,
+        z: Math.max(cs.z, target.camZ) + 2.8,
+        lookX: target.lookX,
+        lookY: 8.6,
+        lookZ: target.lookZ,
+        duration: 0.95,
+        ease: 'power1.out',
+      },
+      0
+    )
+    tl.to(
+      cs,
+      {
+        x: target.charX,
+        y: 6.84,
+        z: target.charZ,
+        duration: 1.65,
+        ease: 'power1.inOut',
+      },
+      0.1
+    )
+    tl.to(
+      cam,
+      {
+        x: target.camX,
+        y: target.camY,
+        z: target.camZ,
+        lookX: target.lookX,
+        lookY: target.lookY,
+        lookZ: target.lookZ,
+        duration: 1.15,
+        ease: 'power2.inOut',
+      },
+      1.35
+    )
+  }
+
+  const handleEmployeeInteract = () => {
+    soundEngine.playEmployeeGreeting()
+    setEmployeeGreetingDone(true)
+    setTimeout(() => {
+      focusCameraOnBankSection(1, true)
+    }, 450)
+  }
+
+  const handleCompleteBankSection = (secNum, xpReward = 100) => {
+    if (bankSectionFeedbackBanner) return
+    soundEngine.playLessonCompleteFanfare()
+
+    if (!completedBankSections.includes(secNum)) {
+      const nextCompleted = [...completedBankSections, secNum]
+      setCompletedBankSections(nextCompleted)
+      if (addXP) addXP(xpReward)
+      if (update) {
+        const prevDecisions = state?.bankDecisions || {}
+        update({ bankDecisions: { ...prevDecisions, [`section_${secNum}`]: true } })
+      }
+    }
+
+    const sectionTitles = {
+      1: 'Section 1 (Banking Slip Writing) Completed!',
+      2: 'Section 2 (Digital Banking Safety) Completed!',
+    }
+
+    setBankSectionFeedbackBanner({
+      title: sectionTitles[secNum] || 'Banking Section Completed!',
+      xp: `+${xpReward} XP Claimed`,
+      sub:
+        secNum < 2
+          ? `${characterChoice === 'luna' ? 'Luna' : 'Leo'} is walking to Bank Section 2 of 2 (Digital Banking Safety)...`
+          : 'All 2 Banking Sections Completed! Walking out through the Bank Entrance to view your Journey Map...',
+    })
+
+    setTimeout(() => {
+      setBankSectionFeedbackBanner(null)
+      if (secNum < 2) {
+        focusCameraOnBankSection(2, true)
+      } else {
+        beginFinalBankExitWalk()
+      }
+    }, 1850)
+  }
+
+  const beginFinalBankExitWalk = () => {
+    if (timelineRef.current) timelineRef.current.kill()
+    setJourneyStage('walking_bank_exit')
+    soundEngine.startAmbientMusic('bank_exterior', true)
+
+    const cs = charStateRef.current
+    cs.visible = true
+    cs.pose = 'walking'
+    cs.rotY = 0 // Walk toward the front entrance doors (z increasing from -101.6 toward -80.2)
+    const cam = camStateRef.current
+    bankDoorOpenRef.current = 1
+
+    const tl = gsap.timeline({
+      onComplete: () => {
+        cs.pose = 'idle'
+        cs.rotY = 0 // Faces the camera proudly in front of the Bank Exterior
+        setJourneyStage('journey_complete')
+        soundEngine.startAmbientMusic('final_victory', true)
+        soundEngine.playJourneyCompleteFanfare()
+      },
+    })
+    timelineRef.current = tl
+
+    // 1. Walk from Section 2 to the center of the Bank Lobby (past Maya waving goodbye)
+    tl.to(
+      cs,
+      { x: 0, y: 6.84, z: -89.5, rotY: 0, duration: 1.5, ease: 'none' },
+      0
+    )
+    tl.to(
+      cam,
+      { x: 0, y: 9.1, z: -82.0, lookX: 0, lookY: 8.4, lookZ: -91.0, duration: 1.5, ease: 'power1.inOut' },
+      0
+    )
+
+    // 2. Walk out through the open Bank Entrance sliding glass doors and down the 4 stone steps
+    tl.to(
+      cs,
+      { x: 0, y: 6.2, z: -80.4, rotY: 0, duration: 2.2, ease: 'power1.out' },
+      1.5
+    )
+    tl.to(
+      cam,
+      {
+        x: 0,
+        y: 8.8,
+        z: -72.8,
+        lookX: 0,
+        lookY: 8.3,
+        lookZ: -86.0,
+        duration: 2.2,
+        ease: 'power2.inOut',
+      },
+      1.5
+    )
+  }
+
+  const handleReplayJourney = () => {
+    soundEngine.playClick()
+    if (timelineRef.current) timelineRef.current.kill()
+    setCompletedVideoIds([])
+    setQuizAnswers({})
+    setCurrentVideoIdx(0)
+    setCurrentQuestionIdx(0)
+    setSimCompleted(false)
+    setMixerCompleted(false)
+    setMetricsCompleted(false)
+    setCompletedBankSections([])
+    setActiveBankSection(1)
+    beginSchoolEntrySequence()
+  }
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // SECTION 8 & 22: GLOBAL "BACK" (ONE LOGICAL STEP ONLY!) AND "HOME" CONTROLS
+  // ───────────────────────────────────────────────────────────────────────────
+  const handleGlobalBackOneStep = () => {
+    soundEngine.playClick()
+    if (timelineRef.current) timelineRef.current.kill()
+
+    if (journeyStage === 'journey_complete' || journeyStage === 'walking_bank_exit') {
+      // Back 1 logical step: Final Exterior -> Bank Section 2 (Digital Banking Safety)
+      soundEngine.startAmbientMusic('bank_interior', true)
+      focusCameraOnBankSection(2, false)
+    } else if (journeyStage === 'bank_section' || journeyStage === 'walking_bank_section') {
+      if (activeBankSection > 1) {
+        // Back 1 logical step: Bank Section 2 -> Bank Section 1
+        focusCameraOnBankSection(1, true)
+      } else {
+        // Back 1 logical step: Bank Section 1 -> Bank Employee Guide (Maya)
+        charStateRef.current.x = 0
+        charStateRef.current.y = 6.84
+        charStateRef.current.z = -90.0
+        charStateRef.current.rotY = Math.PI
+        charStateRef.current.pose = 'idle'
+        gsap.to(camStateRef.current, {
+          x: 1.65,
+          y: 8.85,
+          z: -86.4,
+          lookX: -0.2,
+          lookY: 8.45,
+          lookZ: -93.2,
+          duration: 0.95,
+          ease: 'power2.inOut',
+        })
+        setJourneyStage('bank_employee')
+        soundEngine.startAmbientMusic('bank_interior', true)
+      }
+    } else if (journeyStage === 'bank_employee' || journeyStage === 'walking_to_bank') {
+      // Back 1 logical step: Bank Lobby / Bank Exterior Walk -> Computer 3 in Level 2 Computer Lab
+      setShowLevel3ArrivalBanner(false)
+      setJourneyStage('computer_lab')
+      soundEngine.startAmbientMusic('computer_lab', true)
+      focusCameraOnComputer(3, false)
+    } else if (journeyStage === 'reached_exit' || journeyStage === 'walking_to_exit') {
+      // Back 1 logical step: School Exit -> Computer 3 (Combined Metrics) in Computer Lab
+      setJourneyStage('computer_lab')
+      soundEngine.startAmbientMusic('computer_lab', true)
+      focusCameraOnComputer(3, false)
+    } else if (journeyStage === 'computer_lab') {
+      if (activeComputerIndex === 3) {
+        focusCameraOnComputer(2, true)
+      } else if (activeComputerIndex === 2) {
+        focusCameraOnComputer(1, true)
+      } else {
+        charStateRef.current.x = -16.1
+        charStateRef.current.y = 0.08
+        charStateRef.current.z = -28.68
+        charStateRef.current.pose = 'seated'
+        gsap.to(camStateRef.current, {
+          x: -14.0,
+          y: 3.55,
+          z: -25.85,
+          lookX: -14.0,
+          lookY: 3.65,
+          lookZ: -32.85,
+          duration: 1.0,
+          ease: 'power2.inOut',
+        })
+        setQuizSubStage('questions')
+        setCurrentQuestionIdx(LEVEL1_QUIZ_QUESTIONS.length - 1)
+        setSelectedOption(quizAnswers[LEVEL1_QUIZ_QUESTIONS.length - 1] ?? null)
+        setJourneyStage('exam_projector')
+        soundEngine.startAmbientMusic('examination', true)
+      }
+    } else if (journeyStage === 'walking_to_floor2_lab') {
+      charStateRef.current.x = -16.1
+      charStateRef.current.y = 0.08
+      charStateRef.current.z = -28.68
+      charStateRef.current.pose = 'seated'
+      camStateRef.current = {
+        x: -14.0,
+        y: 3.55,
+        z: -25.85,
+        lookX: -14.0,
+        lookY: 3.65,
+        lookZ: -32.85,
+      }
+      setQuizSubStage('questions')
+      setCurrentQuestionIdx(LEVEL1_QUIZ_QUESTIONS.length - 1)
+      setJourneyStage('exam_projector')
+      soundEngine.startAmbientMusic('examination', true)
+    } else if (journeyStage === 'exam_projector') {
+      if (quizSubStage === 'completed') {
+        setQuizSubStage('questions')
+        setCurrentQuestionIdx(LEVEL1_QUIZ_QUESTIONS.length - 1)
+        setSelectedOption(quizAnswers[LEVEL1_QUIZ_QUESTIONS.length - 1] ?? null)
+      } else if (quizSubStage === 'questions') {
+        handleQuizBackOneQuestion()
+      } else {
+        charStateRef.current.x = -16.1
+        charStateRef.current.y = 0.08
+        charStateRef.current.z = -12.68
+        charStateRef.current.pose = 'seated'
+        gsap.to(camStateRef.current, {
+          x: -14.0,
+          y: 3.55,
+          z: -9.85,
+          lookX: -14.0,
+          lookY: 3.65,
+          lookZ: -16.85,
+          duration: 1.0,
+          ease: 'power2.inOut',
+        })
+        setCurrentVideoIdx(LEVEL1_VIDEOS.length - 1)
+        setWatchPct(100)
+        setJourneyStage('classroom_projector')
+        soundEngine.startAmbientMusic('classroom', true)
+      }
+    } else if (journeyStage === 'walking_to_exam') {
+      charStateRef.current.x = -16.1
+      charStateRef.current.y = 0.08
+      charStateRef.current.z = -12.68
+      charStateRef.current.pose = 'seated'
+      camStateRef.current = {
+        x: -14.0,
+        y: 3.55,
+        z: -9.85,
+        lookX: -14.0,
+        lookY: 3.65,
+        lookZ: -16.85,
+      }
+      setJourneyStage('classroom_projector')
+      soundEngine.startAmbientMusic('classroom', true)
+    } else if (journeyStage === 'classroom_projector') {
+      if (currentVideoIdx > 0) {
+        const prevIdx = currentVideoIdx - 1
+        setCurrentVideoIdx(prevIdx)
+        setWatchPct(completedVideoIds.includes(LEVEL1_VIDEOS[prevIdx].id) ? 100 : 0)
+        setCurrentTime(0)
+      } else {
+        handleGlobalHome()
+      }
+    } else if (journeyStage === 'walking_to_classroom') {
+      handleGlobalHome()
+    }
+  }
+
+  const handleGlobalHome = () => {
+    soundEngine.playClick()
+    if (timelineRef.current) timelineRef.current.kill()
+    frontDoorOpenRef.current = 0
+    bankDoorOpenRef.current = 0
+    setShowLessonCompletedBanner(false)
+    setShowLevel2ArrivalBanner(false)
+    setShowLevel3ArrivalBanner(false)
+    setComputerFeedbackBanner(null)
+    setBankSectionFeedbackBanner(null)
+    setShowCampusMapModal(false)
+    gsap.to(camStateRef.current, {
+      x: 0,
+      y: 3.3,
+      z: 27.2,
+      lookX: 0,
+      lookY: 3.8,
+      lookZ: 4.0,
+      duration: 1.2,
+      ease: 'power2.inOut',
+    })
+    if (hasLoggedIn) {
+      charStateRef.current.visible = true
+      charStateRef.current.x = 0
+      charStateRef.current.y = 0
+      charStateRef.current.z = 21.5
+      charStateRef.current.rotY = Math.PI
+      charStateRef.current.pose = 'idle'
+      setJourneyStage('school_yard')
+    } else {
+      charStateRef.current.visible = false
+      setJourneyStage('login')
+    }
+  }
+
+  const formatSeconds = (sec) => {
+    if (!sec || !Number.isFinite(sec)) return '0:00'
+    const m = Math.floor(sec / 60)
+    const s = Math.floor(sec % 60)
+    return `${m}:${s < 10 ? '0' : ''}${s}`
+  }
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // 1. CLASSROOM 101 PHYSICAL PROJECTOR SCREEN UI (Videos 1..5 — Scaled Up)
+  // ───────────────────────────────────────────────────────────────────────────
+  const classroomProjectorUI =
+    journeyStage === 'classroom_projector' ? (
+      <div className="w-full h-full bg-slate-950 text-white flex flex-col justify-between overflow-hidden relative font-sans select-none">
+        {/* Top Integrated Projector Header Bar */}
+        <div className="flex items-center justify-between px-6 py-3.5 bg-slate-900/95 border-b border-slate-800">
+          <div className="flex items-center gap-3.5">
+            <span className="text-3xl">{currentVideo.icon}</span>
+            <div>
+              <div className="text-xs font-extrabold uppercase tracking-wider text-emerald-400">
+                Learn2Invest Classroom 101 • Video {currentVideoIdx + 1} of {LEVEL1_VIDEOS.length}
+              </div>
+              <div className="text-lg font-black text-white leading-tight">{currentVideo.title}</div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="px-4 py-1.5 rounded-full bg-slate-800 border border-slate-700 text-xs font-bold text-slate-200">
+              Completed: {completedVideoIds.length} / {LEVEL1_VIDEOS.length}
+            </div>
+            <div
+              className={`px-4 py-1.5 rounded-full text-sm font-black border ${
+                is85PercentReached
+                  ? 'bg-emerald-500/20 border-emerald-400 text-emerald-300'
+                  : 'bg-amber-500/20 border-amber-400 text-amber-300'
+              }`}
+            >
+              Watched: {watchPct}% {is85PercentReached ? '✓ (85%+ Reached)' : '/ 85% Required'}
+            </div>
+          </div>
+        </div>
+
+        {/* Center Video Surface Inside the Physical Projector */}
+        <div className="relative flex-1 bg-black flex items-center justify-center overflow-hidden">
+          {!videoLoadError ? (
+            <video
+              ref={videoElemRef}
+              key={currentVideo.id}
+              src={currentVideo.src}
+              autoPlay
+              playsInline
+              onPlay={() => setIsPlaying(true)}
+              onPause={() => setIsPlaying(false)}
+              onTimeUpdate={handleTimeUpdate}
+              onLoadedMetadata={(e) => {
+                setDuration(e.target.duration || 0)
+                setVideoLoadError(false)
+              }}
+              onError={() => setVideoLoadError(true)}
+              onEnded={() => setWatchPct(100)}
+              onClick={togglePlayPause}
+              className="w-full h-full object-cover cursor-pointer"
+            />
+          ) : (
+            /* Styled Lesson Summary Fallback Card if Video Stream is Slow/Unavailable */
+            <div className="w-full h-full bg-gradient-to-br from-slate-900 via-emerald-950/60 to-slate-950 flex flex-col items-center justify-center p-8 text-center">
+              <div className="text-5xl mb-3">{currentVideo.icon}</div>
+              <div className="px-4 py-1 rounded-full bg-emerald-500/20 border border-emerald-400 text-emerald-300 text-xs font-black uppercase tracking-widest mb-2">
+                Interactive Lesson Summary Mode • {watchPct}% Progress
+              </div>
+              <h3 className="text-2xl font-black text-white mb-2">{currentVideo.title}</h3>
+              <p className="text-base font-bold text-slate-300 max-w-xl leading-relaxed">
+                {currentVideo.subtitle}
+              </p>
+              <div className="mt-4 w-72 h-3 bg-slate-800 rounded-full overflow-hidden border border-white/15">
+                <div
+                  className="h-full bg-gradient-to-r from-emerald-400 to-amber-400 transition-all"
+                  style={{ width: `${watchPct}%` }}
+                />
+              </div>
+            </div>
+          )}
+
+          {!isPlaying && !videoLoadError && !showLessonCompletedBanner && (
+            <button
+              onClick={togglePlayPause}
+              className="absolute inset-0 flex flex-col items-center justify-center bg-black/45 hover:bg-black/30 transition-all group"
+            >
+              <div className="w-20 h-20 rounded-full bg-emerald-500 text-slate-950 flex items-center justify-center text-3xl font-black shadow-[0_0_35px_rgba(16,185,129,0.85)] group-hover:scale-110 transition-transform">
+                ▶
+              </div>
+              <span className="mt-3 text-sm font-extrabold tracking-wider uppercase text-white bg-slate-900/90 px-5 py-2 rounded-full border border-white/20">
+                Click Projector to Play Video {currentVideoIdx + 1}
+              </span>
+            </button>
+          )}
+
+          {showLessonCompletedBanner && (
+            <div className="absolute inset-0 bg-slate-950/85 backdrop-blur-md flex items-center justify-center z-30">
+              <div
+                ref={xpBannerRef}
+                className="relative px-10 py-7 rounded-3xl bg-gradient-to-br from-emerald-900/95 via-slate-900 to-amber-900/95 border-2 border-amber-400 shadow-[0_0_55px_rgba(251,191,36,0.65)] text-center"
+              >
+                <div
+                  ref={floatingXpTextRef}
+                  className="inline-block px-5 py-1.5 rounded-full bg-amber-400 text-slate-950 font-black text-base shadow-[0_0_25px_rgba(251,191,36,0.9)] mb-2"
+                >
+                  ⭐ +30 XP EARNED!
+                </div>
+                <div className="text-4xl mb-2 animate-bounce">🎉✨🏆</div>
+                <div className="text-sm font-black uppercase tracking-widest text-emerald-300 mb-1">
+                  Video {currentVideoIdx + 1} of {LEVEL1_VIDEOS.length} Completed
+                </div>
+                <div className="text-2xl font-black text-amber-300 drop-shadow">
+                  Lesson Completed (+30 XP Claimed)
+                </div>
+                <div className="mt-2 text-sm font-bold text-slate-200">
+                  {currentVideoIdx < LEVEL1_VIDEOS.length - 1
+                    ? `Automatically loading Video ${currentVideoIdx + 2}...`
+                    : 'All Videos Completed! Walking to Examination Center...'}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Bottom Custom Projector Controls + GSAP Animated "Next Video" Button */}
+        <div className="px-6 py-3.5 bg-slate-900/95 border-t border-slate-800 flex items-center justify-between gap-5">
+          <button
+            onClick={togglePlayPause}
+            className="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm transition-transform active:scale-95 shadow-md"
+          >
+            {isPlaying ? '⏸ Pause' : '▶ Play'}
+          </button>
+
+          <div className="flex-1 flex flex-col gap-1.5">
+            <div
+              onClick={handleSeekBarClick}
+              className="relative w-full h-3.5 bg-slate-700 rounded-full cursor-pointer overflow-hidden"
+            >
+              <div
+                className="h-full bg-gradient-to-r from-emerald-400 to-amber-400 rounded-full transition-all"
+                style={{ width: `${duration ? Math.min(100, (currentTime / duration) * 100) : watchPct}%` }}
+              />
+              <div className="absolute top-0 bottom-0 left-[85%] w-1 bg-white/90" />
+            </div>
+            <div className="flex justify-between text-xs font-bold text-slate-300">
+              <span>
+                {formatSeconds(currentTime)} / {duration ? formatSeconds(duration) : currentVideo.durationLabel}
+              </span>
+              <button
+                onClick={() => setWatchPct(85)}
+                className="text-amber-300 hover:underline font-extrabold text-xs"
+              >
+                ⚡ Reach 85% Watch Mark
+              </button>
+            </div>
+          </div>
+
+          <div className="min-w-[175px] flex justify-end">
+            {is85PercentReached && (
+              <button
+                ref={nextVideoBtnRef}
+                onClick={handleNextVideoClick}
+                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-emerald-400 text-slate-950 font-black text-sm shadow-[0_0_24px_rgba(251,191,36,0.75)] hover:scale-105 active:scale-95 transition-transform"
+              >
+                Next Video →
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    ) : null
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // 2. EXAMINATION CENTER PHYSICAL PROJECTOR SCREEN UI (Sections 4 - 9 — Scaled Up)
+  // ───────────────────────────────────────────────────────────────────────────
+  const examProjectorUI =
+    journeyStage === 'exam_projector' ? (
+      <div className="w-full h-full bg-white text-slate-900 flex flex-col justify-between overflow-hidden relative font-sans select-none">
+        {quizSubStage === 'start_screen' && (
+          /* Section 4: Blank Projector Screen with integrated "Start Quiz" button */
+          <div className="w-full h-full bg-gradient-to-b from-white via-amber-50/40 to-emerald-50/40 flex flex-col items-center justify-center p-8 text-center">
+            <div className="w-20 h-20 rounded-3xl bg-emerald-500/15 border-2 border-emerald-500/40 flex items-center justify-center text-5xl mb-3 shadow-sm">
+              📝
+            </div>
+            <div className="text-sm font-black uppercase tracking-widest text-emerald-700 mb-1">
+              Learn2Invest Examination Center • Projector Assessment
+            </div>
+            <h2 className="text-3xl font-black text-slate-900 mb-2">Level 1 Financial Literacy Quiz</h2>
+            <p className="text-base text-slate-600 max-w-lg mb-6 font-bold">
+              Answer 10 interactive questions presented one at a time on the examination projector to unlock Floor 2!
+            </p>
+            <button
+              onClick={handleStartQuizClick}
+              onMouseEnter={() => soundEngine.playHover()}
+              className="px-11 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-lime-500 text-slate-950 font-black text-lg shadow-[0_12px_32px_rgba(16,185,129,0.5)] hover:shadow-[0_0_38px_rgba(52,211,153,0.9)] hover:scale-105 active:scale-95 transition-all"
+            >
+              Start Quiz
+            </button>
+          </div>
+        )}
+
+        {quizSubStage === 'questions' && (
+          /* Sections 5, 6, 7, 8: One Question at a Time + Dynamic "3 / 10 Questions" on Side/End */
+          <div className="w-full h-full bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white flex flex-col justify-between p-6">
+            {/* Top Bar with Cute Icon & Side/End Progress "X / 10 Questions" */}
+            <div className="flex items-center justify-between border-b border-white/15 pb-3">
+              <div className="flex items-center gap-3.5">
+                <div className="w-12 h-12 rounded-2xl bg-pink-500/20 border border-pink-400 flex items-center justify-center text-2xl">
+                  {currentQuestion.icon}
+                </div>
+                <div>
+                  <div className="text-xs font-black uppercase tracking-wider text-pink-300">
+                    {currentQuestion.tag}
+                  </div>
+                  <div className="text-base font-extrabold text-white">
+                    Examination Projector • Question #{currentQuestionIdx + 1}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2.5">
+                <button
+                  onClick={handleQuizBackOneQuestion}
+                  className="px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/25 text-amber-300 font-black text-sm transition-all"
+                  title="Move back one question"
+                >
+                  ⬅ Back
+                </button>
+                <div className="px-5 py-2 rounded-full bg-amber-400 text-slate-950 font-black text-sm shadow-md">
+                  {currentQuestionIdx + 1} / {LEVEL1_QUIZ_QUESTIONS.length} Questions
+                </div>
+              </div>
+            </div>
+
+            {/* Question Text & 4 Interactive Answer Options */}
+            <div className="my-auto py-2">
+              <h3 className="text-xl font-black text-white mb-4 leading-snug">
+                {currentQuestion.icon} {currentQuestion.question}
+              </h3>
+
+              <div className="grid grid-cols-2 gap-3.5">
+                {currentQuestion.options.map((opt, idx) => {
+                  const isSelected = selectedOption === idx
+                  const isCorrect = idx === currentQuestion.answer
+                  let btnClass =
+                    'bg-white/10 hover:bg-white/20 border-white/25 text-white hover:scale-[1.01]'
+                  if (selectedOption !== null) {
+                    if (isCorrect) {
+                      btnClass = 'bg-emerald-500/30 border-emerald-400 text-emerald-200 scale-[1.02]'
+                    } else if (isSelected) {
+                      btnClass = 'bg-rose-500/30 border-rose-400 text-rose-200'
+                    }
+                  }
+
+                  return (
+                    <button
+                      key={idx}
+                      onClick={() => handleSelectQuizOption(idx)}
+                      className={`p-4 rounded-2xl border-2 text-left flex items-center gap-3.5 transition-all ${btnClass}`}
+                    >
+                      <span className="w-8 h-8 rounded-xl bg-pink-500 text-white font-black text-sm flex items-center justify-center shrink-0">
+                        {String.fromCharCode(65 + idx)}
+                      </span>
+                      <span className="text-sm font-bold leading-snug">{opt}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Bottom Progress Bar */}
+            <div className="flex items-center justify-between text-xs font-bold text-slate-300 pt-2.5 border-t border-white/10">
+              <span>
+                Answered: {Object.keys(quizAnswers).length} • Remaining:{' '}
+                {Math.max(0, LEVEL1_QUIZ_QUESTIONS.length - Object.keys(quizAnswers).length)}
+              </span>
+              <button
+                onClick={() => {
+                  soundEngine.playLessonCompleteFanfare()
+                  if (addXP) addXP(150)
+                  setQuizSubStage('completed')
+                  setTimeout(() => beginWalkToFloor2AndComputerLab(), 2200)
+                }}
+                className="text-amber-300 hover:underline font-extrabold text-sm"
+              >
+                ⚡ Complete All 10 Questions →
+              </button>
+            </div>
+          </div>
+        )}
+
+        {quizSubStage === 'completed' && (
+          /* Section 9: GSAP "Quiz Completed!" Celebration -> Automatically walks to Floor 2 Staircase */
+          <div className="w-full h-full bg-gradient-to-br from-emerald-950 via-slate-900 to-indigo-950 text-white flex flex-col items-center justify-center p-8 text-center">
+            <div
+              ref={quizCompleteBannerRef}
+              className="px-11 py-8 rounded-3xl bg-white/10 border-2 border-amber-400 shadow-[0_0_55px_rgba(251,191,36,0.55)]"
+            >
+              <div className="text-5xl mb-2 animate-bounce">🏆🎉⭐</div>
+              <div className="inline-block px-5 py-1.5 rounded-full bg-amber-400 text-slate-950 font-black text-sm uppercase tracking-wider mb-2">
+                +150 XP Examination Reward Claimed!
+              </div>
+              <h2 className="text-3xl font-black text-white mb-1">Quiz Completed!</h2>
+              <p className="text-sm text-emerald-200 max-w-md font-bold">
+                10 / 10 Questions Completed! {characterChoice === 'luna' ? 'Luna' : 'Leo'} is now walking to the Floor 2 Staircase...
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+    ) : null
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // 3. FLOOR 2 COMPUTER LAB — 3 PHYSICAL MONITOR INTERFACES (Scaled Up)
+  // ───────────────────────────────────────────────────────────────────────────
+  const schemeRates = { PPF: 7.1, FD: 6.8, SSY: 8.2, NSC: 7.7 }
+  const activeRate = schemeRates[simScheme] || 7.1
+  const totalMonths = simYears * 12
+  const monthlyRate = activeRate / 100 / 12
+  const projectedMaturity = Math.round(
+    simMonthlyAmount * ((Math.pow(1 + monthlyRate, totalMonths) - 1) / monthlyRate) * (1 + monthlyRate)
+  )
+  const totalInvested = simMonthlyAmount * totalMonths
+  const wealthGained = Math.max(0, projectedMaturity - totalInvested)
+
+  // COMPUTER 1: SIMULATION MODULE (Inside Monitor 1 — Fits 100% Inside 820x462 Screen)
+  const computer1MonitorUI =
+    journeyStage === 'computer_lab' ? (
+      <div className="w-full h-full bg-slate-950 text-white flex flex-col justify-between p-3.5 font-sans select-none overflow-hidden">
+        <div className="flex items-center justify-between border-b border-cyan-500/30 pb-2 shrink-0">
+          <div className="flex items-center gap-2.5">
+            <span className="text-2xl">💻</span>
+            <div>
+              <div className="text-[11px] font-black uppercase tracking-widest text-cyan-400">
+                Floor 2 Computer Lab • Workstation 1 of 3
+              </div>
+              <h3 className="text-base font-black text-white leading-tight">
+                Simulation Module — Sovereign Compounding Lab
+              </h3>
+            </div>
+          </div>
+          <div className="px-3.5 py-1 rounded-full bg-cyan-500/20 border border-cyan-400 text-cyan-200 text-xs font-black">
+            {simCompleted ? '✓ Completed (+50 XP)' : 'Interactive Terminal'}
+          </div>
+        </div>
+
+        {/* Scheme Selector + Sliders */}
+        <div className="grid grid-cols-12 gap-3 my-auto py-1.5">
+          <div className="col-span-7 space-y-2.5 bg-slate-900/90 p-3 rounded-2xl border border-white/10">
+            <div>
+              <label className="block text-[11px] font-black uppercase tracking-wider text-slate-300 mb-1">
+                1. Choose Government Scheme
+              </label>
+              <div className="grid grid-cols-4 gap-1.5">
+                {Object.entries(schemeRates).map(([code, rate]) => (
+                  <button
+                    key={code}
+                    onClick={() => {
+                      soundEngine.playClick()
+                      setSimScheme(code)
+                    }}
+                    className={`py-1.5 px-2 rounded-xl border text-center transition-all cursor-pointer ${
+                      simScheme === code
+                        ? 'bg-cyan-500 text-slate-950 border-cyan-300 font-black shadow-md'
+                        : 'bg-slate-800 text-slate-200 border-white/10 font-bold hover:bg-slate-700'
+                    }`}
+                  >
+                    <div className="text-xs">{code}</div>
+                    <div className="text-[10px] opacity-90">{rate}% p.a.</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <div className="flex justify-between text-xs font-black mb-1">
+                <span className="text-slate-200">2. Monthly Deposit</span>
+                <span className="text-emerald-400">₹{simMonthlyAmount.toLocaleString()} / mo</span>
+              </div>
+              <input
+                type="range"
+                min={1000}
+                max={25000}
+                step={500}
+                value={simMonthlyAmount}
+                onChange={(e) => setSimMonthlyAmount(Number(e.target.value))}
+                className="w-full h-2.5 accent-cyan-400 cursor-pointer"
+              />
+            </div>
+
+            <div>
+              <div className="flex justify-between text-xs font-black mb-1">
+                <span className="text-slate-200">3. Investment Horizon</span>
+                <span className="text-amber-300">{simYears} Years</span>
+              </div>
+              <input
+                type="range"
+                min={5}
+                max={25}
+                step={1}
+                value={simYears}
+                onChange={(e) => setSimYears(Number(e.target.value))}
+                className="w-full h-2.5 accent-amber-400 cursor-pointer"
+              />
+            </div>
+          </div>
+
+          {/* Live Simulated Growth Output */}
+          <div className="col-span-5 bg-gradient-to-br from-cyan-950 to-slate-900 p-3.5 rounded-2xl border border-cyan-400/40 flex flex-col justify-between">
+            <div>
+              <div className="text-[11px] font-black uppercase tracking-wider text-cyan-300">
+                Projected Maturity Corpus ({simScheme})
+              </div>
+              <div className="text-2xl font-black text-amber-300 mt-0.5">
+                ₹{projectedMaturity.toLocaleString()}
+              </div>
+              <div className="mt-2 space-y-1 text-xs">
+                <div className="flex justify-between text-slate-200">
+                  <span>Total Principal:</span>
+                  <span className="font-bold text-white">₹{totalInvested.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between text-emerald-300">
+                  <span>Compound Interest:</span>
+                  <span className="font-black">+₹{wealthGained.toLocaleString()}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Visual Growth Bar */}
+            <div className="w-full h-3.5 rounded-full bg-slate-800 overflow-hidden flex mt-2">
+              <div
+                className="bg-cyan-400 h-full"
+                style={{ width: `${Math.round((totalInvested / Math.max(1, projectedMaturity)) * 100)}%` }}
+              />
+              <div className="bg-emerald-400 h-full flex-1" />
+            </div>
+          </div>
+        </div>
+
+        {/* Complete Simulation Module Button — Always 100% Visible at Bottom of Screen */}
+        <div className="flex items-center justify-between pt-2 border-t border-white/15 shrink-0">
+          <span className="text-xs text-slate-300 font-bold">
+            Adjust sliders to simulate growth, then complete Computer 1
+          </span>
+          <button
+            onClick={handleCompleteComputer1}
+            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-400 to-emerald-400 text-slate-950 font-black text-xs sm:text-sm shadow-[0_0_24px_rgba(34,211,238,0.65)] hover:scale-105 active:scale-95 transition-transform cursor-pointer"
+          >
+            Complete Simulation Module (+50 XP) →
+          </button>
+        </div>
+      </div>
+    ) : null
+
+  // COMPUTER 2: SAVINGS MIXER (Inside Monitor 2 — Fits 100% Inside 820x462 Screen)
+  const mixerTotal = mixerAlloc.PPF + mixerAlloc.FD + mixerAlloc.SSY + mixerAlloc.NSC
+  const weightedYield = (
+    (mixerAlloc.PPF * 7.1 + mixerAlloc.FD * 6.8 + mixerAlloc.SSY * 8.2 + mixerAlloc.NSC * 7.7) /
+    Math.max(1, mixerTotal)
+  ).toFixed(2)
+
+  const handleMixerChange = (key, val) => {
+    setMixerAlloc((prev) => ({ ...prev, [key]: Number(val) }))
+  }
+
+  const computer2MonitorUI =
+    journeyStage === 'computer_lab' ? (
+      <div className="w-full h-full bg-slate-950 text-white flex flex-col justify-between p-3.5 font-sans select-none overflow-hidden">
+        <div className="flex items-center justify-between border-b border-purple-500/30 pb-2 shrink-0">
+          <div className="flex items-center gap-2.5">
+            <span className="text-2xl">🎛️</span>
+            <div>
+              <div className="text-[11px] font-black uppercase tracking-widest text-purple-400">
+                Floor 2 Computer Lab • Workstation 2 of 3
+              </div>
+              <h3 className="text-base font-black text-white leading-tight">
+                Savings Mixer — Asset Allocation Equalizer
+              </h3>
+            </div>
+          </div>
+          <div className="px-3.5 py-1 rounded-full bg-purple-500/20 border border-purple-400 text-purple-200 text-xs font-black">
+            Weighted Yield: {weightedYield}% p.a.
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 my-auto py-1.5">
+          {[
+            { key: 'PPF', label: 'Public Provident Fund (7.1%)', color: 'accent-emerald-400' },
+            { key: 'FD', label: 'Bank Fixed Deposit (6.8%)', color: 'accent-cyan-400' },
+            { key: 'SSY', label: 'Sukanya Samriddhi (8.2%)', color: 'accent-pink-400' },
+            { key: 'NSC', label: 'National Savings Cert (7.7%)', color: 'accent-amber-400' },
+          ].map((item) => (
+            <div key={item.key} className="bg-slate-900/90 p-3 rounded-2xl border border-white/10">
+              <div className="flex justify-between text-xs font-black mb-1">
+                <span className="text-slate-100">{item.label}</span>
+                <span className="text-amber-300">{mixerAlloc[item.key]}%</span>
+              </div>
+              <input
+                type="range"
+                min={5}
+                max={70}
+                step={5}
+                value={mixerAlloc[item.key]}
+                onChange={(e) => handleMixerChange(item.key, e.target.value)}
+                className={`w-full h-2.5 ${item.color} cursor-pointer`}
+              />
+            </div>
+          ))}
+        </div>
+
+        {/* Complete Savings Mixer Button — Always 100% Visible at Bottom of Screen */}
+        <div className="flex items-center justify-between pt-2 border-t border-white/15 shrink-0">
+          <div className="text-xs font-bold text-slate-200">
+            Total Mix: <span className="text-emerald-400 font-black">{mixerTotal}%</span> • Sovereign Safety:{' '}
+            <span className="text-amber-300 font-black">100% Guaranteed</span>
+          </div>
+          <button
+            onClick={handleCompleteComputer2}
+            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-400 to-pink-400 text-slate-950 font-black text-xs sm:text-sm shadow-[0_0_24px_rgba(192,132,252,0.65)] hover:scale-105 active:scale-95 transition-transform cursor-pointer"
+          >
+            Complete Savings Mixer (+50 XP) →
+          </button>
+        </div>
+      </div>
+    ) : null
+
+  // COMPUTER 3: COMBINED METRICS (Inside Monitor 3 — Fits 100% Inside 820x462 Screen)
+  const computer3MonitorUI =
+    journeyStage === 'computer_lab' ? (
+      <div className="w-full h-full bg-slate-950 text-white flex flex-col justify-between p-3.5 font-sans select-none overflow-hidden">
+        <div className="flex items-center justify-between border-b border-emerald-500/30 pb-2 shrink-0">
+          <div className="flex items-center gap-2.5">
+            <span className="text-2xl">📊</span>
+            <div>
+              <div className="text-[11px] font-black uppercase tracking-widest text-emerald-400">
+                Floor 2 Computer Lab • Workstation 3 of 3
+              </div>
+              <h3 className="text-base font-black text-white leading-tight">
+                Combined Metrics — Unified Portfolio Analytics
+              </h3>
+            </div>
+          </div>
+          <div className="flex gap-1.5">
+            {['conservative', 'balanced', 'growth'].map((sc) => (
+              <button
+                key={sc}
+                onClick={() => {
+                  soundEngine.playClick()
+                  setMetricsScenario(sc)
+                }}
+                className={`px-3 py-1 rounded-xl text-[11px] font-black uppercase cursor-pointer ${
+                  metricsScenario === sc
+                    ? 'bg-emerald-400 text-slate-950'
+                    : 'bg-slate-800 text-slate-200 hover:bg-slate-700'
+                }`}
+              >
+                {sc}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* 4 Combined Metric Cards Synthesizing Computer 1 + Computer 2 */}
+        <div className="grid grid-cols-4 gap-3 my-auto py-1.5">
+          <div className="bg-slate-900/90 p-3.5 rounded-2xl border border-emerald-400/40">
+            <div className="text-[11px] font-black uppercase text-emerald-300">Combined Corpus</div>
+            <div className="text-xl font-black text-white mt-1">
+              ₹{projectedMaturity.toLocaleString()}
+            </div>
+            <div className="text-[11px] text-slate-400 mt-1">Over {simYears} Years Horizon</div>
+          </div>
+
+          <div className="bg-slate-900/90 p-3.5 rounded-2xl border border-cyan-400/40">
+            <div className="text-[11px] font-black uppercase text-cyan-300">Blended CAGR</div>
+            <div className="text-xl font-black text-amber-300 mt-1">{weightedYield}% p.a.</div>
+            <div className="text-[11px] text-slate-400 mt-1">Beats 5.5% Inflation</div>
+          </div>
+
+          <div className="bg-slate-900/90 p-3.5 rounded-2xl border border-purple-400/40">
+            <div className="text-[11px] font-black uppercase text-purple-300">Tax Efficiency</div>
+            <div className="text-xl font-black text-emerald-300 mt-1">96 / 100</div>
+            <div className="text-[11px] text-slate-400 mt-1">Sec 80C + EEE Shield</div>
+          </div>
+
+          <div className="bg-slate-900/90 p-3.5 rounded-2xl border border-amber-400/40">
+            <div className="text-[11px] font-black uppercase text-amber-300">Safety Rating</div>
+            <div className="text-xl font-black text-white mt-1">AAA+</div>
+            <div className="text-[11px] text-slate-400 mt-1">Sovereign Backed</div>
+          </div>
+        </div>
+
+        {/* Complete Combined Metrics Button — Always 100% Visible at Bottom of Screen */}
+        <div className="flex items-center justify-between pt-2 border-t border-white/15 shrink-0">
+          <span className="text-xs font-bold text-emerald-300">
+            ✓ Simulation Module + ✓ Savings Mixer Combined
+          </span>
+          <button
+            onClick={handleCompleteComputer3}
+            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 via-emerald-400 to-cyan-400 text-slate-950 font-black text-xs sm:text-sm shadow-[0_0_24px_rgba(52,211,153,0.75)] hover:scale-105 active:scale-95 transition-transform cursor-pointer"
+          >
+            Complete Combined Metrics & Walk Through Veranda Exit (+100 XP) →
+          </button>
+        </div>
+      </div>
+    ) : null
+
+  return (
+    <div className="relative w-screen h-screen overflow-hidden bg-sky-200 select-none">
+      {/* ═══════════════════════════════════════════════════════════════════
+          POLISHED INITIAL 3D SCENE LOADING OVERLAY ("Entering Learn2Invest...")
+      ═══════════════════════════════════════════════════════════════════ */}
+      {isSceneLoading && (
+        <div className="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-xl flex flex-col items-center justify-center text-white transition-opacity duration-500">
+          <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-4xl shadow-[0_0_50px_rgba(16,185,129,0.6)] animate-bounce mb-5 border-2 border-white/40">
+            🌱
+          </div>
+          <div className="text-xs sm:text-sm font-black uppercase tracking-[0.25em] text-emerald-400 mb-2">
+            3D Interactive Financial Campus
+          </div>
+          <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight mb-4">
+            Entering Learn<span className="text-lime-400">2</span>Invest...
+          </h2>
+          <div className="w-64 sm:w-80 h-3 rounded-full bg-slate-800 overflow-hidden border border-white/15">
+            <div className="h-full w-full bg-gradient-to-r from-emerald-400 via-teal-400 to-amber-400 animate-pulse" />
+          </div>
+        </div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          CONTINUOUS 3D WORLD CANVAS (ALL ZONES IN ONE UNIFIED 3D CAMPUS)
+      ═══════════════════════════════════════════════════════════════════ */}
+      <Canvas
+        shadows
+        camera={{ position: [0, 3.3, 27.2], fov: 46, near: 0.1, far: 290 }}
+        gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.08 }}
+      >
+        <Suspense fallback={null}>
+          <Sky sunPosition={[35, 22, 28]} turbidity={0.25} rayleigh={0.45} />
+          <fog attach="fog" args={['#fdf8f0', 38, 175]} />
+
+          <ambientLight intensity={0.84} color="#fffbeb" />
+          <hemisphereLight skyColor="#fff7ed" groundColor="#d69e66" intensity={0.65} />
+          <directionalLight
+            position={[22, 36, 24]}
+            intensity={1.55}
+            color="#fff7ed"
+            castShadow
+            shadow-mapSize-width={2048}
+            shadow-mapSize-height={2048}
+            shadow-camera-left={-45}
+            shadow-camera-right={45}
+            shadow-camera-top={45}
+            shadow-camera-bottom={-45}
+          />
+
+          <Level1CinematicCameraRig camStateRef={camStateRef} journeyStage={journeyStage} />
+
+          {/* 1. 3D School Yard & Neoclassical Facade (Image 3 Reference — No Fountain, More Plants & Students) */}
+          <SchoolYardAndFacade3D frontDoorOpenRef={frontDoorOpenRef} />
+
+          {/* 2. 3D Ground-Floor Veranda */}
+          <SchoolVeranda3D />
+
+          {/* 3. 3D Classroom 101 with Seated Students, Teacher & Physical Video Projector Screen */}
+          <Classroom101Scene3D projectorContent={classroomProjectorUI} />
+
+          {/* 4. 3D Examination Center 103 with Seated Students, Teacher & Physical Quiz Projector Screen */}
+          <ExaminationCenter103Scene3D examProjectorContent={examProjectorUI} />
+
+          {/* 5. Grand Staircase ("↑ Floor 2") & Floor 2 Veranda */}
+          <StaircaseAndFloor2Veranda3D />
+
+          {/* 6. Floor 2 — 3D Computer Laboratory with 3 Physical Monitors, Teacher & Classmates */}
+          <Floor2ComputerLabScene3D
+            activeComputerIndex={activeComputerIndex}
+            computer1Content={computer1MonitorUI}
+            computer2Content={computer2MonitorUI}
+            computer3Content={computer3MonitorUI}
+          />
+
+          {/* 7. Open Sunlit Veranda Exit (Image 1 Reference) & School Gates */}
+          <SchoolExitCorridorAndExterior3D />
+
+          {/* 8. Level 3 — 3D Bank Exterior, Bank Interior Lobby, Bank Employee Guide (Maya) & 2 Banking Sections */}
+          <Level3BankZone3D
+            bankDoorOpenRef={bankDoorOpenRef}
+            activeBankSection={
+              journeyStage === 'bank_section' || journeyStage === 'walking_bank_section'
+                ? activeBankSection
+                : 0
+            }
+            completedBankSections={completedBankSections}
+            employeeWaveActive={
+              journeyStage === 'bank_employee' ||
+              journeyStage === 'walking_to_bank' ||
+              journeyStage === 'walking_bank_exit'
+            }
+            onEmployeeClick={() => {
+              if (journeyStage === 'bank_employee') {
+                handleEmployeeInteract()
+              }
+            }}
+            onSelectSection={(secNum) => {
+              if (
+                secNum === 1 ||
+                completedBankSections.includes(secNum - 1) ||
+                completedBankSections.includes(secNum)
+              ) {
+                focusCameraOnBankSection(secNum, true)
+              }
+            }}
+          />
+
+          {/* 9. Consistent 3D Player Character: Luna or Leo */}
+          <PlayerCharacter3D characterId={characterChoice} charStateRef={charStateRef} />
+
+          {/* 10. Animated 3D NPC Students Sitting, Talking in Groups & Walking Around Campus */}
+          <AnimatedCampusStudents3D />
+
+          <Sparkles count={90} scale={[32, 10, 48]} position={[0, 4.2, -10]} size={2.4} speed={0.35} color="#fef08a" />
+          <ContactShadows position={[0, 0.02, 12]} opacity={0.3} scale={55} blur={2.2} far={15} />
+        </Suspense>
+      </Canvas>
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          GLOBAL RESPONSIVE HUD (BACK 1 STEP, HOME, STAGE PILL, QUICK JUMP, XP, MUSIC, CHATBOT)
+      ═══════════════════════════════════════════════════════════════════ */}
+      <div className="absolute top-3.5 left-4 right-4 z-30 flex items-center justify-between pointer-events-none flex-wrap gap-2.5">
+        {/* Left: BACK (One Logical Step), HOME & Current Stage Pill */}
+        <div className="flex items-center gap-2.5 pointer-events-auto flex-wrap">
+          {journeyStage !== 'login' && journeyStage !== 'school_yard' && (
+            <button
+              onClick={handleGlobalBackOneStep}
+              className="px-5 py-2.5 rounded-full bg-slate-900/90 hover:bg-slate-900 text-amber-300 border-2 border-amber-400/60 text-xs sm:text-sm font-black shadow-lg backdrop-blur-md flex items-center gap-2 transition-transform hover:scale-105 active:scale-95"
+              title="Move back one logical step"
+            >
+              <span>⬅</span>
+              <span>BACK</span>
+            </button>
+          )}
+          <button
+            onClick={handleGlobalHome}
+            className="px-5 py-2.5 rounded-full bg-slate-900/90 hover:bg-slate-900 text-white border-2 border-white/30 text-xs sm:text-sm font-black shadow-lg backdrop-blur-md flex items-center gap-2 transition-transform hover:scale-105 active:scale-95"
+            title="Return to Learn2Invest School Yard Home"
+          >
+            <span>🏠</span>
+            <span>HOME</span>
+          </button>
+
+          <button
+            onClick={() => {
+              soundEngine.playClick()
+              setShowCampusMapModal((m) => !m)
+            }}
+            className="px-4 py-2.5 rounded-full bg-slate-900/90 hover:bg-slate-900 text-emerald-300 border-2 border-emerald-400/60 text-xs sm:text-sm font-black shadow-lg backdrop-blur-md flex items-center gap-2 transition-transform hover:scale-105 active:scale-95"
+            title="View School-to-Bank Campus Map"
+          >
+            <span>🗺️</span>
+            <span>CAMPUS MAP</span>
+          </button>
+
+          {/* Current Level & Journey Stage Pill */}
+          <div className="hidden lg:flex items-center gap-2.5 px-4 py-2 rounded-full bg-slate-900/85 border border-emerald-400/50 text-white text-xs sm:text-sm font-bold backdrop-blur-md shadow-md">
+            <span className="text-emerald-400 font-black">
+              {[
+                'walking_to_bank',
+                'bank_employee',
+                'walking_bank_section',
+                'bank_section',
+                'walking_bank_exit',
+                'journey_complete',
+              ].includes(journeyStage)
+                ? 'LEVEL 3 • BANK'
+                : ['walking_to_floor2_lab', 'computer_lab', 'walking_to_exit', 'reached_exit'].includes(journeyStage)
+                  ? 'LEVEL 2 • LAB'
+                  : 'LEVEL 1 • SCHOOL'}
+            </span>
+            <span className="text-slate-500">•</span>
+            <span>{characterChoice === 'luna' ? '👧 Luna' : '👦 Leo'}</span>
+            <span className="text-emerald-300">•</span>
+            <span className="text-amber-300 font-extrabold">
+              {journeyStage === 'login' && !hasLoggedIn && 'School Yard (Login)'}
+              {(journeyStage === 'school_yard' || (journeyStage === 'login' && hasLoggedIn)) && 'School Yard (Campus Home)'}
+              {journeyStage === 'walking_to_classroom' && 'Walking: School Yard → Veranda → Classroom 101'}
+              {journeyStage === 'classroom_projector' &&
+                `Classroom 101 Projector (Video ${currentVideoIdx + 1}/${LEVEL1_VIDEOS.length})`}
+              {journeyStage === 'walking_to_exam' && 'Walking: Classroom → Veranda → Examination Center'}
+              {journeyStage === 'exam_projector' &&
+                (quizSubStage === 'start_screen'
+                  ? 'Examination Center • Start Quiz'
+                  : quizSubStage === 'questions'
+                    ? `Examination Center • ${currentQuestionIdx + 1} / ${LEVEL1_QUIZ_QUESTIONS.length} Questions`
+                    : 'Examination Center • Quiz Completed!')}
+              {journeyStage === 'walking_to_floor2_lab' && 'Climbing Stairs → Floor 2 Veranda → Computer Lab'}
+              {journeyStage === 'computer_lab' &&
+                (activeComputerIndex === 1
+                  ? 'Floor 2 Computer Lab • Computer 1 (Simulation)'
+                  : activeComputerIndex === 2
+                    ? 'Floor 2 Computer Lab • Computer 2 (Savings Mixer)'
+                    : 'Floor 2 Computer Lab • Computer 3 (Combined Metrics)')}
+              {journeyStage === 'walking_to_exit' && 'Walking: Computer Lab → Veranda → School Exit'}
+              {journeyStage === 'reached_exit' && 'Veranda Exit Reached • Heading to Level 3 Bank'}
+              {journeyStage === 'walking_to_bank' && 'Walking: Boulevard → Bank Exterior → Bank Lobby'}
+              {journeyStage === 'bank_employee' && 'Level 3 Bank Lobby • Employee Guide Maya'}
+              {(journeyStage === 'bank_section' || journeyStage === 'walking_bank_section') &&
+                `Level 3 Bank • Section ${activeBankSection} / 2 (${
+                  activeBankSection === 1 ? 'Banking Slip Writing' : 'Digital Banking Safety'
+                })`}
+              {journeyStage === 'walking_bank_exit' && 'Walking Out of Bank Entrance → Final Celebration'}
+              {journeyStage === 'journey_complete' && 'LEARN2INVEST JOURNEY COMPLETE • CAMPUS MAP'}
+            </span>
+          </div>
+        </div>
+
+        {/* Right: Quick Scene Switcher, XP Counter, Music Volume Slider & Chatbot */}
+        <div className="flex items-center gap-2.5 pointer-events-auto flex-wrap">
+          <select
+            value={
+              journeyStage === 'computer_lab'
+                ? `computer_${activeComputerIndex}`
+                : journeyStage === 'bank_section' || journeyStage === 'walking_bank_section'
+                  ? `bank_sec_${activeBankSection}`
+                  : journeyStage === 'school_yard'
+                    ? 'login'
+                    : journeyStage
+            }
+            onChange={(e) => {
+              const val = e.target.value
+              soundEngine.playClick()
+              if (val === 'login') {
+                handleGlobalHome()
+              } else if (val === 'classroom_projector') {
+                if (timelineRef.current) timelineRef.current.kill()
+                charStateRef.current.visible = true
+                charStateRef.current.x = -16.1
+                charStateRef.current.y = 0.08
+                charStateRef.current.z = -12.68
+                charStateRef.current.pose = 'seated'
+                gsap.to(camStateRef.current, {
+                  x: -14.0,
+                  y: 3.55,
+                  z: -9.85,
+                  lookX: -14.0,
+                  lookY: 3.65,
+                  lookZ: -16.85,
+                  duration: 0.9,
+                })
+                setJourneyStage('classroom_projector')
+                soundEngine.startAmbientMusic('classroom', true)
+              } else if (val === 'walking_to_exam') {
+                beginWalkToExaminationCenter()
+              } else if (val === 'exam_projector') {
+                if (timelineRef.current) timelineRef.current.kill()
+                charStateRef.current.visible = true
+                charStateRef.current.x = -16.1
+                charStateRef.current.y = 0.08
+                charStateRef.current.z = -28.68
+                charStateRef.current.pose = 'seated'
+                gsap.to(camStateRef.current, {
+                  x: -14.0,
+                  y: 3.55,
+                  z: -25.85,
+                  lookX: -14.0,
+                  lookY: 3.65,
+                  lookZ: -32.85,
+                  duration: 0.9,
+                })
+                setQuizSubStage('start_screen')
+                setJourneyStage('exam_projector')
+                soundEngine.startAmbientMusic('examination', true)
+              } else if (val === 'walking_to_floor2_lab') {
+                beginWalkToFloor2AndComputerLab()
+              } else if (val === 'computer_1') {
+                setJourneyStage('computer_lab')
+                soundEngine.startAmbientMusic('computer_lab', true)
+                focusCameraOnComputer(1, false)
+              } else if (val === 'computer_2') {
+                setJourneyStage('computer_lab')
+                soundEngine.startAmbientMusic('computer_lab', true)
+                focusCameraOnComputer(2, false)
+              } else if (val === 'computer_3') {
+                setJourneyStage('computer_lab')
+                soundEngine.startAmbientMusic('computer_lab', true)
+                focusCameraOnComputer(3, false)
+              } else if (val === 'walking_to_exit') {
+                beginWalkToExit(false)
+              } else if (val === 'walking_to_bank') {
+                beginWalkToBank()
+              } else if (val === 'bank_employee') {
+                if (timelineRef.current) timelineRef.current.kill()
+                bankDoorOpenRef.current = 1
+                charStateRef.current.visible = true
+                charStateRef.current.x = 0
+                charStateRef.current.y = 6.84
+                charStateRef.current.z = -90.0
+                charStateRef.current.rotY = Math.PI
+                charStateRef.current.pose = 'idle'
+                gsap.to(camStateRef.current, {
+                  x: 1.65,
+                  y: 8.85,
+                  z: -86.4,
+                  lookX: -0.2,
+                  lookY: 8.45,
+                  lookZ: -93.2,
+                  duration: 0.9,
+                })
+                setJourneyStage('bank_employee')
+                soundEngine.startAmbientMusic('bank_interior', true)
+              } else if (val.startsWith('bank_sec_')) {
+                const sec = Number(val.replace('bank_sec_', ''))
+                bankDoorOpenRef.current = 1
+                soundEngine.startAmbientMusic('bank_interior', true)
+                focusCameraOnBankSection(sec, false)
+              } else if (val === 'journey_complete') {
+                beginFinalBankExitWalk()
+              }
+            }}
+            className="px-4 py-2 rounded-full bg-slate-900/90 border-2 border-cyan-400/60 text-cyan-200 text-xs sm:text-sm font-black backdrop-blur-md cursor-pointer focus:outline-none shadow-lg"
+            title="Jump to any stage of the continuous 3D journey"
+          >
+            <option value="login">
+              {hasLoggedIn ? '📍 1. School Yard (Campus Home)' : '📍 1. School Yard (Login)'}
+            </option>
+            <option value="classroom_projector">📍 2. Classroom 101 (5 Videos)</option>
+            <option value="walking_to_exam">🚶 3. Walk: Classroom → Exam Center</option>
+            <option value="exam_projector">📍 4. Examination Center (10-Q Quiz)</option>
+            <option value="walking_to_floor2_lab">🚶 5. Climb Stairs → Floor 2 Lab</option>
+            <option value="computer_1">💻 6. Computer 1: Simulation Module</option>
+            <option value="computer_2">🎛️ 7. Computer 2: Savings Mixer</option>
+            <option value="computer_3">📊 8. Computer 3: Combined Metrics</option>
+            <option value="walking_to_exit">🚪 9. Walk: Computer Lab → Veranda Exit</option>
+            <option value="walking_to_bank">🏛️ 10. Walk: Veranda Exit → Level 3 Bank</option>
+            <option value="bank_employee">👩‍💼 11. Bank Lobby: Employee Guide Maya</option>
+            <option value="bank_sec_1">📝 12. Level 3 (1/2): Banking Slip Writing</option>
+            <option value="bank_sec_2">🛡️ 13. Level 3 (2/2): Digital Banking Safety</option>
+            <option value="journey_complete">🗺️ 14. Final 3-Levels Complete & Campus Map</option>
+          </select>
+
+          <div className="px-4 py-2 rounded-full bg-slate-900/90 border-2 border-amber-400/60 text-amber-300 text-xs sm:text-sm font-black backdrop-blur-md shadow-lg">
+            ⭐ {state?.xp || 0} XP
+          </div>
+
+          <div className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-slate-900/90 border border-white/25 text-white text-xs sm:text-sm backdrop-blur-md shadow-lg">
+            <span>{audioVolume === 0 ? '🔇' : '🎵'}</span>
+            <input
+              type="range"
+              min={0}
+              max={100}
+              value={audioVolume}
+              onChange={(e) => {
+                const v = Number(e.target.value)
+                setAudioVolume(v)
+                soundEngine.setVolume(v / 100)
+              }}
+              className="w-20 accent-emerald-400 cursor-pointer"
+            />
+          </div>
+
+          {onChatToggle && (
+            <button
+              onClick={onChatToggle}
+              className="px-4 py-2 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 text-white text-xs sm:text-sm font-black shadow-lg hover:scale-105 transition-transform"
+            >
+              🤖 AI Helper
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          SUBTLE LEVEL 2 & LEVEL 3 ARRIVAL BANNERS
+      ═══════════════════════════════════════════════════════════════════ */}
+      {showLevel2ArrivalBanner && (
+        <div className="absolute top-20 left-1/2 -translate-x-1/2 z-30 px-9 py-4 rounded-3xl bg-slate-900/95 border-2 border-cyan-400 shadow-[0_0_45px_rgba(34,211,238,0.6)] text-center pointer-events-none animate-bounce">
+          <div className="text-xs font-black uppercase tracking-widest text-cyan-300">
+            Ascending Grand Staircase • Floor 2
+          </div>
+          <div className="text-xl sm:text-2xl font-black text-white">LEVEL 2 — FINANCIAL SIMULATION LAB</div>
+        </div>
+      )}
+
+      {showLevel3ArrivalBanner && (
+        <div className="absolute top-20 left-1/2 -translate-x-1/2 z-30 px-9 py-4 rounded-3xl bg-slate-900/95 border-2 border-blue-400 shadow-[0_0_45px_rgba(59,130,246,0.65)] text-center pointer-events-none animate-bounce">
+          <div className="text-xs font-black uppercase tracking-widest text-blue-300">
+            Entering Learn2Invest Financial Center
+          </div>
+          <div className="text-xl sm:text-2xl font-black text-white">🏛️ LEVEL 3 — REAL-WORLD BANKING</div>
+        </div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          COMPUTER MODULE & BANK SECTION COMPLETION FEEDBACK TOASTS
+      ═══════════════════════════════════════════════════════════════════ */}
+      {computerFeedbackBanner && (
+        <div className="absolute top-20 left-1/2 -translate-x-1/2 z-30 px-9 py-5 rounded-3xl bg-slate-900/95 border-2 border-amber-400 shadow-[0_0_50px_rgba(251,191,36,0.65)] text-center pointer-events-none">
+          <div className="inline-block px-4 py-1 rounded-full bg-amber-400 text-slate-950 font-black text-sm mb-1.5">
+            ⭐ {computerFeedbackBanner.xp}
+          </div>
+          <div className="text-xl font-black text-white">{computerFeedbackBanner.title}</div>
+          <div className="text-sm font-bold text-emerald-300 mt-1">{computerFeedbackBanner.sub}</div>
+        </div>
+      )}
+
+      {bankSectionFeedbackBanner && (
+        <div className="absolute top-20 left-1/2 -translate-x-1/2 z-40 px-9 py-5 rounded-3xl bg-slate-900/95 border-2 border-amber-400 shadow-[0_0_55px_rgba(251,191,36,0.75)] text-center pointer-events-none">
+          <div className="inline-block px-4 py-1 rounded-full bg-amber-400 text-slate-950 font-black text-sm mb-1.5">
+            ⭐ {bankSectionFeedbackBanner.xp}
+          </div>
+          <div className="text-xl sm:text-2xl font-black text-white">{bankSectionFeedbackBanner.title}</div>
+          <div className="text-sm font-bold text-emerald-300 mt-1">{bankSectionFeedbackBanner.sub}</div>
+        </div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          SCHOOL VERANDA EXIT BANNER (Before or Manual Trigger to Level 3 Bank)
+      ═══════════════════════════════════════════════════════════════════ */}
+      {journeyStage === 'reached_exit' && (
+        <div className="absolute bottom-7 left-1/2 -translate-x-1/2 z-30 w-[min(94vw,820px)] px-7 py-5 rounded-3xl bg-slate-900/95 backdrop-blur-xl border-2 border-emerald-400 shadow-[0_15px_55px_rgba(16,185,129,0.55)] text-white flex flex-col sm:flex-row items-center justify-between gap-5">
+          <div className="flex items-center gap-4">
+            <div className="text-4xl animate-bounce">🎓🏛️</div>
+            <div>
+              <div className="text-xs font-black uppercase tracking-widest text-emerald-400">
+                Exited Through School Veranda • Proceeding to Level 3 Bank
+              </div>
+              <div className="text-lg sm:text-xl font-black text-white">
+                {characterChoice === 'luna' ? 'Luna' : 'Leo'} Walked Outside Through the Veranda EXIT!
+              </div>
+              <div className="text-xs sm:text-sm text-slate-300 font-medium">
+                Next Stop: 🏛️ Learn2Invest Bank → Section 1: Banking Slip Writing & Section 2: Digital Banking Safety
+              </div>
+            </div>
+          </div>
+          <div className="flex gap-3 shrink-0">
+            <button
+              onClick={beginWalkToBank}
+              className="px-6 py-3 rounded-2xl bg-gradient-to-r from-blue-500 to-emerald-400 text-slate-950 font-black text-sm shadow-lg hover:scale-105 active:scale-95 transition-all"
+            >
+              🏛️ Enter Level 3 Bank →
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          LEVEL 3 — BANK EMPLOYEE GUIDE INTERACTION PANEL (Maya — 2 Sections)
+      ═══════════════════════════════════════════════════════════════════ */}
+      {journeyStage === 'bank_employee' && (
+        <div className="absolute bottom-7 left-1/2 -translate-x-1/2 z-30 w-[min(94vw,760px)] rounded-3xl bg-slate-950/92 backdrop-blur-xl border-2 border-blue-400/80 shadow-[0_20px_65px_rgba(30,64,175,0.65)] p-6 sm:p-7 text-white">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-white/15 pb-4">
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-800 border-2 border-amber-300 flex items-center justify-center text-3xl shadow-lg shrink-0">
+                👩‍💼
+              </div>
+              <div>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/25 border border-blue-400 text-blue-200 text-xs font-black uppercase tracking-wider mb-1">
+                  <span>🏛️ Level 3 Bank Lobby</span>
+                  <span>•</span>
+                  <span>Senior Banking Officer</span>
+                </div>
+                <h2 className="text-xl sm:text-2xl font-black text-white">
+                  Maya — Your Personal Banking Guide
+                </h2>
+              </div>
+            </div>
+
+            <div className="px-4 py-2 rounded-2xl bg-slate-900 border border-emerald-400/50 text-emerald-300 text-xs sm:text-sm font-black">
+              Sections Completed: {completedBankSections.length} / 2
+            </div>
+          </div>
+
+          <p className="mt-4 text-sm sm:text-base text-slate-200 font-medium leading-relaxed">
+            “Welcome to the <span className="text-amber-300 font-black">Learn2Invest Bank</span>,{' '}
+            <span className="text-emerald-300 font-black">
+              {characterChoice === 'luna' ? 'Luna' : 'Leo'}
+            </span>
+            ! Level 3 has <span className="text-white font-black">2 interactive banking sections</span>:{' '}
+            <span className="text-cyan-300 font-black">1. Banking Slip Writing</span> (Canara Bank, Karnataka Bank, India Post, PNB, SBI — Deposit Slips, Withdrawal Slips, Cheques & Live IFSC Search) and{' '}
+            <span className="text-amber-300 font-black">2. Digital Banking Safety</span>!”
+          </p>
+
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-white/15">
+            <div className="flex items-center gap-2 flex-wrap">
+              {[
+                { num: 1, label: 'Section 1: Banking Slip Writing' },
+                { num: 2, label: 'Section 2: Digital Banking Safety' },
+              ].map((item) => {
+                const done = completedBankSections.includes(item.num)
+                return (
+                  <span
+                    key={item.num}
+                    className={`px-3.5 py-1.5 rounded-xl text-xs font-black border ${
+                      done
+                        ? 'bg-emerald-500/25 border-emerald-400 text-emerald-300'
+                        : item.num === 1
+                          ? 'bg-amber-400/20 border-amber-400 text-amber-300'
+                          : 'bg-slate-900 border-white/15 text-slate-400'
+                    }`}
+                  >
+                    {done ? `✓ ${item.label}` : item.label}
+                  </span>
+                )
+              })}
+            </div>
+
+            <button
+              onClick={handleEmployeeInteract}
+              onMouseEnter={() => soundEngine.playHover()}
+              className="px-7 py-3.5 rounded-2xl bg-gradient-to-r from-amber-400 via-emerald-400 to-cyan-400 text-slate-950 font-black text-sm sm:text-base shadow-[0_10px_30px_rgba(52,211,153,0.55)] hover:scale-105 active:scale-95 transition-all"
+            >
+              🏛️ Start Section 1: Banking Slip Writing →
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          LEVEL 3 — ORIGINAL BANK PAPER SLIP WRITER & DIGITAL SAFETY ARENA (2 SECTIONS)
+      ═══════════════════════════════════════════════════════════════════ */}
+      {journeyStage === 'bank_section' && !bankSectionFeedbackBanner && (
+        <div className="absolute inset-0 z-20 flex items-center justify-center p-3 sm:p-5 pt-16 pointer-events-none">
+          <Level3BankSectionScreen
+            sectionNumber={activeBankSection}
+            completedSections={completedBankSections}
+            state={state}
+            update={update}
+            addXP={addXP}
+            characterName={characterChoice === 'luna' ? 'Luna' : 'Leo'}
+            onCompleteSection={(secNum, xpReward) => handleCompleteBankSection(secNum, xpReward)}
+            onFinishAllLevel3={beginFinalBankExitWalk}
+            onBackOneStep={handleGlobalBackOneStep}
+          />
+        </div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          FINAL COMPLETION UI & ATTACHED SCHOOL-TO-BANK CAMPUS MAP
+          (Shown automatically once completing the 3 levels or clicking Campus Map)
+      ═══════════════════════════════════════════════════════════════════ */}
+      {(journeyStage === 'journey_complete' || showCampusMapModal) && (
+        <div className="absolute inset-0 z-40 flex items-center justify-center p-3 sm:p-6 pt-16 bg-slate-950/80 backdrop-blur-md pointer-events-auto">
+          <div className="w-[min(96vw,1040px)] max-h-[88vh] overflow-y-auto rounded-3xl bg-slate-950/95 border-2 border-amber-400 shadow-[0_25px_90px_rgba(0,0,0,0.9)] p-5 sm:p-7 text-white">
+            {/* Header */}
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-4 border-b border-white/15 pb-4">
+              <div>
+                <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider shadow-md mb-1.5">
+                  <span>🏆 All 3 Levels Completed • Official Campus Route Map</span>
+                </div>
+                <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white leading-tight">
+                  LEARN<span className="text-lime-400">2</span>INVEST SCHOOL TO BANK JOURNEY MAP
+                </h1>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className="px-4 py-2 rounded-full bg-emerald-500/20 border border-emerald-400 text-emerald-300 font-black text-sm">
+                  ⭐ {state?.xp || 0} Total XP
+                </div>
+                {showCampusMapModal && journeyStage !== 'journey_complete' && (
+                  <button
+                    onClick={() => setShowCampusMapModal(false)}
+                    className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 border border-white/25 text-white font-black text-lg flex items-center justify-center cursor-pointer"
+                    title="Close Map"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Attached School-to-Bank Map Image with Living Animated Route & Pin Overlays */}
+            <div className="relative w-full rounded-2xl overflow-hidden border-2 border-amber-400/80 shadow-2xl bg-slate-900">
+              <img
+                src="/images/school_to_bank_map.jpg"
+                alt="Learn2Invest School to Bank Journey Map"
+                className="w-full h-auto block object-cover"
+              />
+
+              {/* Interactive Badge Over School Pin (Top-Left) */}
+              <div
+                onClick={() => {
+                  setShowCampusMapModal(false)
+                  handleGlobalHome()
+                }}
+                className="absolute top-[16%] left-[8%] sm:left-[12%] px-3.5 py-2 rounded-2xl bg-slate-950/90 border-2 border-emerald-400 text-white shadow-xl cursor-pointer hover:scale-105 transition-transform"
+              >
+                <div className="text-[10px] font-black uppercase tracking-wider text-emerald-400">
+                  ✓ LEVEL 1 & LEVEL 2 COMPLETED
+                </div>
+                <div className="text-xs sm:text-sm font-black">🏫 Learn2Invest School & Lab</div>
+              </div>
+
+              {/* Animated Student Marker Travelling Along the Dashed Red Route */}
+              <div
+                className="absolute px-3 py-1.5 rounded-full bg-pink-600/95 border-2 border-white text-white text-xs font-black shadow-[0_0_25px_rgba(236,72,153,0.9)] flex items-center gap-1.5 pointer-events-none"
+                style={{
+                  animation: 'mapRouteWalk 7s ease-in-out infinite alternate',
+                }}
+              >
+                <span>{characterChoice === 'luna' ? '👧' : '👦'}</span>
+                <span>{characterChoice === 'luna' ? 'Luna' : 'Leo'}</span>
+              </div>
+
+              {/* Interactive Badge Over Bank Pin (Right) */}
+              <div
+                onClick={() => {
+                  setShowCampusMapModal(false)
+                  focusCameraOnBankSection(1, false)
+                }}
+                className="absolute top-[30%] right-[5%] sm:right-[7%] px-3.5 py-2 rounded-2xl bg-slate-950/90 border-2 border-amber-400 text-white shadow-xl cursor-pointer hover:scale-105 transition-transform"
+              >
+                <div className="text-[10px] font-black uppercase tracking-wider text-amber-400">
+                  ✓ LEVEL 3 COMPLETED
+                </div>
+                <div className="text-xs sm:text-sm font-black">🏛️ Learn2Invest Bank & Slip Writer</div>
+              </div>
+
+              <style>{`
+                @keyframes mapRouteWalk {
+                  0%   { top: 44%; left: 21%; }
+                  30%  { top: 55%; left: 32%; }
+                  60%  { top: 68%; left: 48%; }
+                  85%  { top: 76%; left: 68%; }
+                  100% { top: 65%; left: 77%; }
+                }
+              `}</style>
+            </div>
+
+            {/* 3-Level Summary Cards + Action Buttons */}
+            <div className="mt-5 grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div className="p-3.5 rounded-2xl border border-emerald-400/50 bg-emerald-950/40 flex items-center justify-between">
+                <div>
+                  <div className="text-xs font-black text-emerald-300 uppercase">LEVEL 1 ✓</div>
+                  <div className="text-sm font-black text-white">School Classroom & Exam</div>
+                  <div className="text-xs text-slate-300">5 Videos (85%+) • 10-Q Quiz</div>
+                </div>
+                <span className="text-2xl">🏫</span>
+              </div>
+
+              <div className="p-3.5 rounded-2xl border border-cyan-400/50 bg-cyan-950/40 flex items-center justify-between">
+                <div>
+                  <div className="text-xs font-black text-cyan-300 uppercase">LEVEL 2 ✓</div>
+                  <div className="text-sm font-black text-white">Floor 2 Simulation Lab</div>
+                  <div className="text-xs text-slate-300">3 Interactive Workstations</div>
+                </div>
+                <span className="text-2xl">💻</span>
+              </div>
+
+              <div className="p-3.5 rounded-2xl border border-amber-400/50 bg-amber-950/40 flex items-center justify-between">
+                <div>
+                  <div className="text-xs font-black text-amber-300 uppercase">LEVEL 3 ✓</div>
+                  <div className="text-sm font-black text-white">Banking Slip & Digital Safety</div>
+                  <div className="text-xs text-slate-300">2 Sections • 5 Indian Banks</div>
+                </div>
+                <span className="text-2xl">🏛️</span>
+              </div>
+            </div>
+
+            <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <button
+                onClick={() => {
+                  setShowCampusMapModal(false)
+                  handleGlobalHome()
+                }}
+                className="py-3.5 px-4 rounded-2xl bg-slate-800 hover:bg-slate-700 border border-white/25 text-white font-black text-sm transition-all cursor-pointer"
+              >
+                🏠 Return to School Yard
+              </button>
+              <button
+                onClick={() => {
+                  setShowCampusMapModal(false)
+                  handleReplayJourney()
+                }}
+                className="py-3.5 px-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 font-black text-sm shadow-lg transition-all cursor-pointer"
+              >
+                🔄 Replay Full 3D Journey
+              </button>
+              <button
+                onClick={() => {
+                  setShowCampusMapModal(false)
+                  focusCameraOnBankSection(1, false)
+                }}
+                className="py-3.5 px-4 rounded-2xl bg-gradient-to-r from-amber-400 to-orange-400 text-slate-950 font-black text-sm shadow-lg transition-all cursor-pointer"
+              >
+                📝 Open Level 3 Bank Slip Writer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          UNLOCKED SCHOOL YARD BAR (Shown when logged in & visiting HOME — NO Login Page!)
+      ═══════════════════════════════════════════════════════════════════ */}
+      {(journeyStage === 'school_yard' || (journeyStage === 'login' && hasLoggedIn)) && (
+        <div className="absolute bottom-7 left-1/2 -translate-x-1/2 z-20 w-[min(94vw,860px)] px-7 py-5 rounded-3xl bg-slate-900/92 backdrop-blur-xl border-2 border-emerald-400/80 shadow-[0_20px_60px_rgba(0,0,0,0.7)] text-white flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-3xl shadow-lg shrink-0">
+              🏫
+            </div>
+            <div>
+              <div className="text-xs font-black uppercase tracking-widest text-emerald-400">
+                Logged In as {state?.user?.name || (characterChoice === 'luna' ? 'Luna' : 'Leo')} • School Yard Courtyard
+              </div>
+              <div className="text-lg sm:text-xl font-black text-white">
+                Welcome to Learn2Invest 3D Financial Campus!
+              </div>
+              <div className="text-xs sm:text-sm text-slate-300">
+                Explore the courtyard with students sitting, talking & walking, or continue below:
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-2.5 shrink-0">
+            <button
+              onClick={beginSchoolEntrySequence}
+              className="px-5 py-3 rounded-2xl bg-gradient-to-r from-emerald-400 to-teal-400 text-slate-950 font-black text-xs sm:text-sm shadow-lg hover:scale-105 transition-transform cursor-pointer"
+            >
+              🚶‍♀️ Enter School (Level 1) →
+            </button>
+            <button
+              onClick={() => {
+                setJourneyStage('computer_lab')
+                soundEngine.startAmbientMusic('computer_lab', true)
+                focusCameraOnComputer(1, false)
+              }}
+              className="px-4 py-3 rounded-2xl bg-cyan-500/20 border border-cyan-400 text-cyan-200 font-black text-xs sm:text-sm hover:bg-cyan-500/30 transition-all cursor-pointer"
+            >
+              💻 Level 2 Lab
+            </button>
+            <button
+              onClick={() => focusCameraOnBankSection(1, false)}
+              className="px-4 py-3 rounded-2xl bg-amber-500/20 border border-amber-400 text-amber-200 font-black text-xs sm:text-sm hover:bg-amber-500/30 transition-all cursor-pointer"
+            >
+              🏛️ Level 3 Bank
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          LOGIN UI CENTERED IN THE MIDDLE OF THE SCREEN (Shown ONLY Once Before Login!)
+      ═══════════════════════════════════════════════════════════════════ */}
+      {journeyStage === 'login' && !hasLoggedIn && (
+        <div className="absolute inset-0 z-20 flex items-center justify-center p-4 pointer-events-none">
+          <div
+            ref={loginPanelRef}
+            className="pointer-events-auto w-[min(92vw,450px)] rounded-3xl bg-slate-900/85 backdrop-blur-xl border-2 border-white/35 shadow-[0_24px_80px_rgba(0,0,0,0.75)] p-6 sm:p-8 text-white transition-all"
+          >
+            <div className="flex items-center gap-3.5 mb-5">
+              <div className="w-13 h-13 p-2.5 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-3xl shadow-lg border border-white/40">
+                🌱
+              </div>
+              <div>
+                <h1 className="text-2xl font-black tracking-tight text-white leading-none">
+                  Learn<span className="text-lime-400">2</span>Invest School
+                </h1>
+                <p className="text-xs sm:text-sm font-bold text-emerald-200 mt-1">
+                  3D Interactive Financial Campus
+                </p>
+              </div>
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-xs font-black uppercase tracking-wider text-slate-200 mb-2">
+                Choose Your 3D Character
+              </label>
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { id: 'luna', name: 'Luna', desc: 'Sweater & Jeans', gender: 'female' },
+                  { id: 'leo', name: 'Leo', desc: 'Jacket & Cargo', gender: 'male' },
+                ].map((ch) => {
+                  const active = characterChoice === ch.id
+                  return (
+                    <button
+                      type="button"
+                      key={ch.id}
+                      onClick={() => {
+                        soundEngine.playClick()
+                        setCharacterChoice(ch.id)
+                        if (setAiGuideAvatar) setAiGuideAvatar(ch.gender, ch.name)
+                      }}
+                      className={`p-3 rounded-2xl border-2 text-left flex items-center gap-2.5 transition-all ${
+                        active
+                          ? 'bg-emerald-500/25 border-emerald-400 shadow-[0_0_18px_rgba(16,185,129,0.4)] scale-[1.02]'
+                          : 'bg-white/5 border-white/15 hover:bg-white/10'
+                      }`}
+                    >
+                      <CuteChibiAvatarSVG type={ch.gender} size={38} />
+                      <div>
+                        <div className="text-sm font-black text-white">{ch.name}</div>
+                        <div className="text-xs text-slate-300 font-medium">{ch.desc}</div>
+                      </div>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            <form onSubmit={handleLoginSubmit} className="space-y-3.5">
+              <div>
+                <label className="block text-xs font-black uppercase tracking-wider text-slate-200 mb-1.5">
+                  Username or Email
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. luna@learn2invest.edu"
+                  value={usernameInput}
+                  onChange={(e) => setUsernameInput(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl bg-white/10 border-2 border-white/25 text-white placeholder-slate-400 text-sm font-bold focus:outline-none focus:border-emerald-400 transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-black uppercase tracking-wider text-slate-200 mb-1.5">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  required
+                  placeholder="••••••••"
+                  value={passwordInput}
+                  onChange={(e) => setPasswordInput(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl bg-white/10 border-2 border-white/25 text-white placeholder-slate-400 text-sm font-bold focus:outline-none focus:border-emerald-400 transition-colors"
+                />
+              </div>
+
+              <button
+                type="submit"
+                onMouseEnter={() => soundEngine.playHover()}
+                className={`w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-lime-500 text-slate-950 font-black text-base tracking-wide shadow-[0_10px_28px_rgba(16,185,129,0.55)] hover:shadow-[0_0_36px_rgba(52,211,153,0.9)] hover:scale-[1.02] active:scale-95 transition-all duration-200 ${
+                  loginBtnPressed ? 'scale-95 opacity-80' : ''
+                }`}
+              >
+                🚀 Login & Enter School
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          CINEMATIC WALKING PROGRESS BANNER FOR ALL CONTINUOUS TRANSITIONS
+      ═══════════════════════════════════════════════════════════════════ */}
+      {([
+        'walking_to_classroom',
+        'walking_to_exam',
+        'walking_to_floor2_lab',
+        'walking_to_exit',
+        'walking_to_bank',
+        'walking_bank_section',
+        'walking_bank_exit',
+      ].includes(journeyStage) ||
+        computerTransitioning) && (
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 w-[min(94vw,760px)] px-6 py-4 rounded-full bg-slate-900/92 border-2 border-emerald-400/70 text-white backdrop-blur-md shadow-2xl flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5">
+            <span className="text-2xl animate-bounce">🚶‍♀️</span>
+            <div>
+              <div className="text-xs sm:text-sm font-black text-emerald-300">
+                {journeyStage === 'walking_to_classroom' &&
+                  `${characterChoice === 'luna' ? 'Luna' : 'Leo'} is walking through the School Yard & Veranda into Classroom 101...`}
+                {journeyStage === 'walking_to_exam' &&
+                  `All Videos Completed! ${characterChoice === 'luna' ? 'Luna' : 'Leo'} is walking through the Veranda to the Examination Center...`}
+                {journeyStage === 'walking_to_floor2_lab' &&
+                  `Quiz Completed! ${characterChoice === 'luna' ? 'Luna' : 'Leo'} is climbing the Grand Staircase to Floor 2 & the Computer Lab...`}
+                {computerTransitioning &&
+                  `${characterChoice === 'luna' ? 'Luna' : 'Leo'} is walking to the next computer workstation...`}
+                {journeyStage === 'walking_to_exit' &&
+                  `Level 2 Completed! ${characterChoice === 'luna' ? 'Luna' : 'Leo'} is walking outside through the Veranda EXIT...`}
+                {journeyStage === 'walking_to_bank' &&
+                  `${characterChoice === 'luna' ? 'Luna' : 'Leo'} is walking along the boulevard into the Level 3 Bank Lobby...`}
+                {journeyStage === 'walking_bank_section' &&
+                  `${characterChoice === 'luna' ? 'Luna' : 'Leo'} is walking to Bank Section ${activeBankSection} of 2...`}
+                {journeyStage === 'walking_bank_exit' &&
+                  `Both Banking Sections Completed! Walking out through the Bank Entrance...`}
+              </div>
+              <div className="text-xs text-slate-300 font-medium">
+                Continuous 3D Journey • Smooth Follow Camera
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={() => {
+              if (timelineRef.current) timelineRef.current.progress(1)
+            }}
+            className="px-4 py-2 rounded-full bg-white/15 hover:bg-white/25 text-xs sm:text-sm font-extrabold text-amber-300 shrink-0 transition-all"
+          >
+            Skip Walk →
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}

@@ -1,0 +1,4 @@
+2026/09/27-18:01:36.894 263c Creating DB d:\Learn2Invest\.edge_shot\Default\shared_proto_db since it was missing.
+2026/09/27-18:01:36.916 263c Reusing MANIFEST d:\Learn2Invest\.edge_shot\Default\shared_proto_db/MANIFEST-000001
+2026/09/27-18:01:36.917 263c Recovering log #3
+2026/09/27-18:01:36.923 263c Reusing old log d:\Learn2Invest\.edge_shot\Default\shared_proto_db/000003.log 

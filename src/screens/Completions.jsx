@@ -1,0 +1,230 @@
+// Completion / unlock screens in Gold Obsidian aesthetic
+
+function ConfettiDots() {
+  const colors = ['#f59e0b', '#d97706', '#fbbf24', '#eab308', '#10b981', '#0284c7']
+  return (
+    <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 50, overflow: 'hidden' }}>
+      {Array.from({length: 26}).map((_,i) => (
+        <div key={i} style={{
+          position: 'absolute',
+          left: `${(i * 4) % 100}%`,
+          top: '-10px',
+          width: 10 + (i % 3) * 6,
+          height: 10 + (i % 3) * 6,
+          borderRadius: i % 2 === 0 ? '50%' : '3px',
+          background: colors[i % colors.length],
+          opacity: 0.8,
+          boxShadow: `0 0 10px ${colors[i % colors.length]}`,
+          animation: `fadeUp ${1.5 + (i % 4) * 0.3}s ease ${i * 0.08}s both`,
+          transform: `rotate(${i * 25}deg)`,
+        }} />
+      ))}
+    </div>
+  )
+}
+
+export function BeginnerComplete({ go, state }) {
+  return (
+    <div className="content-area" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '80vh', fontFamily: "'Space Grotesk', sans-serif" }}>
+      <ConfettiDots />
+      <div className="glass-card-deep anim-scale" style={{ padding: '44px 36px', maxWidth: 520, width: '100%', textAlign: 'center', background: 'linear-gradient(145deg, #1e162b 0%, #120c1d 100%)', border: '2.5px solid #fde047', borderRadius: 28, boxShadow: '0 0 60px rgba(250, 204, 21, 0.35)' }}>
+        <div style={{ fontSize: 52, marginBottom: 10, animation: 'popIn 0.45s cubic-bezier(0.18,1.56,0.34,1)' }}>👧🌸🎊👦✨</div>
+
+        <div className="sticker-badge sticker-yellow" style={{ marginBottom: 10 }}>
+          🏆 LEVEL 1 SCHOOL GRADUATED!
+        </div>
+
+        {/* Fast-Motion Animated 150 XP Hero Entry */}
+        <div style={{
+          margin: '10px auto 16px',
+          padding: '16px 28px',
+          borderRadius: 22,
+          background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(236, 72, 153, 0.25))',
+          border: '2.5px solid #fde047',
+          boxShadow: '0 0 40px rgba(250, 204, 21, 0.6)',
+          animation: 'fastXpEntry 0.45s cubic-bezier(0.16, 1.45, 0.3, 1) forwards',
+        }}>
+          <div style={{ fontSize: 11, fontWeight: 900, color: '#fbcfe8', letterSpacing: '2px' }}>⚡ QUIZ VICTORY REWARD ⚡</div>
+          <div className="font-display" style={{ fontSize: 64, fontWeight: 900, color: '#fde047', lineHeight: 1.05, textShadow: '0 0 28px rgba(250,204,21,0.85)' }}>
+            150 XP ⭐
+          </div>
+          <div style={{ fontSize: 12, fontWeight: 800, color: '#6ee7b7', marginTop: 4 }}>
+            Total Balance: {state.xp} XP
+          </div>
+        </div>
+
+        <h1 className="font-display" style={{ fontSize: 34, color: '#ffffff', marginBottom: 8 }}>
+          LEVEL 1 COMPLETE!
+        </h1>
+        <p style={{ fontSize: 15, color: '#cbd5e1', fontWeight: 600, marginBottom: 18 }}>
+          You passed with <strong style={{ color: '#fde047' }}>{state.quizScore}%</strong> ({state.correctCount}/{state.quizTotal || 5} Correct) 🌟
+        </p>
+
+        {/* Unlocked banner */}
+        <div style={{
+          background: 'rgba(16, 185, 129, 0.14)',
+          border: '2px solid #10b981',
+          borderRadius: 18, padding: '18px',
+          marginBottom: 24, animation: 'fadeUp 0.4s ease 0.2s both',
+        }}>
+          <div style={{ fontSize: 28, marginBottom: 4 }}>🏛️🔓</div>
+          <div className="font-display" style={{ color: '#6ee7b7', fontSize: 22 }}>LEVEL 2 GOVT DISTRICT UNLOCKED!</div>
+          <div style={{ color: '#cbd5e1', fontSize: 13, fontWeight: 600, marginTop: 4 }}>
+            Explore the 3D Government Financial District & Institutional Simulators!
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <button className="btn-primary" onClick={() => go('intermediate')} style={{ width: '100%', fontSize: 15 }}>
+            🏛️ ENTER LEVEL 2: GOVT FINANCIAL DISTRICT →
+          </button>
+          <button className="btn-outline" onClick={() => go('beginner')} style={{ width: '100%' }}>
+            🏫 Back to 3D Classroom
+          </button>
+        </div>
+      </div>
+      <style>{`
+        @keyframes fastXpEntry {
+          0% { transform: scale(2.3) rotate(-6deg); opacity: 0; filter: blur(10px); }
+          65% { transform: scale(0.94) rotate(2deg); opacity: 1; filter: blur(0px); }
+          100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+      `}</style>
+    </div>
+  )
+}
+
+export function IntermediateComplete({ go, state }) {
+  return (
+    <div className="content-area" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '80vh', fontFamily: "'Space Grotesk', sans-serif" }}>
+      <ConfettiDots />
+      <div className="glass-card-deep anim-scale" style={{ padding: '50px 40px', maxWidth: 500, width: '100%', textAlign: 'center', background: 'var(--bg-card-deep, #12100c)', border: '2px solid #d97706' }}>
+        <div style={{ fontSize: 64, marginBottom: 16, animation: 'popIn 0.6s cubic-bezier(0.34,1.56,0.64,1)' }}>🏅</div>
+
+        <div className="sticker-badge sticker-yellow" style={{ marginBottom: 10 }}>
+          INTERMEDIATE PASSED!
+        </div>
+
+        <h1 className="font-display" style={{ fontSize: 36, color: 'var(--heading-color, #ffffff)', marginBottom: 10 }}>
+          INTERMEDIATE COMPLETE!
+        </h1>
+        <p style={{ fontSize: 15, color: 'var(--text-sub, #d1d5db)', fontWeight: 600, marginBottom: 24 }}>
+          You're mastering Indian investments! Ready for the top tier? 🚀
+        </p>
+
+        <div style={{
+          background: 'rgba(245, 158, 11, 0.12)',
+          border: '2px solid #f59e0b',
+          borderRadius: 18, padding: '20px', marginBottom: 28,
+        }}>
+          <div style={{ fontSize: 28, marginBottom: 6 }}>🔓</div>
+          <div className="font-display" style={{ color: '#fbbf24', fontSize: 22 }}>PORTFOLIO TOWER UNLOCKED! 🏢</div>
+          <div style={{ color: 'var(--text-sub, #d1d5db)', fontSize: 13, fontWeight: 600, marginTop: 4 }}>
+            Premium portfolio strategies & advanced tactics!
+          </div>
+        </div>
+
+        <button className="btn-primary" onClick={() => go('unlock-adv')} style={{ width: '100%', fontSize: 15, marginBottom: 12 }}>
+          🏢 UNLOCK PORTFOLIO TOWER
+        </button>
+        <button className="btn-outline" onClick={() => go('level-map')} style={{ width: '100%' }}>
+          🗺️ LEVEL MAP
+        </button>
+      </div>
+    </div>
+  )
+}
+
+export function UnlockAdvanced({ go, state, update }) {
+  const handleUnlock = () => {
+    update({ advancedUnlocked: true })
+    go('advanced')
+  }
+
+  return (
+    <div className="content-area" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '80vh', fontFamily: "'Space Grotesk', sans-serif" }}>
+      <div className="glass-card-deep anim-scale" style={{
+        padding: '50px 40px', maxWidth: 500, width: '100%', textAlign: 'center',
+        background: 'var(--bg-card-deep, #12100c)',
+        border: '2px solid #f59e0b',
+      }}>
+        <div style={{ fontSize: 70, marginBottom: 16, animation: 'floatY 3s ease-in-out infinite' }}>🏆</div>
+
+        <div className="sticker-badge sticker-yellow" style={{ marginBottom: 10 }}>
+          PORTFOLIO TOWER 🏢
+        </div>
+
+        <h1 className="font-display" style={{ fontSize: 38, color: 'var(--heading-color, #ffffff)', marginBottom: 12 }}>
+          PORTFOLIO TOWER
+        </h1>
+        <p style={{ fontSize: 14, color: 'var(--text-sub, #d1d5db)', fontWeight: 600, marginBottom: 28 }}>
+          You've earned access to the most advanced investment strategies. Step inside the tower! 🏢
+        </p>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 28 }}>
+          {[
+            '🎯 Multi-asset portfolio allocation mastery',
+            '📊 Risk vs return optimization',
+            '💡 80C & Capital gains tax strategies',
+            '🚀 Advanced compound growth models',
+          ].map((feat, i) => (
+            <div key={i} className={`anim-fade delay-${i+1}`} style={{
+              background: 'var(--input-bg, rgba(255,255,255,0.03))', borderRadius: 14,
+              padding: '12px 16px', textAlign: 'left',
+              border: '1.5px solid rgba(217,119,6,0.25)',
+              display: 'flex', alignItems: 'center', gap: 10,
+              fontSize: 13, fontWeight: 800, color: 'var(--heading-color, #ffffff)',
+            }}>{feat}</div>
+          ))}
+        </div>
+
+        <button className="btn-primary" onClick={handleUnlock} style={{ width: '100%', fontSize: 16 }}>
+          🏢 ENTER PORTFOLIO TOWER
+        </button>
+      </div>
+    </div>
+  )
+}
+
+export function AdvancedResult({ go, state }) {
+  return (
+    <div className="content-area" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '80vh', fontFamily: "'Space Grotesk', sans-serif" }}>
+      <ConfettiDots />
+      <div className="glass-card-deep anim-scale" style={{
+        padding: '50px 40px', maxWidth: 500, width: '100%', textAlign: 'center',
+        background: 'var(--bg-card-deep, #12100c)',
+        border: '2px solid #f59e0b',
+      }}>
+        <div style={{ fontSize: 72, marginBottom: 16, animation: 'floatY 3s ease-in-out infinite' }}>🌟</div>
+
+        <div className="sticker-badge sticker-yellow" style={{ marginBottom: 10 }}>
+          FINANCIAL MASTERY
+        </div>
+
+        <h1 className="font-display" style={{ fontSize: 38, color: '#fbbf24', marginBottom: 12 }}>
+          INVESTMENT EXPERT! 🏆
+        </h1>
+        <p style={{ fontSize: 15, color: 'var(--text-sub, #d1d5db)', fontWeight: 600, marginBottom: 24 }}>
+          You've completed all 3 levels of Learn2Invest. You're now an Indian investment expert!
+        </p>
+
+        <div style={{
+          background: 'rgba(245,158,11,0.15)',
+          border: '2px solid #d97706',
+          borderRadius: 18, padding: '20px', marginBottom: 28,
+        }}>
+          <div className="font-display" style={{ fontSize: 40, color: '#fbbf24', lineHeight: 1 }}>
+            ⭐ {state.xp} XP
+          </div>
+          <div style={{ color: 'var(--heading-color, #ffffff)', fontWeight: 800, fontSize: 13, marginTop: 4 }}>TOTAL XP EARNED</div>
+        </div>
+
+        <div style={{ display: 'flex', gap: 12 }}>
+          <button className="btn-primary" onClick={() => go('level-map')} style={{ flex: 1 }}>
+            ⬅ Back
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
