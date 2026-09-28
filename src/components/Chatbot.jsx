@@ -1,74 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { AI_AVATARS } from './AiAvatarSelector.jsx'
 
-const BEGINNER_PROMPTS = [
-  "What is SIP and how does it work?",
-  "What is lump sum investment?",
-  "Difference between SIP and lump sum",
-  "Is mutual fund safe?",
-  "What is insurance or LIC?",
-]
-
-const INTERMEDIATE_PROMPTS = [
-  "How to earn monthly income?",
-  "I have 50000 rupees, where should I invest?",
-  "What is SWP and STP?",
-  "What is stock trading?",
-  "What is portfolio diversification?",
-]
-
-const ADVANCED_PROMPTS = [
-  "What is a capital asset?",
-  "Difference between short and long term capital assets?",
-  "How does tax-saving under 80C work?",
-  "How to build a diversified portfolio?",
-  "Explain capital gains tax in India",
-]
-
-function getQuickPrompts(currentScreen) {
-  if (['intermediate', 'simulation', 'int-complete'].includes(currentScreen)) {
-    return INTERMEDIATE_PROMPTS
-  }
-  if (['advanced', 'unlock-adv', 'adv-result'].includes(currentScreen)) {
-    return ADVANCED_PROMPTS
-  }
-  return BEGINNER_PROMPTS
-}
-
-function generateDynamicAiReply(message, userName, screen, guideName) {
-  const m = message.trim()
-  const name = userName || 'Learner'
-  const bot = guideName || 'AI Guide'
-  
-  const isGreeting = /^(hi|hello|hey|namaste|greetings)\b/i.test(m)
-  const amountMatch = m.match(/\b(?:₹\s*|rs\.?\s*|inr\s*|rupees\s*)?(\d+)\b/i)
-  const isWhereToInvest = /where\s*(should\s*i|to)?\s*invest|where\s*to\s*put|how\s*to\s*invest|have\s*\d+|invest\s*\d+|where\s*can\s*i\s*invest/i.test(m)
-
-  if (isGreeting) {
-    return `👋 **Namaste ${name}! I'm ${bot}, your AI Investment Tutor & Voice Assistant.**\n\nHow can I help you accelerate your financial journey today? Ask me any question or select a topic to get started!`
-  }
-
-  if (isWhereToInvest || (amountMatch && amountMatch[1] >= 100)) {
-    const amount = amountMatch ? parseInt(amountMatch[1], 10) : 1000
-    const sipAmount = amount >= 1000 ? 500 : amount
-
-    return `🏛️ **${bot}'s Practical Investment Plan for ${name}:**\n\nWith **₹${amount.toLocaleString('en-IN')}** available to invest, here is how you can deploy your capital in Indian financial markets (NSE & BSE):\n\n1. 📈 **NSE / BSE Nifty 50 Index Fund (SIP ₹${sipAmount}/month):**\n   - Start a direct Mutual Fund SIP for just ₹500/month on platforms like Zerodha Coin, Groww, or Kuvera.\n   - Nifty 50 Index Funds track top 50 blue-chip companies on the NSE stock exchange, delivering ~12–15% long-term historical returns.\n\n2. 🪙 **Stock Exchange ETFs (NIFTYBEES / GOLDBEES):**\n   - Buy single ETF shares directly on NSE/BSE: **NIFTYBEES** (~₹270/share) or **GOLDBEES** (~₹65/share) using your Demat account.\n\n3. 🏦 **Government Schemes (Post Office RD / PPF):**\n   - Deposit ₹500/month into Post Office Recurring Deposit (6.8% interest) or Public Provident Fund (7.1% tax-free under 80C).\n\n4. 💡 **Smart Strategy:**\n   - Start with ₹500/month SIP now, and automatically step up your investment by 10% each year as your income grows!\n\n💬 *What would you like to explore next? Ask me about SIP vs Lump Sum, PPF returns, or Stock Market basics!*`
-  }
-
-  let topicSummary = ''
-  if (/sip/i.test(m)) topicSummary = 'Systematic Investment Plans (SIP) allow disciplined cost-averaging and wealth compounding over time from as little as ₹500/month.'
-  else if (/swp/i.test(m)) topicSummary = 'Systematic Withdrawal Plans (SWP) provide regular monthly cash flow while keeping funds invested.'
-  else if (/stp/i.test(m)) topicSummary = 'Systematic Transfer Plans (STP) shift capital gradually from liquid/debt funds to equity funds to manage market timing risk.'
-  else if (/lump\s*sum/i.test(m)) topicSummary = 'Lump sum investing deploys capital all at once, optimal when market valuations are favorable for long-term horizons.'
-  else if (/mutual fund|mf/i.test(m)) topicSummary = 'Mutual funds pool investor resources across diversified stocks and bonds under professional SEBI-regulated management.'
-  else if (/tax|80c|elss|ppf/i.test(m)) topicSummary = 'Section 80C tax optimization provides up to ₹1.5 lakh deductions via PPF, ELSS, NSC, and SSY government schemes.'
-  else if (/stock|trading|share/i.test(m)) topicSummary = 'Direct stock investing offers high equity growth potential, best complemented by index funds and disciplined risk management.'
-  else if (/portfolio|diversif/i.test(m)) topicSummary = 'Strategic portfolio diversification distributes capital across equities, debt, and liquid reserves based on your risk tolerance.'
-  else topicSummary = `wealth building, asset allocation, and smart investment principles tailored to your goals.`
-
-  return `🤖 **${bot}'s AI Insights for ${name}:**\n\n💡 **Core AI Takeaway:** ${topicSummary}\n\n📌 **Smart Strategy:**\n1. Establish clear short-term vs long-term investment horizons.\n2. Balance guaranteed fixed-income assets (PPF/NSC) with inflation-beating equity growth (Index Funds on NSE/BSE).\n3. Rebalance your portfolio periodically as your financial goals evolve.\n\n💬 Feel free to ask follow-up questions or test scenarios in our Investment Lab!`
-}
-
 function getSystemInstruction(userName, currentScreen, avatarName) {
   let level = 'Beginner'
   if (['intermediate', 'simulation', 'int-complete'].includes(currentScreen)) {
@@ -293,8 +225,7 @@ export default function Chatbot({ open, onToggle, onClose, user, xp, currentScre
     const geminiText = await getGeminiReply(t, history, systemInstruction, apiKey)
     setTyping(false)
 
-    const dynamicFallback = generateDynamicAiReply(t, user?.name, currentScreen, guideName)
-    const replyText = geminiText || dynamicFallback
+    const replyText = geminiText || '⚠️ Unable to connect to the live AI service right now. Please make sure a valid Gemini API key is configured on the server.'
 
     setMsgs(m => {
       const newMsgs = [...m, { from: 'bot', text: replyText }]
@@ -366,8 +297,6 @@ export default function Chatbot({ open, onToggle, onClose, user, xp, currentScre
     flushList('flush-end')
     return elements
   }
-
-  const currentPrompts = getQuickPrompts(currentScreen)
 
   if (!open) {
     return (
@@ -575,22 +504,6 @@ export default function Chatbot({ open, onToggle, onClose, user, xp, currentScre
           </div>
         )}
         <div ref={bottomRef} />
-      </div>
-
-      {/* Quick Prompts Ticker */}
-      <div style={{
-        padding: '8px 12px',
-        borderTop: '1px solid rgba(217,119,6,0.2)',
-        background: 'var(--bg-card-deep, #12100c)',
-        overflowX: 'auto',
-        display: 'flex', gap: 8, flexShrink: 0,
-        scrollbarWidth: 'none',
-      }}>
-        {currentPrompts.map((p,i) => (
-          <button key={i} onClick={() => send(p)} className="sticker-badge sticker-yellow" style={{
-            whiteSpace: 'nowrap', fontSize: 10, cursor: 'pointer', flexShrink: 0, padding: '4px 10px',
-          }}>{p.length > 28 ? p.slice(0,28)+'…' : p}</button>
-        ))}
       </div>
 
       {/* Listening Status Alert */}
