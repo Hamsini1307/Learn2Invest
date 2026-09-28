@@ -5,6 +5,7 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import { GoogleGenAI } from '@google/genai'
 import { initDb } from './db.js'
 import { User, UserState } from './models.js'
 import { localUser, localUserState } from './localDb.js'
@@ -241,56 +242,131 @@ app.get('/api/leaderboard', async (req, res) => {
   }
 })
 
-// 5. Secure Gemini API Proxy
+// 5. Independent AI Chatbot Endpoint (Zero Predefined Rules — Pure Live AI Inference)
 app.post('/api/chat', async (req, res) => {
-  const { contents, systemInstruction, apiKey } = req.body
-  const activeKey = apiKey || process.env.GEMINI_API_KEY
+  const {
+    message,
+    contents,
+    systemInstruction,
+    userContext = {},
+    previousInteractionId,
+  } = req.body
 
-  if (!activeKey) {
-    return res.status(400).json({ error: 'Gemini API key is not configured. Provide an API key in .env or via Chatbot settings.' })
+  const latestUserMessage =
+    message ||
+    (Array.isArray(contents) && contents.length > 0
+      ? contents[contents.length - 1]?.parts?.[0]?.text || ''
+      : '')
+
+  const completedLevels = Array.isArray(userContext?.completedLevels)
+    ? userContext.completedLevels.map(Number)
+    : []
+
+  const baseSystemPrompt = `You are Luna, an independent, highly accurate, and helpful AI assistant and financial mentor in Learn2Invest.
+Answer every question directly, accurately, and thoroughly using your own reasoning and knowledge. Do NOT rely on canned templates or predefined rules.
+Whether the user asks about finance, investing, banking, mathematics, science, coding, general knowledge, or their Learn2Invest campus journey, give a clear, accurate, well-structured, and specific answer tailored to their exact prompt.
+
+Optional Live User Context (use only if the user asks about their account/progress):
+- User Name: ${userContext?.userName || 'Learner'}
+- Current Level: Level ${userContext?.currentLevel || 1}
+- Completed Levels: ${completedLevels.length > 0 ? completedLevels.map((l) => `Level ${l}`).join(', ') : 'None yet'}
+- Wallet XP: ${userContext?.xp ?? 0} XP (Banked XP: ${userContext?.bankedXp ?? 0} XP)
+- Videos Watched: ${userContext?.lessonsWatchedCount ?? 0}/5, Quiz Score: ${userContext?.quizScore ?? 0}/10`
+
+  const effectiveSystemInstruction =
+    typeof systemInstruction === 'string' && systemInstruction.trim()
+      ? `${baseSystemPrompt}\n\n${systemInstruction}`
+      : baseSystemPrompt
+
+  // Build standard OpenAI-compatible multi-turn messages array
+  const openAiMessages = [
+    { role: 'system', content: effectiveSystemInstruction },
+    ...(Array.isArray(contents) && contents.length > 0
+      ? contents.slice(-10).map((c) => ({
+          role: c.role === 'user' ? 'user' : 'assistant',
+          content: c?.parts?.[0]?.text || '',
+        }))
+      : [{ role: 'user', content: latestUserMessage }]),
+  ]
+
+  // 1. Primary Independent Live LLM Inference (Pollinations OpenAI endpoint — fast, accurate, never 403-blocked)
+  try {
+    const llmRes = await fetch('https://text.pollinations.ai/openai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'openai',
+        messages: openAiMessages,
+        temperature: 0.6,
+      }),
+    })
+    if (llmRes.ok) {
+      const llmData = await llmRes.json()
+      const replyText = llmData?.choices?.[0]?.message?.content
+      if (replyText && replyText.trim()) {
+        return res.json({
+          reply: replyText.trim(),
+          model: 'openai-independent',
+          candidates: [
+            {
+              content: {
+                parts: [{ text: replyText.trim() }],
+              },
+            },
+          ],
+        })
+      }
+    }
+  } catch (err) {
+    console.warn('Primary independent LLM fetch warning:', err?.message || err)
   }
 
-  const models = ['gemini-1.5-flash', 'gemini-1.5-flash-latest', 'gemini-2.0-flash-exp', 'gemini-2.0-flash', 'gemini-1.5-pro', 'gemini-1.5-pro-latest', 'gemini-pro']
-  let lastError = null
+  // 2. Secondary Fallback: Google GenAI SDK if a valid GEMINI_API_KEY is configured
+  const activeKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY
+  if (activeKey) {
+    const conversationText = Array.isArray(contents) && contents.length > 0
+      ? contents
+          .slice(-8)
+          .map((c) => `${c.role === 'user' ? 'User' : 'Luna'}: ${c?.parts?.[0]?.text || ''}`)
+          .join('\n')
+      : latestUserMessage
 
-  for (const model of models) {
-    const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${activeKey}`
-    try {
-      const bodyPayload = {
-        contents,
-        generationConfig: { temperature: 0.7, maxOutputTokens: 450 }
+    const ai = new GoogleGenAI({ apiKey: activeKey })
+    const preferredModels = ['gemini-2.5-flash', 'gemini-flash-latest']
+    for (const model of preferredModels) {
+      try {
+        const interactionParams = {
+          model,
+          input: conversationText || latestUserMessage,
+          system_instruction: effectiveSystemInstruction,
+        }
+        if (previousInteractionId) {
+          interactionParams.previous_interaction_id = previousInteractionId
+        }
+        const interaction = await ai.interactions.create(interactionParams)
+        const replyText = interaction?.output_text
+        if (replyText && replyText.trim()) {
+          return res.json({
+            reply: replyText.trim(),
+            interactionId: interaction.id,
+            model,
+            candidates: [
+              {
+                content: {
+                  parts: [{ text: replyText.trim() }],
+                },
+              },
+            ],
+          })
+        }
+      } catch (err) {
+        console.warn(`@google/genai (${model}) failed:`, err?.message || err)
       }
-
-      if (systemInstruction) {
-        bodyPayload.systemInstruction = typeof systemInstruction === 'string'
-          ? { parts: [{ text: systemInstruction }] }
-          : systemInstruction
-      }
-
-      const response = await fetch(GEMINI_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(bodyPayload)
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        return res.json(data)
-      }
-
-      const errText = await response.text()
-      lastError = { status: response.status, body: errText }
-      console.warn(`Gemini API model ${model} failed with status ${response.status}. Trying next model...`)
-    } catch (err) {
-      lastError = err
-      console.warn(`Gemini API request for model ${model} threw error:`, err)
     }
   }
 
-  console.error('All Gemini API models failed:', lastError)
-  res.status(lastError?.status || 500).json({
-    error: 'Gemini service error',
-    details: typeof lastError?.body === 'string' ? lastError.body : lastError?.message || 'All models failed'
+  res.status(500).json({
+    error: 'AI service temporarily unavailable',
   })
 })
 

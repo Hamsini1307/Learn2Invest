@@ -442,30 +442,6 @@ export default function Navbar({
               </button>
             )}
 
-            {setLang && (
-              <select
-                value={lang}
-                onChange={e => setLang(e.target.value)}
-                style={{
-                  background: themeMode === 'light' ? '#fff1f2' : '#0f172a',
-                  border: `2px solid ${themeMode === 'light' ? '#e11d48' : '#fb7185'}`,
-                  color: themeMode === 'light' ? '#0f172a' : '#fecdd3',
-                  borderRadius: 999,
-                  padding: '7px 14px',
-                  fontSize: 12,
-                  fontWeight: 900,
-                  cursor: 'pointer',
-                  outline: 'none',
-                  boxShadow: themeMode === 'light' ? '0 2px 8px rgba(225, 29, 72, 0.15)' : '0 4px 14px rgba(0,0,0,0.25)',
-                  fontFamily: "'Space Grotesk', sans-serif"
-                }}
-                title="Select Language (English or Kannada)"
-              >
-                <option value="en" style={{ background: themeMode === 'light' ? '#ffffff' : '#0f172a', color: themeMode === 'light' ? '#0f172a' : '#ffffff', fontSize: '13px', fontWeight: 'bold', padding: '10px' }}>🇬🇧 English</option>
-                <option value="kn" style={{ background: themeMode === 'light' ? '#ffffff' : '#0f172a', color: themeMode === 'light' ? '#0f172a' : '#ffffff', fontSize: '13px', fontWeight: 'bold', padding: '10px' }}>🌾 ಕನ್ನಡ (Kannada)</option>
-              </select>
-            )}
-
             {/* Mode Changing Button (Light Mode / Dark Mode Toggle) */}
             {toggleThemeMode && (
               <button

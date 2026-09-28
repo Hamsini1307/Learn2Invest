@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo, Suspense } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { Text, RoundedBox, Float, Sparkles, Sky, ContactShadows, Html } from '@react-three/drei'
+import { Text as DreiText, RoundedBox, Float, Sparkles, Sky, ContactShadows, Html } from '@react-three/drei'
 import * as THREE from 'three'
 import gsap from 'gsap'
 import soundEngine from '../utils/soundEngine.js'
@@ -12,6 +12,16 @@ import {
   Computer2SavingsMixerScreen,
   Computer3PortfolioSimulatorScreen,
 } from './Level2ComputerScreens.jsx'
+import LoadingSplashWithMusic from '../components/LoadingSplashWithMusic.jsx'
+import { SchoolGardenStalls3D, SchoolGardenStallModal } from '../components/SchoolGardenStalls.jsx'
+
+function Text(props) {
+  return (
+    <Suspense fallback={null}>
+      <DreiText {...props} />
+    </Suspense>
+  )
+}
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // LEVEL 1 LESSON VIDEOS + KEY TAKEAWAYS (Displayed Inside Classroom Projector)
@@ -336,9 +346,12 @@ function PlayerCharacter3D({ characterId = 'luna', outfitTheme = null, charState
     if (!cs.visible) return
 
     groupRef.current.position.set(cs.x, cs.y, cs.z)
-    // Smooth rotation interpolation
-    const rotDiff = ((cs.rotY - groupRef.current.rotation.y + Math.PI * 3) % (Math.PI * 2)) - Math.PI
-    groupRef.current.rotation.y += rotDiff * 0.14
+    // Smooth 360-degree shortest-angle rotation interpolation
+    const rotDiff = Math.atan2(
+      Math.sin(cs.rotY - groupRef.current.rotation.y),
+      Math.cos(cs.rotY - groupRef.current.rotation.y)
+    )
+    groupRef.current.rotation.y += rotDiff * 0.18
 
     if (cs.pose === 'walking') {
       const cycle = Math.sin(t * 10.5)
@@ -1412,7 +1425,7 @@ function ParkBench3D({ position, rotation = [0, 0, 0] }) {
   )
 }
 
-function StreetLamp3D({ position }) {
+function StreetLamp3D({ position, isNightMode = false }) {
   return (
     <group position={position}>
       <mesh position={[0, 1.85, 0]} castShadow>
@@ -1421,12 +1434,269 @@ function StreetLamp3D({ position }) {
       </mesh>
       <mesh position={[0, 3.85, 0]}>
         <cylinderGeometry args={[0.25, 0.16, 0.44, 6]} />
-        <meshStandardMaterial color="#fef08a" emissive="#f59e0b" emissiveIntensity={1.25} />
+        <meshStandardMaterial
+          color="#fef08a"
+          emissive="#f59e0b"
+          emissiveIntensity={isNightMode ? 3.2 : 1.25}
+        />
       </mesh>
       <mesh position={[0, 4.14, 0]}>
         <coneGeometry args={[0.32, 0.22, 6]} />
         <meshStandardMaterial color="#18181b" />
       </mesh>
+      {/* Volumetric Night Lantern Halo & Ground Pool (Zero shader recompile!) */}
+      <mesh position={[0, 3.82, 0]} visible={isNightMode}>
+        <sphereGeometry args={[0.55, 12, 12]} />
+        <meshBasicMaterial color="#fde047" transparent opacity={0.28} />
+      </mesh>
+      <mesh position={[0, 0.03, 0]} rotation={[-Math.PI / 2, 0, 0]} visible={isNightMode}>
+        <circleGeometry args={[2.1, 16]} />
+        <meshBasicMaterial color="#fde047" transparent opacity={0.18} />
+      </mesh>
+    </group>
+  )
+}
+
+// Animated Student Who Walks Out Onto an Exterior School Balcony, Waves/Looks Around, and Walks Back Inside
+function BalconyStudentWalker3D({ position, shirtColor, pantsColor, hairColor, isFemale, phase = 0 }) {
+  const studentRef = useRef()
+  const rightArmRef = useRef()
+  const leftLegRef = useRef()
+  const rightLegRef = useRef()
+
+  useFrame(({ clock }) => {
+    if (!studentRef.current) return
+    const t = clock.getElapsedTime() * 0.55 + phase
+    // Cycle: inside (z = -0.35) -> walks out onto balcony railing (z = 0.52) -> looks/waves -> walks back inside
+    const cycle = Math.sin(t)
+    const outFactor = THREE.MathUtils.clamp((cycle + 0.35) / 1.15, 0, 1)
+    studentRef.current.position.z = -0.35 + outFactor * 0.88
+    studentRef.current.visible = outFactor > 0.03
+
+    const isMoving = outFactor > 0.05 && outFactor < 0.94
+    if (isMoving) {
+      const step = Math.sin(clock.getElapsedTime() * 8.5 + phase) * 0.48
+      if (leftLegRef.current) leftLegRef.current.rotation.x = step
+      if (rightLegRef.current) rightLegRef.current.rotation.x = -step
+      studentRef.current.rotation.y = Math.cos(t) >= 0 ? 0 : Math.PI
+    } else {
+      if (leftLegRef.current) leftLegRef.current.rotation.x = 0
+      if (rightLegRef.current) rightLegRef.current.rotation.x = 0
+      studentRef.current.rotation.y = Math.sin(clock.getElapsedTime() * 1.4 + phase) * 0.25
+    }
+
+    if (rightArmRef.current) {
+      rightArmRef.current.rotation.z =
+        outFactor > 0.85 ? -2.2 + Math.sin(clock.getElapsedTime() * 6.5 + phase) * 0.35 : -0.18
+    }
+  })
+
+  return (
+    <group position={position}>
+      <group ref={studentRef} scale={0.86}>
+        <group ref={leftLegRef} position={[-0.09, 0.38, 0]}>
+          <mesh position={[0, -0.17, 0]}>
+            <cylinderGeometry args={[0.065, 0.075, 0.34, 10]} />
+            <meshStandardMaterial color={pantsColor} />
+          </mesh>
+        </group>
+        <group ref={rightLegRef} position={[0.09, 0.38, 0]}>
+          <mesh position={[0, -0.17, 0]}>
+            <cylinderGeometry args={[0.065, 0.075, 0.34, 10]} />
+            <meshStandardMaterial color={pantsColor} />
+          </mesh>
+        </group>
+        <mesh position={[0, 0.64, 0]}>
+          <cylinderGeometry args={[0.15, 0.18, 0.42, 14]} />
+          <meshStandardMaterial color={shirtColor} />
+        </mesh>
+        <group ref={rightArmRef} position={[0.2, 0.78, 0]}>
+          <mesh position={[0.03, -0.12, 0]}>
+            <capsuleGeometry args={[0.045, 0.18, 6, 8]} />
+            <meshStandardMaterial color={shirtColor} />
+          </mesh>
+        </group>
+        <group position={[0, 1.04, 0]}>
+          <mesh>
+            <sphereGeometry args={[0.21, 16, 16]} />
+            <meshStandardMaterial color="#f9d5b8" />
+          </mesh>
+          <mesh position={[0, 0.05, -0.02]}>
+            <sphereGeometry args={[0.225, 16, 16]} />
+            <meshStandardMaterial color={hairColor} />
+          </mesh>
+          {isFemale && (
+            <RoundedBox args={[0.34, 0.32, 0.12]} position={[0, -0.1, -0.14]} radius={0.05}>
+              <meshStandardMaterial color={hairColor} />
+            </RoundedBox>
+          )}
+        </group>
+      </group>
+    </group>
+  )
+}
+
+// 3D Moon & Twinkling Night Stars Rendered When Night Mode is Active
+function NightSkyMoonStars3D() {
+  const stars = useMemo(() => {
+    const arr = []
+    for (let i = 0; i < 140; i++) {
+      const angle = (i * 137.5 * Math.PI) / 180
+      const r = 45 + (i % 9) * 14
+      const x = Math.cos(angle) * r
+      const z = Math.sin(angle) * r - 35
+      const y = 26 + (i % 7) * 6.5
+      const size = 0.14 + (i % 4) * 0.07
+      arr.push({ x, y, z, size, color: i % 3 === 0 ? '#fef08a' : i % 2 === 0 ? '#bae6fd' : '#ffffff' })
+    }
+    return arr
+  }, [])
+
+  return (
+    <group>
+      {/* Glowing Full 3D Moon High in the Night Sky */}
+      <group position={[-22, 34, -26]}>
+        <mesh>
+          <sphereGeometry args={[3.6, 32, 32]} />
+          <meshStandardMaterial color="#fef9c3" emissive="#fde047" emissiveIntensity={1.85} roughness={0.2} />
+        </mesh>
+        {/* Soft Moon Halo */}
+        <mesh>
+          <sphereGeometry args={[5.1, 24, 24]} />
+          <meshBasicMaterial color="#fef08a" transparent opacity={0.22} />
+        </mesh>
+      </group>
+
+      {/* Starfield */}
+      {stars.map((st, idx) => (
+        <mesh key={idx} position={[st.x, st.y, st.z]}>
+          <sphereGeometry args={[st.size, 8, 8]} />
+          <meshBasicMaterial color={st.color} />
+        </mesh>
+      ))}
+    </group>
+  )
+}
+
+// Illuminated Flat Campus Boulevard Road with Sidewalks, Crosswalks & Street Lights Connecting the School to the Side Bank & 24/7 ATM
+function SchoolToBankRoadWithStreetLights3D({ isNightMode = false }) {
+  return (
+    <group>
+      {/*Continuous Lush Green Lawn Extending Under the Side Road, ATM & Bank Plaza (x = -65..35, z = -25..35) */}
+      <mesh position={[-18, -0.025, 6]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+        <planeGeometry args={[96, 64]} />
+        <meshStandardMaterial color={isNightMode ? '#14532d' : '#3f8f29'} roughness={0.85} />
+      </mesh>
+
+      {/* 1. Main Horizontal Campus Boulevard Road Connecting School Yard (x = 4) -> 24/7 ATM (x = -23.4) -> Side Bank (x = -36) */}
+      <mesh position={[-21, 0.012, 11.5]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+        <planeGeometry args={[54, 6.2]} />
+        <meshStandardMaterial color="#334155" roughness={0.76} />
+      </mesh>
+
+      {/* Raised Cream-Stone Pedestrian Sidewalk Curbs Along Both Sides of the Boulevard Road */}
+      <RoundedBox args={[54, 0.14, 1.45]} position={[-21, 0.07, 7.75]} radius={0.03} receiveShadow>
+        <meshStandardMaterial color="#e2d5c6" roughness={0.6} />
+      </RoundedBox>
+      <RoundedBox args={[54, 0.14, 1.45]} position={[-21, 0.07, 15.25]} radius={0.03} receiveShadow>
+        <meshStandardMaterial color="#e2d5c6" roughness={0.6} />
+      </RoundedBox>
+
+      {/* Glowing Yellow Center Road Lane Dashes Along the Horizontal Boulevard */}
+      {Array.from({ length: 13 }).map((_, i) => (
+        <mesh key={i} position={[3 - i * 4.0, 0.022, 11.5]} rotation={[-Math.PI / 2, 0, 0]}>
+          <planeGeometry args={[2.1, 0.24]} />
+          <meshStandardMaterial
+            color="#fef08a"
+            emissive="#fbbf24"
+            emissiveIntensity={isNightMode ? 1.5 : 0.45}
+          />
+        </mesh>
+      ))}
+
+      {/* White Zebra Crosswalk Stripes at School Entrance (x = 0), 24/7 ATM Queue (x = -23.4), and Bank Entrance (x = -36) */}
+      {[0, -23.4, -36.0].map((cx, cIdx) => (
+        <group key={cIdx} position={[cx, 0.024, 11.5]}>
+          {[-2.0, -1.0, 0, 1.0, 2.0].map((cz, sIdx) => (
+            <mesh key={sIdx} position={[0, 0, cz]} rotation={[-Math.PI / 2, 0, 0]}>
+              <planeGeometry args={[2.6, 0.42]} />
+              <meshBasicMaterial color="#f8fafc" />
+            </mesh>
+          ))}
+        </group>
+      ))}
+
+      {/* Paved Walkway Spur Leading Directly from the Boulevard Crosswalk (z = 8.4) to the 24/7 ATM Queue (x = -23.4, z = 4.2) */}
+      <mesh position={[-23.4, 0.015, 6.2]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+        <planeGeometry args={[4.6, 5.2]} />
+        <meshStandardMaterial color="#cbd5e1" roughness={0.5} />
+      </mesh>
+
+      {/* Paved Grand Plaza Spur Leading from the Boulevard Crosswalk (z = 8.4) to the Bank Entrance Steps (x = -36, z = 2.2) */}
+      <mesh position={[-36.0, 0.015, 5.4]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+        <planeGeometry args={[10.4, 6.8]} />
+        <meshStandardMaterial color="#ead7c3" roughness={0.5} />
+      </mesh>
+
+      {/* 2. Front Campus Boulevard Crossing in Front of the School Yard (z = 26.2) */}
+      <mesh position={[-12, 0.008, 26.2]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+        <planeGeometry args={[72, 4.4]} />
+        <meshStandardMaterial color="#334155" roughness={0.78} />
+      </mesh>
+      {Array.from({ length: 16 }).map((_, i) => (
+        <mesh key={i} position={[-42 + i * 4.0, 0.015, 26.2]} rotation={[-Math.PI / 2, 0, 0]}>
+          <planeGeometry args={[1.9, 0.22]} />
+          <meshStandardMaterial
+            color="#fef08a"
+            emissive="#fbbf24"
+            emissiveIntensity={isNightMode ? 1.4 : 0.35}
+          />
+        </mesh>
+      ))}
+
+      {/* Street Lamps Lining the Flat Boulevard Between the School, 24/7 ATM, and Side Bank */}
+      {[-7.5, -13.5, -19.5, -27.2, -31.5, -41.5].map((lx, idx) => (
+        <group key={idx}>
+          <StreetLamp3D position={[lx, 0, 7.6]} isNightMode={isNightMode} />
+          <StreetLamp3D position={[lx, 0, 15.4]} isNightMode={isNightMode} />
+        </group>
+      ))}
+
+      {/* Decorative Boulevard Trees Along the Road Between School and Bank */}
+      <CourtyardTree3D position={[-15.5, 0, 5.2]} scale={1.25} pink={true} />
+      <CourtyardTree3D position={[-18.8, 0, 17.5]} scale={1.3} pink={false} />
+      <CourtyardTree3D position={[-28.5, 0, 17.5]} scale={1.35} pink={true} />
+
+      {/* Glowing Campus Direction Signboard at the Road Entrance ("⬅ TO BANK & 24/7 ATM") */}
+      <group position={[-8.2, 0, 7.6]} rotation={[0, 0.25, 0]}>
+        <mesh position={[0, 1.35, 0]} castShadow>
+          <cylinderGeometry args={[0.07, 0.09, 2.7, 12]} />
+          <meshStandardMaterial color="#1e293b" metalness={0.7} roughness={0.3} />
+        </mesh>
+        <RoundedBox args={[3.4, 0.78, 0.12]} position={[0, 2.45, 0]} radius={0.06} castShadow>
+          <meshStandardMaterial color="#0f172a" metalness={0.5} roughness={0.3} />
+        </RoundedBox>
+        <Text
+          position={[0, 2.56, 0.08]}
+          fontSize={0.2}
+          color="#fde047"
+          anchorX="center"
+          anchorY="middle"
+          outlineWidth={0.01}
+          outlineColor="#000000"
+        >
+          ⬅ LEVEL 3 BANK & 24/7 ATM
+        </Text>
+        <Text
+          position={[0, 2.32, 0.08]}
+          fontSize={0.14}
+          color="#38bdf8"
+          anchorX="center"
+          anchorY="middle"
+        >
+          Side Campus Boulevard • Follow Road Left
+        </Text>
+      </group>
     </group>
   )
 }
@@ -1465,7 +1735,7 @@ function CourtyardTree3D({ position, scale = 1, pink = false }) {
   )
 }
 
-function SchoolYardAndFacade3D({ frontDoorOpenRef }) {
+function SchoolYardAndFacade3D({ frontDoorOpenRef, isNightMode = false }) {
   const leftDoorRef = useRef()
   const rightDoorRef = useRef()
 
@@ -1475,12 +1745,22 @@ function SchoolYardAndFacade3D({ frontDoorOpenRef }) {
     if (rightDoorRef.current) rightDoorRef.current.rotation.y = THREE.MathUtils.lerp(rightDoorRef.current.rotation.y, open * 1.45, 0.1)
   })
 
+  const balconyConfigs = [
+    { wx: -9.8, wy: 4.35, shirt: '#ec4899', pants: '#1e293b', hair: '#3b2219', isFemale: true, phase: 0.2 },
+    { wx: -5.6, wy: 4.35, shirt: '#3b82f6', pants: '#334155', hair: '#1c1917', isFemale: false, phase: 1.9 },
+    { wx: 5.6, wy: 4.35, shirt: '#10b981', pants: '#1e293b', hair: '#451a03', isFemale: true, phase: 3.4 },
+    { wx: 9.8, wy: 4.35, shirt: '#f59e0b', pants: '#1e293b', hair: '#18181b', isFemale: false, phase: 4.8 },
+    // Ground-floor side terrace balconies on outer wings
+    { wx: -12.4, wy: 0.55, shirt: '#8b5cf6', pants: '#1e293b', hair: '#27272a', isFemale: true, phase: 2.6 },
+    { wx: 12.4, wy: 0.55, shirt: '#06b6d4', pants: '#334155', hair: '#1c1917', isFemale: false, phase: 5.5 },
+  ]
+
   return (
     <group>
       {/* Lush Green Campus Lawn & Wide Sunlit Paved Stone Courtyard Walkway (Image 3 — NO Fountain!) */}
       <mesh position={[0, -0.02, 18]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
         <planeGeometry args={[90, 60]} />
-        <meshStandardMaterial color="#3f8f29" roughness={0.85} />
+        <meshStandardMaterial color={isNightMode ? '#14532d' : '#3f8f29'} roughness={0.85} />
       </mesh>
       <mesh position={[0, 0.01, 16.5]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
         <planeGeometry args={[10.4, 28]} />
@@ -1535,10 +1815,12 @@ function SchoolYardAndFacade3D({ frontDoorOpenRef }) {
       <ParkBench3D position={[6.0, 0, 14.5]} rotation={[0, -Math.PI / 2, 0]} />
 
       {/* Black Vintage Lantern Street Lamps Flanking Benches & Walkway (Image 3) */}
-      <StreetLamp3D position={[-5.2, 0, 11.8]} />
-      <StreetLamp3D position={[5.2, 0, 11.8]} />
-      <StreetLamp3D position={[-6.4, 0, 19.2]} />
-      <StreetLamp3D position={[6.4, 0, 19.2]} />
+      <StreetLamp3D position={[-5.2, 0, 11.8]} isNightMode={isNightMode} />
+      <StreetLamp3D position={[5.2, 0, 11.8]} isNightMode={isNightMode} />
+      <StreetLamp3D position={[-6.4, 0, 19.2]} isNightMode={isNightMode} />
+      <StreetLamp3D position={[6.4, 0, 19.2]} isNightMode={isNightMode} />
+      <StreetLamp3D position={[-5.2, 0, 24.5]} isNightMode={isNightMode} />
+      <StreetLamp3D position={[5.2, 0, 24.5]} isNightMode={isNightMode} />
 
       {/* Decorative White Square Planters Along Courtyard & Entrance (Image 3) */}
       <WhiteSquarePlanterWithPlant3D position={[-4.35, 0, 10.2]} scale={0.95} />
@@ -1614,7 +1896,7 @@ function SchoolYardAndFacade3D({ frontDoorOpenRef }) {
           </group>
         ))}
 
-        {/* Wing Windows (Upper & Lower Dark-Framed Multi-Pane Bays - Image 3) */}
+        {/* Wing Windows (Upper & Lower Dark-Framed Multi-Pane Bays - Glow Warmly at Night!) */}
         {[-9.8, -5.6, 5.6, 9.8].map((wx, i) => (
           <group key={i}>
             {[2.1, 6.0].map((wy, j) => (
@@ -1624,10 +1906,78 @@ function SchoolYardAndFacade3D({ frontDoorOpenRef }) {
                 </RoundedBox>
                 <mesh position={[0, 0, 0.05]}>
                   <planeGeometry args={[2.45, 1.95]} />
-                  <meshStandardMaterial color={j === 0 ? '#fde68a' : '#bae6fd'} metalness={0.35} roughness={0.2} />
+                  <meshStandardMaterial
+                    color={isNightMode ? '#fef08a' : j === 0 ? '#fde68a' : '#bae6fd'}
+                    emissive={isNightMode ? '#f59e0b' : '#fef08a'}
+                    emissiveIntensity={isNightMode ? 1.45 : 0.12}
+                    metalness={0.35}
+                    roughness={0.2}
+                  />
                 </mesh>
               </group>
             ))}
+          </group>
+        ))}
+
+        {/* ─── NEW: 6 EXTERIOR SCHOOL BALCONIES WITH ANIMATED STUDENTS WALKING OUT & GOING BACK INSIDE ─── */}
+        {balconyConfigs.map((b, bIdx) => (
+          <group key={bIdx} position={[b.wx, b.wy, 0.95]}>
+            {/* Classical Cream-Stone Balcony Deck Slab & Corbels */}
+            <RoundedBox args={[3.15, 0.22, 1.45]} position={[0, 0, 0.22]} radius={0.04} castShadow receiveShadow>
+              <meshStandardMaterial color="#f5ebe0" roughness={0.5} />
+            </RoundedBox>
+            {[-1.1, 1.1].map((cx, cIdx) => (
+              <RoundedBox key={cIdx} args={[0.24, 0.36, 0.9]} position={[cx, -0.24, 0]} radius={0.03}>
+                <meshStandardMaterial color="#e7d8c5" />
+              </RoundedBox>
+            ))}
+            {/* Ornate Wrought-Iron & Gold Front Railing + Side Balustrades */}
+            <RoundedBox args={[3.1, 0.07, 0.07]} position={[0, 0.86, 0.88]} radius={0.02}>
+              <meshStandardMaterial color="#1e293b" metalness={0.75} roughness={0.25} />
+            </RoundedBox>
+            {[-1.52, 1.52].map((sx, sIdx) => (
+              <RoundedBox key={sIdx} args={[0.07, 0.86, 1.35]} position={[sx, 0.44, 0.22]} radius={0.02}>
+                <meshStandardMaterial color="#1e293b" metalness={0.75} roughness={0.25} />
+              </RoundedBox>
+            ))}
+            {Array.from({ length: 9 }).map((_, rIdx) => (
+              <mesh key={rIdx} position={[-1.36 + rIdx * 0.34, 0.44, 0.88]}>
+                <cylinderGeometry args={[0.022, 0.022, 0.82, 8]} />
+                <meshStandardMaterial color="#334155" metalness={0.7} />
+              </mesh>
+            ))}
+            {/* Balcony Flower Planter Box */}
+            <RoundedBox args={[1.5, 0.24, 0.26]} position={[0, 0.52, 0.98]} radius={0.03}>
+              <meshStandardMaterial color="#f8fafc" />
+            </RoundedBox>
+            {[-0.45, 0, 0.45].map((fx, fIdx) => (
+              <mesh key={fIdx} position={[fx, 0.72, 0.98]}>
+                <sphereGeometry args={[0.15, 10, 10]} />
+                <meshStandardMaterial color={fIdx === 1 ? '#f472b6' : '#22c55e'} />
+              </mesh>
+            ))}
+            {/* Warm Balcony Wall Lantern (Glows Brightly at Night) */}
+            <mesh position={[1.25, 1.55, -0.32]}>
+              <sphereGeometry args={[0.12, 12, 12]} />
+              <meshStandardMaterial
+                color="#fef08a"
+                emissive="#f59e0b"
+                emissiveIntensity={isNightMode ? 2.8 : 0.9}
+              />
+            </mesh>
+            <mesh position={[1.25, 1.55, -0.32]} visible={isNightMode}>
+              <sphereGeometry args={[0.38, 10, 10]} />
+              <meshBasicMaterial color="#fde047" transparent opacity={0.28} />
+            </mesh>
+            {/* Animated Student Walking Out Onto the Balcony and Going Back Inside */}
+            <BalconyStudentWalker3D
+              position={[0, 0.11, 0.15]}
+              shirtColor={b.shirt}
+              pantsColor={b.pants}
+              hairColor={b.hair}
+              isFemale={b.isFemale}
+              phase={b.phase}
+            />
           </group>
         ))}
 
@@ -1644,7 +1994,11 @@ function SchoolYardAndFacade3D({ frontDoorOpenRef }) {
         <group position={[0, 9.6, 0.62]}>
           <mesh rotation={[Math.PI / 2, 0, 0]}>
             <cylinderGeometry args={[0.74, 0.74, 0.08, 32]} />
-            <meshStandardMaterial color="#ffffff" />
+            <meshStandardMaterial
+              color="#ffffff"
+              emissive={isNightMode ? '#fef9c3' : '#000000'}
+              emissiveIntensity={isNightMode ? 0.8 : 0}
+            />
           </mesh>
           <mesh position={[0, 0, 0.05]}>
             <torusGeometry args={[0.74, 0.05, 12, 32]} />
@@ -1661,11 +2015,23 @@ function SchoolYardAndFacade3D({ frontDoorOpenRef }) {
         {/* Central Arched Multi-Pane Glass Window Below Clock (Image 3) */}
         <mesh position={[0, 7.2, 0.6]}>
           <circleGeometry args={[1.9, 32, 0, Math.PI]} />
-          <meshStandardMaterial color="#93c5fd" metalness={0.5} roughness={0.15} />
+          <meshStandardMaterial
+            color={isNightMode ? '#fde047' : '#93c5fd'}
+            emissive={isNightMode ? '#f59e0b' : '#000000'}
+            emissiveIntensity={isNightMode ? 1.25 : 0}
+            metalness={0.5}
+            roughness={0.15}
+          />
         </mesh>
         <mesh position={[0, 6.45, 0.6]}>
           <planeGeometry args={[3.8, 1.5]} />
-          <meshStandardMaterial color="#93c5fd" metalness={0.5} roughness={0.15} />
+          <meshStandardMaterial
+            color={isNightMode ? '#fde047' : '#93c5fd'}
+            emissive={isNightMode ? '#f59e0b' : '#000000'}
+            emissiveIntensity={isNightMode ? 1.25 : 0}
+            metalness={0.5}
+            roughness={0.15}
+          />
         </mesh>
 
         {/* Square Cream Portico Pillars with Warm Lantern Sconces (Image 3) */}
@@ -1675,43 +2041,98 @@ function SchoolYardAndFacade3D({ frontDoorOpenRef }) {
               <meshStandardMaterial color="#f5ebe0" roughness={0.5} />
             </RoundedBox>
             <mesh position={[0, 2.65, 0.38]}>
-              <sphereGeometry args={[0.11, 12, 12]} />
-              <meshStandardMaterial color="#fef08a" emissive="#f59e0b" emissiveIntensity={1.4} />
+              <sphereGeometry args={[0.13, 12, 12]} />
+              <meshStandardMaterial
+                color="#fef08a"
+                emissive="#f59e0b"
+                emissiveIntensity={isNightMode ? 3.2 : 1.4}
+              />
             </mesh>
+            {isNightMode && (
+              <pointLight position={[0, 2.65, 0.65]} color="#fde047" intensity={2.0} distance={12} />
+            )}
           </group>
         ))}
 
-        {/* Cream Portico Entablature Signboard ("Learn2Invest School" + Green Sprout on 2 - Image 3) */}
-        <RoundedBox args={[6.1, 1.6, 1.25]} position={[0, 4.68, 1.2]} radius={0.08} castShadow>
-          <meshStandardMaterial color="#f8f1e7" roughness={0.5} />
+        {/* ─── LUXURY ROYAL-NAVY & GOLD PORTICO SIGNBOARD WITH STYLISH "Learn2Invest" DISPLAY TITLE ─── */}
+        <RoundedBox args={[6.35, 1.72, 1.28]} position={[0, 4.68, 1.2]} radius={0.1} castShadow>
+          <meshStandardMaterial color="#f8f1e7" roughness={0.45} />
         </RoundedBox>
-        <Text position={[0, 4.84, 1.86]} fontSize={0.5} color="#17375e" anchorX="center" anchorY="middle">
-          Learn2Invest
+        {/* Inner Royal Navy & Gold Crest Plaque */}
+        <RoundedBox args={[5.85, 1.38, 0.14]} position={[0, 4.68, 1.82]} radius={0.08}>
+          <meshStandardMaterial color="#0f172a" metalness={0.45} roughness={0.28} />
+        </RoundedBox>
+        <RoundedBox args={[5.98, 1.48, 0.08]} position={[0, 4.68, 1.79]} radius={0.09}>
+          <meshStandardMaterial
+            color="#fbbf24"
+            emissive="#f59e0b"
+            emissiveIntensity={isNightMode ? 1.15 : 0.35}
+            metalness={0.85}
+            roughness={0.2}
+          />
+        </RoundedBox>
+        {/* Stylish 3D Display Lettering with Golden-Emerald Glow */}
+        <Text
+          position={[0, 4.86, 1.92]}
+          fontSize={0.54}
+          letterSpacing={0.04}
+          color="#fef08a"
+          anchorX="center"
+          anchorY="middle"
+          outlineWidth={0.022}
+          outlineColor="#059669"
+        >
+          ✦ Learn2Invest ✦
         </Text>
-        {/* 3D Green Two-Leaf Sprout growing above the "2" (Image 3) */}
-        <group position={[-0.06, 5.26, 1.86]}>
+        {/* 3D Green Two-Leaf Sprout growing above the "2" */}
+        <group position={[-0.06, 5.32, 1.93]}>
           <mesh position={[-0.09, 0.05, 0]} rotation={[0, 0, 0.5]}>
             <sphereGeometry args={[0.095, 12, 12]} scale={[1.65, 0.78, 0.4]} />
-            <meshStandardMaterial color="#4d7c0f" emissive="#3f6212" emissiveIntensity={0.25} />
+            <meshStandardMaterial color="#4ade80" emissive="#22c55e" emissiveIntensity={0.55} />
           </mesh>
           <mesh position={[0.09, 0.07, 0]} rotation={[0, 0, -0.45]}>
             <sphereGeometry args={[0.105, 12, 12]} scale={[1.75, 0.8, 0.4]} />
-            <meshStandardMaterial color="#65a30d" emissive="#4d7c0f" emissiveIntensity={0.25} />
+            <meshStandardMaterial color="#86efac" emissive="#22c55e" emissiveIntensity={0.55} />
           </mesh>
         </group>
-        <Text position={[0, 4.28, 1.86]} fontSize={0.35} color="#17375e" anchorX="center" anchorY="middle">
-          School
+        <Text
+          position={[0, 4.29, 1.92]}
+          fontSize={0.28}
+          letterSpacing={0.14}
+          color="#6ee7b7"
+          anchorX="center"
+          anchorY="middle"
+          outlineWidth={0.01}
+          outlineColor="#064e3b"
+        >
+          FINANCIAL ACADEMY & SCHOOL
         </Text>
 
         {/* Animated Warm Glass Double Entrance Doors */}
         <group ref={leftDoorRef} position={[-1.85, 0.35, 0.2]}>
           <RoundedBox args={[1.8, 3.4, 0.12]} position={[0.9, 1.7, 0]} radius={0.02}>
-            <meshStandardMaterial color="#fde68a" metalness={0.3} roughness={0.2} transparent opacity={0.78} />
+            <meshStandardMaterial
+              color="#fde68a"
+              emissive={isNightMode ? '#f59e0b' : '#000000'}
+              emissiveIntensity={isNightMode ? 0.95 : 0}
+              metalness={0.3}
+              roughness={0.2}
+              transparent
+              opacity={0.82}
+            />
           </RoundedBox>
         </group>
         <group ref={rightDoorRef} position={[1.85, 0.35, 0.2]}>
           <RoundedBox args={[1.8, 3.4, 0.12]} position={[-0.9, 1.7, 0]} radius={0.02}>
-            <meshStandardMaterial color="#fde68a" metalness={0.3} roughness={0.2} transparent opacity={0.78} />
+            <meshStandardMaterial
+              color="#fde68a"
+              emissive={isNightMode ? '#f59e0b' : '#000000'}
+              emissiveIntensity={isNightMode ? 0.95 : 0}
+              metalness={0.3}
+              roughness={0.2}
+              transparent
+              opacity={0.82}
+            />
           </RoundedBox>
         </group>
       </group>
@@ -1993,6 +2414,7 @@ function Classroom101Scene3D({ projectorContent }) {
           {projectorContent && (
             <Html
               transform
+              zIndexRange={[15, 0]}
               distanceFactor={2.82}
               position={[0, 0, 0.05]}
               style={{
@@ -2260,6 +2682,7 @@ function ExaminationCenter103Scene3D({ examProjectorContent }) {
           {examProjectorContent && (
             <Html
               transform
+              zIndexRange={[15, 0]}
               distanceFactor={2.82}
               position={[0, 0, 0.05]}
               style={{
@@ -2690,7 +3113,8 @@ function Floor2ComputerLabScene3D({
               {ws.content && (
                 <Html
                   transform
-                  distanceFactor={1.18}
+                  zIndexRange={[15, 0]}
+                  distanceFactor={1.04}
                   position={[0, 0, 0.045]}
                   style={{
                     width: '820px',
@@ -2788,7 +3212,7 @@ function Floor2ComputerLabScene3D({
 //    Doors with Green "EXIT" Sign Leading Out to Wrought-Iron School Gate!
 //    Located at x = 0, y = 6.2, z = -56.0 to -82.0
 // ═══════════════════════════════════════════════════════════════════════════════
-function SchoolExitCorridorAndExterior3D() {
+function SchoolExitCorridorAndExterior3D({ isNightMode = false }) {
   return (
     <group position={[0, 6.2, -64.0]}>
       {/* ─── GLOSSY CREAM & CHARCOAL-BORDERED VERANDA TILE FLOOR (Image 1) ─── */}
@@ -3025,11 +3449,11 @@ function SchoolExitCorridorAndExterior3D() {
         </group>
       </group>
 
-      {/* ─── SUNLIT EXTERIOR PAVED COURTYARD & BLACK WROUGHT-IRON SCHOOL GATES (Matching Image 1) ─── */}
+      {/* ─── SUNLIT EXTERIOR PAVED COURTYARD & BLACK WROUGHT-IRON SCHOOL GATES + ROAD PATH WITH STREET LIGHTS ─── */}
       <group position={[0, 0, -9.0]}>
         <mesh position={[0, -0.02, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
           <planeGeometry args={[42, 24]} />
-          <meshStandardMaterial color="#4ade80" roughness={0.85} />
+          <meshStandardMaterial color={isNightMode ? '#14532d' : '#4ade80'} roughness={0.85} />
         </mesh>
         <mesh position={[0, 0.01, 1.5]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
           <planeGeometry args={[6.4, 16.0]} />
@@ -3047,7 +3471,11 @@ function SchoolExitCorridorAndExterior3D() {
             </RoundedBox>
             <mesh position={[0, 3.05, 0]} castShadow>
               <sphereGeometry args={[0.26, 16, 16]} />
-              <meshStandardMaterial color="#ffffff" emissive="#fef08a" emissiveIntensity={0.6} />
+              <meshStandardMaterial
+                color="#ffffff"
+                emissive="#fef08a"
+                emissiveIntensity={isNightMode ? 2.5 : 0.6}
+              />
             </mesh>
             {/* Wrought-Iron Side Fence & Open Gate Bars */}
             <RoundedBox
@@ -3072,16 +3500,40 @@ function SchoolExitCorridorAndExterior3D() {
           <CourtyardTree3D key={idx} position={[tx, 0, tz]} scale={1.25} />
         ))}
 
-        {/* Exterior Boulevard Road with Crosswalk Leading to Level 3 Bank */}
-        <mesh position={[0, 0.02, -6.8]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-          <planeGeometry args={[36, 5.2]} />
-          <meshStandardMaterial color="#475569" roughness={0.8} />
+        {/* Exterior Boulevard Road with Crosswalk & Street Lights Leading Directly to Level 3 Bank */}
+        <mesh position={[0, 0.02, -5.2]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+          <planeGeometry args={[42, 11.5]} />
+          <meshStandardMaterial color="#334155" roughness={0.78} />
         </mesh>
+        {/* Glowing Center Road Lane Dashes */}
+        {[-16, -12, -8, -4, 0, 4, 8, 12, 16].map((lx, i) => (
+          <mesh key={i} position={[lx, 0.032, -5.2]} rotation={[-Math.PI / 2, 0, 0]}>
+            <planeGeometry args={[2.1, 0.22]} />
+            <meshStandardMaterial
+              color="#fef08a"
+              emissive="#fbbf24"
+              emissiveIntensity={isNightMode ? 1.5 : 0.45}
+            />
+          </mesh>
+        ))}
         {[-1.8, -0.6, 0.6, 1.8].map((cw, i) => (
-          <mesh key={i} position={[cw, 0.03, -6.8]} rotation={[-Math.PI / 2, 0, 0]}>
+          <mesh key={i} position={[cw, 0.034, -6.8]} rotation={[-Math.PI / 2, 0, 0]}>
             <planeGeometry args={[0.65, 3.4]} />
             <meshBasicMaterial color="#f8fafc" />
           </mesh>
+        ))}
+        {/* Street Lights Lining Both Sides of the Road Path to the Bank */}
+        {[
+          [-4.5, 0, 0.8],
+          [4.5, 0, 0.8],
+          [-4.5, 0, -3.5],
+          [4.5, 0, -3.5],
+          [-4.5, 0, -8.2],
+          [4.5, 0, -8.2],
+          [-10.5, 0, -3.5],
+          [10.5, 0, -3.5],
+        ].map((lpos, idx) => (
+          <StreetLamp3D key={idx} position={lpos} isNightMode={isNightMode} />
         ))}
       </group>
     </group>
@@ -3171,15 +3623,14 @@ export default function Level1SchoolWorld({
   onUpdateSavedPortfolio,
   onDeleteSavedPortfolio,
 }) {
-  // Complete Continuous Journey Stages (Section 36):
-  // 'login' -> 'walking_to_classroom' -> 'classroom_projector'
-  // -> 'walking_to_exam' -> 'exam_projector'
-  // -> 'walking_to_floor2_lab' -> 'computer_lab' (1 -> 2 -> 3)
-  // -> 'walking_to_exit' -> 'reached_exit'
-  // -> 'walking_to_bank' -> 'bank_employee' -> 'bank_section' (1 -> 2)
-  // -> 'walking_bank_exit' -> 'journey_complete'
   const [journeyStage, setJourneyStage] = useState('login')
   const [hasLoggedIn, setHasLoggedIn] = useState(false)
+  const [hasMovedInYard, setHasMovedInYard] = useState(false)
+  const [authError, setAuthError] = useState('')
+  const [isComputerFullscreen, setIsComputerFullscreen] = useState(false)
+  const [isPlayerInAtmQueue, setIsPlayerInAtmQueue] = useState(false)
+  const [atmQueuePosition, setAtmQueuePosition] = useState(2)
+  const atmQueueTimerRef = useRef(null)
   const [showCampusMapModal, setShowCampusMapModal] = useState(false)
   const [showRankModal, setShowRankModal] = useState(false)
   const [isVideoFullscreen, setIsVideoFullscreen] = useState(false)
@@ -3187,18 +3638,41 @@ export default function Level1SchoolWorld({
   const [outfitThemeId, setOutfitThemeId] = useState('classic')
   const [loginLevelChoice, setLoginLevelChoice] = useState('beginner') // 'beginner' | 'intermediate' ('advanced' is locked)
   const [isSceneLoading, setIsSceneLoading] = useState(true)
+  const [showLoadingSplash, setShowLoadingSplash] = useState(true)
+  const [isNightMode, setIsNightMode] = useState(false) // Daylight default, Night Mode toggle in top bar
+  const [authMode, setAuthMode] = useState('signin') // 'signin' | 'login' on Login Card
+  const [activeGardenStall, setActiveGardenStall] = useState(null) // 1 | 2 | 3 | null
+  const [customStallOutfit, setCustomStallOutfit] = useState(null)
+  const [showXpDepositModal, setShowXpDepositModal] = useState(false)
+  const [showAtmModal, setShowAtmModal] = useState(false)
+  const [bankedXp, setBankedXp] = useState(() => {
+    try {
+      return Number(localStorage.getItem('l2i_banked_xp')) || 0
+    } catch {
+      return 0
+    }
+  })
+  const [xpTransferAmount, setXpTransferAmount] = useState(50)
+  const [xpBankToast, setXpBankToast] = useState('')
 
   // Login Form State (Username, Email, Password)
-  const [usernameInput, setUsernameInput] = useState(state?.user?.name || '')
-  const [emailInput, setEmailInput] = useState(state?.user?.email || '')
+  const [usernameInput, setUsernameInput] = useState('')
+  const [emailInput, setEmailInput] = useState('')
   const [passwordInput, setPasswordInput] = useState('')
   const [loginBtnPressed, setLoginBtnPressed] = useState(false)
   const loginPanelRef = useRef(null)
 
-  const selectedOutfitTheme = useMemo(
-    () => CHARACTER_OUTFIT_THEMES.find((o) => o.id === outfitThemeId) || CHARACTER_OUTFIT_THEMES[0],
-    [outfitThemeId]
-  )
+  const selectedOutfitTheme = useMemo(() => {
+    const base = CHARACTER_OUTFIT_THEMES.find((o) => o.id === outfitThemeId) || CHARACTER_OUTFIT_THEMES[0]
+    if (customStallOutfit) {
+      return {
+        ...base,
+        top: customStallOutfit.shirtColor || base.top,
+        ring: customStallOutfit.hatColor || base.ring,
+      }
+    }
+    return base
+  }, [outfitThemeId, customStallOutfit])
 
   // Classroom Video Projector State + Graceful Fallback (Section 35)
   const [currentVideoIdx, setCurrentVideoIdx] = useState(0)
@@ -3370,43 +3844,35 @@ export default function Level1SchoolWorld({
   })
 
   // ───────────────────────────────────────────────────────────────────────────
-  // ARROW KEYS / WASD + ON-SCREEN D-PAD CHARACTER MOVEMENT CONTROLLER
+  // 360° CHARACTER ROTATION + AUTOMATIC CAMERA FOLLOW CONTROLLER
+  // (Strictly locked until user is Signed In / Logged In!)
   // ───────────────────────────────────────────────────────────────────────────
   const pressedKeysRef = useRef({ up: false, down: false, left: false, right: false })
+  const wasDownPressedRef = useRef(false)
+  const camYawRef = useRef(Math.PI)
+  const manualCamFollowUntilRef = useRef(0)
 
-  const stepCharacterManual = (dx, dz) => {
-    if (dx === 0 && dz === 0) return
-    if (timelineRef.current && timelineRef.current.isActive && timelineRef.current.isActive()) {
-      timelineRef.current.kill()
+  const syncElevationFromZ = (cs) => {
+    // Left-side Bank & 24/7 ATM Zone (x < -19) sits at ground level y = 0 outside and y = 0.64 inside Bank Lobby
+    if (cs.x < -19) {
+      cs.y = cs.z < -0.5 ? 0.64 : 0
+      return
     }
-    const cs = charStateRef.current
-    cs.visible = true
-    cs.pose = 'walking'
-
-    const speed = 0.24
-    const nextX = Math.max(-22, Math.min(22, cs.x + dx * speed))
-    const nextZ = Math.max(-105, Math.min(26, cs.z + dz * speed))
-    cs.x = nextX
-    cs.z = nextZ
-    cs.rotY = Math.atan2(dx, dz)
-
-    // Compute elevation y from z coordinate seamlessly across Ground Floor, Staircase, Floor 2 & Bank
-    if (nextZ > -26.5) {
+    if (cs.z > -26.5) {
       cs.y = 0
-    } else if (nextZ >= -37.5) {
-      const tStair = (-26.5 - nextZ) / 11.0
+    } else if (cs.z >= -37.5) {
+      const tStair = (-26.5 - cs.z) / 11.0
       cs.y = tStair * 6.2
-    } else if (nextZ > -85.2) {
-      cs.y = 6.2
     } else {
-      cs.y = 6.84
+      cs.y = 6.2
     }
+  }
 
-    // Smooth follow camera when steering with arrow keys in open exploration stages
+  const updateCameraBehindCharacter = (cs, lerpFactor = 0.12) => {
     if (
-      [
-        'login',
+      ![
         'school_yard',
+        'login',
         'walking_to_classroom',
         'walking_to_exam',
         'walking_to_floor2_lab',
@@ -3418,14 +3884,63 @@ export default function Level1SchoolWorld({
         'walking_bank_exit',
       ].includes(journeyStage)
     ) {
-      const cam = camStateRef.current
-      cam.x = THREE.MathUtils.lerp(cam.x, cs.x, 0.22)
-      cam.y = THREE.MathUtils.lerp(cam.y, cs.y + 2.85, 0.22)
-      cam.z = THREE.MathUtils.lerp(cam.z, cs.z + 6.4, 0.22)
-      cam.lookX = THREE.MathUtils.lerp(cam.lookX, cs.x, 0.25)
-      cam.lookY = THREE.MathUtils.lerp(cam.lookY, cs.y + 1.4, 0.25)
-      cam.lookZ = THREE.MathUtils.lerp(cam.lookZ, cs.z - 4.5, 0.25)
+      return
     }
+    const angleDiff = Math.atan2(
+      Math.sin(cs.rotY - camYawRef.current),
+      Math.cos(cs.rotY - camYawRef.current)
+    )
+    camYawRef.current += angleDiff * lerpFactor
+
+    const cam = camStateRef.current
+    const targetCamX = cs.x - Math.sin(camYawRef.current) * 6.8
+    const targetCamZ = cs.z - Math.cos(camYawRef.current) * 6.8
+    const targetCamY = cs.y + 3.05
+    const targetLookX = cs.x + Math.sin(camYawRef.current) * 6.2
+    const targetLookZ = cs.z + Math.cos(camYawRef.current) * 6.2
+    const targetLookY = cs.y + 1.55
+
+    cam.x = THREE.MathUtils.lerp(cam.x, targetCamX, 0.22)
+    cam.y = THREE.MathUtils.lerp(cam.y, targetCamY, 0.22)
+    cam.z = THREE.MathUtils.lerp(cam.z, targetCamZ, 0.22)
+    cam.lookX = THREE.MathUtils.lerp(cam.lookX, targetLookX, 0.24)
+    cam.lookY = THREE.MathUtils.lerp(cam.lookY, targetLookY, 0.24)
+    cam.lookZ = THREE.MathUtils.lerp(cam.lookZ, targetLookZ, 0.24)
+  }
+
+  // On-screen button helper for single click/tap steps & 360° turns
+  const stepCharacterManual = (turnDelta = 0, forwardStep = 0, flipBack = false) => {
+    if (!hasLoggedIn) return
+    setHasMovedInYard(true)
+    if (timelineRef.current && timelineRef.current.isActive && timelineRef.current.isActive()) {
+      timelineRef.current.kill()
+    }
+    const cs = charStateRef.current
+    cs.visible = true
+    cs.pose = 'walking'
+
+    if (flipBack) {
+      cs.rotY += Math.PI
+    } else if (turnDelta !== 0) {
+      cs.rotY -= turnDelta
+    }
+
+    if (forwardStep !== 0) {
+      const fX = Math.sin(cs.rotY)
+      const fZ = Math.cos(cs.rotY)
+      cs.x = Math.max(-52, Math.min(26, cs.x + fX * forwardStep))
+      cs.z = Math.max(-68, Math.min(28, cs.z + fZ * forwardStep))
+      syncElevationFromZ(cs)
+    }
+
+    manualCamFollowUntilRef.current = performance.now() + 2200
+    updateCameraBehindCharacter(cs, 0.16)
+    setTimeout(() => {
+      const pk = pressedKeysRef.current
+      if (!pk.up && !pk.down && !pk.left && !pk.right) {
+        cs.pose = 'idle'
+      }
+    }, 260)
   }
 
   useEffect(() => {
@@ -3436,12 +3951,18 @@ export default function Level1SchoolWorld({
     }
 
     const handleKeyDown = (e) => {
+      if (!hasLoggedIn) return
       if (isTypingInInput(document.activeElement)) return
       if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') {
         e.preventDefault()
         pressedKeysRef.current.up = true
       } else if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') {
         e.preventDefault()
+        if (!pressedKeysRef.current.down && !wasDownPressedRef.current) {
+          wasDownPressedRef.current = true
+          // Turn character 180° around to go back so camera automatically turns behind character!
+          charStateRef.current.rotY += Math.PI
+        }
         pressedKeysRef.current.down = true
       } else if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
         e.preventDefault()
@@ -3454,7 +3975,10 @@ export default function Level1SchoolWorld({
 
     const handleKeyUp = (e) => {
       if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') pressedKeysRef.current.up = false
-      if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') pressedKeysRef.current.down = false
+      if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') {
+        pressedKeysRef.current.down = false
+        wasDownPressedRef.current = false
+      }
       if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') pressedKeysRef.current.left = false
       if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') pressedKeysRef.current.right = false
 
@@ -3468,11 +3992,39 @@ export default function Level1SchoolWorld({
 
     let rafId = null
     const tickMovement = () => {
-      const pk = pressedKeysRef.current
-      const dx = (pk.right ? 1 : 0) - (pk.left ? 1 : 0)
-      const dz = (pk.down ? 1 : 0) - (pk.up ? 1 : 0)
-      if (dx !== 0 || dz !== 0) {
-        stepCharacterManual(dx, dz)
+      if (hasLoggedIn) {
+        const pk = pressedKeysRef.current
+        const turnDir = (pk.right ? 1 : 0) - (pk.left ? 1 : 0)
+        const moveActive = pk.up || pk.down || pk.left || pk.right
+
+        if (moveActive) {
+          setHasMovedInYard(true)
+          if (timelineRef.current && timelineRef.current.isActive && timelineRef.current.isActive()) {
+            timelineRef.current.kill()
+          }
+          const cs = charStateRef.current
+          cs.visible = true
+          cs.pose = 'walking'
+
+          // Smooth 360-degree continuous turning with Left / Right
+          if (turnDir !== 0) {
+            cs.rotY -= turnDir * 0.046
+          }
+
+          // Walk forward along the character's current 360° facing angle
+          const walkSpeed = pk.up || pk.down ? 0.22 : 0.09
+          const fX = Math.sin(cs.rotY)
+          const fZ = Math.cos(cs.rotY)
+          cs.x = Math.max(-52, Math.min(26, cs.x + fX * walkSpeed))
+          cs.z = Math.max(-68, Math.min(28, cs.z + fZ * walkSpeed))
+          syncElevationFromZ(cs)
+
+          manualCamFollowUntilRef.current = performance.now() + 2000
+          updateCameraBehindCharacter(cs, 0.11)
+        } else if (performance.now() < manualCamFollowUntilRef.current) {
+          // Keep orbiting the camera smoothly until it finishes aligning behind the character
+          updateCameraBehindCharacter(charStateRef.current, 0.11)
+        }
       }
       rafId = requestAnimationFrame(tickMovement)
     }
@@ -3485,7 +4037,7 @@ export default function Level1SchoolWorld({
       window.removeEventListener('keyup', handleKeyUp)
       if (rafId) cancelAnimationFrame(rafId)
     }
-  }, [journeyStage])
+  }, [journeyStage, hasLoggedIn])
 
   const currentVideo = LEVEL1_VIDEOS[currentVideoIdx] || LEVEL1_VIDEOS[0]
   const is85PercentReached = watchPct >= 85 || completedVideoIds.includes(currentVideo.id)
@@ -3514,6 +4066,62 @@ export default function Level1SchoolWorld({
   const isLevel3Unlocked = metricsCompleted || completedBankSections.length > 0
   const isBankSec2Unlocked = completedBankSections.includes(1) || completedBankSections.includes(2)
   const isJourneyCompleteUnlocked = completedBankSections.includes(2)
+
+  // Sync live Level 1 / Level 2 / Level 3 completion status so Luna Chatbot always knows exact completedLevels
+  useEffect(() => {
+    const completedLevels = []
+    if (isComputer1Unlocked) completedLevels.push(1)
+    if (isLevel3Unlocked) completedLevels.push(2)
+    if (isJourneyCompleteUnlocked) completedLevels.push(3)
+
+    const currentLevel = [
+      'walking_to_bank',
+      'bank_employee',
+      'walking_bank_section',
+      'bank_section',
+      'walking_bank_exit',
+      'journey_complete',
+    ].includes(journeyStage)
+      ? 3
+      : ['walking_to_floor2_lab', 'computer_lab', 'walking_to_exit', 'reached_exit'].includes(journeyStage)
+        ? 2
+        : 1
+
+    const correctQuizCount = Object.entries(quizAnswers).filter(
+      ([qIdx, ansIdx]) => LEVEL1_QUIZ_QUESTIONS[Number(qIdx)]?.answer === ansIdx
+    ).length
+
+    try {
+      localStorage.setItem(
+        'l2i_live_progress',
+        JSON.stringify({
+          currentLevel,
+          completedLevels,
+          lessonsWatchedCount: completedVideoIds.length,
+          quizAnsweredCount: Object.keys(quizAnswers).length,
+          quizScore: correctQuizCount,
+          simCompleted,
+          mixerCompleted,
+          metricsCompleted,
+          completedBankSections,
+          bankedXp,
+          journeyStage,
+        })
+      )
+    } catch {}
+  }, [
+    isComputer1Unlocked,
+    isLevel3Unlocked,
+    isJourneyCompleteUnlocked,
+    journeyStage,
+    completedVideoIds,
+    quizAnswers,
+    simCompleted,
+    mixerCompleted,
+    metricsCompleted,
+    completedBankSections,
+    bankedXp,
+  ])
 
   // Section 34: Initial Loading Experience ("Entering Learn2Invest...")
   useEffect(() => {
@@ -3575,6 +4183,7 @@ export default function Level1SchoolWorld({
   useEffect(() => {
     return () => {
       if (timelineRef.current) timelineRef.current.kill()
+      if (atmQueueTimerRef.current) clearInterval(atmQueueTimerRef.current)
     }
   }, [])
 
@@ -3606,16 +4215,146 @@ export default function Level1SchoolWorld({
     soundEngine.startAmbientMusic('examination', true)
   }
 
-  const handleLoginSubmit = (e) => {
-    e.preventDefault()
+  // ───────────────────────────────────────────────────────────────────────────
+  // SIGN IN FIRST vs. DIRECT LOG IN VALIDATION:
+  // - Users must Sign In first to register an account in 'l2i_accounts_db'.
+  // - Only if a user already has a registered account can they Log In directly.
+  // - If no account exists (or wrong/empty credentials) and they try to Log In,
+  //   prompt them to Sign In first or Log In properly!
+  // ───────────────────────────────────────────────────────────────────────────
+  const executeSignInOrLogIn = (modeOverride) => {
+    const modeToUse = modeOverride || authMode || 'signin'
+    setAuthMode(modeToUse)
     soundEngine.playClick()
     setLoginBtnPressed(true)
-    setHasLoggedIn(true)
 
-    const cleanName =
-      usernameInput.trim() ||
-      (characterChoice === 'leo' ? 'Leo' : characterChoice === 'aria' ? 'Aria' : characterChoice === 'max' ? 'Max' : 'Luna')
-    const cleanEmail = emailInput.trim() || `${cleanName.toLowerCase().replace(/\s+/g, '')}@learn2invest.edu`
+    const rawUsername = usernameInput.trim()
+    const rawEmail = emailInput.trim()
+    const rawPassword = passwordInput.trim()
+
+    let storedAccounts = []
+    try {
+      const parsed = JSON.parse(localStorage.getItem('l2i_accounts_db') || '[]')
+      if (Array.isArray(parsed)) storedAccounts = parsed
+    } catch {
+      storedAccounts = []
+    }
+
+    if (modeToUse === 'login') {
+      if (!rawUsername && !rawEmail) {
+        setLoginBtnPressed(false)
+        setAuthError(
+          '⚠️ Please enter your registered Username or Email and Password to Log In properly! If you do not have an account yet, please click "🔑 Sign In" first.'
+        )
+        return
+      }
+      if (!rawPassword) {
+        setLoginBtnPressed(false)
+        setAuthError(
+          '⚠️ Please enter your Password to Log In properly! If you are new here, please click "🔑 Sign In" first to create your account.'
+        )
+        return
+      }
+
+      const matchedAccount = storedAccounts.find((acc) => {
+        const uMatch =
+          rawUsername &&
+          acc.username &&
+          acc.username.toLowerCase() === rawUsername.toLowerCase()
+        const eMatch =
+          rawEmail &&
+          acc.email &&
+          acc.email.toLowerCase() === rawEmail.toLowerCase()
+        const crossMatch =
+          (rawUsername && acc.email && acc.email.toLowerCase() === rawUsername.toLowerCase()) ||
+          (rawEmail && acc.username && acc.username.toLowerCase() === rawEmail.toLowerCase())
+        return uMatch || eMatch || crossMatch
+      })
+
+      if (!matchedAccount) {
+        setLoginBtnPressed(false)
+        setAuthError(
+          '⚠️ No account found for these details! First you have to Sign In to create an account. Only if you already have an account can you Log In directly — please Sign In first or Log In properly with your registered credentials.'
+        )
+        return
+      }
+
+      if (matchedAccount.password && matchedAccount.password !== rawPassword) {
+        setLoginBtnPressed(false)
+        setAuthError(
+          '⚠️ Incorrect password! Please Log In properly using the password you registered when Signing In.'
+        )
+        return
+      }
+
+      // Valid registered account found — proceed with Log In!
+      const finalName = matchedAccount.username || rawUsername || (characterChoice === 'leo' ? 'Leo' : 'Luna')
+      const finalEmail = matchedAccount.email || rawEmail || `${finalName.toLowerCase().replace(/\s+/g, '')}@learn2invest.edu`
+      setAuthError('')
+
+      try {
+        localStorage.setItem('l2i_isLoggedIn', 'true')
+      } catch {}
+
+      if (update) {
+        update({
+          startingLevel: loginLevelChoice,
+          user: {
+            ...(state?.user || {}),
+            name: finalName,
+            email: finalEmail,
+            startLevel: loginLevelChoice,
+            avatar: characterChoice === 'leo' ? 'leo' : 'luna',
+            outfit: outfitThemeId,
+          },
+        })
+      }
+
+      setHasLoggedIn(true)
+      setHasMovedInYard(false)
+      setLoginBtnPressed(false)
+      if (loginLevelChoice === 'intermediate') {
+        jumpDirectlyToExaminationQuiz()
+      } else {
+        beginSchoolEntrySequence()
+      }
+      return
+    }
+
+    // modeToUse === 'signin' (First-time registration / Sign In)
+    if ((!rawUsername && !rawEmail) || !rawPassword) {
+      setLoginBtnPressed(false)
+      setAuthError(
+        '⚠️ First you have to Sign In properly! Please enter a Username (or Email) and a Password to register your account.'
+      )
+      return
+    }
+
+    const cleanName = rawUsername || rawEmail.split('@')[0] || (characterChoice === 'leo' ? 'Leo' : 'Luna')
+    const cleanEmail = rawEmail || `${cleanName.toLowerCase().replace(/\s+/g, '')}@learn2invest.edu`
+
+    const updatedAccounts = [
+      ...storedAccounts.filter(
+        (acc) =>
+          acc.username?.toLowerCase() !== cleanName.toLowerCase() &&
+          acc.email?.toLowerCase() !== cleanEmail.toLowerCase()
+      ),
+      {
+        username: cleanName,
+        email: cleanEmail,
+        password: rawPassword,
+        avatar: characterChoice === 'leo' ? 'leo' : 'luna',
+        level: loginLevelChoice,
+        createdAt: Date.now(),
+      },
+    ]
+
+    try {
+      localStorage.setItem('l2i_accounts_db', JSON.stringify(updatedAccounts))
+      localStorage.setItem('l2i_isLoggedIn', 'true')
+    } catch {}
+
+    setAuthError('')
 
     if (update) {
       update({
@@ -3625,40 +4364,37 @@ export default function Level1SchoolWorld({
           name: cleanName,
           email: cleanEmail,
           startLevel: loginLevelChoice,
-          avatar: characterChoice,
+          avatar: characterChoice === 'leo' ? 'leo' : 'luna',
           outfit: outfitThemeId,
         },
       })
     }
 
-    const proceedAfterLogin = () => {
-      setLoginBtnPressed(false)
-      if (loginLevelChoice === 'intermediate') {
-        jumpDirectlyToExaminationQuiz()
-      } else {
-        beginSchoolEntrySequence()
-      }
-    }
-
-    if (loginPanelRef.current) {
-      gsap.to(loginPanelRef.current, {
-        opacity: 0,
-        scale: 0.88,
-        y: -20,
-        duration: 0.55,
-        ease: 'power2.inOut',
-        onComplete: proceedAfterLogin,
-      })
+    setHasLoggedIn(true)
+    setHasMovedInYard(false)
+    setLoginBtnPressed(false)
+    if (loginLevelChoice === 'intermediate') {
+      jumpDirectlyToExaminationQuiz()
     } else {
-      proceedAfterLogin()
+      beginSchoolEntrySequence()
     }
+  }
+
+  const handleLoginSubmit = (e) => {
+    if (e && e.preventDefault) e.preventDefault()
+    executeSignInOrLogIn(authMode)
   }
 
   const handleLogout = () => {
     soundEngine.playClick()
     if (timelineRef.current) timelineRef.current.kill()
+    if (atmQueueTimerRef.current) clearInterval(atmQueueTimerRef.current)
     setIsVideoFullscreen(false)
+    setIsComputerFullscreen(false)
+    setIsPlayerInAtmQueue(false)
     setHasLoggedIn(false)
+    setHasMovedInYard(false)
+    setAuthError('')
     setJourneyStage('login')
     setPasswordInput('')
     localStorage.removeItem('l2i_isLoggedIn')
@@ -3953,6 +4689,19 @@ export default function Level1SchoolWorld({
       soundEngine.playLessonCompleteFanfare()
     } else {
       soundEngine.playClick()
+    }
+
+    // Notify Luna Chatbot to get excited on right answer and slightly disappointed on wrong answer
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(
+        new CustomEvent('luna-quiz-reaction', {
+          detail: {
+            type: isRight ? 'excited' : 'disappointed',
+            questionNumber: currentQuestionIdx + 1,
+            questionText: currentQuestion.question,
+          },
+        })
+      )
     }
 
     const updatedAnswers = { ...quizAnswers, [currentQuestionIdx]: optIdx }
@@ -4258,12 +5007,14 @@ export default function Level1SchoolWorld({
   }
 
   // ───────────────────────────────────────────────────────────────────────────
-  // SECTIONS 19 & 20: COMPUTER LAB -> OPEN VERANDA (Image 1 Reference) -> "EXIT" GLASS DOORS -> LEVEL 3 BANK
+  // SECTIONS 19 & 20: COMPUTER LAB -> DOWN STAIRCASE -> OUT FRONT DOORS -> FLAT CAMPUS BOULEVARD ROAD -> LEVEL 3 BANK ON SIDE OF SCHOOL
   // ───────────────────────────────────────────────────────────────────────────
   const beginWalkToExit = (autoContinueToBank = true) => {
     if (timelineRef.current) timelineRef.current.kill()
+    setIsComputerFullscreen(false)
     setJourneyStage('walking_to_exit')
     soundEngine.startAmbientMusic('exit', true)
+    frontDoorOpenRef.current = 1
 
     const cs = charStateRef.current
     cs.visible = true
@@ -4285,57 +5036,82 @@ export default function Level1SchoolWorld({
     })
     timelineRef.current = tl
 
-    // 1. Character leaves Computer 3 and steps into the sunlit Veranda (with classroom doors on left, open colonnade on right, white square planters)
+    // 1. Leave Computer 3 and walk back through Floor 2 Veranda to top of Grand Staircase
     tl.to(
       cs,
-      { x: 0, y: 6.2, z: -57.5, rotY: Math.PI, duration: 1.8, ease: 'none' },
+      { x: 0, y: 6.2, z: -37.5, rotY: 0, duration: 1.4, ease: 'none' },
       0
     )
     tl.to(
       cam,
-      { x: 0, y: 8.3, z: -51.5, lookX: 0, lookY: 7.9, lookZ: -64.5, duration: 1.8, ease: 'power1.inOut' },
+      { x: 0, y: 8.6, z: -44.0, lookX: 0, lookY: 6.8, lookZ: -28.0, duration: 1.4, ease: 'power1.inOut' },
       0
     )
 
-    // 2. Character walks along the glossy tiled Veranda and passes through the open "EXIT" glass doors (z = -64)
+    // 2. Walk down the Grand Staircase to Ground Floor Veranda (y: 6.2 -> 0, z: -37.5 -> -26.2)
     tl.to(
       cs,
-      { x: 0, y: 6.2, z: -64.5, rotY: Math.PI, duration: 2.2, ease: 'none' },
-      1.8
+      { x: 0, y: 0, z: -26.2, rotY: 0, duration: 1.6, ease: 'none' },
+      1.4
     )
     tl.to(
       cam,
-      { x: 0, y: 8.2, z: -57.2, lookX: 0, lookY: 7.9, lookZ: -72.0, duration: 2.2, ease: 'power1.inOut' },
-      1.8
+      { x: 0, y: 3.4, z: -32.0, lookX: 0, lookY: 1.8, lookZ: -12.0, duration: 1.6, ease: 'power1.inOut' },
+      1.4
     )
 
-    // 3. Character walks outside past the wrought-iron school gates looking ahead toward the Level 3 Bank
+    // 3. Walk out of the school through the main School Front Doors onto the Campus Boulevard Crosswalk (z: -26.2 -> 11.5)
     tl.to(
       cs,
-      { x: 0, y: 6.2, z: -68.4, rotY: Math.PI, duration: 1.6, ease: 'power1.out' },
-      4.0
+      { x: 0, y: 0, z: 11.5, rotY: 0, duration: 1.8, ease: 'none' },
+      3.0
+    )
+    tl.to(
+      cam,
+      { x: 0, y: 3.5, z: 18.5, lookX: 0, lookY: 1.8, lookZ: 2.0, duration: 1.8, ease: 'power1.inOut' },
+      3.0
+    )
+
+    // 4. Turn left along the Flat Campus Boulevard Road (y = 0, z = 11.5) passing the 24/7 ATM Queue (x = -23.4)
+    tl.to(
+      cs,
+      { x: -23.4, y: 0, z: 11.5, rotY: -Math.PI / 2, duration: 2.2, ease: 'none' },
+      4.8
+    )
+    tl.to(
+      cam,
+      { x: -14.0, y: 3.6, z: 18.2, lookX: -26.0, lookY: 1.8, lookZ: 6.0, duration: 2.2, ease: 'power1.inOut' },
+      4.8
+    )
+
+    // 5. Continue along the flat road to the Level 3 Bank Plaza on the Left Side of the School (x = -36, y = 0, z = 9.2)
+    tl.to(
+      cs,
+      { x: -36.0, y: 0, z: 9.2, rotY: Math.PI, duration: 1.8, ease: 'power1.out' },
+      7.0
     )
     tl.to(
       cam,
       {
-        x: 0,
-        y: 8.5,
-        z: -61.2,
-        lookX: 0,
-        lookY: 8.2,
-        lookZ: -86.0,
+        x: -36.0,
+        y: 3.4,
+        z: 18.5,
+        lookX: -36.0,
+        lookY: 2.6,
+        lookZ: -4.0,
         duration: 1.8,
         ease: 'power2.inOut',
       },
-      4.0
+      7.0
     )
   }
 
   // ───────────────────────────────────────────────────────────────────────────
-  // LEVEL 3 — BANK EXTERIOR -> BANK INTERIOR -> BANK EMPLOYEE GUIDE (MAYA) -> 2 SECTIONS -> FINAL COMPLETION
+  // LEVEL 3 — BANK EXTERIOR (SIDE OF SCHOOL, X = -36, Y = 0) -> BANK INTERIOR -> BANK EMPLOYEE GUIDE (MAYA) -> 2 CABINS
   // ───────────────────────────────────────────────────────────────────────────
   const beginWalkToBank = () => {
     if (timelineRef.current) timelineRef.current.kill()
+    setIsPlayerInAtmQueue(false)
     setJourneyStage('walking_to_bank')
     setShowLevel3ArrivalBanner(true)
     soundEngine.startAmbientMusic('bank_exterior', true)
@@ -4359,89 +5135,90 @@ export default function Level1SchoolWorld({
     })
     timelineRef.current = tl
 
-    // Segment 1 (0s - 2.4s): Walk along the sunlit boulevard toward the Bank Exterior steps
+    // Segment 1 (0s - 2.2s): Walk across the Bank Exterior Plaza toward the Bank steps (x = -36, y = 0, z = 2.2)
     tl.to(
       cs,
-      { x: 0, y: 6.2, z: -81.8, rotY: Math.PI, duration: 2.4, ease: 'none' },
+      { x: -36.0, y: 0, z: 2.2, rotY: Math.PI, duration: 2.2, ease: 'none' },
       0
     )
     tl.to(
       cam,
-      { x: 0, y: 9.2, z: -72.5, lookX: 0, lookY: 9.2, lookZ: -90.0, duration: 2.4, ease: 'power1.inOut' },
+      { x: -36.0, y: 3.2, z: 11.5, lookX: -36.0, lookY: 2.8, lookZ: -6.0, duration: 2.2, ease: 'power1.inOut' },
       0
     )
 
-    // Segment 2 (2.4s - 4.0s): Climb the 4 stone entrance steps (y: 6.2 -> 6.84) as the Bank sliding glass doors open!
+    // Segment 2 (2.2s - 3.8s): Climb the 4 stone entrance steps (y: 0 -> 0.64) as the Bank sliding glass doors open!
     tl.to(
       cs,
-      { x: 0, y: 6.84, z: -85.8, rotY: Math.PI, duration: 1.6, ease: 'none' },
-      2.4
+      { x: -36.0, y: 0.64, z: -1.8, rotY: Math.PI, duration: 1.6, ease: 'none' },
+      2.2
     )
     tl.to(
       bankDoorOpenRef,
       { current: 1, duration: 1.1, ease: 'power2.out' },
-      2.3
+      2.1
     )
     tl.to(
       cam,
-      { x: 0, y: 9.2, z: -79.2, lookX: 0, lookY: 8.8, lookZ: -93.0, duration: 1.6, ease: 'power1.inOut' },
-      2.4
+      { x: -36.0, y: 3.0, z: 4.8, lookX: -36.0, lookY: 2.5, lookZ: -9.0, duration: 1.6, ease: 'power1.inOut' },
+      2.2
     )
 
-    // Segment 3 (4.0s - 6.0s): Enter the Bank Interior Lobby and stop in front of Bank Employee Guide Maya
+    // Segment 3 (3.8s - 5.6s): Enter the Bank Interior Lobby and stop in front of Bank Employee Guide Maya
     tl.to(
       cs,
-      { x: 0, y: 6.84, z: -90.0, rotY: Math.PI, duration: 2.0, ease: 'power1.out' },
-      4.0
+      { x: -36.0, y: 0.64, z: -6.0, rotY: Math.PI, duration: 1.8, ease: 'power1.out' },
+      3.8
     )
     tl.to(
       cam,
       {
-        x: 1.65,
-        y: 8.85,
-        z: -86.4,
-        lookX: -0.2,
-        lookY: 8.45,
-        lookZ: -93.2,
-        duration: 2.0,
+        x: -34.35,
+        y: 2.65,
+        z: -2.4,
+        lookX: -36.2,
+        lookY: 2.25,
+        lookZ: -9.2,
+        duration: 1.8,
         ease: 'power2.inOut',
       },
-      4.0
+      3.8
     )
   }
 
-  // Bank Employee Guide (Maya) coordinates the 2 sections inside the Bank Lobby:
-  // Section 1: Banking Slip Writing | Section 2: Digital Banking Safety
+  // Bank Employee Guide (Maya) coordinates the 2 sections inside the Bank Lobby (Side of School at x = -36):
+  // Section 1: Banking Slip Writing (x = -39.2) | Section 2: Digital Banking Safety (x = -32.8)
   const getBankSectionPose = (secNum) => {
     if (secNum === 1) {
       return {
-        charX: -3.2,
-        charZ: -101.6,
+        charX: -39.2,
+        charZ: -17.6,
         charRotY: Math.PI,
-        camX: -3.2,
-        camY: 8.95,
-        camZ: -98.8,
-        lookX: -3.2,
-        lookY: 8.9,
-        lookZ: -104.2,
+        camX: -39.2,
+        camY: 2.75,
+        camZ: -14.8,
+        lookX: -39.2,
+        lookY: 2.7,
+        lookZ: -20.2,
       }
     }
     return {
-      charX: 3.2,
-      charZ: -101.6,
+      charX: -32.8,
+      charZ: -17.6,
       charRotY: Math.PI,
-      camX: 3.2,
-      camY: 8.95,
-      camZ: -98.8,
-      lookX: 3.2,
-      lookY: 8.9,
-      lookZ: -104.2,
+      camX: -32.8,
+      camY: 2.75,
+      camZ: -14.8,
+      lookX: -32.8,
+      lookY: 2.7,
+      lookZ: -20.2,
     }
   }
 
   const focusCameraOnBankSection = (secNum, animateWalk = true) => {
     const clampedSec = secNum >= 2 ? 2 : 1
     if (timelineRef.current) timelineRef.current.kill()
+    setIsPlayerInAtmQueue(false)
     const target = getBankSectionPose(clampedSec)
     const cs = charStateRef.current
     const cam = camStateRef.current
@@ -4449,7 +5226,7 @@ export default function Level1SchoolWorld({
     if (!animateWalk) {
       cs.visible = true
       cs.x = target.charX
-      cs.y = 6.84
+      cs.y = 0.64
       cs.z = target.charZ
       cs.rotY = target.charRotY
       cs.pose = 'idle'
@@ -4490,10 +5267,10 @@ export default function Level1SchoolWorld({
       cam,
       {
         x: (cs.x + target.camX) * 0.5,
-        y: 9.6,
+        y: 3.4,
         z: Math.max(cs.z, target.camZ) + 2.8,
         lookX: target.lookX,
-        lookY: 8.6,
+        lookY: 2.4,
         lookZ: target.lookZ,
         duration: 0.95,
         ease: 'power1.out',
@@ -4504,7 +5281,7 @@ export default function Level1SchoolWorld({
       cs,
       {
         x: target.charX,
-        y: 6.84,
+        y: 0.64,
         z: target.charZ,
         duration: 1.65,
         ease: 'power1.inOut',
@@ -4533,6 +5310,132 @@ export default function Level1SchoolWorld({
     setTimeout(() => {
       focusCameraOnBankSection(1, true)
     }, 450)
+  }
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // 24/7 SUPER ATM QUEUE WAIT SEQUENCE & XP VAULT DEPOSIT / WITHDRAWAL HANDLERS
+  // When the user visits the ATM, if there are people ahead in queue, the character
+  // walks into the queue at Spot #3 -> advances to Spot #2 -> steps up to Spot #1
+  // as the people ahead finish taking their ₹500 cash notes!
+  // ───────────────────────────────────────────────────────────────────────────
+  const startAtmQueueExperience = () => {
+    soundEngine.playClick()
+    if (timelineRef.current) timelineRef.current.kill()
+    if (atmQueueTimerRef.current) clearInterval(atmQueueTimerRef.current)
+
+    setShowCampusMapModal(false)
+    setIsPlayerInAtmQueue(true)
+    setAtmQueuePosition(2) // 2 NPC customers ahead in line (Player is #3 in queue)
+
+    const cs = charStateRef.current
+    const cam = camStateRef.current
+    cs.visible = true
+    cs.pose = 'walking'
+    cs.rotY = Math.PI
+
+    // Walk character to Queue Spot #3 at the 24/7 Super ATM Pavilion (world x = -23.4, z = 7.15)
+    gsap.to(cs, {
+      x: -23.4,
+      y: 0.18,
+      z: 7.15,
+      rotY: Math.PI,
+      duration: 1.1,
+      ease: 'power2.out',
+      onComplete: () => {
+        cs.pose = 'idle'
+        cs.rotY = Math.PI
+      },
+    })
+
+    // Frame the 24/7 Super ATM Pavilion, Cash Dispenser & Queue of People Taking Money
+    gsap.to(cam, {
+      x: -19.8,
+      y: 2.85,
+      z: 10.4,
+      lookX: -23.4,
+      lookY: 1.65,
+      lookZ: 3.0,
+      duration: 1.1,
+      ease: 'power2.inOut',
+    })
+
+    // Step through the queue as Customer #1 and Customer #2 finish taking their cash notes
+    let currentQueueAhead = 2
+    atmQueueTimerRef.current = setInterval(() => {
+      currentQueueAhead -= 1
+      if (currentQueueAhead === 1) {
+        setAtmQueuePosition(1)
+        soundEngine.playClick()
+        cs.pose = 'walking'
+        gsap.to(cs, {
+          x: -23.4,
+          y: 0.18,
+          z: 5.75, // Advance to Queue Spot #2
+          rotY: Math.PI,
+          duration: 0.85,
+          ease: 'power1.inOut',
+          onComplete: () => {
+            cs.pose = 'idle'
+          },
+        })
+      } else if (currentQueueAhead <= 0) {
+        clearInterval(atmQueueTimerRef.current)
+        atmQueueTimerRef.current = null
+        setAtmQueuePosition(0)
+        soundEngine.playLessonCompleteFanfare()
+        cs.pose = 'walking'
+        gsap.to(cs, {
+          x: -23.4,
+          y: 0.18,
+          z: 4.35, // Step right up to Spot #1 at the ATM Cash Dispenser!
+          rotY: Math.PI,
+          duration: 0.85,
+          ease: 'power1.inOut',
+          onComplete: () => {
+            cs.pose = 'idle'
+            setTimeout(() => {
+              setIsPlayerInAtmQueue(false)
+              setShowAtmModal(true)
+            }, 650)
+          },
+        })
+      }
+    }, 2300)
+  }
+
+  const handleDepositXpAtBank = (amount) => {
+    const amt = Math.max(1, Math.floor(Number(amount) || 0))
+    const walletXp = Number(state?.xp) || 0
+    if (walletXp < amt) {
+      soundEngine.playClick()
+      setXpBankToast(`⚠️ You only have ${walletXp} Wallet XP available to deposit!`)
+      return
+    }
+    soundEngine.playLessonCompleteFanfare()
+    if (addXP) addXP(-amt)
+    const nextBanked = bankedXp + amt
+    setBankedXp(nextBanked)
+    try {
+      localStorage.setItem('l2i_banked_xp', String(nextBanked))
+    } catch {}
+    setXpBankToast(`✅ Deposited ${amt} XP safely with Maya! Vault Balance: ${nextBanked} XP`)
+  }
+
+  const handleWithdrawXpAtAtm = (amount) => {
+    const amt = Math.max(1, Math.floor(Number(amount) || 0))
+    if (bankedXp < amt) {
+      soundEngine.playClick()
+      setXpBankToast(`⚠️ You have ${bankedXp} Banked XP in the vault. Deposit XP with Maya first or choose a smaller amount!`)
+      return
+    }
+    soundEngine.playLessonCompleteFanfare()
+    const nextBanked = bankedXp - amt
+    setBankedXp(nextBanked)
+    if (addXP) addXP(amt)
+    try {
+      localStorage.setItem('l2i_banked_xp', String(nextBanked))
+    } catch {}
+    setXpBankToast(`🏧 Dispensed ${amt} XP from the 24/7 ATM into your Wallet!`)
   }
 
   const handleCompleteBankSection = (secNum, xpReward = 100) => {
@@ -4581,14 +5484,14 @@ export default function Level1SchoolWorld({
     const cs = charStateRef.current
     cs.visible = true
     cs.pose = 'walking'
-    cs.rotY = 0 // Walk toward the front entrance doors (z increasing from -101.6 toward -80.2)
+    cs.rotY = 0 // Walk toward the front entrance doors of the Side Bank (x = -36, z increasing toward +3.6)
     const cam = camStateRef.current
     bankDoorOpenRef.current = 1
 
     const tl = gsap.timeline({
       onComplete: () => {
         cs.pose = 'idle'
-        cs.rotY = 0 // Faces the camera proudly in front of the Bank Exterior
+        cs.rotY = 0 // Faces the camera proudly in front of the Side Bank Exterior
         setJourneyStage('journey_complete')
         soundEngine.startAmbientMusic('final_victory', true)
         soundEngine.playJourneyCompleteFanfare()
@@ -4599,30 +5502,30 @@ export default function Level1SchoolWorld({
     // 1. Walk from Section 2 to the center of the Bank Lobby (past Maya waving goodbye)
     tl.to(
       cs,
-      { x: 0, y: 6.84, z: -89.5, rotY: 0, duration: 1.5, ease: 'none' },
+      { x: -36.0, y: 0.64, z: -5.5, rotY: 0, duration: 1.5, ease: 'none' },
       0
     )
     tl.to(
       cam,
-      { x: 0, y: 9.1, z: -82.0, lookX: 0, lookY: 8.4, lookZ: -91.0, duration: 1.5, ease: 'power1.inOut' },
+      { x: -36.0, y: 2.9, z: 2.0, lookX: -36.0, lookY: 2.2, lookZ: -7.0, duration: 1.5, ease: 'power1.inOut' },
       0
     )
 
-    // 2. Walk out through the open Bank Entrance sliding glass doors and down the 4 stone steps
+    // 2. Walk out through the open Bank Entrance sliding glass doors and down the 4 stone steps onto the Side Plaza
     tl.to(
       cs,
-      { x: 0, y: 6.2, z: -80.4, rotY: 0, duration: 2.2, ease: 'power1.out' },
+      { x: -36.0, y: 0, z: 3.6, rotY: 0, duration: 2.2, ease: 'power1.out' },
       1.5
     )
     tl.to(
       cam,
       {
-        x: 0,
-        y: 8.8,
-        z: -72.8,
-        lookX: 0,
-        lookY: 8.3,
-        lookZ: -86.0,
+        x: -36.0,
+        y: 2.8,
+        z: 11.2,
+        lookX: -36.0,
+        lookY: 2.1,
+        lookZ: -2.0,
         duration: 2.2,
         ease: 'power2.inOut',
       },
@@ -4661,19 +5564,19 @@ export default function Level1SchoolWorld({
         // Back 1 logical step: Bank Section 2 -> Bank Section 1
         focusCameraOnBankSection(1, true)
       } else {
-        // Back 1 logical step: Bank Section 1 -> Bank Employee Guide (Maya)
-        charStateRef.current.x = 0
-        charStateRef.current.y = 6.84
-        charStateRef.current.z = -90.0
+        // Back 1 logical step: Bank Section 1 -> Bank Employee Guide (Maya) in Side Bank Lobby
+        charStateRef.current.x = -36.0
+        charStateRef.current.y = 0.64
+        charStateRef.current.z = -6.0
         charStateRef.current.rotY = Math.PI
         charStateRef.current.pose = 'idle'
         gsap.to(camStateRef.current, {
-          x: 1.65,
-          y: 8.85,
-          z: -86.4,
-          lookX: -0.2,
-          lookY: 8.45,
-          lookZ: -93.2,
+          x: -34.35,
+          y: 2.65,
+          z: -2.4,
+          lookX: -36.2,
+          lookY: 2.25,
+          lookZ: -9.2,
           duration: 0.95,
           ease: 'power2.inOut',
         })
@@ -4862,7 +5765,7 @@ export default function Level1SchoolWorld({
   // 1. CLASSROOM 101 PHYSICAL PROJECTOR SCREEN UI (Videos 1..5 + Key Takeaways After Each Video)
   // ───────────────────────────────────────────────────────────────────────────
   const classroomProjectorUI =
-    journeyStage === 'classroom_projector' ? (
+    journeyStage === 'classroom_projector' && !isVideoFullscreen ? (
       <div className="w-full h-full bg-slate-950 text-white flex flex-col justify-between overflow-hidden relative font-sans select-none">
         {/* Top Integrated Projector Header Bar */}
         <div className="flex items-center justify-between px-5 py-2.5 bg-slate-900/95 border-b border-slate-800 shrink-0">
@@ -5227,18 +6130,9 @@ export default function Level1SchoolWorld({
                 Answered: {Object.keys(quizAnswers).length} • Remaining:{' '}
                 {Math.max(0, LEVEL1_QUIZ_QUESTIONS.length - Object.keys(quizAnswers).length)}
               </span>
-              <button
-                onClick={() => {
-                  soundEngine.playLessonCompleteFanfare()
-                  if (addXP) addXP(150)
-                  setQuizCompletedFlag(true)
-                  setQuizSubStage('completed')
-                  setTimeout(() => beginWalkToFloor2AndComputerLab(), 2200)
-                }}
-                className="text-amber-300 hover:underline font-extrabold text-sm cursor-pointer"
-              >
-                ⚡ Complete All 10 Questions →
-              </button>
+              <span className="text-emerald-300 font-extrabold text-xs">
+                ✨ Luna reacts live to every answer!
+              </span>
             </div>
           </div>
         )}
@@ -5266,10 +6160,20 @@ export default function Level1SchoolWorld({
 
   // ───────────────────────────────────────────────────────────────────────────
   // 3. FLOOR 2 COMPUTER LAB — 3 PHYSICAL MONITOR INTERFACES (COMPUTERS 1, 2 & 3)
+  //    Only mounted when the character is seated at that exact computer so the character never overlaps the screen!
   // ───────────────────────────────────────────────────────────────────────────
   // COMPUTER 1 (SECTION 1): SIMULATOR MODULES (PPF Simulator, Fixed Deposit, NSC Calculator, Sukanya Samriddhi, Recurring Deposit, Post Office MIS)
+  const toggleComputerFullscreen = () => {
+    soundEngine.playClick()
+    setIsComputerFullscreen((prev) => !prev)
+  }
+
   const computer1MonitorUI =
-    journeyStage === 'computer_lab' ? (
+    journeyStage === 'computer_lab' &&
+    !computerTransitioning &&
+    !isComputerFullscreen &&
+    !computerFeedbackBanner &&
+    activeComputerIndex === 1 ? (
       <Computer1SimulatorScreen
         state={state}
         update={update}
@@ -5280,24 +6184,36 @@ export default function Level1SchoolWorld({
         onDeleteSavedSimulation={onDeleteSavedSimulation}
         simCompleted={simCompleted}
         onCompleteComputer1={handleCompleteComputer1}
+        isFullscreen={false}
+        onToggleFullscreen={toggleComputerFullscreen}
       />
     ) : null
 
   // COMPUTER 2 (SECTION 2): SAVINGS MIXER (Add/Remove 6 Schemes Simultaneously + Educational Notes + Comparison Metric + What Should You Know + Learning Challenges + Growth Projector + Multi-Goal Planner)
   const computer2MonitorUI =
-    journeyStage === 'computer_lab' ? (
+    journeyStage === 'computer_lab' &&
+    !computerTransitioning &&
+    !isComputerFullscreen &&
+    !computerFeedbackBanner &&
+    activeComputerIndex === 2 ? (
       <Computer2SavingsMixerScreen
         state={state}
         update={update}
         addXP={addXP}
         mixerCompleted={mixerCompleted}
         onCompleteComputer2={handleCompleteComputer2}
+        isFullscreen={false}
+        onToggleFullscreen={toggleComputerFullscreen}
       />
     ) : null
 
   // COMPUTER 3 (SECTION 3): PORTFOLIO SIMULATION (Add/Remove 6 Schemes with >=1 Default + "When Can I Buy?" Investment Plan + Add/Remove History)
   const computer3MonitorUI =
-    journeyStage === 'computer_lab' ? (
+    journeyStage === 'computer_lab' &&
+    !computerTransitioning &&
+    !isComputerFullscreen &&
+    !computerFeedbackBanner &&
+    activeComputerIndex === 3 ? (
       <Computer3PortfolioSimulatorScreen
         state={state}
         update={update}
@@ -5308,30 +6224,24 @@ export default function Level1SchoolWorld({
         onDeleteSavedPortfolio={onDeleteSavedPortfolio}
         metricsCompleted={metricsCompleted}
         onCompleteComputer3={handleCompleteComputer3}
+        isFullscreen={false}
+        onToggleFullscreen={toggleComputerFullscreen}
       />
     ) : null
 
   return (
-    <div className="relative w-screen h-screen overflow-hidden bg-sky-200 select-none">
+    <div
+      className={`relative w-screen h-screen overflow-hidden select-none transition-colors duration-700 ${
+        isNightMode ? 'bg-slate-950' : 'bg-sky-200'
+      }`}
+    >
       {/* ═══════════════════════════════════════════════════════════════════
-          POLISHED INITIAL 3D SCENE LOADING OVERLAY ("Entering Learn2Invest...")
+          REFERENCE IMAGE LOADING SPLASH WITH VERY ENERGETIC MUSIC IN BACKGROUND
       ═══════════════════════════════════════════════════════════════════ */}
-      {isSceneLoading && (
-        <div className="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-xl flex flex-col items-center justify-center text-white transition-opacity duration-500">
-          <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-4xl shadow-[0_0_50px_rgba(16,185,129,0.6)] animate-bounce mb-5 border-2 border-white/40">
-            🌱
-          </div>
-          <div className="text-xs sm:text-sm font-black uppercase tracking-[0.25em] text-emerald-400 mb-2">
-            3D Interactive Financial Campus
-          </div>
-          <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight mb-4">
-            Entering Learn<span className="text-lime-400">2</span>Invest...
-          </h2>
-          <div className="w-64 sm:w-80 h-3 rounded-full bg-slate-800 overflow-hidden border border-white/15">
-            <div className="h-full w-full bg-gradient-to-r from-emerald-400 via-teal-400 to-amber-400 animate-pulse" />
-          </div>
-        </div>
-      )}
+      <LoadingSplashWithMusic
+        isOpen={showLoadingSplash}
+        onFinish={() => setShowLoadingSplash(false)}
+      />
 
       {/* ═══════════════════════════════════════════════════════════════════
           CONTINUOUS 3D WORLD CANVAS (ALL ZONES IN ONE UNIFIED 3D CAMPUS)
@@ -5339,18 +6249,25 @@ export default function Level1SchoolWorld({
       <Canvas
         shadows
         camera={{ position: [0, 3.3, 27.2], fov: 46, near: 0.1, far: 290 }}
-        gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.08 }}
+        gl={{
+          antialias: true,
+          toneMapping: THREE.ACESFilmicToneMapping,
+          toneMappingExposure: isNightMode ? 0.96 : 1.08,
+        }}
       >
         <Suspense fallback={null}>
-          <Sky sunPosition={[35, 22, 28]} turbidity={0.25} rayleigh={0.45} />
-          <fog attach="fog" args={['#fdf8f0', 38, 175]} />
-
-          <ambientLight intensity={0.84} color="#fffbeb" />
-          <hemisphereLight skyColor="#fff7ed" groundColor="#d69e66" intensity={0.65} />
+          <color attach="background" args={[isNightMode ? '#020617' : '#e0f2fe']} />
+          <fog attach="fog" args={[isNightMode ? '#020617' : '#fdf8f0', isNightMode ? 42 : 38, isNightMode ? 185 : 175]} />
+          <ambientLight intensity={isNightMode ? 0.52 : 0.84} color={isNightMode ? '#60a5fa' : '#fffbeb'} />
+          <hemisphereLight
+            skyColor={isNightMode ? '#1e293b' : '#fff7ed'}
+            groundColor={isNightMode ? '#0f172a' : '#d69e66'}
+            intensity={isNightMode ? 0.58 : 0.65}
+          />
           <directionalLight
-            position={[22, 36, 24]}
-            intensity={1.55}
-            color="#fff7ed"
+            position={isNightMode ? [-38, 48, -32] : [22, 36, 24]}
+            intensity={isNightMode ? 0.95 : 1.55}
+            color={isNightMode ? '#bfdbfe' : '#fff7ed'}
             castShadow
             shadow-mapSize-width={2048}
             shadow-mapSize-height={2048}
@@ -5359,11 +6276,29 @@ export default function Level1SchoolWorld({
             shadow-camera-top={45}
             shadow-camera-bottom={-45}
           />
+          <group visible={!isNightMode}>
+            <Sky sunPosition={[35, 22, 28]} turbidity={0.25} rayleigh={0.45} />
+          </group>
+          <group visible={isNightMode}>
+            <NightSkyMoonStars3D isNightMode={isNightMode} />
+          </group>
 
           <Level1CinematicCameraRig camStateRef={camStateRef} journeyStage={journeyStage} />
 
-          {/* 1. 3D School Yard & Neoclassical Facade (Image 3 Reference — No Fountain, More Plants & Students) */}
-          <SchoolYardAndFacade3D frontDoorOpenRef={frontDoorOpenRef} />
+          {/* 1. 3D School Yard & Neoclassical Facade with 6 Animated Student Balconies & Stylized Learn2Invest Crest */}
+          <SchoolYardAndFacade3D frontDoorOpenRef={frontDoorOpenRef} isNightMode={isNightMode} />
+
+          {/* 1B. Right-Side Garden 3 Interactive Stalls (Stall 1: Clothes >= 20 XP, Stall 2: Ice Cream < 10 XP, Stall 3: Spin the Finance Wheel) */}
+          <SchoolGardenStalls3D
+            isNightMode={isNightMode}
+            onSelectStall={(stallId) => {
+              soundEngine.playClick()
+              setActiveGardenStall(stallId)
+            }}
+          />
+
+          {/* 1C. Flat Campus Boulevard Road with Sidewalks, Crosswalks & Street Lights Connecting the School to the Side Bank & 24/7 ATM */}
+          <SchoolToBankRoadWithStreetLights3D isNightMode={isNightMode} />
 
           {/* 2. 3D Ground-Floor Veranda */}
           <SchoolVeranda3D />
@@ -5385,38 +6320,55 @@ export default function Level1SchoolWorld({
             computer3Content={computer3MonitorUI}
           />
 
-          {/* 7. Open Sunlit Veranda Exit (Image 1 Reference) & School Gates */}
-          <SchoolExitCorridorAndExterior3D />
+          {/* 7. Open Sunlit Veranda Exit & School Gates */}
+          <SchoolExitCorridorAndExterior3D isNightMode={isNightMode} />
 
-          {/* 8. Level 3 — 3D Bank Exterior, Bank Interior Lobby, Bank Employee Guide (Maya) & 2 Separate Cabins */}
-          <Level3BankZone3D
-            bankDoorOpenRef={bankDoorOpenRef}
-            activeBankSection={
-              journeyStage === 'bank_section' || journeyStage === 'walking_bank_section'
-                ? activeBankSection
-                : 0
-            }
-            completedBankSections={completedBankSections}
-            employeeWaveActive={
-              journeyStage === 'bank_employee' ||
-              journeyStage === 'walking_to_bank' ||
-              journeyStage === 'walking_bank_exit'
-            }
-            onEmployeeClick={() => {
-              if (journeyStage === 'bank_employee') {
-                handleEmployeeInteract()
+          {/* 8. Level 3 — 3D Bank Placed on the LEFT SIDE of the School (World x = -36, y = 0, z = +2.0) with Unique 24/7 ATM Pavilion & Customer Queue */}
+          <group position={[-36, -6.2, 84]}>
+            <Level3BankZone3D
+              bankDoorOpenRef={bankDoorOpenRef}
+              isNightMode={isNightMode}
+              isLobbyView={
+                journeyStage === 'bank_employee' ||
+                journeyStage === 'walking_to_bank' ||
+                journeyStage === 'walking_bank_exit'
               }
-            }}
-            onSelectSection={(secNum) => {
-              if (
-                secNum === 1 ||
-                completedBankSections.includes(secNum - 1) ||
-                completedBankSections.includes(secNum)
-              ) {
-                focusCameraOnBankSection(secNum, true)
+              activeBankSection={
+                journeyStage === 'bank_section' || journeyStage === 'walking_bank_section'
+                  ? activeBankSection
+                  : 0
               }
-            }}
-          />
+              completedBankSections={completedBankSections}
+              employeeWaveActive={
+                journeyStage === 'bank_employee' ||
+                journeyStage === 'walking_to_bank' ||
+                journeyStage === 'walking_bank_exit'
+              }
+              onEmployeeClick={() => {
+                if (journeyStage === 'bank_employee') {
+                  handleEmployeeInteract()
+                }
+              }}
+              onOpenAtm={() => {
+                startAtmQueueExperience()
+              }}
+              isPlayerInAtmQueue={isPlayerInAtmQueue}
+              atmQueuePosition={atmQueuePosition}
+              onOpenXpDeposit={() => {
+                soundEngine.playClick()
+                setShowXpDepositModal(true)
+              }}
+              onSelectSection={(secNum) => {
+                if (
+                  secNum === 1 ||
+                  completedBankSections.includes(secNum - 1) ||
+                  completedBankSections.includes(secNum)
+                ) {
+                  focusCameraOnBankSection(secNum, true)
+                }
+              }}
+            />
+          </group>
 
           {/* 9. Consistent 3D Player Character with Customized Outfit */}
           <PlayerCharacter3D
@@ -5428,19 +6380,25 @@ export default function Level1SchoolWorld({
           {/* 10. Animated 3D NPC Students Sitting, Talking in Groups & Walking Around Campus */}
           <AnimatedCampusStudents3D />
 
-          <Sparkles count={90} scale={[32, 10, 48]} position={[0, 4.2, -10]} size={2.4} speed={0.35} color="#fef08a" />
+          <Sparkles
+            count={90}
+            scale={[32, 10, 48]}
+            position={[0, 4.2, -10]}
+            size={2.4}
+            speed={0.35}
+            color={isNightMode ? '#fde047' : '#fef08a'}
+          />
           <ContactShadows position={[0, 0.02, 12]} opacity={0.3} scale={55} blur={2.2} far={15} />
         </Suspense>
       </Canvas>
 
       {/* ═══════════════════════════════════════════════════════════════════
           GLOBAL RESPONSIVE TOP BAR HUD
-          (BACK, HOME, STAGE PILL, PROGRESSIVE-LOCK STAGE SELECTOR, 🏆 RANK LIST,
-           🌐 LANGUAGE SELECTOR [EN | ಕನ್ನಡ | हिन्दी], ⭐ XP, 🎵 VOLUME, 🚪 LOGOUT)
-          Note: Campus Map blueprint button & AI Helper button removed per user request!
+          (BACK, HOME, 🏆 RANK LIST, 🗺️ MAP & ATM, STAGE PILL,
+           ☀️ DAYLIGHT / 🌙 NIGHT MODE THEME CHANGER, ⭐ XP, 🎵 VOLUME, 🚪 LOGOUT)
       ═══════════════════════════════════════════════════════════════════ */}
       <div className="absolute top-3.5 left-4 right-4 z-30 flex items-center justify-between pointer-events-none flex-wrap gap-2">
-        {/* Left: BACK (One Logical Step), HOME & Current Stage Pill */}
+        {/* Left: BACK (One Logical Step), HOME, Rank List, Map & Current Stage Pill */}
         <div className="flex items-center gap-2 pointer-events-auto flex-wrap">
           {journeyStage !== 'login' && journeyStage !== 'school_yard' && (
             <button
@@ -5472,6 +6430,19 @@ export default function Level1SchoolWorld({
           >
             <span>🏆</span>
             <span>Rank List</span>
+          </button>
+
+          {/* 🗺️ Campus Map & ATM Button */}
+          <button
+            onClick={() => {
+              soundEngine.playClick()
+              setShowCampusMapModal((m) => !m)
+            }}
+            className="px-3.5 py-2 rounded-full bg-slate-900/90 hover:bg-slate-800 text-cyan-200 border-2 border-cyan-400/60 text-xs sm:text-sm font-black shadow-lg backdrop-blur-md flex items-center gap-1.5 transition-transform hover:scale-105 active:scale-95 cursor-pointer"
+            title="Open Campus Map with School, Stalls, Road, Bank & ATM Location"
+          >
+            <span>🗺️</span>
+            <span>Map & ATM</span>
           </button>
 
           {/* Current Level & Journey Stage Pill */}
@@ -5513,8 +6484,8 @@ export default function Level1SchoolWorld({
                   : activeComputerIndex === 2
                     ? 'Floor 2 Lab • Computer 2 (Savings Mixer)'
                     : 'Floor 2 Lab • Computer 3 (Portfolio Sim)')}
-              {journeyStage === 'walking_to_exit' && 'Veranda Exit'}
-              {journeyStage === 'reached_exit' && 'Veranda Exit Reached'}
+              {journeyStage === 'walking_to_exit' && 'Walking Out School → Road → Bank'}
+              {journeyStage === 'reached_exit' && 'Road Path to Bank Reached'}
               {journeyStage === 'walking_to_bank' && 'Level 3 Bank Entry'}
               {journeyStage === 'bank_employee' && 'Level 3 Bank Lobby • Maya'}
               {(journeyStage === 'bank_section' || journeyStage === 'walking_bank_section') &&
@@ -5527,167 +6498,58 @@ export default function Level1SchoolWorld({
           </div>
         </div>
 
-        {/* Right: Progressive-Lock Stage Selector, Language Selector, XP Counter, Volume & Logout */}
+        {/* Right: Daylight / Night Mode Theme Changer, XP & Banked XP, Volume & Logout */}
         <div className="flex items-center gap-2 pointer-events-auto flex-wrap">
-          <select
-            value={
-              journeyStage === 'computer_lab'
-                ? `computer_${activeComputerIndex}`
-                : journeyStage === 'bank_section' || journeyStage === 'walking_bank_section'
-                  ? `bank_sec_${activeBankSection}`
-                  : journeyStage === 'school_yard'
-                    ? 'login'
-                    : journeyStage
-            }
-            onChange={(e) => {
-              const val = e.target.value
+          {/* ☀️ Daylight / 🌙 Night Mode Theme Changer */}
+          <button
+            type="button"
+            onClick={() => {
               soundEngine.playClick()
-              if (val === 'login') {
-                handleGlobalHome()
-              } else if (val === 'classroom_projector') {
-                if (!hasLoggedIn) return
-                if (timelineRef.current) timelineRef.current.kill()
-                charStateRef.current.visible = true
-                charStateRef.current.x = -16.1
-                charStateRef.current.y = 0.08
-                charStateRef.current.z = -12.68
-                charStateRef.current.pose = 'seated'
-                gsap.to(camStateRef.current, {
-                  x: -14.0,
-                  y: 3.55,
-                  z: -9.85,
-                  lookX: -14.0,
-                  lookY: 3.65,
-                  lookZ: -16.85,
-                  duration: 0.9,
-                })
-                setJourneyStage('classroom_projector')
-                soundEngine.startAmbientMusic('classroom', true)
-              } else if (val === 'walking_to_exam' && isQuizUnlocked) {
-                beginWalkToExaminationCenter()
-              } else if (val === 'exam_projector' && isQuizUnlocked) {
-                jumpDirectlyToExaminationQuiz()
-              } else if (val === 'walking_to_floor2_lab' && isComputer1Unlocked) {
-                beginWalkToFloor2AndComputerLab()
-              } else if (val === 'computer_1' && isComputer1Unlocked) {
-                setJourneyStage('computer_lab')
-                soundEngine.startAmbientMusic('computer_lab', true)
-                focusCameraOnComputer(1, false)
-              } else if (val === 'computer_2' && isComputer2Unlocked) {
-                setJourneyStage('computer_lab')
-                soundEngine.startAmbientMusic('computer_lab', true)
-                focusCameraOnComputer(2, false)
-              } else if (val === 'computer_3' && isComputer3Unlocked) {
-                setJourneyStage('computer_lab')
-                soundEngine.startAmbientMusic('computer_lab', true)
-                focusCameraOnComputer(3, false)
-              } else if (val === 'walking_to_exit' && isLevel3Unlocked) {
-                beginWalkToExit(false)
-              } else if (val === 'walking_to_bank' && isLevel3Unlocked) {
-                beginWalkToBank()
-              } else if (val === 'bank_employee' && isLevel3Unlocked) {
-                if (timelineRef.current) timelineRef.current.kill()
-                bankDoorOpenRef.current = 1
-                charStateRef.current.visible = true
-                charStateRef.current.x = 0
-                charStateRef.current.y = 6.84
-                charStateRef.current.z = -90.0
-                charStateRef.current.rotY = Math.PI
-                charStateRef.current.pose = 'idle'
-                gsap.to(camStateRef.current, {
-                  x: 1.65,
-                  y: 8.85,
-                  z: -86.4,
-                  lookX: -0.2,
-                  lookY: 8.45,
-                  lookZ: -93.2,
-                  duration: 0.9,
-                })
-                setJourneyStage('bank_employee')
-                soundEngine.startAmbientMusic('bank_interior', true)
-              } else if (val === 'bank_sec_1' && isLevel3Unlocked) {
-                bankDoorOpenRef.current = 1
-                soundEngine.startAmbientMusic('bank_interior', true)
-                focusCameraOnBankSection(1, false)
-              } else if (val === 'bank_sec_2' && isBankSec2Unlocked) {
-                bankDoorOpenRef.current = 1
-                soundEngine.startAmbientMusic('bank_interior', true)
-                focusCameraOnBankSection(2, false)
-              } else if (val === 'journey_complete' && isJourneyCompleteUnlocked) {
-                beginFinalBankExitWalk()
-              }
+              setIsNightMode((prev) => !prev)
             }}
-            className="px-3.5 py-2 rounded-full bg-slate-900/90 border-2 border-cyan-400/60 text-cyan-200 text-xs font-black backdrop-blur-md cursor-pointer focus:outline-none shadow-lg max-w-[235px]"
-            title="Progressive Journey Stage Selector (Complete each section to unlock the next)"
+            className={`px-3.5 py-2 rounded-full border-2 text-xs font-black backdrop-blur-md shadow-lg flex items-center gap-1.5 transition-all hover:scale-105 active:scale-95 cursor-pointer ${
+              isNightMode
+                ? 'bg-indigo-950/95 border-amber-300 text-amber-200 shadow-[0_0_20px_rgba(251,191,36,0.45)]'
+                : 'bg-amber-400/95 border-white text-slate-950 shadow-[0_0_18px_rgba(251,191,36,0.45)]'
+            }`}
+            title="Switch between Daylight (Default) and Night Mode with Moon, Stars & Campus Lights"
           >
-            <option value="login">
-              {hasLoggedIn ? '📍 1. School Yard (Campus Home)' : '📍 1. School Yard (Login)'}
-            </option>
-            <option value="classroom_projector" disabled={!hasLoggedIn}>
-              {hasLoggedIn ? '📍 2. Classroom 101 (5 Videos)' : '🔒 2. Classroom 101 (Login First)'}
-            </option>
-            <option value="exam_projector" disabled={!isQuizUnlocked}>
-              {isQuizUnlocked ? '📍 3. Examination Center (10-Q Quiz)' : '🔒 3. Examination Quiz (Complete Videos)'}
-            </option>
-            <option value="computer_1" disabled={!isComputer1Unlocked}>
-              {isComputer1Unlocked ? '💻 4. Computer 1: 6 Scheme Simulators' : '🔒 4. Level 2 Computer 1 (Complete Quiz)'}
-            </option>
-            <option value="computer_2" disabled={!isComputer2Unlocked}>
-              {isComputer2Unlocked ? '🎛️ 5. Computer 2: Savings Mixer Studio' : '🔒 5. Level 2 Computer 2 (Complete Comp 1)'}
-            </option>
-            <option value="computer_3" disabled={!isComputer3Unlocked}>
-              {isComputer3Unlocked ? '📊 6. Computer 3: Portfolio Simulation' : '🔒 6. Level 2 Computer 3 (Complete Comp 2)'}
-            </option>
-            <option value="walking_to_exit" disabled={!isLevel3Unlocked}>
-              {isLevel3Unlocked ? '🚪 7. Veranda Exit → Level 3 Bank' : '🔒 7. Veranda Exit (Complete Level 2)'}
-            </option>
-            <option value="bank_employee" disabled={!isLevel3Unlocked}>
-              {isLevel3Unlocked ? '👩‍💼 8. Level 3 Bank Lobby (Maya)' : '🔒 8. Level 3 Bank Lobby (Locked)'}
-            </option>
-            <option value="bank_sec_1" disabled={!isLevel3Unlocked}>
-              {isLevel3Unlocked ? '🏛️ 9. Cabin 1: Banking Slip Writing' : '🔒 9. Cabin 1: Banking Slip Writing (Locked)'}
-            </option>
-            <option value="bank_sec_2" disabled={!isBankSec2Unlocked}>
-              {isBankSec2Unlocked ? '🛡️ 10. Cabin 2: Digital Banking Safety' : '🔒 10. Cabin 2: Digital Banking Safety (Locked)'}
-            </option>
-            <option value="journey_complete" disabled={!isJourneyCompleteUnlocked}>
-              {isJourneyCompleteUnlocked ? '🏆 11. All 3 Levels Complete & Route Map' : '🔒 11. Final Route Map (Complete Level 3)'}
-            </option>
-          </select>
+            <span>{isNightMode ? '🌙' : '☀️'}</span>
+            <span>{isNightMode ? 'Night Mode' : 'Daylight'}</span>
+          </button>
 
-          {/* 🌐 Language Selector (English default, Kannada, Hindi) */}
-          <div
-            data-no-auto-translate="true"
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-slate-900/90 border-2 border-emerald-400/60 text-white text-xs font-black backdrop-blur-md shadow-lg"
-            title="Choose Language: English, Kannada, or Hindi"
+          {/* ⛶ Level 2 Computer Full Screen Toggle Button */}
+          {journeyStage === 'computer_lab' && (
+            <button
+              type="button"
+              onClick={() => {
+                soundEngine.playClick()
+                setIsComputerFullscreen((prev) => !prev)
+              }}
+              className="px-3.5 py-2 rounded-full bg-cyan-400 hover:bg-cyan-300 border-2 border-white text-slate-950 text-xs font-black shadow-lg flex items-center gap-1.5 transition-transform hover:scale-105 cursor-pointer"
+              title="Toggle Full Screen view for the active Level 2 Computer screen"
+            >
+              <span>{isComputerFullscreen ? '🗗' : '⛶'}</span>
+              <span>{isComputerFullscreen ? 'Exit Full Screen' : 'Full Screen Computer'}</span>
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={() => {
+              soundEngine.playClick()
+              setShowAtmModal(true)
+            }}
+            className="px-3.5 py-2 rounded-full bg-slate-900/90 hover:bg-slate-800 border-2 border-amber-400/60 text-amber-300 text-xs sm:text-sm font-black backdrop-blur-md shadow-lg flex items-center gap-2 cursor-pointer"
+            title="Wallet XP & Banked XP Vault (Click to Open ATM / Vault)"
           >
-            <span>🌐</span>
-            {[
-              { code: 'en', label: 'EN' },
-              { code: 'kn', label: 'ಕನ್ನಡ' },
-              { code: 'hi', label: 'हिन्दी' },
-            ].map((l) => (
-              <button
-                key={l.code}
-                type="button"
-                onClick={() => {
-                  soundEngine.playClick()
-                  if (setLang) setLang(l.code)
-                }}
-                className={`px-2 py-0.5 rounded-full text-[11px] font-black transition-all cursor-pointer ${
-                  lang === l.code
-                    ? 'bg-emerald-400 text-slate-950 shadow'
-                    : 'text-slate-300 hover:text-white'
-                }`}
-              >
-                {l.label}
-              </button>
-            ))}
-          </div>
-
-          <div className="px-3.5 py-2 rounded-full bg-slate-900/90 border-2 border-amber-400/60 text-amber-300 text-xs sm:text-sm font-black backdrop-blur-md shadow-lg">
-            ⭐ {state?.xp || 0} XP
-          </div>
+            <span>⭐ {state?.xp || 0} XP</span>
+            {bankedXp > 0 && (
+              <span className="px-2 py-0.5 rounded-full bg-emerald-500/25 border border-emerald-400/60 text-emerald-300 text-[11px]">
+                🏦 {bankedXp} Banked
+              </span>
+            )}
+          </button>
 
           <div className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-slate-900/90 border border-white/25 text-white text-xs backdrop-blur-md shadow-lg">
             <span>{audioVolume === 0 ? '🔇' : '🎵'}</span>
@@ -5720,93 +6582,95 @@ export default function Level1SchoolWorld({
       </div>
 
       {/* ═══════════════════════════════════════════════════════════════════
-          ON-SCREEN ARROW KEYS CONTROLLER (↑ ↓ ← →) + KEYBOARD ARROW HINT
+          ON-SCREEN ARROW KEYS CONTROLLER (↑ ↓ ← →) + 360° TURN (ONLY WHEN LOGGED IN)
       ═══════════════════════════════════════════════════════════════════ */}
-      <div className="absolute bottom-5 left-4 z-30 flex items-center gap-2.5 pointer-events-auto">
-        <div className="p-2 rounded-2xl bg-slate-950/85 border border-emerald-400/50 backdrop-blur-md shadow-xl flex flex-col items-center gap-1">
-          <button
-            type="button"
-            onMouseDown={() => (pressedKeysRef.current.up = true)}
-            onMouseUp={() => {
-              pressedKeysRef.current.up = false
-              charStateRef.current.pose = 'idle'
-            }}
-            onMouseLeave={() => (pressedKeysRef.current.up = false)}
-            onTouchStart={() => (pressedKeysRef.current.up = true)}
-            onTouchEnd={() => {
-              pressedKeysRef.current.up = false
-              charStateRef.current.pose = 'idle'
-            }}
-            onClick={() => stepCharacterManual(0, -1.8)}
-            className="w-8 h-7 rounded-lg bg-slate-800 hover:bg-emerald-500 hover:text-slate-950 text-emerald-300 border border-white/20 text-xs font-black flex items-center justify-center cursor-pointer transition-colors"
-            title="Move Forward (Up Arrow / W)"
-          >
-            ↑
-          </button>
-          <div className="flex items-center gap-1">
+      {hasLoggedIn && (
+        <div className="absolute bottom-5 left-4 z-30 flex items-center gap-2.5 pointer-events-auto">
+          <div className="p-2.5 rounded-2xl bg-slate-950/90 border border-emerald-400/50 backdrop-blur-md shadow-xl flex flex-col items-center gap-1">
             <button
               type="button"
-              onMouseDown={() => (pressedKeysRef.current.left = true)}
+              onMouseDown={() => (pressedKeysRef.current.up = true)}
               onMouseUp={() => {
-                pressedKeysRef.current.left = false
+                pressedKeysRef.current.up = false
                 charStateRef.current.pose = 'idle'
               }}
-              onMouseLeave={() => (pressedKeysRef.current.left = false)}
-              onTouchStart={() => (pressedKeysRef.current.left = true)}
+              onMouseLeave={() => (pressedKeysRef.current.up = false)}
+              onTouchStart={() => (pressedKeysRef.current.up = true)}
               onTouchEnd={() => {
-                pressedKeysRef.current.left = false
+                pressedKeysRef.current.up = false
                 charStateRef.current.pose = 'idle'
               }}
-              onClick={() => stepCharacterManual(-1.8, 0)}
-              className="w-8 h-7 rounded-lg bg-slate-800 hover:bg-emerald-500 hover:text-slate-950 text-emerald-300 border border-white/20 text-xs font-black flex items-center justify-center cursor-pointer transition-colors"
-              title="Move Left (Left Arrow / A)"
+              onClick={() => stepCharacterManual(0, 1.4, false)}
+              className="w-9 h-7 rounded-lg bg-slate-800 hover:bg-emerald-500 hover:text-slate-950 text-emerald-300 border border-white/20 text-xs font-black flex items-center justify-center cursor-pointer transition-colors"
+              title="Walk Forward in Facing Direction (Up Arrow / W)"
             >
-              ←
+              ↑
             </button>
-            <button
-              type="button"
-              onMouseDown={() => (pressedKeysRef.current.down = true)}
-              onMouseUp={() => {
-                pressedKeysRef.current.down = false
-                charStateRef.current.pose = 'idle'
-              }}
-              onMouseLeave={() => (pressedKeysRef.current.down = false)}
-              onTouchStart={() => (pressedKeysRef.current.down = true)}
-              onTouchEnd={() => {
-                pressedKeysRef.current.down = false
-                charStateRef.current.pose = 'idle'
-              }}
-              onClick={() => stepCharacterManual(0, 1.8)}
-              className="w-8 h-7 rounded-lg bg-slate-800 hover:bg-emerald-500 hover:text-slate-950 text-emerald-300 border border-white/20 text-xs font-black flex items-center justify-center cursor-pointer transition-colors"
-              title="Move Backward (Down Arrow / S)"
-            >
-              ↓
-            </button>
-            <button
-              type="button"
-              onMouseDown={() => (pressedKeysRef.current.right = true)}
-              onMouseUp={() => {
-                pressedKeysRef.current.right = false
-                charStateRef.current.pose = 'idle'
-              }}
-              onMouseLeave={() => (pressedKeysRef.current.right = false)}
-              onTouchStart={() => (pressedKeysRef.current.right = true)}
-              onTouchEnd={() => {
-                pressedKeysRef.current.right = false
-                charStateRef.current.pose = 'idle'
-              }}
-              onClick={() => stepCharacterManual(1.8, 0)}
-              className="w-8 h-7 rounded-lg bg-slate-800 hover:bg-emerald-500 hover:text-slate-950 text-emerald-300 border border-white/20 text-xs font-black flex items-center justify-center cursor-pointer transition-colors"
-              title="Move Right (Right Arrow / D)"
-            >
-              →
-            </button>
-          </div>
-          <div className="text-[9px] font-black uppercase tracking-wider text-slate-400">
-            Arrow Keys Walk
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onMouseDown={() => (pressedKeysRef.current.left = true)}
+                onMouseUp={() => {
+                  pressedKeysRef.current.left = false
+                  charStateRef.current.pose = 'idle'
+                }}
+                onMouseLeave={() => (pressedKeysRef.current.left = false)}
+                onTouchStart={() => (pressedKeysRef.current.left = true)}
+                onTouchEnd={() => {
+                  pressedKeysRef.current.left = false
+                  charStateRef.current.pose = 'idle'
+                }}
+                onClick={() => stepCharacterManual(-0.42, 0.35, false)}
+                className="w-9 h-7 rounded-lg bg-slate-800 hover:bg-emerald-500 hover:text-slate-950 text-emerald-300 border border-white/20 text-xs font-black flex items-center justify-center cursor-pointer transition-colors"
+                title="Turn 360° Left & Follow with Camera (Left Arrow / A)"
+              >
+                ↺
+              </button>
+              <button
+                type="button"
+                onMouseDown={() => (pressedKeysRef.current.down = true)}
+                onMouseUp={() => {
+                  pressedKeysRef.current.down = false
+                  charStateRef.current.pose = 'idle'
+                }}
+                onMouseLeave={() => (pressedKeysRef.current.down = false)}
+                onTouchStart={() => (pressedKeysRef.current.down = true)}
+                onTouchEnd={() => {
+                  pressedKeysRef.current.down = false
+                  charStateRef.current.pose = 'idle'
+                }}
+                onClick={() => stepCharacterManual(0, 1.4, true)}
+                className="w-9 h-7 rounded-lg bg-slate-800 hover:bg-emerald-500 hover:text-slate-950 text-emerald-300 border border-white/20 text-xs font-black flex items-center justify-center cursor-pointer transition-colors"
+                title="Turn Around 180° & Walk Back with Automatic Camera Orbit (Down Arrow / S)"
+              >
+                ↓
+              </button>
+              <button
+                type="button"
+                onMouseDown={() => (pressedKeysRef.current.right = true)}
+                onMouseUp={() => {
+                  pressedKeysRef.current.right = false
+                  charStateRef.current.pose = 'idle'
+                }}
+                onMouseLeave={() => (pressedKeysRef.current.right = false)}
+                onTouchStart={() => (pressedKeysRef.current.right = true)}
+                onTouchEnd={() => {
+                  pressedKeysRef.current.right = false
+                  charStateRef.current.pose = 'idle'
+                }}
+                onClick={() => stepCharacterManual(0.42, 0.35, false)}
+                className="w-9 h-7 rounded-lg bg-slate-800 hover:bg-emerald-500 hover:text-slate-950 text-emerald-300 border border-white/20 text-xs font-black flex items-center justify-center cursor-pointer transition-colors"
+                title="Turn 360° Right & Follow with Camera (Right Arrow / D)"
+              >
+                ↻
+              </button>
+            </div>
+            <div className="text-[9px] font-black uppercase tracking-wider text-emerald-300/90">
+              360° Walk & Auto-Cam
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* ═══════════════════════════════════════════════════════════════════
           🏆 TOP LEARNERS RANK LIST MODAL (Opened from Top Bar)
@@ -5910,7 +6774,7 @@ export default function Level1SchoolWorld({
       )}
 
       {/* ═══════════════════════════════════════════════════════════════════
-          ⛶ FULL-SCREEN CINEMA VIDEO MODAL (Guaranteed Full Viewport Playback)
+          ⛶ FULL-SCREEN CINEMA VIDEO MODAL (Guaranteed Single Screen + Zoom Out)
       ═══════════════════════════════════════════════════════════════════ */}
       {isVideoFullscreen && (
         <div className="fixed inset-0 z-50 bg-slate-950 flex flex-col justify-between text-white select-none">
@@ -5929,6 +6793,14 @@ export default function Level1SchoolWorld({
               <div className="px-3.5 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-400 text-emerald-300 text-xs font-black">
                 Watched: {watchPct}% {is85PercentReached ? '✓ (85%+)' : '/ 85% Req'}
               </div>
+              <button
+                onClick={closeVideoFullscreen}
+                className="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-xs cursor-pointer shadow-md flex items-center gap-1.5"
+                title="Zoom Out back to Classroom Projector View"
+              >
+                <span>🔍</span>
+                <span>Zoom Out (Normal View)</span>
+              </button>
               <button
                 onClick={closeVideoFullscreen}
                 className="px-4 py-2 rounded-xl bg-rose-500 hover:bg-rose-400 text-white font-black text-xs cursor-pointer"
@@ -5962,6 +6834,12 @@ export default function Level1SchoolWorld({
             </span>
             <div className="flex items-center gap-3">
               <button
+                onClick={closeVideoFullscreen}
+                className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-white/20 text-white font-black text-xs cursor-pointer"
+              >
+                🔍 Zoom Out to Classroom
+              </button>
+              <button
                 onClick={() => {
                   setWatchPct(100)
                   closeVideoFullscreen()
@@ -5977,72 +6855,224 @@ export default function Level1SchoolWorld({
       )}
 
       {/* ═══════════════════════════════════════════════════════════════════
+          ⛶ LEVEL 2 FULL-SCREEN COMPUTER WORKSTATION OVERLAY (Displays All Info Clearly!)
+      ═══════════════════════════════════════════════════════════════════ */}
+      {isComputerFullscreen && journeyStage === 'computer_lab' && !computerFeedbackBanner && (
+        <div className="fixed inset-0 z-40 bg-slate-950/95 backdrop-blur-xl pt-16 pb-4 px-3 sm:px-6 flex flex-col items-center justify-between pointer-events-auto overflow-hidden">
+          {/* Top Workstation Switcher & Exit Full Screen Bar */}
+          <div className="w-full max-w-[1360px] mb-2.5 px-4 py-2.5 rounded-2xl bg-slate-900/95 border border-cyan-400/50 flex flex-wrap items-center justify-between gap-3 shrink-0 shadow-lg">
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <span className="px-3 py-1 rounded-full bg-cyan-400 text-slate-950 font-black text-xs uppercase tracking-wider">
+                🖥️ Level 2 Full Screen Mode
+              </span>
+              <div className="flex items-center gap-1.5">
+                {[
+                  { idx: 1, title: 'Computer 1: Needs vs Wants & Budget', unlocked: isComputer1Unlocked, done: completedComputers.includes(1) },
+                  { idx: 2, title: 'Computer 2: Savings Goal Mixer', unlocked: isComputer2Unlocked, done: completedComputers.includes(2) },
+                  { idx: 3, title: 'Computer 3: Risk vs Return Portfolio', unlocked: isComputer3Unlocked, done: completedComputers.includes(3) },
+                ].map((comp) => (
+                  <button
+                    key={comp.idx}
+                    type="button"
+                    disabled={!comp.unlocked}
+                    onClick={() => {
+                      if (!comp.unlocked) return
+                      soundEngine.playClick()
+                      setActiveComputerIndex(comp.idx)
+                    }}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-black border transition-all flex items-center gap-1.5 ${
+                      activeComputerIndex === comp.idx
+                        ? 'bg-emerald-400 text-slate-950 border-white shadow-md cursor-pointer'
+                        : comp.unlocked
+                          ? 'bg-slate-800 text-white border-white/20 hover:bg-slate-700 cursor-pointer'
+                          : 'bg-slate-900/50 text-slate-500 border-white/10 cursor-not-allowed'
+                    }`}
+                  >
+                    <span>{comp.done ? '✅' : comp.unlocked ? '💻' : '🔒'}</span>
+                    <span>{comp.title}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                soundEngine.playClick()
+                setIsComputerFullscreen(false)
+              }}
+              className="px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs shadow-md flex items-center gap-1.5 cursor-pointer transition-transform hover:scale-105"
+            >
+              <span>🗗</span>
+              <span>Exit Full Screen (3D Desk View)</span>
+            </button>
+          </div>
+
+          {/* Full-Screen Active Computer Screen Container */}
+          <div className="w-full max-w-[1360px] flex-1 min-h-0 rounded-3xl overflow-hidden border-2 border-cyan-400/70 shadow-[0_20px_80px_rgba(0,0,0,0.85)] bg-white flex flex-col">
+            {activeComputerIndex === 1 && (
+              <Computer1SimulatorScreen
+                state={state}
+                update={update}
+                addXP={addXP}
+                isCompleted={completedComputers.includes(1)}
+                onCompleteModule={() => handleCompleteComputerModule(1)}
+                onBackToFloor1={handleBackToFloor1Quiz}
+                isFullscreen={true}
+                onToggleFullscreen={() => setIsComputerFullscreen(false)}
+              />
+            )}
+            {activeComputerIndex === 2 && (
+              <Computer2SavingsMixerScreen
+                state={state}
+                update={update}
+                addXP={addXP}
+                isCompleted={completedComputers.includes(2)}
+                onCompleteModule={() => handleCompleteComputerModule(2)}
+                onBackOneStep={() => focusCameraOnComputer(1, false)}
+                isFullscreen={true}
+                onToggleFullscreen={() => setIsComputerFullscreen(false)}
+              />
+            )}
+            {activeComputerIndex === 3 && (
+              <Computer3PortfolioSimulatorScreen
+                state={state}
+                update={update}
+                addXP={addXP}
+                isCompleted={completedComputers.includes(3)}
+                onCompleteModule={() => handleCompleteComputerModule(3)}
+                onFinishAllLevel2={beginWalkToExit}
+                onBackOneStep={() => focusCameraOnComputer(2, false)}
+                isFullscreen={true}
+                onToggleFullscreen={() => setIsComputerFullscreen(false)}
+              />
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════════════════
           SUBTLE LEVEL 2 & LEVEL 3 ARRIVAL BANNERS
       ═══════════════════════════════════════════════════════════════════ */}
       {showLevel2ArrivalBanner && (
-        <div className="absolute top-20 left-1/2 -translate-x-1/2 z-30 px-9 py-4 rounded-3xl bg-slate-900/95 border-2 border-cyan-400 shadow-[0_0_45px_rgba(34,211,238,0.6)] text-center pointer-events-none animate-bounce">
-          <div className="text-xs font-black uppercase tracking-widest text-cyan-300">
+        <div className="absolute top-20 left-1/2 -translate-x-1/2 z-30 px-9 py-4 rounded-3xl bg-white/95 backdrop-blur-xl border-2 border-cyan-500 shadow-[0_0_45px_rgba(34,211,238,0.6)] text-center pointer-events-none animate-bounce">
+          <div className="text-xs font-black uppercase tracking-widest text-cyan-800">
             Ascending Grand Staircase • Floor 2
           </div>
-          <div className="text-xl sm:text-2xl font-black text-white">LEVEL 2 — FINANCIAL SIMULATION LAB</div>
+          <div className="text-xl sm:text-2xl font-black text-black">LEVEL 2 — FINANCIAL SIMULATION LAB</div>
         </div>
       )}
 
       {showLevel3ArrivalBanner && (
-        <div className="absolute top-20 left-1/2 -translate-x-1/2 z-30 px-9 py-4 rounded-3xl bg-slate-900/95 border-2 border-blue-400 shadow-[0_0_45px_rgba(59,130,246,0.65)] text-center pointer-events-none animate-bounce">
-          <div className="text-xs font-black uppercase tracking-widest text-blue-300">
+        <div className="absolute top-20 left-1/2 -translate-x-1/2 z-30 px-9 py-4 rounded-3xl bg-white/95 backdrop-blur-xl border-2 border-blue-500 shadow-[0_0_45px_rgba(59,130,246,0.65)] text-center pointer-events-none animate-bounce">
+          <div className="text-xs font-black uppercase tracking-widest text-blue-800">
             Entering Learn2Invest Financial Center
           </div>
-          <div className="text-xl sm:text-2xl font-black text-white">🏛️ LEVEL 3 — REAL-WORLD BANKING</div>
+          <div className="text-xl sm:text-2xl font-black text-black">🏛️ LEVEL 3 — REAL-WORLD BANKING</div>
         </div>
       )}
 
       {/* ═══════════════════════════════════════════════════════════════════
           COMPUTER MODULE & BANK SECTION COMPLETION FEEDBACK TOASTS
+          (z-50 + Centered Celebration Overlay so it NEVER hides behind 3D screens!)
       ═══════════════════════════════════════════════════════════════════ */}
       {computerFeedbackBanner && (
-        <div className="absolute top-20 left-1/2 -translate-x-1/2 z-30 px-9 py-5 rounded-3xl bg-slate-900/95 border-2 border-amber-400 shadow-[0_0_50px_rgba(251,191,36,0.65)] text-center pointer-events-none">
-          <div className="inline-block px-4 py-1 rounded-full bg-amber-400 text-slate-950 font-black text-sm mb-1.5">
-            ⭐ {computerFeedbackBanner.xp}
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/55 backdrop-blur-sm pointer-events-none">
+          <div className="px-10 py-7 rounded-3xl bg-white border-4 border-amber-400 shadow-[0_25px_90px_rgba(251,191,36,0.85)] text-center max-w-lg mx-4 animate-bounce">
+            <div className="text-5xl mb-2">🎉🏆✨</div>
+            <div className="inline-block px-5 py-1.5 rounded-full bg-gradient-to-r from-amber-400 to-yellow-300 border-2 border-amber-600 text-black font-black text-base mb-2 shadow-md">
+              ⭐ {computerFeedbackBanner.xp}
+            </div>
+            <div className="text-2xl sm:text-3xl font-black text-black leading-tight">
+              {computerFeedbackBanner.title}
+            </div>
+            <div className="text-sm sm:text-base font-extrabold text-emerald-800 mt-2">
+              {computerFeedbackBanner.sub}
+            </div>
           </div>
-          <div className="text-xl font-black text-white">{computerFeedbackBanner.title}</div>
-          <div className="text-sm font-bold text-emerald-300 mt-1">{computerFeedbackBanner.sub}</div>
         </div>
       )}
 
       {bankSectionFeedbackBanner && (
-        <div className="absolute top-20 left-1/2 -translate-x-1/2 z-40 px-9 py-5 rounded-3xl bg-slate-900/95 border-2 border-amber-400 shadow-[0_0_55px_rgba(251,191,36,0.75)] text-center pointer-events-none">
-          <div className="inline-block px-4 py-1 rounded-full bg-amber-400 text-slate-950 font-black text-sm mb-1.5">
+        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-50 px-9 py-5 rounded-3xl bg-white/95 backdrop-blur-xl border-3 border-amber-500 shadow-[0_0_55px_rgba(251,191,36,0.85)] text-center pointer-events-none">
+          <div className="inline-block px-4 py-1 rounded-full bg-amber-400 text-black font-black text-sm mb-1.5">
             ⭐ {bankSectionFeedbackBanner.xp}
           </div>
-          <div className="text-xl sm:text-2xl font-black text-white">{bankSectionFeedbackBanner.title}</div>
-          <div className="text-sm font-bold text-emerald-300 mt-1">{bankSectionFeedbackBanner.sub}</div>
+          <div className="text-xl sm:text-2xl font-black text-black">{bankSectionFeedbackBanner.title}</div>
+          <div className="text-sm font-bold text-slate-900 mt-1">{bankSectionFeedbackBanner.sub}</div>
         </div>
       )}
 
       {/* ═══════════════════════════════════════════════════════════════════
-          SCHOOL VERANDA EXIT BANNER (Before or Manual Trigger to Level 3 Bank)
+          🏧 24/7 ATM LIVE QUEUE BANNER (Character waits behind 2 customers withdrawing cash!)
+      ═══════════════════════════════════════════════════════════════════ */}
+      {isPlayerInAtmQueue && (
+        <div className="fixed bottom-7 left-1/2 -translate-x-1/2 z-40 w-[min(94vw,680px)] px-6 py-5 rounded-3xl bg-slate-950/95 backdrop-blur-xl border-2 border-cyan-400 shadow-[0_20px_70px_rgba(34,211,238,0.55)] text-white flex flex-col sm:flex-row items-center justify-between gap-4 pointer-events-auto">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-600 text-slate-950 font-black text-3xl flex items-center justify-center shadow-lg shrink-0 animate-pulse">
+              🏧
+            </div>
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-black uppercase tracking-wider">
+                  {atmQueuePosition > 0 ? `Waiting in ATM Queue • Position #${atmQueuePosition + 1}` : 'Your Turn at ATM!'}
+                </span>
+                <span className="text-xs font-extrabold text-cyan-300">
+                  24/7 Cash & XP Dispenser
+                </span>
+              </div>
+              <div className="text-base sm:text-lg font-black text-white mt-1">
+                {atmQueuePosition === 2 && '💵 Customer #1 is withdrawing ₹500 notes... (2 people ahead)'}
+                {atmQueuePosition === 1 && '💵 Customer #2 stepped up to withdraw cash... (1 person ahead)'}
+                {atmQueuePosition === 0 && '✅ Queue cleared! You are now at the ATM counter!'}
+              </div>
+              <div className="text-xs font-bold text-slate-300 mt-0.5">
+                Watch the 3D ATM pavilion as each person collects their cash notes and steps away!
+              </div>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => {
+              if (atmQueueTimerRef.current) {
+                clearTimeout(atmQueueTimerRef.current)
+                atmQueueTimerRef.current = null
+              }
+              setIsPlayerInAtmQueue(false)
+              setAtmQueuePosition(0)
+              setShowAtmModal(true)
+            }}
+            className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-cyan-400 to-emerald-400 text-slate-950 font-black text-xs sm:text-sm shadow-lg hover:scale-105 transition-transform cursor-pointer shrink-0"
+          >
+            ⚡ Open ATM Now →
+          </button>
+        </div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          SCHOOL EXIT & ROAD TO BANK BANNER (Crisp Black Font on Frosted Blurred Card)
       ═══════════════════════════════════════════════════════════════════ */}
       {journeyStage === 'reached_exit' && (
-        <div className="absolute bottom-7 left-1/2 -translate-x-1/2 z-30 w-[min(94vw,820px)] px-7 py-5 rounded-3xl bg-slate-900/95 backdrop-blur-xl border-2 border-emerald-400 shadow-[0_15px_55px_rgba(16,185,129,0.55)] text-white flex flex-col sm:flex-row items-center justify-between gap-5">
+        <div className="absolute bottom-7 left-1/2 -translate-x-1/2 z-30 w-[min(94vw,840px)] px-7 py-5 rounded-3xl bg-white/92 backdrop-blur-xl border-2 border-emerald-500 shadow-[0_15px_55px_rgba(16,185,129,0.45)] text-black flex flex-col sm:flex-row items-center justify-between gap-5">
           <div className="flex items-center gap-4">
-            <div className="text-4xl animate-bounce">🎓🏛️</div>
+            <div className="text-4xl animate-bounce">🎓🛣️🏛️</div>
             <div>
-              <div className="text-xs font-black uppercase tracking-widest text-emerald-400">
-                Exited Through School Veranda • Proceeding to Level 3 Bank
+              <div className="text-xs font-black uppercase tracking-widest text-emerald-800">
+                Exited School Front Doors • Walked Along Side Boulevard to the Bank
               </div>
-              <div className="text-lg sm:text-xl font-black text-white">
-                {characterChoice === 'leo' || characterChoice === 'max' ? 'Leo' : 'Luna'} Walked Outside Through the Veranda EXIT!
+              <div className="text-lg sm:text-xl font-black text-black">
+                {characterChoice === 'leo' || characterChoice === 'max' ? 'Leo' : 'Luna'} Walked Along the Campus Boulevard to the Side Bank & 24/7 ATM!
               </div>
-              <div className="text-xs sm:text-sm text-slate-300 font-medium">
-                Next Stop: 🏛️ Learn2Invest Bank → Cabin 1: Banking Slip Writing & Cabin 2: Digital Banking Safety
+              <div className="text-xs sm:text-sm text-black font-bold">
+                Next Stop: 🏛️ Learn2Invest Bank → Cabin 1: Banking Slip Writing, Cabin 2: Digital Safety & 24/7 ATM Queue
               </div>
             </div>
           </div>
           <div className="flex gap-3 shrink-0">
             <button
               onClick={beginWalkToBank}
-              className="px-6 py-3 rounded-2xl bg-gradient-to-r from-blue-500 to-emerald-400 text-slate-950 font-black text-sm shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer"
+              className="px-6 py-3 rounded-2xl bg-gradient-to-r from-emerald-400 to-teal-400 text-black font-black text-sm shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer border border-black/15"
             >
               🏛️ Enter Level 3 Bank →
             </button>
@@ -6051,70 +7081,76 @@ export default function Level1SchoolWorld({
       )}
 
       {/* ═══════════════════════════════════════════════════════════════════
-          LEVEL 3 — BANK EMPLOYEE GUIDE INTERACTION PANEL (Maya — 2 Cabins)
+          LEVEL 3 — BANK EMPLOYEE GUIDE INTERACTION PANEL (Maya — 2 Cabins + XP Deposit)
+          Crisp Black Text on Frosted Blurred Background
       ═══════════════════════════════════════════════════════════════════ */}
       {journeyStage === 'bank_employee' && (
-        <div className="absolute bottom-7 left-1/2 -translate-x-1/2 z-30 w-[min(94vw,760px)] rounded-3xl bg-slate-950/92 backdrop-blur-xl border-2 border-blue-400/80 shadow-[0_20px_65px_rgba(30,64,175,0.65)] p-6 sm:p-7 text-white">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-white/15 pb-4">
+        <div className="absolute bottom-7 left-1/2 -translate-x-1/2 z-30 w-[min(94vw,820px)] rounded-3xl bg-white/92 backdrop-blur-xl border-2 border-blue-500 shadow-[0_20px_65px_rgba(30,64,175,0.45)] p-6 sm:p-7 text-black">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-300 pb-4">
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-800 border-2 border-amber-300 flex items-center justify-center text-3xl shadow-lg shrink-0">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-800 border-2 border-amber-400 flex items-center justify-center text-3xl shadow-lg shrink-0 text-white">
                 👩‍💼
               </div>
               <div>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/25 border border-blue-400 text-blue-200 text-xs font-black uppercase tracking-wider mb-1">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 border border-blue-400 text-black text-xs font-black uppercase tracking-wider mb-1">
                   <span>🏛️ Level 3 Bank Lobby</span>
                   <span>•</span>
                   <span>Senior Banking Officer</span>
                 </div>
-                <h2 className="text-xl sm:text-2xl font-black text-white">
+                <h2 className="text-xl sm:text-2xl font-black text-black">
                   Maya — Your Personal Banking Guide
                 </h2>
               </div>
             </div>
 
-            <div className="px-4 py-2 rounded-2xl bg-slate-900 border border-emerald-400/50 text-emerald-300 text-xs sm:text-sm font-black">
-              Cabins Completed: {completedBankSections.length} / 2
+            <div className="flex items-center gap-2 flex-wrap">
+              <div className="px-3.5 py-2 rounded-2xl bg-amber-100 border border-amber-400 text-black text-xs sm:text-sm font-black">
+                🏦 Banked XP Vault: {bankedXp} XP
+              </div>
+              <div className="px-4 py-2 rounded-2xl bg-emerald-100 border border-emerald-400 text-black text-xs sm:text-sm font-black">
+                Cabins Completed: {completedBankSections.length} / 2
+              </div>
             </div>
           </div>
 
-          <p className="mt-4 text-sm sm:text-base text-slate-200 font-medium leading-relaxed">
-            “Welcome to the <span className="text-amber-300 font-black">Learn2Invest Bank</span>,{' '}
-            <span className="text-emerald-300 font-black">
+          <p className="mt-4 text-sm sm:text-base text-black font-bold leading-relaxed">
+            “Welcome to the <span className="text-blue-900 font-black">Learn2Invest Bank</span>,{' '}
+            <span className="text-emerald-800 font-black">
               {characterChoice === 'leo' || characterChoice === 'max' ? 'Leo' : 'Luna'}
             </span>
-            ! Level 3 has <span className="text-white font-black">2 separate interactive bank cabins</span>:{' '}
-            <span className="text-cyan-300 font-black">Cabin 1: Banking Slip Writing</span> (Canara Bank, Karnataka Bank, India Post, PNB, SBI — Deposit Slips, Withdrawal Slips, Cheques & Accurate Razorpay IFSC Search) and{' '}
-            <span className="text-amber-300 font-black">Cabin 2: Digital Banking Safety</span>!”
+            ! You can <span className="underline font-black">deposit your collected XP safely in the Bank through me</span> (and withdraw it anytime at our <span className="font-black">24/7 Side ATM Machine</span>), or explore our 2 cabins:{' '}
+            <span className="text-blue-900 font-black">Cabin 1: Banking Slip Writing</span> and{' '}
+            <span className="text-emerald-900 font-black">Cabin 2: Digital Banking Safety</span>!”
           </p>
 
-          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-white/15">
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-300">
             <div className="flex items-center gap-2 flex-wrap">
-              {[
-                { num: 1, label: 'Cabin 1: Banking Slip Writing' },
-                { num: 2, label: 'Cabin 2: Digital Banking Safety' },
-              ].map((item) => {
-                const done = completedBankSections.includes(item.num)
-                return (
-                  <span
-                    key={item.num}
-                    className={`px-3.5 py-1.5 rounded-xl text-xs font-black border ${
-                      done
-                        ? 'bg-emerald-500/25 border-emerald-400 text-emerald-300'
-                        : item.num === 1
-                          ? 'bg-amber-400/20 border-amber-400 text-amber-300'
-                          : 'bg-slate-900 border-white/15 text-slate-400'
-                    }`}
-                  >
-                    {done ? `✓ ${item.label}` : item.label}
-                  </span>
-                )
-              })}
+              <button
+                type="button"
+                onClick={() => {
+                  soundEngine.playClick()
+                  setShowXpDepositModal(true)
+                }}
+                className="px-4 py-2.5 rounded-2xl bg-amber-400 hover:bg-amber-300 border-2 border-black/20 text-black font-black text-xs sm:text-sm shadow-md hover:scale-105 transition-transform cursor-pointer"
+              >
+                🏦 Deposit XP with Maya ({state?.xp || 0} Wallet XP)
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  soundEngine.playClick()
+                  startAtmQueueExperience()
+                }}
+                className="px-4 py-2.5 rounded-2xl bg-cyan-300 hover:bg-cyan-200 border-2 border-black/20 text-black font-black text-xs sm:text-sm shadow-md hover:scale-105 transition-transform cursor-pointer"
+              >
+                🏧 Walk to 24/7 ATM Queue ({bankedXp} Banked XP)
+              </button>
             </div>
 
             <button
               onClick={handleEmployeeInteract}
               onMouseEnter={() => soundEngine.playHover()}
-              className="px-7 py-3.5 rounded-2xl bg-gradient-to-r from-amber-400 via-emerald-400 to-cyan-400 text-slate-950 font-black text-sm sm:text-base shadow-[0_10px_30px_rgba(52,211,153,0.55)] hover:scale-105 active:scale-95 transition-all cursor-pointer"
+              className="px-7 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 text-black border-2 border-black/20 font-black text-sm sm:text-base shadow-[0_10px_30px_rgba(16,185,129,0.45)] hover:scale-105 active:scale-95 transition-all cursor-pointer"
             >
               🏛️ Enter Cabin 1: Banking Slip Writing →
             </button>
@@ -6144,7 +7180,7 @@ export default function Level1SchoolWorld({
 
       {/* ═══════════════════════════════════════════════════════════════════
           FINAL COMPLETION UI & ATTACHED SCHOOL-TO-BANK CAMPUS MAP
-          (Shown automatically once completing the 3 levels)
+          Includes: School Pin, 3 Garden Stalls Pin, Road Path, Bank Pin & 24/7 ATM Pin!
       ═══════════════════════════════════════════════════════════════════ */}
       {(journeyStage === 'journey_complete' || showCampusMapModal) && (
         <div className="absolute inset-0 z-40 flex items-center justify-center p-3 sm:p-6 pt-16 bg-slate-950/80 backdrop-blur-md pointer-events-auto">
@@ -6153,16 +7189,16 @@ export default function Level1SchoolWorld({
             <div className="flex flex-wrap items-center justify-between gap-3 mb-4 border-b border-white/15 pb-4">
               <div>
                 <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider shadow-md mb-1.5">
-                  <span>🏆 All 3 Levels Completed • Official Campus Route Map</span>
+                  <span>🗺️ Official Campus Route Map • School, Garden Stalls, Side Boulevard, Bank & 24/7 ATM</span>
                 </div>
                 <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white leading-tight">
-                  LEARN<span className="text-lime-400">2</span>INVEST SCHOOL TO BANK JOURNEY MAP
+                  LEARN<span className="text-lime-400">2</span>INVEST SCHOOL TO BANK & ATM MAP
                 </h1>
               </div>
 
               <div className="flex items-center gap-3">
                 <div className="px-4 py-2 rounded-full bg-emerald-500/20 border border-emerald-400 text-emerald-300 font-black text-sm">
-                  ⭐ {state?.xp || 0} Total XP
+                  ⭐ {state?.xp || 0} Wallet XP • 🏦 {bankedXp} Banked XP
                 </div>
                 {showCampusMapModal && journeyStage !== 'journey_complete' && (
                   <button
@@ -6190,12 +7226,26 @@ export default function Level1SchoolWorld({
                   setShowCampusMapModal(false)
                   handleGlobalHome()
                 }}
-                className="absolute top-[16%] left-[8%] sm:left-[12%] px-3.5 py-2 rounded-2xl bg-slate-950/90 border-2 border-emerald-400 text-white shadow-xl cursor-pointer hover:scale-105 transition-transform"
+                className="absolute top-[14%] left-[6%] sm:left-[10%] px-3.5 py-2 rounded-2xl bg-slate-950/90 border-2 border-emerald-400 text-white shadow-xl cursor-pointer hover:scale-105 transition-transform"
               >
                 <div className="text-[10px] font-black uppercase tracking-wider text-emerald-400">
-                  ✓ LEVEL 1 & LEVEL 2 COMPLETED
+                  📍 LEVEL 1 & LEVEL 2
                 </div>
                 <div className="text-xs sm:text-sm font-black">🏫 Learn2Invest School & Lab</div>
+              </div>
+
+              {/* Interactive Badge Over Right-Side Garden Stalls */}
+              <div
+                onClick={() => {
+                  setShowCampusMapModal(false)
+                  setActiveGardenStall(3)
+                }}
+                className="absolute bottom-[18%] left-[12%] sm:left-[16%] px-3.5 py-2 rounded-2xl bg-slate-950/90 border-2 border-pink-400 text-white shadow-xl cursor-pointer hover:scale-105 transition-transform"
+              >
+                <div className="text-[10px] font-black uppercase tracking-wider text-pink-300">
+                  📍 SCHOOL YARD RIGHT GARDEN
+                </div>
+                <div className="text-xs sm:text-sm font-black">🎡 3 Garden Stalls (Clothes • Ice Cream • Spin Wheel)</div>
               </div>
 
               {/* Animated Student Marker Travelling Along the Dashed Red Route */}
@@ -6213,14 +7263,32 @@ export default function Level1SchoolWorld({
               <div
                 onClick={() => {
                   setShowCampusMapModal(false)
-                  focusCameraOnBankSection(1, false)
+                  if (isLevel3Unlocked) {
+                    focusCameraOnBankSection(1, false)
+                  } else {
+                    setShowXpDepositModal(true)
+                  }
                 }}
-                className="absolute top-[30%] right-[5%] sm:right-[7%] px-3.5 py-2 rounded-2xl bg-slate-950/90 border-2 border-amber-400 text-white shadow-xl cursor-pointer hover:scale-105 transition-transform"
+                className="absolute top-[26%] right-[5%] sm:right-[7%] px-3.5 py-2 rounded-2xl bg-slate-950/90 border-2 border-amber-400 text-white shadow-xl cursor-pointer hover:scale-105 transition-transform"
               >
                 <div className="text-[10px] font-black uppercase tracking-wider text-amber-400">
-                  ✓ LEVEL 3 COMPLETED
+                  📍 LEVEL 3 FINANCIAL CENTER (SIDE OF SCHOOL)
                 </div>
-                <div className="text-xs sm:text-sm font-black">🏛️ Learn2Invest Bank & Slip Writer</div>
+                <div className="text-xs sm:text-sm font-black">🏛️ Learn2Invest Bank & Maya XP Deposit</div>
+              </div>
+
+              {/* Interactive Badge Over 24/7 ATM Machine Location (Beside the Bank!) */}
+              <div
+                onClick={() => {
+                  setShowCampusMapModal(false)
+                  startAtmQueueExperience()
+                }}
+                className="absolute bottom-[18%] right-[6%] sm:right-[8%] px-4 py-2.5 rounded-2xl bg-cyan-950/95 border-2 border-cyan-400 text-white shadow-[0_0_25px_rgba(34,211,238,0.6)] cursor-pointer hover:scale-105 transition-transform"
+              >
+                <div className="text-[10px] font-black uppercase tracking-wider text-cyan-300">
+                  📍 BESIDE LEVEL 3 BANK • 24/7 KIOSK & QUEUE
+                </div>
+                <div className="text-xs sm:text-sm font-black">🏧 Learn2Invest ATM Machine (Join Queue)</div>
               </div>
 
               <style>{`
@@ -6234,20 +7302,20 @@ export default function Level1SchoolWorld({
               `}</style>
             </div>
 
-            {/* 3-Level Summary Cards + Action Buttons */}
-            <div className="mt-5 grid grid-cols-1 md:grid-cols-3 gap-3">
+            {/* 4-Card Summary + Action Buttons */}
+            <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               <div className="p-3.5 rounded-2xl border border-emerald-400/50 bg-emerald-950/40 flex items-center justify-between">
                 <div>
-                  <div className="text-xs font-black text-emerald-300 uppercase">LEVEL 1 ✓</div>
-                  <div className="text-sm font-black text-white">School Classroom & Exam</div>
-                  <div className="text-xs text-slate-300">5 Videos (85%+) • 10-Q Quiz</div>
+                  <div className="text-xs font-black text-emerald-300 uppercase">LEVEL 1</div>
+                  <div className="text-sm font-black text-white">School & Garden Stalls</div>
+                  <div className="text-xs text-slate-300">5 Videos • 10-Q Quiz • 3 Stalls</div>
                 </div>
                 <span className="text-2xl">🏫</span>
               </div>
 
               <div className="p-3.5 rounded-2xl border border-cyan-400/50 bg-cyan-950/40 flex items-center justify-between">
                 <div>
-                  <div className="text-xs font-black text-cyan-300 uppercase">LEVEL 2 ✓</div>
+                  <div className="text-xs font-black text-cyan-300 uppercase">LEVEL 2</div>
                   <div className="text-sm font-black text-white">Floor 2 Simulation Lab</div>
                   <div className="text-xs text-slate-300">3 Interactive Workstations</div>
                 </div>
@@ -6256,11 +7324,26 @@ export default function Level1SchoolWorld({
 
               <div className="p-3.5 rounded-2xl border border-amber-400/50 bg-amber-950/40 flex items-center justify-between">
                 <div>
-                  <div className="text-xs font-black text-amber-300 uppercase">LEVEL 3 ✓</div>
-                  <div className="text-sm font-black text-white">Banking Slip & Digital Safety</div>
-                  <div className="text-xs text-slate-300">2 Cabins • 5 Indian Banks</div>
+                  <div className="text-xs font-black text-amber-300 uppercase">LEVEL 3</div>
+                  <div className="text-sm font-black text-white">Side Bank & Maya Vault</div>
+                  <div className="text-xs text-slate-300">2 Cabins • Deposit XP with Maya</div>
                 </div>
                 <span className="text-2xl">🏛️</span>
+              </div>
+
+              <div
+                onClick={() => {
+                  setShowCampusMapModal(false)
+                  startAtmQueueExperience()
+                }}
+                className="p-3.5 rounded-2xl border-2 border-cyan-400 bg-cyan-900/40 flex items-center justify-between cursor-pointer hover:bg-cyan-900/60 transition-colors"
+              >
+                <div>
+                  <div className="text-xs font-black text-cyan-300 uppercase">BESIDE BANK • 24/7</div>
+                  <div className="text-sm font-black text-white">ATM Machine & Live Queue</div>
+                  <div className="text-xs text-cyan-200">Click to Walk to ATM Queue</div>
+                </div>
+                <span className="text-2xl">🏧</span>
               </div>
             </div>
 
@@ -6277,133 +7360,197 @@ export default function Level1SchoolWorld({
               <button
                 onClick={() => {
                   setShowCampusMapModal(false)
+                  startAtmQueueExperience()
+                }}
+                className="py-3.5 px-4 rounded-2xl bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950 font-black text-sm shadow-lg transition-all cursor-pointer"
+              >
+                🏧 Walk to 24/7 Bank ATM Queue
+              </button>
+              <button
+                onClick={() => {
+                  setShowCampusMapModal(false)
                   handleReplayJourney()
                 }}
                 className="py-3.5 px-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 font-black text-sm shadow-lg transition-all cursor-pointer"
               >
                 🔄 Replay Full 3D Journey
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          UNLOCKED SCHOOL YARD BAR (Automatically removed as soon as the character moves!)
+      ═══════════════════════════════════════════════════════════════════ */}
+      {(journeyStage === 'school_yard' || (journeyStage === 'login' && hasLoggedIn)) &&
+        !hasMovedInYard &&
+        !isPlayerInAtmQueue && (
+          <div className="absolute bottom-7 left-1/2 -translate-x-1/2 z-20 w-[min(95vw,1020px)] px-6 py-4 rounded-3xl bg-white/90 backdrop-blur-xl border-2 border-emerald-500 shadow-[0_20px_60px_rgba(0,0,0,0.45)] text-black flex flex-col lg:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-3xl shadow-lg shrink-0 text-white">
+                🏫
+              </div>
+              <div>
+                <div className="text-xs font-black uppercase tracking-widest text-emerald-900">
+                  Logged In as {state?.user?.name || (characterChoice === 'leo' || characterChoice === 'max' ? 'Leo' : 'Luna')} • School Yard Courtyard
+                </div>
+                <div className="text-lg sm:text-xl font-black text-black">
+                  Welcome to Learn2Invest 3D Financial Campus!
+                </div>
+                <div className="text-xs sm:text-sm font-bold text-black">
+                  Use Arrow Keys (↑ ↓ ← →) to walk around (this box disappears once you move!), visit the Stalls, or enter the School:
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-2 shrink-0 justify-center">
+              <button
+                onClick={beginSchoolEntrySequence}
+                className="px-5 py-3 rounded-2xl bg-gradient-to-r from-emerald-400 to-teal-400 text-black border-2 border-black/20 font-black text-xs sm:text-sm shadow-lg hover:scale-105 transition-transform cursor-pointer"
+              >
+                🚶‍♀️ Enter School (Level 1) →
+              </button>
               <button
                 onClick={() => {
-                  setShowCampusMapModal(false)
+                  soundEngine.playClick()
+                  setActiveGardenStall(1)
+                }}
+                className="px-3.5 py-3 rounded-2xl bg-pink-200 hover:bg-pink-300 border-2 border-pink-500 text-black font-black text-xs sm:text-sm transition-all cursor-pointer"
+                title="Visit Garden Stall 1 (Clothes), Stall 2 (Ice Cream) & Stall 3 (Spin the Finance Wheel)"
+              >
+                🎪 Garden Stalls (Clothes / Ice Cream / Spin)
+              </button>
+              <button
+                onClick={() => {
+                  soundEngine.playClick()
+                  startAtmQueueExperience()
+                }}
+                className="px-3.5 py-3 rounded-2xl bg-cyan-200 hover:bg-cyan-300 border-2 border-cyan-600 text-black font-black text-xs sm:text-sm transition-all cursor-pointer"
+              >
+                🏧 Bank ATM Queue
+              </button>
+              <button
+                disabled={!isComputer1Unlocked}
+                onClick={() => {
+                  if (!isComputer1Unlocked) return
+                  setJourneyStage('computer_lab')
+                  soundEngine.startAmbientMusic('computer_lab', true)
+                  focusCameraOnComputer(1, false)
+                }}
+                className={`px-4 py-3 rounded-2xl border-2 font-black text-xs sm:text-sm transition-all ${
+                  isComputer1Unlocked
+                    ? 'bg-amber-200 border-amber-600 text-black hover:bg-amber-300 cursor-pointer'
+                    : 'bg-slate-200 border-slate-400 text-slate-600 cursor-not-allowed'
+                }`}
+              >
+                {isComputer1Unlocked ? '💻 Level 2 Lab' : '🔒 Level 2 Lab'}
+              </button>
+              <button
+                disabled={!isLevel3Unlocked}
+                onClick={() => {
+                  if (!isLevel3Unlocked) return
                   focusCameraOnBankSection(1, false)
                 }}
-                className="py-3.5 px-4 rounded-2xl bg-gradient-to-r from-amber-400 to-orange-400 text-slate-950 font-black text-sm shadow-lg transition-all cursor-pointer"
+                className={`px-4 py-3 rounded-2xl border-2 font-black text-xs sm:text-sm transition-all ${
+                  isLevel3Unlocked
+                    ? 'bg-emerald-200 border-emerald-600 text-black hover:bg-emerald-300 cursor-pointer'
+                    : 'bg-slate-200 border-slate-400 text-slate-600 cursor-not-allowed'
+                }`}
               >
-                📝 Open Level 3 Bank Slip Writer
+                {isLevel3Unlocked ? '🏛️ Level 3 Bank' : '🔒 Level 3 Bank'}
               </button>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
       {/* ═══════════════════════════════════════════════════════════════════
-          UNLOCKED SCHOOL YARD BAR (Shown when logged in & visiting HOME — NO Login Page!)
-      ═══════════════════════════════════════════════════════════════════ */}
-      {(journeyStage === 'school_yard' || (journeyStage === 'login' && hasLoggedIn)) && (
-        <div className="absolute bottom-7 left-1/2 -translate-x-1/2 z-20 w-[min(94vw,860px)] px-7 py-5 rounded-3xl bg-slate-900/92 backdrop-blur-xl border-2 border-emerald-400/80 shadow-[0_20px_60px_rgba(0,0,0,0.7)] text-white flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-3xl shadow-lg shrink-0">
-              🏫
-            </div>
-            <div>
-              <div className="text-xs font-black uppercase tracking-widest text-emerald-400">
-                Logged In as {state?.user?.name || (characterChoice === 'leo' || characterChoice === 'max' ? 'Leo' : 'Luna')} • School Yard Courtyard
-              </div>
-              <div className="text-lg sm:text-xl font-black text-white">
-                Welcome to Learn2Invest 3D Financial Campus!
-              </div>
-              <div className="text-xs sm:text-sm text-slate-300">
-                Use Arrow Keys (↑ ↓ ← →) to walk around the courtyard or continue your level progression below:
-              </div>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap gap-2.5 shrink-0">
-            <button
-              onClick={beginSchoolEntrySequence}
-              className="px-5 py-3 rounded-2xl bg-gradient-to-r from-emerald-400 to-teal-400 text-slate-950 font-black text-xs sm:text-sm shadow-lg hover:scale-105 transition-transform cursor-pointer"
-            >
-              🚶‍♀️ Enter School (Level 1) →
-            </button>
-            <button
-              disabled={!isComputer1Unlocked}
-              onClick={() => {
-                if (!isComputer1Unlocked) return
-                setJourneyStage('computer_lab')
-                soundEngine.startAmbientMusic('computer_lab', true)
-                focusCameraOnComputer(1, false)
-              }}
-              className={`px-4 py-3 rounded-2xl border font-black text-xs sm:text-sm transition-all ${
-                isComputer1Unlocked
-                  ? 'bg-cyan-500/20 border-cyan-400 text-cyan-200 hover:bg-cyan-500/30 cursor-pointer'
-                  : 'bg-slate-800/70 border-slate-700 text-slate-500 cursor-not-allowed'
-              }`}
-            >
-              {isComputer1Unlocked ? '💻 Level 2 Lab' : '🔒 Level 2 Lab'}
-            </button>
-            <button
-              disabled={!isLevel3Unlocked}
-              onClick={() => {
-                if (!isLevel3Unlocked) return
-                focusCameraOnBankSection(1, false)
-              }}
-              className={`px-4 py-3 rounded-2xl border font-black text-xs sm:text-sm transition-all ${
-                isLevel3Unlocked
-                  ? 'bg-amber-500/20 border-amber-400 text-amber-200 hover:bg-amber-500/30 cursor-pointer'
-                  : 'bg-slate-800/70 border-slate-700 text-slate-500 cursor-not-allowed'
-              }`}
-            >
-              {isLevel3Unlocked ? '🏛️ Level 3 Bank' : '🔒 Level 3 Bank'}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* ═══════════════════════════════════════════════════════════════════
-          LOGIN UI CENTERED IN THE MIDDLE OF THE SCREEN (Shown ONLY Before Login!)
-          Includes:
-          - data-login-card="true" (triggers bottom-right companion excitement!)
-          - Username, Email, Password fields
-          - 4 Avatars + 5 Outfit Color Customizations
+          LOGIN & SIGN IN UI CENTERED IN THE MIDDLE OF THE SCREEN
+          - First Sign In to register account; Log In directly only if account exists!
+          - Only 2 Avatars: Luna & Leo (Outfit Style Box Removed)
           - Beginner, Intermediate (starts directly at Quiz!), & 🔒 Advanced (Locked)
       ═══════════════════════════════════════════════════════════════════ */}
-      {journeyStage === 'login' && !hasLoggedIn && (
+      {!showLoadingSplash && journeyStage === 'login' && !hasLoggedIn && (
         <div className="absolute inset-0 z-20 flex items-center justify-center p-3 sm:p-4 pt-14 pointer-events-none overflow-y-auto">
           <div
             ref={loginPanelRef}
             data-login-card="true"
-            className="pointer-events-auto w-[min(95vw,540px)] max-h-[86vh] overflow-y-auto rounded-3xl bg-slate-900/90 backdrop-blur-xl border-2 border-emerald-400/50 shadow-[0_24px_80px_rgba(0,0,0,0.85)] p-5 sm:p-6 text-white transition-all"
+            className="pointer-events-auto w-[min(95vw,540px)] max-h-[87vh] overflow-y-auto rounded-3xl bg-white/90 backdrop-blur-xl border-2 border-emerald-600 shadow-[0_24px_80px_rgba(0,0,0,0.55)] p-5 sm:p-6 text-black transition-all"
           >
-            <div className="flex items-center justify-between gap-3 mb-4">
+            {/* Header + Sign In / Log In Mode Switcher */}
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-2xl shadow-lg border border-white/40 shrink-0">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center text-2xl shadow-lg border border-black/20 shrink-0 text-white">
                   🌱
                 </div>
                 <div>
-                  <h1 className="text-xl sm:text-2xl font-black tracking-tight text-white leading-none">
-                    Learn<span className="text-lime-400">2</span>Invest School
+                  <h1 className="text-xl sm:text-2xl font-black tracking-tight text-black leading-none">
+                    Learn<span className="text-emerald-700">2</span>Invest School
                   </h1>
-                  <p className="text-xs font-bold text-emerald-200 mt-1">
-                    3D Interactive Financial Campus • Customize & Login
+                  <p className="text-xs font-extrabold text-black mt-1">
+                    {authMode === 'signin'
+                      ? 'Step 1: Sign In First to Create Your Account'
+                      : 'Returning User: Log In with Your Registered Account'}
                   </p>
                 </div>
               </div>
+
+              {/* Sign In / Log In Toggle Pills */}
+              <div className="flex items-center bg-slate-200/90 p-1 rounded-2xl border border-slate-400">
+                <button
+                  type="button"
+                  onClick={() => {
+                    soundEngine.playClick()
+                    setAuthMode('signin')
+                    setAuthError('')
+                  }}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                    authMode === 'signin'
+                      ? 'bg-cyan-400 text-black shadow-sm'
+                      : 'text-black hover:bg-white/60'
+                  }`}
+                >
+                  🔑 Sign In (New)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    soundEngine.playClick()
+                    setAuthMode('login')
+                    setAuthError('')
+                  }}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                    authMode === 'login'
+                      ? 'bg-emerald-500 text-black shadow-sm'
+                      : 'text-black hover:bg-white/60'
+                  }`}
+                >
+                  🚀 Log In (Existing)
+                </button>
+              </div>
             </div>
 
-            {/* 1. Choose & Customize Your 3D Character Avatar + Outfit Color */}
-            <div className="mb-3.5">
-              <label className="block text-[11px] font-black uppercase tracking-wider text-emerald-300 mb-1.5">
-                1. Choose & Customize Your 3D Avatar
+            {/* Account Rule Helper Banner */}
+            <div className="mb-3 px-3.5 py-2 rounded-2xl bg-emerald-100/90 border border-emerald-500 text-[11px] font-bold text-black flex items-center gap-2">
+              <span className="text-base">ℹ️</span>
+              <span>
+                <strong>First time here?</strong> Please <strong>Sign In</strong> first to register your account. Only learners who already have an account can <strong>Log In</strong> directly!
+              </span>
+            </div>
+
+            {/* 1. Choose Your 3D Character Avatar (Only Luna & Leo) */}
+            <div className="mb-3">
+              <label className="block text-[11px] font-black uppercase tracking-wider text-black mb-1.5">
+                1. Choose Your 3D Avatar
               </label>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <div className="grid grid-cols-2 gap-3">
                 {[
                   { id: 'luna', name: 'Luna', desc: 'Sweater & Jeans', gender: 'female' },
                   { id: 'leo', name: 'Leo', desc: 'Jacket & Cargo', gender: 'male' },
-                  { id: 'aria', name: 'Aria', desc: 'Scholar Blazer', gender: 'female' },
-                  { id: 'max', name: 'Max', desc: 'Campus Explorer', gender: 'male' },
                 ].map((ch) => {
-                  const active = characterChoice === ch.id
+                  const active =
+                    (ch.id === 'luna' && characterChoice !== 'leo') ||
+                    (ch.id === 'leo' && characterChoice === 'leo')
                   return (
                     <button
                       type="button"
@@ -6413,59 +7560,26 @@ export default function Level1SchoolWorld({
                         setCharacterChoice(ch.id)
                         if (setAiGuideAvatar) setAiGuideAvatar(ch.gender, ch.name)
                       }}
-                      className={`p-2 rounded-2xl border-2 text-left flex items-center gap-2 transition-all cursor-pointer ${
+                      className={`p-2.5 rounded-2xl border-2 text-left flex items-center gap-3 transition-all cursor-pointer ${
                         active
-                          ? 'bg-emerald-500/25 border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.4)] scale-[1.02]'
-                          : 'bg-white/5 border-white/15 hover:bg-white/10'
+                          ? 'bg-emerald-200/90 border-emerald-700 shadow-md scale-[1.01]'
+                          : 'bg-white/75 border-slate-300 hover:bg-white'
                       }`}
                     >
-                      <CuteChibiAvatarSVG type={ch.gender} size={32} />
+                      <CuteChibiAvatarSVG type={ch.gender} size={36} />
                       <div className="min-w-0">
-                        <div className="text-xs font-black text-white truncate">{ch.name}</div>
-                        <div className="text-[10px] text-slate-300 font-medium truncate">{ch.desc}</div>
+                        <div className="text-sm font-black text-black truncate">{ch.name}</div>
+                        <div className="text-[11px] text-black font-bold truncate">{ch.desc}</div>
                       </div>
                     </button>
                   )
                 })}
               </div>
-
-              {/* Outfit Color Theme Swatches */}
-              <div className="mt-2 flex items-center justify-between gap-2 bg-slate-950/60 px-3 py-1.5 rounded-xl border border-white/10">
-                <span className="text-[10px] font-black uppercase tracking-wider text-slate-300">
-                  🎨 Outfit Style:
-                </span>
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  {CHARACTER_OUTFIT_THEMES.map((theme) => {
-                    const active = outfitThemeId === theme.id
-                    return (
-                      <button
-                        key={theme.id}
-                        type="button"
-                        onClick={() => {
-                          soundEngine.playClick()
-                          setOutfitThemeId(theme.id)
-                        }}
-                        className={`px-2 py-0.5 rounded-full text-[10px] font-black flex items-center gap-1 border transition-all cursor-pointer ${
-                          active
-                            ? 'bg-white text-slate-950 border-white scale-105'
-                            : 'bg-slate-900 text-slate-300 border-white/20 hover:border-white/50'
-                        }`}
-                      >
-                        <span
-                          className="w-2.5 h-2.5 rounded-full inline-block"
-                          style={{ backgroundColor: theme.swatch }}
-                        />
-                        <span>{theme.label}</span>
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
             </div>
 
             {/* 2. Choose Starting Level (Beginner, Intermediate -> Starts at Quiz, Advanced -> Locked) */}
-            <div className="mb-3.5">
-              <label className="block text-[11px] font-black uppercase tracking-wider text-amber-300 mb-1.5">
+            <div className="mb-3">
+              <label className="block text-[11px] font-black uppercase tracking-wider text-black mb-1.5">
                 2. Select Starting Level (Advanced Level Locked 🔒)
               </label>
               <div className="grid grid-cols-3 gap-2">
@@ -6478,18 +7592,18 @@ export default function Level1SchoolWorld({
                   }}
                   className={`p-2.5 rounded-2xl border-2 text-left transition-all cursor-pointer ${
                     loginLevelChoice === 'beginner'
-                      ? 'bg-emerald-500/25 border-emerald-400 shadow-[0_0_16px_rgba(16,185,129,0.4)]'
-                      : 'bg-white/5 border-white/15 hover:bg-white/10'
+                      ? 'bg-emerald-200/95 border-emerald-700 shadow-md'
+                      : 'bg-white/75 border-slate-300 hover:bg-white'
                   }`}
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-base">🌱</span>
-                    <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-emerald-400/25 text-emerald-300">
+                    <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-emerald-600 text-white">
                       Level 1
                     </span>
                   </div>
-                  <div className="text-xs font-black text-white mt-1">Beginner</div>
-                  <div className="text-[10px] text-slate-300 leading-tight mt-0.5">
+                  <div className="text-xs font-black text-black mt-1">Beginner</div>
+                  <div className="text-[10px] text-black font-bold leading-tight mt-0.5">
                     Starts at Classroom 101 Videos
                   </div>
                 </button>
@@ -6503,18 +7617,18 @@ export default function Level1SchoolWorld({
                   }}
                   className={`p-2.5 rounded-2xl border-2 text-left transition-all cursor-pointer ${
                     loginLevelChoice === 'intermediate'
-                      ? 'bg-cyan-500/25 border-cyan-400 shadow-[0_0_16px_rgba(34,211,238,0.4)]'
-                      : 'bg-white/5 border-white/15 hover:bg-white/10'
+                      ? 'bg-cyan-200/95 border-cyan-700 shadow-md'
+                      : 'bg-white/75 border-slate-300 hover:bg-white'
                   }`}
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-base">⚡</span>
-                    <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-cyan-400/25 text-cyan-200">
+                    <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-cyan-700 text-white">
                       Quiz Start
                     </span>
                   </div>
-                  <div className="text-xs font-black text-white mt-1">Intermediate</div>
-                  <div className="text-[10px] text-cyan-200 leading-tight mt-0.5">
+                  <div className="text-xs font-black text-black mt-1">Intermediate</div>
+                  <div className="text-[10px] text-black font-bold leading-tight mt-0.5">
                     Starts directly from the Quiz!
                   </div>
                 </button>
@@ -6523,87 +7637,288 @@ export default function Level1SchoolWorld({
                 <button
                   type="button"
                   disabled
-                  className="p-2.5 rounded-2xl border-2 border-slate-700 bg-slate-950/70 text-left opacity-65 cursor-not-allowed"
+                  className="p-2.5 rounded-2xl border-2 border-slate-400 bg-slate-200/80 text-left opacity-75 cursor-not-allowed"
                   title="Complete Beginner & Intermediate levels to unlock Advanced Banking!"
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-base">🔒</span>
-                    <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-rose-500/25 text-rose-300">
+                    <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-rose-600 text-white">
                       Locked
                     </span>
                   </div>
-                  <div className="text-xs font-black text-slate-300 mt-1">Advanced</div>
-                  <div className="text-[10px] text-slate-400 leading-tight mt-0.5">
+                  <div className="text-xs font-black text-black mt-1">Advanced</div>
+                  <div className="text-[10px] text-black font-bold leading-tight mt-0.5">
                     Locked • Unlock via Level 2
                   </div>
                 </button>
               </div>
             </div>
 
-            {/* 3. Username, Email & Password Form */}
-            <form onSubmit={handleLoginSubmit} className="space-y-2.5">
+            {/* 3. Sign In / Log In Form with Black Text */}
+            <form onSubmit={handleLoginSubmit} noValidate className="space-y-2.5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <div>
-                  <label className="block text-[11px] font-black uppercase tracking-wider text-slate-200 mb-1">
-                    Username
+                  <label className="block text-[11px] font-black uppercase tracking-wider text-black mb-1">
+                    Username or Learner ID
                   </label>
                   <input
                     type="text"
-                    required
                     placeholder="e.g. Luna Scholar"
                     value={usernameInput}
-                    onChange={(e) => setUsernameInput(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-white/10 border-2 border-white/25 text-white placeholder-slate-400 text-xs sm:text-sm font-bold focus:outline-none focus:border-emerald-400 transition-colors"
+                    onChange={(e) => {
+                      setUsernameInput(e.target.value)
+                      if (authError) setAuthError('')
+                    }}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-white border-2 border-slate-400 text-black placeholder-slate-500 text-xs sm:text-sm font-bold focus:outline-none focus:border-emerald-600 transition-colors"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-black uppercase tracking-wider text-slate-200 mb-1">
+                  <label className="block text-[11px] font-black uppercase tracking-wider text-black mb-1">
                     Email Address
                   </label>
                   <input
-                    type="email"
-                    required
+                    type="text"
                     placeholder="e.g. luna@learn2invest.edu"
                     value={emailInput}
-                    onChange={(e) => setEmailInput(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-white/10 border-2 border-white/25 text-white placeholder-slate-400 text-xs sm:text-sm font-bold focus:outline-none focus:border-emerald-400 transition-colors"
+                    onChange={(e) => {
+                      setEmailInput(e.target.value)
+                      if (authError) setAuthError('')
+                    }}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-white border-2 border-slate-400 text-black placeholder-slate-500 text-xs sm:text-sm font-bold focus:outline-none focus:border-emerald-600 transition-colors"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[11px] font-black uppercase tracking-wider text-slate-200 mb-1">
+                <label className="block text-[11px] font-black uppercase tracking-wider text-black mb-1">
                   Password
                 </label>
                 <input
                   type="password"
-                  required
                   placeholder="••••••••"
                   value={passwordInput}
-                  onChange={(e) => setPasswordInput(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-white/10 border-2 border-white/25 text-white placeholder-slate-400 text-xs sm:text-sm font-bold focus:outline-none focus:border-emerald-400 transition-colors"
+                  onChange={(e) => {
+                    setPasswordInput(e.target.value)
+                    if (authError) setAuthError('')
+                  }}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-white border-2 border-slate-400 text-black placeholder-slate-500 text-xs sm:text-sm font-bold focus:outline-none focus:border-emerald-600 transition-colors"
                 />
               </div>
 
-              <button
-                type="submit"
-                onMouseEnter={() => soundEngine.playHover()}
-                className={`w-full py-3 px-6 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-lime-500 text-slate-950 font-black text-sm sm:text-base tracking-wide shadow-[0_10px_28px_rgba(16,185,129,0.55)] hover:shadow-[0_0_36px_rgba(52,211,153,0.9)] hover:scale-[1.01] active:scale-95 transition-all duration-200 cursor-pointer ${
-                  loginBtnPressed ? 'scale-95 opacity-80' : ''
-                }`}
-              >
-                {loginLevelChoice === 'intermediate'
-                  ? '⚡ Login & Start Directly at Quiz →'
-                  : '🚀 Login & Enter School (Beginner) →'}
-              </button>
+              {/* Validation Alert Box if user tries to Log In without an account or with missing credentials */}
+              {authError && (
+                <div className="p-3 rounded-2xl bg-rose-100 border-2 border-rose-600 text-rose-950 text-xs font-black flex items-start gap-2.5 shadow-md">
+                  <span className="text-base leading-none mt-0.5">⚠️</span>
+                  <div className="flex-1">
+                    <div>{authError}</div>
+                  </div>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+                <button
+                  type="button"
+                  onClick={() => executeSignInOrLogIn('signin')}
+                  onMouseEnter={() => soundEngine.playHover()}
+                  className={`w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-cyan-400 to-blue-400 text-black border-2 border-black/20 font-black text-xs sm:text-sm tracking-wide shadow-md hover:scale-[1.01] active:scale-95 transition-all cursor-pointer ${
+                    loginBtnPressed && authMode === 'signin' ? 'scale-95 opacity-80' : ''
+                  }`}
+                >
+                  {loginLevelChoice === 'intermediate'
+                    ? '⚡ Sign In & Start at Quiz →'
+                    : '🔑 Sign In & Create Account →'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => executeSignInOrLogIn('login')}
+                  onMouseEnter={() => soundEngine.playHover()}
+                  className={`w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-emerald-400 via-teal-400 to-lime-400 text-black border-2 border-black/20 font-black text-xs sm:text-sm tracking-wide shadow-md hover:scale-[1.01] active:scale-95 transition-all cursor-pointer ${
+                    loginBtnPressed && authMode === 'login' ? 'scale-95 opacity-80' : ''
+                  }`}
+                >
+                  {loginLevelChoice === 'intermediate'
+                    ? '⚡ Log In & Start at Quiz →'
+                    : '🚀 Log In (Existing Account) →'}
+                </button>
+              </div>
             </form>
           </div>
         </div>
       )}
 
       {/* ═══════════════════════════════════════════════════════════════════
-          ONLY "Skip Walk →" BUTTON SHOWN DURING WALKS (Walking description removed!)
+          SCHOOL GARDEN STALLS MODAL (Stall 1: Clothes >= 20 XP, Stall 2: Ice Cream < 10 XP, Stall 3: Spin the Finance Wheel)
+      ═══════════════════════════════════════════════════════════════════ */}
+      <SchoolGardenStallModal
+        activeStall={activeGardenStall}
+        onClose={() => setActiveGardenStall(null)}
+        onSwitchStall={(id) => setActiveGardenStall(id)}
+        userXp={state?.xp || 0}
+        onSpendXp={(cost) => {
+          if (addXP) addXP(-Math.abs(cost))
+        }}
+        onEarnXp={(reward) => {
+          if (addXP) addXP(Math.abs(reward))
+        }}
+        currentOutfitId={customStallOutfit?.id || outfitThemeId}
+        onEquipStallOutfit={(outfit) => {
+          setCustomStallOutfit(outfit)
+        }}
+      />
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          BANK XP DEPOSIT MODAL (Through Bank Guide Maya) & 24/7 ATM XP WITHDRAWAL MODAL
+      ═══════════════════════════════════════════════════════════════════ */}
+      {(showXpDepositModal || showAtmModal) && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md pointer-events-auto">
+          <div className="w-[min(94vw,540px)] rounded-3xl bg-white/95 backdrop-blur-xl border-3 border-amber-500 shadow-[0_25px_90px_rgba(0,0,0,0.85)] overflow-hidden text-black">
+            <div
+              className={`px-6 py-4 flex items-center justify-between border-b-2 border-black/15 ${
+                showAtmModal
+                  ? 'bg-gradient-to-r from-cyan-400 via-sky-400 to-blue-400'
+                  : 'bg-gradient-to-r from-amber-400 via-yellow-400 to-emerald-400'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-3xl">{showAtmModal ? '🏧' : '👩‍💼'}</span>
+                <div>
+                  <div className="text-[11px] font-black uppercase tracking-widest text-black/80">
+                    {showAtmModal
+                      ? 'Learn2Invest 24/7 Side ATM Machine'
+                      : 'Learn2Invest Bank • Maya XP Vault Counter'}
+                  </div>
+                  <h2 className="text-xl font-black text-black leading-tight">
+                    {showAtmModal ? 'ATM XP Withdrawal & Balance Kiosk' : 'Deposit Collected XP with Maya'}
+                  </h2>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setShowXpDepositModal(false)
+                  setShowAtmModal(false)
+                  setXpBankToast('')
+                }}
+                className="w-9 h-9 rounded-full bg-black text-white font-black text-sm flex items-center justify-center cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              {/* Balances */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="p-4 rounded-2xl bg-amber-100 border-2 border-amber-400 text-center">
+                  <div className="text-[11px] font-black uppercase text-black">Wallet XP (On Hand)</div>
+                  <div className="text-2xl font-black text-black mt-1">⭐ {state?.xp || 0} XP</div>
+                </div>
+                <div className="p-4 rounded-2xl bg-emerald-100 border-2 border-emerald-500 text-center">
+                  <div className="text-[11px] font-black uppercase text-black">Banked XP (In Vault)</div>
+                  <div className="text-2xl font-black text-black mt-1">🏦 {bankedXp} XP</div>
+                </div>
+              </div>
+
+              {/* Mode Switcher */}
+              <div className="flex items-center gap-2 bg-slate-200 p-1.5 rounded-2xl border border-slate-400">
+                <button
+                  type="button"
+                  onClick={() => {
+                    soundEngine.playClick()
+                    setShowXpDepositModal(true)
+                    setShowAtmModal(false)
+                    setXpBankToast('')
+                  }}
+                  className={`flex-1 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                    showXpDepositModal && !showAtmModal
+                      ? 'bg-amber-400 text-black shadow'
+                      : 'text-black hover:bg-white/60'
+                  }`}
+                >
+                  👩‍💼 Deposit XP (Bank Guide Maya)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    soundEngine.playClick()
+                    setShowAtmModal(true)
+                    setShowXpDepositModal(false)
+                    setXpBankToast('')
+                  }}
+                  className={`flex-1 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                    showAtmModal
+                      ? 'bg-cyan-400 text-black shadow'
+                      : 'text-black hover:bg-white/60'
+                  }`}
+                >
+                  🏧 Withdraw XP (Bank ATM)
+                </button>
+              </div>
+
+              <div>
+                <label className="block text-xs font-black uppercase tracking-wider text-black mb-1.5">
+                  Select XP Amount to {showAtmModal ? 'Withdraw from ATM' : 'Deposit in Bank'}:
+                </label>
+                <div className="flex items-center gap-2 mb-2.5">
+                  {[10, 20, 50, 100].map((preset) => (
+                    <button
+                      key={preset}
+                      type="button"
+                      onClick={() => {
+                        soundEngine.playClick()
+                        setXpTransferAmount(preset)
+                      }}
+                      className={`flex-1 py-2 rounded-xl border-2 font-black text-xs cursor-pointer ${
+                        Number(xpTransferAmount) === preset
+                          ? 'bg-slate-900 text-white border-black'
+                          : 'bg-white text-black border-slate-400 hover:bg-slate-100'
+                      }`}
+                    >
+                      {preset} XP
+                    </button>
+                  ))}
+                </div>
+                <input
+                  type="number"
+                  min={1}
+                  value={xpTransferAmount}
+                  onChange={(e) => setXpTransferAmount(Math.max(1, Number(e.target.value) || 0))}
+                  className="w-full px-4 py-2.5 rounded-xl bg-white border-2 border-slate-400 text-black font-black text-sm"
+                />
+              </div>
+
+              {xpBankToast && (
+                <div className="p-3 rounded-2xl bg-emerald-100 border-2 border-emerald-500 text-black text-xs font-black text-center">
+                  {xpBankToast}
+                </div>
+              )}
+
+              <div className="flex items-center gap-3 pt-1">
+                {!showAtmModal ? (
+                  <button
+                    type="button"
+                    onClick={() => handleDepositXpAtBank(xpTransferAmount)}
+                    className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-amber-400 to-emerald-400 border-2 border-black/20 text-black font-black text-sm shadow-lg hover:scale-[1.01] active:scale-95 transition-all cursor-pointer"
+                  >
+                    🏦 Deposit {xpTransferAmount} XP with Bank Guide Maya →
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => handleWithdrawXpAtAtm(xpTransferAmount)}
+                    className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-cyan-400 to-emerald-400 border-2 border-black/20 text-black font-black text-sm shadow-lg hover:scale-[1.01] active:scale-95 transition-all cursor-pointer"
+                  >
+                    🏧 Withdraw {xpTransferAmount} XP from ATM Machine →
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          ONLY "Skip Walk →" BUTTON SHOWN DURING WALKS
       ═══════════════════════════════════════════════════════════════════ */}
       {([
         'walking_to_classroom',

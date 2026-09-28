@@ -129,12 +129,12 @@ function AppContent() {
     document.body.setAttribute('data-theme', themeMode)
   }, [screen, themeMode])
 
-  const [lang, setLangState] = useState(() => localStorage.getItem('l2i_lang') || 'en')
+  const [lang, setLangState] = useState('en')
   const [parentChildMode, setParentChildModeState] = useState(() => localStorage.getItem('l2i_parentChildMode') === 'true')
 
-  const setLang = (l) => {
-    setLangState(l)
-    localStorage.setItem('l2i_lang', l)
+  const setLang = () => {
+    setLangState('en')
+    localStorage.setItem('l2i_lang', 'en')
   }
 
   useGlobalDomTranslator(lang)
@@ -603,6 +603,7 @@ function AppContent() {
             onClose={() => setChatOpen(false)}
             user={state.user}
             xp={state.xp}
+            state={state}
             currentScreen={screen}
             aiGuideAvatar={aiGuideAvatar}
             aiGuideName={aiGuideName}

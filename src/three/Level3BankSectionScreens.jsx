@@ -66,36 +66,14 @@ export default function Level3BankSectionScreen({
           </div>
         </div>
 
-        {/* Direct Cabin 1 & Cabin 2 Switcher */}
-        <div className="flex items-center gap-2 bg-slate-950/90 p-1.5 rounded-2xl border border-white/15">
-          {LEVEL3_BANK_SECTIONS.map((cab) => {
-            const active = currentSec === cab.num
-            const done = completedSections.includes(cab.num)
-            const locked = cab.num === 2 && !cabin1Done && !active
-            return (
-              <button
-                key={cab.num}
-                onClick={() => {
-                  if (locked) return
-                  soundEngine.playClick()
-                  if (onSelectCabin) onSelectCabin(cab.num)
-                }}
-                className={`px-3.5 py-1.5 rounded-xl font-black text-xs transition-all flex items-center gap-1.5 ${
-                  active
-                    ? 'bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 shadow-md'
-                    : locked
-                      ? 'bg-slate-900 text-slate-500 cursor-not-allowed'
-                      : 'bg-slate-800/80 hover:bg-slate-800 text-slate-200 cursor-pointer'
-                }`}
-                title={locked ? 'Complete Cabin 1 first to unlock Cabin 2' : `Walk to ${cab.cabinLabel}`}
-              >
-                <span>{locked ? '🔒' : done ? '✓' : cab.icon}</span>
-                <span>
-                  {cab.cabinLabel}: {cab.num === 1 ? 'Bank Slip Writing' : 'Digital Banking Safety'}
-                </span>
-              </button>
-            )
-          })}
+        {/* Active Cabin Status Badge (Cabin 1 only shows Bank Slip Writing; Digital Banking is exclusively in Cabin 2) */}
+        <div className="flex items-center gap-2 bg-slate-950/90 px-3.5 py-1.5 rounded-2xl border border-amber-400/30">
+          <span className="text-base">{secMeta.icon}</span>
+          <span className="font-black text-xs text-amber-300">
+            {currentSec === 1
+              ? 'CABIN 1 • BANK SLIP WRITING ONLY'
+              : 'CABIN 2 • DIGITAL BANKING & SAFETY ONLY'}
+          </span>
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
@@ -107,7 +85,7 @@ export default function Level3BankSectionScreen({
               }}
               className="px-3.5 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/25 text-amber-300 font-black text-xs transition-all cursor-pointer"
             >
-              ⬅ Back
+              ⬅ Back to Bank Lobby
             </button>
           )}
 
@@ -121,11 +99,11 @@ export default function Level3BankSectionScreen({
             className="px-4 py-2 rounded-full bg-gradient-to-r from-emerald-400 to-teal-400 text-slate-950 font-black text-xs sm:text-sm shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer"
           >
             {currentSec < 2
-              ? `✓ Complete Cabin 1 & Walk to Cabin 2: Digital Banking Safety (+${secMeta.xpReward} XP) →`
-              : `🏆 Finish Cabin 2 & Show Campus Map (+${secMeta.xpReward} XP) →`}
+              ? `✓ Complete Cabin 1 & Walk to Cabin 2 (+${secMeta.xpReward} XP) →`
+              : `🏆 Finish Cabin 2 & Complete Level 3 (+${secMeta.xpReward} XP) →`}
           </button>
 
-          {onFinishAllLevel3 && (
+          {onFinishAllLevel3 && currentSec === 2 && (
             <button
               onClick={() => {
                 soundEngine.playClick()
@@ -140,7 +118,7 @@ export default function Level3BankSectionScreen({
         </div>
       </div>
 
-      {/* Exact Untouched Original Level 3 Content (Cabin 1 = Bank Paper Slip Writer | Cabin 2 = Digital Banking Safety) */}
+      {/* Cabin 1 = Bank Paper Slip Writer ONLY | Cabin 2 = Digital Banking Safety ONLY */}
       <div className="flex-1 overflow-y-auto p-4 sm:p-6">
         <Advanced
           key={`cabin_${currentSec}_${secMeta.tab}`}
@@ -150,6 +128,7 @@ export default function Level3BankSectionScreen({
           goBack={handleBack}
           themeMode="dark"
           initialTab={secMeta.tab}
+          lockedTab={secMeta.tab}
         />
       </div>
     </div>

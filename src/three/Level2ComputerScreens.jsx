@@ -357,6 +357,8 @@ export function Computer1SimulatorScreen({
   addXP,
   onCompleteComputer1,
   onNextComputer,
+  isFullscreen = false,
+  onToggleFullscreen,
 }) {
   const handleNext = onCompleteComputer1 || onNextComputer
   const [selectedId, setSelectedId] = useState(SIMULATOR_MODULES[0].id)
@@ -365,29 +367,142 @@ export function Computer1SimulatorScreen({
   const [amount, setAmount] = useState(mod.defaultAmount)
   const [duration, setDuration] = useState(mod.defaultDuration)
   const [localExplored, setLocalExplored] = useState(['ppf'])
+  const [showCompletedPage, setShowCompletedPage] = useState(false)
+
+  const completedMods = Array.from(new Set([...(state?.completedModules || []), ...localExplored]))
+  const isCompleted = completedMods.includes(mod.id)
+  const allSixExplored = SIMULATOR_MODULES.every((m) => completedMods.includes(m.id))
 
   const handleSelectMod = (m) => {
     setSelectedId(m.id)
     setAmount(m.defaultAmount)
     setDuration(m.defaultDuration)
     if (!localExplored.includes(m.id)) {
-      setLocalExplored((prev) => [...prev, m.id])
+      const nextLocal = [...localExplored, m.id]
+      setLocalExplored(nextLocal)
+      if (addXP) addXP(25)
+      if (update) {
+        const nextMods = Array.from(new Set([...(state?.completedModules || []), ...nextLocal]))
+        update({ completedModules: nextMods })
+      }
     }
   }
 
   const stats = useMemo(() => computeModuleStats(mod, amount, duration), [mod, amount, duration])
-  const completedMods = Array.from(new Set([...(state?.completedModules || []), ...localExplored]))
-  const isCompleted = completedMods.includes(mod.id)
 
   const handleMarkComplete = () => {
-    if (!localExplored.includes(mod.id)) {
-      setLocalExplored((prev) => [...prev, mod.id])
-    }
-    if (addXP) addXP(25)
+    const nextLocal = localExplored.includes(mod.id) ? localExplored : [...localExplored, mod.id]
+    setLocalExplored(nextLocal)
+    if (!localExplored.includes(mod.id) && addXP) addXP(25)
+    const nextMods = Array.from(new Set([...(state?.completedModules || []), ...nextLocal]))
     if (update) {
-      const nextMods = Array.from(new Set([...(state?.completedModules || []), mod.id]))
       update({ completedModules: nextMods })
     }
+    if (SIMULATOR_MODULES.every((m) => nextMods.includes(m.id))) {
+      setShowCompletedPage(true)
+    } else {
+      // Jump to the next unexplored scheme to help the user manually explore all 6
+      const nextUnexplored = SIMULATOR_MODULES.find((m) => !nextMods.includes(m.id))
+      if (nextUnexplored) {
+        setSelectedId(nextUnexplored.id)
+        setAmount(nextUnexplored.defaultAmount)
+        setDuration(nextUnexplored.defaultDuration)
+      }
+    }
+  }
+
+  if (showCompletedPage) {
+    return (
+      <div
+        onWheel={(e) => e.stopPropagation()}
+        style={{
+          width: '100%',
+          height: '100%',
+          background: 'radial-gradient(circle at 50% 30%, #064E3B 0%, #070D19 85%)',
+          color: '#F8FAFC',
+          fontFamily: "'Inter', 'Segoe UI', sans-serif",
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '24px 36px',
+          boxSizing: 'border-box',
+          textAlign: 'center',
+          position: 'relative',
+        }}
+      >
+        {onToggleFullscreen && (
+          <button
+            onClick={onToggleFullscreen}
+            style={{
+              position: 'absolute',
+              top: '12px',
+              right: '16px',
+              background: 'rgba(14,165,233,0.22)',
+              border: '1.5px solid #38BDF8',
+              color: '#E0F2FE',
+              borderRadius: '8px',
+              padding: '5px 12px',
+              fontSize: '11px',
+              fontWeight: 900,
+              cursor: 'pointer',
+            }}
+          >
+            {isFullscreen ? '🗗 Exit Full Screen' : '⛶ Full Screen'}
+          </button>
+        )}
+        <div style={{ fontSize: '38px', marginBottom: '6px' }}>🎉🖥️🏆</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '8px' }}>
+          <div style={{ background: 'rgba(16,185,129,0.22)', border: '1.5px solid #10B981', color: '#6EE7B7', fontSize: '11px', fontWeight: 900, padding: '4px 12px', borderRadius: '999px' }}>
+            ✅ COMPUTER 1 COMPLETED • 6 / 6 SCHEMES MASTERED
+          </div>
+          <div style={{ background: 'linear-gradient(135deg, #F59E0B, #D97706)', color: '#FFF', fontSize: '11px', fontWeight: 900, padding: '4px 12px', borderRadius: '999px', boxShadow: '0 4px 14px rgba(245,158,11,0.45)' }}>
+            ⭐ +50 XP Bonus Claimed!
+          </div>
+        </div>
+        <h2 style={{ fontSize: '19px', fontWeight: 900, margin: '0 0 6px 0', color: '#FFFFFF' }}>
+          All 6 Government Investment Simulators Mastered!
+        </h2>
+        <p style={{ fontSize: '12px', color: '#CBD5E1', maxWidth: '500px', margin: '0 0 14px 0', lineHeight: 1.45 }}>
+          You have manually explored <strong>PPF Simulator (7.1%)</strong>, <strong>Fixed Deposit (7.25%)</strong>, <strong>NSC Calculator (7.7%)</strong>, <strong>Sukanya Samriddhi (8.2%)</strong>, <strong>Recurring Deposit (7.0%)</strong>, and <strong>Post Office MIS (7.4%)</strong>.
+        </p>
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center' }}>
+          <button
+            onClick={() => setShowCompletedPage(false)}
+            style={{
+              background: 'rgba(30,41,59,0.9)',
+              color: '#E2E8F0',
+              border: '1px solid rgba(148,163,184,0.35)',
+              borderRadius: '10px',
+              padding: '9px 16px',
+              fontSize: '12px',
+              fontWeight: 800,
+              cursor: 'pointer',
+            }}
+          >
+            ← Review Simulators
+          </button>
+          {handleNext && (
+            <button
+              onClick={handleNext}
+              style={{
+                background: 'linear-gradient(135deg, #10B981, #059669)',
+                color: '#FFFFFF',
+                border: 'none',
+                borderRadius: '10px',
+                padding: '9px 20px',
+                fontSize: '12.5px',
+                fontWeight: 900,
+                cursor: 'pointer',
+                boxShadow: '0 6px 20px rgba(16,185,129,0.45)',
+              }}
+            >
+              🚶 Stand Up & Walk to Computer 2 →
+            </button>
+          )}
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -401,7 +516,7 @@ export function Computer1SimulatorScreen({
         fontFamily: "'Inter', 'Segoe UI', sans-serif",
         display: 'flex',
         flexDirection: 'column',
-        padding: '10px 14px',
+        padding: isFullscreen ? '18px 26px' : '10px 14px',
         boxSizing: 'border-box',
         overflow: 'hidden',
         userSelect: 'none',
@@ -413,17 +528,17 @@ export function Computer1SimulatorScreen({
           <span style={{ background: '#0284C7', color: '#fff', fontWeight: 900, fontSize: '10px', padding: '3px 8px', borderRadius: '6px', letterSpacing: '0.7px' }}>
             🖥️ COMPUTER 1 • ALL 6 SIMULATORS
           </span>
-          <span style={{ fontSize: '12.5px', fontWeight: 800, color: '#E2E8F0' }}>
-            PPF • Fixed Deposit • NSC • Sukanya Samriddhi • RD • Post Office MIS
+          <span style={{ fontSize: '11.5px', fontWeight: 800, color: '#E2E8F0' }}>
+            Explore all 6 schemes manually to unlock Computer 1 Completion
           </span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '10.5px', color: '#38BDF8', fontWeight: 800, background: 'rgba(56,189,248,0.12)', padding: '3px 8px', borderRadius: '999px', border: '1px solid rgba(56,189,248,0.3)' }}>
-            ✓ {completedMods.length}/6 Schemes
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span style={{ fontSize: '10.5px', color: allSixExplored ? '#4ADE80' : '#38BDF8', fontWeight: 800, background: allSixExplored ? 'rgba(16,185,129,0.18)' : 'rgba(56,189,248,0.12)', padding: '3px 10px', borderRadius: '999px', border: `1px solid ${allSixExplored ? '#10B981' : 'rgba(56,189,248,0.3)'}` }}>
+            ✓ Explored {Math.min(6, completedMods.length)}/6 Schemes
           </span>
-          {handleNext && (
+          {allSixExplored && (
             <button
-              onClick={handleNext}
+              onClick={() => setShowCompletedPage(true)}
               style={{
                 background: 'linear-gradient(135deg, #10B981, #059669)',
                 color: '#fff',
@@ -431,12 +546,28 @@ export function Computer1SimulatorScreen({
                 borderRadius: '7px',
                 padding: '5px 11px',
                 fontSize: '11px',
-                fontWeight: 800,
+                fontWeight: 900,
                 cursor: 'pointer',
-                boxShadow: '0 2px 10px rgba(16,185,129,0.35)',
               }}
             >
-              Complete & Walk to Computer 2 →
+              🏆 View Completed Page →
+            </button>
+          )}
+          {onToggleFullscreen && (
+            <button
+              onClick={onToggleFullscreen}
+              style={{
+                background: isFullscreen ? 'linear-gradient(135deg, #F59E0B, #D97706)' : 'rgba(14,165,233,0.22)',
+                color: '#fff',
+                border: isFullscreen ? 'none' : '1.5px solid #38BDF8',
+                borderRadius: '7px',
+                padding: '4px 10px',
+                fontSize: '10.5px',
+                fontWeight: 900,
+                cursor: 'pointer',
+              }}
+            >
+              {isFullscreen ? '🗗 Exit Full Screen' : '⛶ Full Screen'}
             </button>
           )}
         </div>
@@ -617,9 +748,11 @@ export function Computer1SimulatorScreen({
                 onClick={handleMarkComplete}
                 style={{
                   flex: 1,
-                  background: isCompleted ? 'rgba(16,185,129,0.2)' : `linear-gradient(135deg, ${mod.color}, #4F46E5)`,
-                  color: isCompleted ? '#4ADE80' : '#fff',
-                  border: isCompleted ? '1px solid #10B981' : 'none',
+                  background: allSixExplored
+                    ? 'linear-gradient(135deg, #10B981, #059669)'
+                    : `linear-gradient(135deg, ${mod.color}, #4F46E5)`,
+                  color: '#fff',
+                  border: 'none',
                   borderRadius: '7px',
                   padding: '7px 9px',
                   fontSize: '11px',
@@ -627,25 +760,12 @@ export function Computer1SimulatorScreen({
                   cursor: 'pointer',
                 }}
               >
-                {isCompleted ? '✓ Explored (+25 XP)' : '✓ Mark Explored (+25 XP)'}
+                {allSixExplored
+                  ? '🏆 All 6 Explored! Open Computer 1 Completed Page →'
+                  : isCompleted
+                  ? `✓ Explored (${completedMods.length}/6) — Click for Next Scheme →`
+                  : `✓ Mark Explored & Next Scheme (+25 XP)`}
               </button>
-              {handleNext && (
-                <button
-                  onClick={handleNext}
-                  style={{
-                    background: 'linear-gradient(135deg, #0EA5E9, #2563EB)',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: '7px',
-                    padding: '7px 11px',
-                    fontSize: '11px',
-                    fontWeight: 800,
-                    cursor: 'pointer',
-                  }}
-                >
-                  Computer 2 →
-                </button>
-              )}
             </div>
           </div>
         </div>
@@ -722,7 +842,8 @@ export function Computer2SavingsMixerScreen({
   addXP,
   onCompleteComputer2,
   onNextComputer,
-  onPrevComputer,
+  isFullscreen = false,
+  onToggleFullscreen,
 }) {
   const handleNext = onCompleteComputer2 || onNextComputer
 
@@ -731,8 +852,10 @@ export function Computer2SavingsMixerScreen({
   const [mixerAmount, setMixerAmount] = useState(50000)
   const [mixerYears, setMixerYears] = useState(10)
 
-  // Sub-feature view switcher inside Computer 2 so all 7 required items are one click away and fit cleanly
+  // Sub-feature view switcher inside Computer 2 so all 7 required items are manually explored
   const [activeSection, setActiveSection] = useState('mixer')
+  const [exploredTabs, setExploredTabs] = useState(['mixer'])
+  const [showCompletedPage, setShowCompletedPage] = useState(false)
 
   // Challenge state
   const [challengeAnswers, setChallengeAnswers] = useState({})
@@ -747,6 +870,36 @@ export function Computer2SavingsMixerScreen({
   const [newGoalCost, setNewGoalCost] = useState(100000)
   const [newGoalYears, setNewGoalYears] = useState(5)
   const [newGoalScheme, setNewGoalScheme] = useState('ppf')
+
+  const SECTION_TABS = [
+    { id: 'mixer', label: '🎛️ Simultaneous Mixer', badge: `${activeSchemeIds.length}/6` },
+    { id: 'notes', label: '📚 Educational Notes' },
+    { id: 'comparison', label: '📊 Comparison Metric' },
+    { id: 'know', label: '💡 What Should You Know' },
+    { id: 'challenges', label: '🎯 Learning Challenges' },
+    { id: 'projector', label: '🔮 Growth Projector' },
+    { id: 'planner', label: '🎯 Multi-Goal Planner' },
+  ]
+
+  const allTabsExplored = SECTION_TABS.every((t) => exploredTabs.includes(t.id))
+
+  const handleSelectSection = (tabId) => {
+    setActiveSection(tabId)
+    if (!exploredTabs.includes(tabId)) {
+      const next = [...exploredTabs, tabId]
+      setExploredTabs(next)
+      if (addXP) addXP(15)
+    }
+  }
+
+  const handleAdvanceOrFinishMixer = () => {
+    const nextUnvisited = SECTION_TABS.find((t) => !exploredTabs.includes(t.id))
+    if (nextUnvisited) {
+      handleSelectSection(nextUnvisited.id)
+    } else {
+      setShowCompletedPage(true)
+    }
+  }
 
   const toggleSchemeInMixer = (id) => {
     setActiveSchemeIds((prev) => {
@@ -797,15 +950,99 @@ export function Computer2SavingsMixerScreen({
     setGoals((prev) => prev.filter((g) => g.id !== id))
   }
 
-  const SECTION_TABS = [
-    { id: 'mixer', label: '🎛️ Simultaneous Mixer', badge: `${activeSchemeIds.length}/6` },
-    { id: 'notes', label: '📚 Educational Notes' },
-    { id: 'comparison', label: '📊 Comparison Metric' },
-    { id: 'know', label: '💡 What Should You Know' },
-    { id: 'challenges', label: '🎯 Learning Challenges' },
-    { id: 'projector', label: '🔮 Growth Projector' },
-    { id: 'planner', label: '🎯 Multi-Goal Planner' },
-  ]
+  if (showCompletedPage) {
+    return (
+      <div
+        onWheel={(e) => e.stopPropagation()}
+        style={{
+          width: '100%',
+          height: '100%',
+          background: 'radial-gradient(circle at 50% 30%, #1E1B4B 0%, #060B16 85%)',
+          color: '#F8FAFC',
+          fontFamily: "'Inter', 'Segoe UI', sans-serif",
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '24px 36px',
+          boxSizing: 'border-box',
+          textAlign: 'center',
+          position: 'relative',
+        }}
+      >
+        {onToggleFullscreen && (
+          <button
+            onClick={onToggleFullscreen}
+            style={{
+              position: 'absolute',
+              top: '12px',
+              right: '16px',
+              background: 'rgba(14,165,233,0.22)',
+              border: '1.5px solid #38BDF8',
+              color: '#E0F2FE',
+              borderRadius: '8px',
+              padding: '5px 12px',
+              fontSize: '11px',
+              fontWeight: 900,
+              cursor: 'pointer',
+            }}
+          >
+            {isFullscreen ? '🗗 Exit Full Screen' : '⛶ Full Screen'}
+          </button>
+        )}
+        <div style={{ fontSize: '38px', marginBottom: '6px' }}>🎛️✨🏆</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '8px' }}>
+          <div style={{ background: 'rgba(56,189,248,0.22)', border: '1.5px solid #38BDF8', color: '#7DD3FC', fontSize: '11px', fontWeight: 900, padding: '4px 12px', borderRadius: '999px' }}>
+            ✅ COMPUTER 2 COMPLETED • ALL 7 MIXER SECTIONS EXPLORED
+          </div>
+          <div style={{ background: 'linear-gradient(135deg, #10B981, #059669)', color: '#FFF', fontSize: '11px', fontWeight: 900, padding: '4px 12px', borderRadius: '999px', boxShadow: '0 4px 14px rgba(16,185,129,0.45)' }}>
+            ⭐ +50 XP Bonus Claimed!
+          </div>
+        </div>
+        <h2 style={{ fontSize: '19px', fontWeight: 900, margin: '0 0 6px 0', color: '#FFFFFF' }}>
+          Savings Mixer & Multi-Goal Planner Completed!
+        </h2>
+        <p style={{ fontSize: '12px', color: '#CBD5E1', maxWidth: '510px', margin: '0 0 14px 0', lineHeight: 1.45 }}>
+          You compared schemes simultaneously and explored Educational Notes, Comparison Metrics, What You Should Know, Learning Challenges, Growth Projector, and the Multi-Goal Savings Planner!
+        </p>
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center' }}>
+          <button
+            onClick={() => setShowCompletedPage(false)}
+            style={{
+              background: 'rgba(30,41,59,0.9)',
+              color: '#E2E8F0',
+              border: '1px solid rgba(148,163,184,0.35)',
+              borderRadius: '10px',
+              padding: '9px 16px',
+              fontSize: '12px',
+              fontWeight: 800,
+              cursor: 'pointer',
+            }}
+          >
+            ← Back to Savings Mixer
+          </button>
+          {handleNext && (
+            <button
+              onClick={handleNext}
+              style={{
+                background: 'linear-gradient(135deg, #F59E0B, #D97706)',
+                color: '#FFFFFF',
+                border: 'none',
+                borderRadius: '10px',
+                padding: '9px 20px',
+                fontSize: '12.5px',
+                fontWeight: 900,
+                cursor: 'pointer',
+                boxShadow: '0 6px 20px rgba(245,158,11,0.45)',
+              }}
+            >
+              🚶 Stand Up & Walk to Computer 3 →
+            </button>
+          )}
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div
@@ -818,7 +1055,7 @@ export function Computer2SavingsMixerScreen({
         fontFamily: "'Inter', 'Segoe UI', sans-serif",
         display: 'flex',
         flexDirection: 'column',
-        padding: '10px 14px',
+        padding: isFullscreen ? '18px 26px' : '10px 14px',
         boxSizing: 'border-box',
         overflow: 'hidden',
         userSelect: 'none',
@@ -830,44 +1067,46 @@ export function Computer2SavingsMixerScreen({
           <span style={{ background: 'linear-gradient(135deg, #10B981, #059669)', color: '#042F2E', fontWeight: 900, fontSize: '10px', padding: '3px 8px', borderRadius: '6px', letterSpacing: '0.7px' }}>
             🎛️ COMPUTER 2 • SAVINGS MIXER STUDIO
           </span>
-          <span style={{ fontSize: '12.5px', fontWeight: 900, color: '#ECFDF5' }}>
-            Simultaneous Scheme Mixer, Notes, Metrics, Challenges & Goal Planner
+          <span style={{ fontSize: '11.5px', fontWeight: 800, color: '#ECFDF5' }}>
+            Explore all 7 Mixer tabs below to complete Computer 2
           </span>
         </div>
-        <div style={{ display: 'flex', gap: '6px' }}>
-          {onPrevComputer && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span style={{ fontSize: '10px', color: allTabsExplored ? '#4ADE80' : '#38BDF8', fontWeight: 800, background: 'rgba(56,189,248,0.12)', padding: '3px 9px', borderRadius: '999px', border: '1px solid rgba(56,189,248,0.3)' }}>
+            ✓ {exploredTabs.length}/7 Sections Explored
+          </span>
+          <button
+            onClick={handleAdvanceOrFinishMixer}
+            style={{
+              background: allTabsExplored
+                ? 'linear-gradient(135deg, #10B981, #059669)'
+                : 'rgba(56,189,248,0.2)',
+              color: '#fff',
+              border: allTabsExplored ? 'none' : '1px solid #38BDF8',
+              borderRadius: '7px',
+              padding: '4px 10px',
+              fontSize: '10.5px',
+              fontWeight: 800,
+              cursor: 'pointer',
+            }}
+          >
+            {allTabsExplored ? '🏆 Open Completed Page →' : 'Next Section →'}
+          </button>
+          {onToggleFullscreen && (
             <button
-              onClick={onPrevComputer}
+              onClick={onToggleFullscreen}
               style={{
-                background: 'rgba(30,41,59,0.85)',
-                color: '#CBD5E1',
-                border: '1px solid rgba(148,163,184,0.3)',
-                borderRadius: '7px',
-                padding: '4px 9px',
-                fontSize: '10px',
-                fontWeight: 700,
-                cursor: 'pointer',
-              }}
-            >
-              ← Computer 1
-            </button>
-          )}
-          {handleNext && (
-            <button
-              onClick={handleNext}
-              style={{
-                background: 'linear-gradient(135deg, #F59E0B, #D97706)',
+                background: isFullscreen ? 'linear-gradient(135deg, #F59E0B, #D97706)' : 'rgba(14,165,233,0.22)',
                 color: '#fff',
-                border: 'none',
+                border: isFullscreen ? 'none' : '1.5px solid #38BDF8',
                 borderRadius: '7px',
-                padding: '5px 11px',
-                fontSize: '11px',
-                fontWeight: 800,
+                padding: '4px 10px',
+                fontSize: '10.5px',
+                fontWeight: 900,
                 cursor: 'pointer',
-                boxShadow: '0 2px 10px rgba(245,158,11,0.35)',
               }}
             >
-              Complete & Walk to Computer 3 →
+              {isFullscreen ? '🗗 Exit Full Screen' : '⛶ Full Screen'}
             </button>
           )}
         </div>
@@ -877,14 +1116,15 @@ export function Computer2SavingsMixerScreen({
       <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginBottom: '6px', flexShrink: 0 }}>
         {SECTION_TABS.map((tab) => {
           const active = activeSection === tab.id
+          const visited = exploredTabs.includes(tab.id)
           return (
             <button
               key={tab.id}
-              onClick={() => setActiveSection(tab.id)}
+              onClick={() => handleSelectSection(tab.id)}
               style={{
                 background: active ? 'linear-gradient(135deg, #0EA5E9, #6366F1)' : 'rgba(30,41,59,0.8)',
                 color: active ? '#FFFFFF' : '#CBD5E1',
-                border: active ? '1px solid #38BDF8' : '1px solid rgba(148,163,184,0.2)',
+                border: active ? '1px solid #38BDF8' : visited ? '1px solid rgba(16,185,129,0.45)' : '1px solid rgba(148,163,184,0.2)',
                 borderRadius: '999px',
                 padding: '4px 9px',
                 fontSize: '10px',
@@ -896,6 +1136,7 @@ export function Computer2SavingsMixerScreen({
               }}
             >
               <span>{tab.label}</span>
+              {visited && <span style={{ color: '#4ADE80', fontSize: '9px' }}>✓</span>}
               {tab.badge && (
                 <span style={{ background: 'rgba(15,23,42,0.6)', padding: '1px 5px', borderRadius: '999px', fontSize: '9px', color: '#38BDF8' }}>
                   {tab.badge}
@@ -1390,7 +1631,8 @@ export function Computer3PortfolioSimulatorScreen({
   addXP,
   onCompleteComputer3,
   onCompleteLevel2,
-  onPrevComputer,
+  isFullscreen = false,
+  onToggleFullscreen,
 }) {
   const handleFinish = onCompleteComputer3 || onCompleteLevel2
 
@@ -1420,20 +1662,25 @@ export function Computer3PortfolioSimulatorScreen({
       timestamp: 'Default Saved',
     },
   ])
+  const [hasManuallyExplored, setHasManuallyExplored] = useState(false)
+  const [showCompletedPage, setShowCompletedPage] = useState(false)
 
   const activeIds = portfolioItems.map((p) => p.id)
 
   const handleAddScheme = (schemeId) => {
+    setHasManuallyExplored(true)
     if (activeIds.includes(schemeId)) return
     setPortfolioItems((prev) => [...prev, { id: schemeId, amount: 25000 }])
   }
 
   const handleRemoveScheme = (schemeId) => {
+    setHasManuallyExplored(true)
     if (portfolioItems.length <= 1) return // Enforce at least 1 scheme present at all times
     setPortfolioItems((prev) => prev.filter((p) => p.id !== schemeId))
   }
 
   const handleAmountChange = (schemeId, val) => {
+    setHasManuallyExplored(true)
     setPortfolioItems((prev) =>
       prev.map((p) => (p.id === schemeId ? { ...p, amount: Math.max(1000, Number(val) || 1000) } : p))
     )
@@ -1503,6 +1750,7 @@ export function Computer3PortfolioSimulatorScreen({
   }, [buyTargetCost, monthlySaveAmt, buySchemeId])
 
   const handleSaveToHistory = () => {
+    setHasManuallyExplored(true)
     const names = portfolioSummary.breakdown.map((b) => b.scheme.name.split(' ')[0]).join(' + ')
     const newEntry = {
       id: 'hist_' + Date.now(),
@@ -1518,11 +1766,107 @@ export function Computer3PortfolioSimulatorScreen({
   }
 
   const handleDeleteHistoryItem = (id) => {
+    setHasManuallyExplored(true)
     setHistoryList((prev) => prev.filter((h) => h.id !== id))
   }
 
   const handleClearHistory = () => {
+    setHasManuallyExplored(true)
     setHistoryList([])
+  }
+
+  if (showCompletedPage) {
+    return (
+      <div
+        onWheel={(e) => e.stopPropagation()}
+        style={{
+          width: '100%',
+          height: '100%',
+          background: 'radial-gradient(circle at 50% 30%, #451A03 0%, #090D1A 85%)',
+          color: '#F8FAFC',
+          fontFamily: "'Inter', 'Segoe UI', sans-serif",
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '24px 36px',
+          boxSizing: 'border-box',
+          textAlign: 'center',
+          position: 'relative',
+        }}
+      >
+        {onToggleFullscreen && (
+          <button
+            onClick={onToggleFullscreen}
+            style={{
+              position: 'absolute',
+              top: '12px',
+              right: '16px',
+              background: 'rgba(14,165,233,0.22)',
+              border: '1.5px solid #38BDF8',
+              color: '#E0F2FE',
+              borderRadius: '8px',
+              padding: '5px 12px',
+              fontSize: '11px',
+              fontWeight: 900,
+              cursor: 'pointer',
+            }}
+          >
+            {isFullscreen ? '🗗 Exit Full Screen' : '⛶ Full Screen'}
+          </button>
+        )}
+        <div style={{ fontSize: '38px', marginBottom: '6px' }}>📊🏆🏦</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '8px' }}>
+          <div style={{ background: 'rgba(245,158,11,0.22)', border: '1.5px solid #F59E0B', color: '#FDE68A', fontSize: '11px', fontWeight: 900, padding: '4px 12px', borderRadius: '999px' }}>
+            ✅ COMPUTER 3 & LEVEL 2 COMPLETED!
+          </div>
+          <div style={{ background: 'linear-gradient(135deg, #10B981, #059669)', color: '#FFF', fontSize: '11px', fontWeight: 900, padding: '4px 12px', borderRadius: '999px', boxShadow: '0 4px 14px rgba(16,185,129,0.45)' }}>
+            ⭐ +100 XP Bonus Claimed!
+          </div>
+        </div>
+        <h2 style={{ fontSize: '19px', fontWeight: 900, margin: '0 0 6px 0', color: '#FFFFFF' }}>
+          Portfolio Simulation & Investment Plan Mastered!
+        </h2>
+        <p style={{ fontSize: '12px', color: '#CBD5E1', maxWidth: '510px', margin: '0 0 14px 0', lineHeight: 1.45 }}>
+          Your blended portfolio ({portfolioSummary.avgRate}% p.a.) projects a maturity of <strong style={{ color: '#34D399' }}>{fmtINR(portfolioSummary.totalMaturity)}</strong>. Now let&apos;s walk out of the school entrance, along the main road path, and enter the Level 3 Bank beside the school!
+        </p>
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center' }}>
+          <button
+            onClick={() => setShowCompletedPage(false)}
+            style={{
+              background: 'rgba(30,41,59,0.9)',
+              color: '#E2E8F0',
+              border: '1px solid rgba(148,163,184,0.35)',
+              borderRadius: '10px',
+              padding: '9px 16px',
+              fontSize: '12px',
+              fontWeight: 800,
+              cursor: 'pointer',
+            }}
+          >
+            ← Back to Portfolio
+          </button>
+          {handleFinish && (
+            <button
+              onClick={handleFinish}
+              style={{
+                background: 'linear-gradient(135deg, #10B981, #059669)',
+                color: '#FFFFFF',
+                border: 'none',
+                borderRadius: '10px',
+                padding: '9px 20px',
+                fontSize: '12.5px',
+                fontWeight: 900,
+                cursor: 'pointer',
+                boxShadow: '0 6px 20px rgba(16,185,129,0.45)',
+              }}
+            >
+              🚶 Walk Out of School → Road → Level 3 Bank →
+            </button>
+          )}
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -1536,7 +1880,7 @@ export function Computer3PortfolioSimulatorScreen({
         fontFamily: "'Inter', 'Segoe UI', sans-serif",
         display: 'flex',
         flexDirection: 'column',
-        padding: '10px 14px',
+        padding: isFullscreen ? '18px 26px' : '10px 14px',
         boxSizing: 'border-box',
         overflow: 'hidden',
         userSelect: 'none',
@@ -1548,44 +1892,29 @@ export function Computer3PortfolioSimulatorScreen({
           <span style={{ background: 'linear-gradient(135deg, #F59E0B, #D97706)', color: '#fff', fontWeight: 900, fontSize: '10px', padding: '3px 8px', borderRadius: '6px' }}>
             📊 COMPUTER 3 • PORTFOLIO SIMULATION & INVESTMENT PLAN
           </span>
-          <span style={{ fontSize: '12px', fontWeight: 800, color: '#FEF3C7' }}>
-            Add/Remove Any Scheme • &ldquo;When Can I Buy?&rdquo; Planner • History Manager
+          <span style={{ fontSize: '11.5px', fontWeight: 800, color: '#FEF3C7' }}>
+            Customize your schemes, test &ldquo;When Can I Buy?&rdquo;, and save to History to finish Level 2
           </span>
         </div>
-        <div style={{ display: 'flex', gap: '6px' }}>
-          {onPrevComputer && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span style={{ fontSize: '10px', color: hasManuallyExplored ? '#4ADE80' : '#FBBF24', fontWeight: 800, background: 'rgba(245,158,11,0.14)', padding: '3px 9px', borderRadius: '999px', border: '1px solid rgba(245,158,11,0.35)' }}>
+            {hasManuallyExplored ? '✓ Portfolio Explored' : '👆 Adjust Sliders or Save History'}
+          </span>
+          {onToggleFullscreen && (
             <button
-              onClick={onPrevComputer}
+              onClick={onToggleFullscreen}
               style={{
-                background: 'rgba(30,41,59,0.85)',
-                color: '#CBD5E1',
-                border: '1px solid rgba(148,163,184,0.3)',
-                borderRadius: '7px',
-                padding: '4px 9px',
-                fontSize: '10px',
-                fontWeight: 700,
-                cursor: 'pointer',
-              }}
-            >
-              ← Computer 2
-            </button>
-          )}
-          {handleFinish && (
-            <button
-              onClick={handleFinish}
-              style={{
-                background: 'linear-gradient(135deg, #10B981, #059669)',
+                background: isFullscreen ? 'linear-gradient(135deg, #F59E0B, #D97706)' : 'rgba(14,165,233,0.22)',
                 color: '#fff',
-                border: 'none',
+                border: isFullscreen ? 'none' : '1.5px solid #38BDF8',
                 borderRadius: '7px',
-                padding: '5px 11px',
-                fontSize: '11px',
+                padding: '4px 10px',
+                fontSize: '10.5px',
                 fontWeight: 900,
                 cursor: 'pointer',
-                boxShadow: '0 2px 10px rgba(16,185,129,0.4)',
               }}
             >
-              Complete Level 2 & Walk to Veranda →
+              {isFullscreen ? '🗗 Exit Full Screen' : '⛶ Full Screen'}
             </button>
           )}
         </div>
@@ -1650,7 +1979,10 @@ export function Computer3PortfolioSimulatorScreen({
                   min={1}
                   max={30}
                   value={simYears}
-                  onChange={(e) => setSimYears(Math.max(1, Number(e.target.value) || 1))}
+                  onChange={(e) => {
+                    setHasManuallyExplored(true)
+                    setSimYears(Math.max(1, Number(e.target.value) || 1))
+                  }}
                   style={{ width: '42px', background: '#1E293B', border: '1px solid #38BDF8', borderRadius: '5px', color: '#FFF', fontSize: '10px', fontWeight: 800, padding: '2px 4px', textAlign: 'center' }}
                 />
               </div>
@@ -1746,7 +2078,10 @@ export function Computer3PortfolioSimulatorScreen({
               <input
                 type="text"
                 value={buyItemName}
-                onChange={(e) => setBuyItemName(e.target.value)}
+                onChange={(e) => {
+                  setHasManuallyExplored(true)
+                  setBuyItemName(e.target.value)
+                }}
                 style={{ width: '100%', background: '#1E293B', border: '1px solid #475569', borderRadius: '5px', padding: '4px 6px', color: '#FFF', fontSize: '10.5px', fontWeight: 700, boxSizing: 'border-box' }}
               />
             </div>
@@ -1762,7 +2097,10 @@ export function Computer3PortfolioSimulatorScreen({
                 max={2000000}
                 step={10000}
                 value={buyTargetCost}
-                onChange={(e) => setBuyTargetCost(Number(e.target.value))}
+                onChange={(e) => {
+                  setHasManuallyExplored(true)
+                  setBuyTargetCost(Number(e.target.value))
+                }}
                 style={{ width: '100%', accentColor: '#F59E0B', cursor: 'pointer', height: '4px' }}
               />
             </div>
@@ -1778,7 +2116,10 @@ export function Computer3PortfolioSimulatorScreen({
                 max={50000}
                 step={500}
                 value={monthlySaveAmt}
-                onChange={(e) => setMonthlySaveAmt(Number(e.target.value))}
+                onChange={(e) => {
+                  setHasManuallyExplored(true)
+                  setMonthlySaveAmt(Number(e.target.value))
+                }}
                 style={{ width: '100%', accentColor: '#38BDF8', cursor: 'pointer', height: '4px' }}
               />
             </div>
@@ -1787,7 +2128,10 @@ export function Computer3PortfolioSimulatorScreen({
               <div style={{ fontSize: '9px', color: '#CBD5E1', marginBottom: '2px', fontWeight: 700 }}>Invest Monthly Savings In:</div>
               <select
                 value={buySchemeId}
-                onChange={(e) => setBuySchemeId(e.target.value)}
+                onChange={(e) => {
+                  setHasManuallyExplored(true)
+                  setBuySchemeId(e.target.value)
+                }}
                 style={{ width: '100%', background: '#1E293B', border: '1px solid #475569', borderRadius: '5px', padding: '3px 6px', color: '#FFF', fontSize: '10px', fontWeight: 700 }}
               >
                 {SIX_CORE_SCHEMES.map((s) => (
@@ -1883,25 +2227,28 @@ export function Computer3PortfolioSimulatorScreen({
             )}
           </div>
 
-          {handleFinish && (
-            <button
-              onClick={handleFinish}
-              style={{
-                width: '100%',
-                background: 'linear-gradient(135deg, #10B981, #059669)',
-                color: '#FFF',
-                border: 'none',
-                borderRadius: '6px',
-                padding: '6px',
-                fontSize: '10.5px',
-                fontWeight: 900,
-                cursor: 'pointer',
-                marginTop: '5px',
-              }}
-            >
-              ✓ Finish Level 2 & Exit Lab →
-            </button>
-          )}
+          <button
+            onClick={() => setShowCompletedPage(true)}
+            disabled={!hasManuallyExplored}
+            style={{
+              width: '100%',
+              background: hasManuallyExplored
+                ? 'linear-gradient(135deg, #10B981, #059669)'
+                : 'rgba(51,65,85,0.65)',
+              color: hasManuallyExplored ? '#FFF' : '#94A3B8',
+              border: 'none',
+              borderRadius: '6px',
+              padding: '6px',
+              fontSize: '10.5px',
+              fontWeight: 900,
+              cursor: hasManuallyExplored ? 'pointer' : 'not-allowed',
+              marginTop: '5px',
+            }}
+          >
+            {hasManuallyExplored
+              ? '🏆 Open Level 2 Completed Page →'
+              : '🔒 Explore & Save Simulation First'}
+          </button>
         </div>
       </div>
     </div>

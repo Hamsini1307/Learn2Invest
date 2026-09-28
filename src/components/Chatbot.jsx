@@ -1,111 +1,68 @@
 import React, { useState, useRef, useEffect } from 'react'
 import soundEngine from '../utils/soundEngine.js'
 
-// Dynamic Natural Answer Synthesis Engine — generates custom, question-specific answers (no rigid predefined templates)
-function synthesizeOwnDynamicAnswer(userQuestion, userName = 'Friend', xp = 0, lang = 'en') {
-  const q = (userQuestion || '').trim()
-  const lower = q.toLowerCase()
-
-  // Extract any numbers mentioned by the user for custom math
-  const numMatches = q.match(/\d[\d,]*(?:\.\d+)?/g)?.map((n) => Number(n.replace(/,/g, ''))) || []
-  const firstNum = numMatches[0] || null
-  const secondNum = numMatches[1] || null
-
-  // Detect if user asked a math/calculation question like "how much will 5000 become in 10 years"
-  if (firstNum && (lower.includes('year') || lower.includes('yr') || lower.includes('month') || lower.includes('grow') || lower.includes('return') || lower.includes('calculate') || lower.includes('invest') || lower.includes('save'))) {
-    const amount = firstNum >= 100 ? firstNum : (secondNum && secondNum >= 100 ? secondNum : 5000)
-    const years = firstNum < 50 ? firstNum : (secondNum && secondNum <= 50 ? secondNum : 10)
-    const isMonthly = /month|sip|rd|every month|per month|\/mo/i.test(lower)
-    const rate = /ssy|sukanya/i.test(lower)
-      ? 8.2
-      : /nsc/i.test(lower)
-        ? 7.7
-        : /mis|post office/i.test(lower)
-          ? 7.4
-          : /fd|fixed/i.test(lower)
-            ? 7.25
-            : /ppf/i.test(lower)
-              ? 7.1
-              : /rd|recurring/i.test(lower)
-                ? 7.0
-                : /sip|mutual|equity|stock/i.test(lower)
-                  ? 12.0
-                  : 7.5
-
-    if (isMonthly) {
-      const months = years * 12
-      const rMonth = rate / 100 / 12
-      const maturity = Math.round(amount * (((Math.pow(1 + rMonth, months) - 1) / rMonth) * (1 + rMonth)))
-      const invested = amount * months
-      const profit = maturity - invested
-      return `For your question ("${q}"), if you save ₹${amount.toLocaleString('en-IN')} every month for ${years} years at ${rate}% p.a.:\n\n• Total Principal Invested: ₹${invested.toLocaleString('en-IN')}\n• Compounding Interest / Gain: +₹${profit.toLocaleString('en-IN')}\n• Final Maturity Corpus: ₹${maturity.toLocaleString('en-IN')}\n\nNotice how compound interest adds ₹${profit.toLocaleString('en-IN')} of extra wealth on top of your own savings!`
-    } else {
-      const r = rate / 100
-      const maturity = Math.round(amount * Math.pow(1 + r, years))
-      const profit = maturity - amount
-      return `Based on your question ("${q}"), investing ₹${amount.toLocaleString('en-IN')} for ${years} years at ${rate}% p.a. gives:\n\n• Initial Investment: ₹${amount.toLocaleString('en-IN')}\n• Total Interest Earned: +₹${profit.toLocaleString('en-IN')}\n• Final Value after ${years} Years: ₹${maturity.toLocaleString('en-IN')}\n\nIf you instead invested ₹${amount.toLocaleString('en-IN')} every single year (like in PPF or SSY), your corpus would grow even faster to ₹${Math.round(amount * (((Math.pow(1 + r, years) - 1) / r) * (1 + r))).toLocaleString('en-IN')}!`
-    }
+function getLiveProgressSnapshot(state) {
+  let stored = {}
+  try {
+    stored = JSON.parse(localStorage.getItem('l2i_live_progress') || '{}') || {}
+  } catch {
+    stored = {}
   }
 
-  // Specific topic synthesis tailored to the exact question
-  if (/ifsc|razorpay|branch code|micr/i.test(lower)) {
-    return `An IFSC (Indian Financial System Code) is an 11-character alphanumeric code assigned by the RBI to uniquely identify every bank branch in India for NEFT, RTGS, and IMPS transfers.\n\n• First 4 letters: Bank code (e.g., CNRB for Canara Bank, SBIN for SBI, KARB for Karnataka Bank).\n• 5th character: Always '0' (reserved for future use).\n• Last 6 characters: Specific branch identifier (e.g., CNRB0000634 is Canara Bank Surathkal).\n\nIn Level 3 Cabin 1, you can look up live verified IFSC codes powered by the Razorpay IFSC Toolkit API!`
+  const completedSet = new Set(Array.isArray(stored.completedLevels) ? stored.completedLevels.map(Number) : [])
+  if (state?.level1Completed) completedSet.add(1)
+  if (state?.level2Completed) completedSet.add(2)
+  if (state?.level3Completed) completedSet.add(3)
+
+  const completedLevels = Array.from(completedSet).sort()
+  const currentLevel = stored.currentLevel || (completedLevels.includes(2) ? 3 : completedLevels.includes(1) ? 2 : 1)
+
+  const recentActions = []
+  if ((stored.lessonsWatchedCount || 0) > 0) {
+    recentActions.push(`Watched ${stored.lessonsWatchedCount}/5 classroom videos`)
+  }
+  if ((stored.quizAnsweredCount || 0) > 0) {
+    recentActions.push(`Answered ${stored.quizAnsweredCount}/10 quiz questions (Score: ${stored.quizScore || 0}/10)`)
+  }
+  if (stored.simCompleted) recentActions.push('Completed Computer 1 (6 Scheme Simulators)')
+  if (stored.mixerCompleted) recentActions.push('Completed Computer 2 (Savings Mixer Studio)')
+  if (stored.metricsCompleted) recentActions.push('Completed Computer 3 (Portfolio Simulation)')
+  if (Array.isArray(stored.completedBankSections) && stored.completedBankSections.length > 0) {
+    recentActions.push(`Completed Bank Cabins: ${stored.completedBankSections.join(', ')}`)
   }
 
-  if (/slip|cheque|check|deposit form|withdraw/i.test(lower)) {
-    return `When filling out a Bank Deposit Slip, Withdrawal Slip, or Cheque in Level 3 Cabin 1:\n\n1. Write the current Date clearly at the top right.\n2. Enter the full Account Number and Account Holder Name matching your passbook.\n3. Mention the Branch Name and verified 11-digit IFSC code.\n4. Write the amount in both figures (e.g., ₹5,000/-) and words ("FIVE THOUSAND RUPEES ONLY") and draw a line after "ONLY" so no one can alter the amount.\n5. Sign consistently in the signature box.`
+  return {
+    currentLevel,
+    completedLevels,
+    lessonsWatchedCount: stored.lessonsWatchedCount ?? (state?.lessonsWatched?.length || 0),
+    quizScore: stored.quizScore ?? (state?.quizScore || 0),
+    bankedXp: stored.bankedXp ?? 0,
+    allocations: state?.allocations || { PPF: 30, FD: 25, NSC: 20, SSY: 15, RD: 10 },
+    recentActions,
   }
-
-  if (/scam|phish|otp|upi|pin|fraud|cyber|arrest|safety/i.test(lower)) {
-    return `Here is how to stay 100% safe in digital banking (covered in Level 3 Cabin 2):\n\n• UPI PIN Rule: Your UPI PIN is ONLY needed when money leaves your account. You NEVER enter a PIN to receive money.\n• OTP & CVV Secrecy: Real bank officers, RBI, or police will never call to ask for your OTP, ATM PIN, or screen-sharing access.\n• "Digital Arrest" Warning: Law enforcement agencies never conduct arrests or demand money transfers over WhatsApp/Skype video calls. Dial 1930 immediately if targeted.`
-  }
-
-  if (/sukanya|ssy|girl/i.test(lower)) {
-    return `Sukanya Samriddhi Yojana (SSY) is a Government of India small-savings scheme designed for a girl child (opened before age 10):\n\n• Interest Rate: 8.2% p.a. (highest among government guaranteed schemes).\n• Tax Status: EEE — deposits up to ₹1.5 Lakh/year get Section 80C deduction, and both interest and maturity are 100% tax-free.\n• Tenure: Deposits are made for 15 years; the account matures at 21 years from opening (50% partial withdrawal is allowed at age 18 for higher education).`
-  }
-
-  if (/nsc|national savings/i.test(lower)) {
-    return `National Savings Certificate (NSC) is a 5-year Post Office investment backed by the Government of India:\n\n• Interest Rate: 7.7% p.a. compounded annually and paid at maturity.\n• Minimum Investment: ₹1,000 (no maximum limit).\n• Tax Benefit: Investments up to ₹1.5 Lakh qualify for Section 80C tax deduction, and the first 4 years' accrued interest is treated as reinvested under 80C.`
-  }
-
-  if (/mis|pomis|monthly income/i.test(lower)) {
-    return `Post Office Monthly Income Scheme (POMIS) is ideal when you want a steady, guaranteed monthly cash payout:\n\n• Interest Rate: 7.4% p.a. paid out every single month.\n• Lock-in Tenure: 5 years.\n• Investment Limit: Up to ₹9 Lakh in a single account or ₹15 Lakh in a joint account.\n• Example: A ₹5,00,000 deposit pays ₹3,083 every month for 60 months while keeping your ₹5,00,000 principal 100% safe!`
-  }
-
-  if (/ppf|provident/i.test(lower)) {
-    return `Public Provident Fund (PPF) is a 15-year sovereign-guaranteed wealth builder:\n\n• Interest Rate: 7.1% p.a. compounded annually.\n• Tax Advantage: Full EEE (Exempt-Exempt-Exempt) under Section 80C — zero tax on contribution (up to ₹1.5L/yr), zero tax on interest earned, and zero tax on maturity.\n• Flexibility: You can invest anywhere from ₹500 to ₹1,50,000 per financial year, and extend it in 5-year blocks after 15 years.`
-  }
-
-  if (/fd|rd|fixed deposit|recurring/i.test(lower)) {
-    return `Comparing Fixed Deposit (FD) and Recurring Deposit (RD):\n\n• Fixed Deposit (FD — ~7.25% p.a.): You deposit a single lump sum once, and it compounds quarterly over 7 days to 10 years.\n• Recurring Deposit (RD — ~7.0% p.a.): You deposit a fixed amount every month (starting from ₹100/month), making it ideal for students or salaried savers who want to build a corpus step-by-step.\n• Safety: Bank deposits up to ₹5 Lakh per bank are insured by DICGC.`
-  }
-
-  if (/sip|mutual fund|nav|compound/i.test(lower)) {
-    return `A Systematic Investment Plan (SIP) lets you invest a fixed amount every month into a Mutual Fund:\n\n• Rupee Cost Averaging: You automatically buy more units when market prices (NAV) are low and fewer when prices are high.\n• Power of Compounding: Your returns earn further returns over time, turning small monthly habits (like ₹500 or ₹2,000/month) into a large long-term corpus.\n• Discipline: Automating your savings before spending is the #1 habit of successful investors.`
-  }
-
-  if (/tax|80c|elss/i.test(lower)) {
-    return `Section 80C of the Income Tax Act allows you to deduct up to ₹1,50,000 per year from your taxable income when you invest in:\n\n1. PPF (7.1% p.a., 15-yr lock-in, 100% tax-free EEE)\n2. Sukanya Samriddhi (8.2% p.a., 100% tax-free EEE)\n3. ELSS Mutual Funds (3-yr shortest lock-in, market-linked growth)\n4. NSC (7.7% p.a., 5-yr Post Office certificate)\n5. 5-Year Tax-Saver Bank FD (7.25% p.a.)`
-  }
-
-  if (/hello|hi|hey|who are you|help|what can you/i.test(lower)) {
-    return `Hi ${userName}! 👋 I'm your personal Learn2Invest companion standing right here with you (${xp} XP earned so far!).\n\nYou can ask me anything in your own words — for example:\n• "How much will ₹3,000 a month grow in 12 years?"\n• "Which scheme is better for 5 years: NSC or FD?"\n• "How do I find an accurate IFSC code or spot a UPI scam?"`
-  }
-
-  // Dynamic contextual response for any custom open-ended question
-  return `Here is a direct answer to your question ("${q}"):\n\nIn personal finance, the smartest approach is to match your money to your timeline and risk comfort:\n1. Short-Term & Emergency (0–3 yrs): Use a Bank Fixed Deposit (7.25%) or Recurring Deposit (7.0%) so your capital is 100% liquid and safe.\n2. Medium-Term Goals (3–5 yrs): Consider Post Office NSC (7.7% growth) or Post Office MIS (7.4% monthly income).\n3. Long-Term Tax-Free Wealth (10–15+ yrs): Use PPF (7.1% EEE tax-free), Sukanya Samriddhi (8.2% EEE), or diversified SIPs.\n\nTry asking me with any specific ₹ amount and number of years, and I'll calculate the exact numbers for you!`
 }
 
-async function fetchDynamicBotAnswer(message, history, userName, xp, lang) {
-  const langName = lang === 'kn' ? 'Kannada (ಕನ್ನಡ)' : lang === 'hi' ? 'Hindi (हिन्दी)' : 'English'
-  const systemInstruction = `You are a friendly, smart financial mentor in Learn2Invest 3D Campus speaking with ${userName || 'a student'} (${xp || 0} XP).
-Answer the user's exact question naturally, originally, and directly in ${langName}.
-Do NOT use generic canned templates — address their specific question, include accurate Indian Rupee (₹) calculations or Indian banking facts (PPF 7.1%, FD 7.25%, NSC 7.7%, Sukanya Samriddhi 8.2%, RD 7.0%, Post Office MIS 7.4%, Razorpay IFSC, UPI safety) where relevant, and keep it concise (70–130 words).`
+// Pure Independent AI Chatbot Client — Zero Predefined Rules!
+async function fetchDynamicBotAnswer(
+  message,
+  history,
+  userName,
+  xp,
+  lang,
+  state,
+  previousInteractionIdRef
+) {
+  const progress = getLiveProgressSnapshot(state)
+
+  const systemInstruction = `You are Luna, an independent, accurate, and intelligent AI chatbot and financial mentor speaking with ${userName || 'a learner'} (${xp || 0} XP).
+Answer the user's exact question naturally, accurately, and directly using your own knowledge and reasoning — never use canned or predefined rules.
+You can answer any question on personal finance, economics, investments (PPF, FD, NSC, Sukanya Samriddhi, RD, Post Office MIS, stocks, mutual funds, SIPs, taxes, banking, IFSC, UPI safety), math calculations, coding, science, or general topics.
+Optional context if the user asks about their Learn2Invest status: Current Level ${progress.currentLevel}, Completed Levels: ${JSON.stringify(progress.completedLevels)}, Wallet XP: ${xp || 0}, Banked XP: ${progress.bankedXp || 0}.`
 
   const contents = [
     ...history
       .filter((m) => !m.isGreeting)
-      .slice(-6)
+      .slice(-8)
       .map((m) => ({
         role: m.from === 'user' ? 'user' : 'model',
         parts: [{ text: m.text || '' }],
@@ -113,33 +70,85 @@ Do NOT use generic canned templates — address their specific question, include
     { role: 'user', parts: [{ text: message }] },
   ]
 
+  // 1. Try Backend /api/chat Proxy First
   try {
     const res = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ contents, systemInstruction }),
+      body: JSON.stringify({
+        message,
+        contents,
+        systemInstruction,
+        previousInteractionId: previousInteractionIdRef?.current || undefined,
+        userContext: {
+          userName: userName || 'Learner',
+          xp: xp || 0,
+          lang: 'en',
+          ...progress,
+        },
+      }),
     })
     if (res.ok) {
       const data = await res.json()
-      const text = data?.candidates?.[0]?.content?.parts?.[0]?.text
+      if (data?.interactionId && previousInteractionIdRef) {
+        previousInteractionIdRef.current = data.interactionId
+      }
+      const text = data?.reply || data?.candidates?.[0]?.content?.parts?.[0]?.text
       if (text && text.trim()) {
         return text.replace(/\*\*(.*?)\*\*/g, '$1').trim()
       }
     }
   } catch {}
 
-  return synthesizeOwnDynamicAnswer(message, userName, xp, lang)
+  // 2. Direct Browser-to-LLM Independent Inference (ensures 100% live AI accuracy even if backend server is restarting)
+  try {
+    const openAiMessages = [
+      { role: 'system', content: systemInstruction },
+      ...contents.map((c) => ({
+        role: c.role === 'user' ? 'user' : 'assistant',
+        content: c?.parts?.[0]?.text || '',
+      })),
+    ]
+    const directRes = await fetch('https://text.pollinations.ai/openai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'openai',
+        messages: openAiMessages,
+        temperature: 0.6,
+      }),
+    })
+    if (directRes.ok) {
+      const directData = await directRes.json()
+      const replyText = directData?.choices?.[0]?.message?.content
+      if (replyText && replyText.trim()) {
+        return replyText.replace(/\*\*(.*?)\*\*/g, '$1').trim()
+      }
+    }
+  } catch {}
+
+  return 'I encountered a temporary network issue connecting to the AI engine. Please try sending your message again!'
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // SMALL PERSON CHARACTER STANDING IN THE BOTTOM-RIGHT SIDE FROM THE BEGINNING
 // - Eyes & head look in the direction of the mouse pointer
 // - Gets visibly excited (jumping, waving arms, cheering) when pointer moves toward Login card
+//   OR when the user selects a RIGHT answer in the Quiz!
+// - Looks slightly disappointed (droopy brows, gentle frown, slumped shoulders) when the user
+//   selects a WRONG answer in the Quiz!
 // ═══════════════════════════════════════════════════════════════════════════════
-function StandingCompanionPersonSVG({ lookX = 0, lookY = 0, isExcited = false, isSpeaking = false, gender = 'female' }) {
+function StandingCompanionPersonSVG({
+  lookX = 0,
+  lookY = 0,
+  isExcited = false,
+  isDisappointed = false,
+  isSpeaking = false,
+  gender = 'female',
+}) {
   const pupilDx = Math.max(-4.2, Math.min(4.2, lookX * 4.5))
   const pupilDy = Math.max(-3.0, Math.min(3.0, lookY * 3.2))
-  const headTilt = Math.max(-8, Math.min(8, lookX * 7))
+  const headTilt = isDisappointed ? -10 : Math.max(-8, Math.min(8, lookX * 7))
   const headShiftX = Math.max(-3, Math.min(3, lookX * 2.5))
 
   return (
@@ -152,7 +161,11 @@ function StandingCompanionPersonSVG({ lookX = 0, lookY = 0, isExcited = false, i
       style={{
         overflow: 'visible',
         filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.45))',
-        transform: isExcited ? 'translateY(-6px) scale(1.06)' : 'translateY(0px) scale(1)',
+        transform: isExcited
+          ? 'translateY(-6px) scale(1.06)'
+          : isDisappointed
+            ? 'translateY(3px) scale(0.97)'
+            : 'translateY(0px) scale(1)',
         transition: 'transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1)',
       }}
     >
@@ -162,19 +175,19 @@ function StandingCompanionPersonSVG({ lookX = 0, lookY = 0, isExcited = false, i
         cy="136"
         rx={isExcited ? '34' : '28'}
         ry="7"
-        fill={isExcited ? '#FBBF24' : '#38BDF8'}
-        fillOpacity={isExcited ? '0.55' : '0.35'}
+        fill={isExcited ? '#FBBF24' : isDisappointed ? '#F43F5E' : '#38BDF8'}
+        fillOpacity={isExcited ? '0.6' : isDisappointed ? '0.45' : '0.35'}
       />
       <ellipse
         cx="55"
         cy="136"
         rx="20"
         ry="4"
-        fill="#10B981"
+        fill={isDisappointed ? '#FB7185' : '#10B981'}
         fillOpacity="0.5"
       />
 
-      {/* Excitement Sparkles when Mouse Pointer is near Login */}
+      {/* Excitement Sparkles when Mouse Pointer is near Login or Right Quiz Answer */}
       {isExcited && (
         <g>
           <circle cx="14" cy="24" r="4" fill="#FBBF24" />
@@ -186,12 +199,18 @@ function StandingCompanionPersonSVG({ lookX = 0, lookY = 0, isExcited = false, i
         </g>
       )}
 
+      {/* Slight Disappointment Sweat Drop / Cloud when Wrong Quiz Answer */}
+      {isDisappointed && (
+        <g>
+          <text x="8" y="20" fontSize="14">💧</text>
+          <text x="86" y="20" fontSize="13">😟</text>
+        </g>
+      )}
+
       {/* Legs & Shoes */}
       <g>
-        {/* Left Leg */}
         <rect x="41" y="98" width="10" height="30" rx="5" fill="#1E293B" />
         <rect x="37" y="125" width="16" height="9" rx="4.5" fill="#EC4899" />
-        {/* Right Leg */}
         <rect x="59" y="98" width="10" height="30" rx="5" fill="#1E293B" />
         <rect x="57" y="125" width="16" height="9" rx="4.5" fill="#EC4899" />
       </g>
@@ -201,18 +220,19 @@ function StandingCompanionPersonSVG({ lookX = 0, lookY = 0, isExcited = false, i
         d="M34 64 C34 57 76 57 76 64 L80 102 C80 105 30 105 30 102 Z"
         fill={gender === 'male' ? '#2563EB' : '#8B5CF6'}
       />
-      {/* White Collar & Gold Tie/Badge */}
       <polygon points="48,60 55,73 62,60" fill="#F8FAFC" />
       <circle cx="55" cy="77" r="4" fill="#FBBF24" />
       <rect x="61" y="72" width="11" height="7" rx="2" fill="#38BDF8" />
 
-      {/* Left Arm (Waves high when excited, otherwise gently tracks pointer) */}
+      {/* Left Arm */}
       <g
         style={{
           transformOrigin: '34px 66px',
           transform: isExcited
             ? 'rotate(-128deg)'
-            : `rotate(${Math.round(lookX * 12 - 10)}deg)`,
+            : isDisappointed
+              ? 'rotate(6deg)'
+              : `rotate(${Math.round(lookX * 12 - 10)}deg)`,
           transition: 'transform 0.2s ease-out',
         }}
       >
@@ -220,13 +240,15 @@ function StandingCompanionPersonSVG({ lookX = 0, lookY = 0, isExcited = false, i
         <circle cx="26.5" cy="96" r="6" fill="#FDE68A" />
       </g>
 
-      {/* Right Arm (Waves high when excited!) */}
+      {/* Right Arm */}
       <g
         style={{
           transformOrigin: '76px 66px',
           transform: isExcited
             ? 'rotate(128deg)'
-            : `rotate(${Math.round(lookX * 12 + 10)}deg)`,
+            : isDisappointed
+              ? 'rotate(-6deg)'
+              : `rotate(${Math.round(lookX * 12 + 10)}deg)`,
           transition: 'transform 0.2s ease-out',
         }}
       >
@@ -237,11 +259,11 @@ function StandingCompanionPersonSVG({ lookX = 0, lookY = 0, isExcited = false, i
       {/* Neck */}
       <rect x="50" y="52" width="10" height="10" rx="4" fill="#FDE68A" />
 
-      {/* Head Group — Turns & Tilts in the Direction of the Mouse Pointer */}
+      {/* Head Group */}
       <g
         style={{
           transformOrigin: '55px 36px',
-          transform: `translate(${headShiftX}px, 0px) rotate(${headTilt}deg)`,
+          transform: `translate(${headShiftX}px, ${isDisappointed ? 3 : 0}px) rotate(${headTilt}deg)`,
           transition: 'transform 0.08s linear',
         }}
       >
@@ -263,27 +285,39 @@ function StandingCompanionPersonSVG({ lookX = 0, lookY = 0, isExcited = false, i
           fill={gender === 'male' ? '#1E293B' : '#3B1D0B'}
         />
 
-        {/* Eyebrows (raised when excited) */}
+        {/* Eyebrows (raised when excited, droopy when disappointed) */}
         <path
-          d={isExcited ? 'M41 25 Q46 21 50 25' : 'M41 27 Q46 25 50 27'}
+          d={
+            isExcited
+              ? 'M41 25 Q46 21 50 25'
+              : isDisappointed
+                ? 'M41 28 Q46 24 50 26'
+                : 'M41 27 Q46 25 50 27'
+          }
           stroke="#3B1D0B"
           strokeWidth="2.2"
           strokeLinecap="round"
         />
         <path
-          d={isExcited ? 'M60 25 Q64 21 69 25' : 'M60 27 Q64 25 69 27'}
+          d={
+            isExcited
+              ? 'M60 25 Q64 21 69 25'
+              : isDisappointed
+                ? 'M60 26 Q64 24 69 28'
+                : 'M60 27 Q64 25 69 27'
+          }
           stroke="#3B1D0B"
           strokeWidth="2.2"
           strokeLinecap="round"
         />
 
-        {/* Left Eye + Pupil Tracking Mouse Pointer */}
-        <ellipse cx="46" cy="35" rx="5.5" ry="6" fill="#FFFFFF" />
+        {/* Left Eye + Pupil */}
+        <ellipse cx="46" cy="35" rx="5.5" ry={isDisappointed ? '4.6' : '6'} fill="#FFFFFF" />
         <circle cx={46 + pupilDx} cy={35 + pupilDy} r="3.3" fill="#0F172A" />
         <circle cx={44.8 + pupilDx * 0.6} cy={33.5 + pupilDy * 0.6} r="1.2" fill="#FFFFFF" />
 
-        {/* Right Eye + Pupil Tracking Mouse Pointer */}
-        <ellipse cx="64" cy="35" rx="5.5" ry="6" fill="#FFFFFF" />
+        {/* Right Eye + Pupil */}
+        <ellipse cx="64" cy="35" rx="5.5" ry={isDisappointed ? '4.6' : '6'} fill="#FFFFFF" />
         <circle cx={64 + pupilDx} cy={35 + pupilDy} r="3.3" fill="#0F172A" />
         <circle cx={62.8 + pupilDx * 0.6} cy={33.5 + pupilDy * 0.6} r="1.2" fill="#FFFFFF" />
 
@@ -291,9 +325,11 @@ function StandingCompanionPersonSVG({ lookX = 0, lookY = 0, isExcited = false, i
         <ellipse cx="39" cy="42" rx="3.8" ry="2.2" fill="#FB7185" fillOpacity={isExcited ? '0.85' : '0.55'} />
         <ellipse cx="71" cy="42" rx="3.8" ry="2.2" fill="#FB7185" fillOpacity={isExcited ? '0.85' : '0.55'} />
 
-        {/* Mouth (Big cheering grin when excited, animated when speaking, warm smile normally) */}
+        {/* Mouth */}
         {isExcited || isSpeaking ? (
           <path d="M48 45 Q55 54 62 45 Z" fill="#E11D48" />
+        ) : isDisappointed ? (
+          <path d="M49 49 Q55 44 61 49" stroke="#9F1239" strokeWidth="2.4" strokeLinecap="round" fill="none" />
         ) : (
           <path d="M49 46 Q55 51 61 46" stroke="#9F1239" strokeWidth="2.4" strokeLinecap="round" fill="none" />
         )}
@@ -308,6 +344,7 @@ export default function Chatbot({
   onClose,
   user,
   xp,
+  state,
   aiGuideAvatar = 'female',
   aiGuideName,
   lang = 'en',
@@ -334,28 +371,54 @@ export default function Chatbot({
       id: 'welcome_1',
       from: 'bot',
       isGreeting: true,
-      text: `Hi! I'm ${guideName} 👋 I'm standing right here in the corner watching your journey! Ask me any question about investing, PPF, FD, NSC, Sukanya Samriddhi, RD, Post Office MIS, IFSC codes, or digital banking safety — I'll generate a custom answer just for you!`,
+      text: `Hi! I'm ${guideName} 👋 Your AI Financial Mentor! Ask me any question about saving, PPF, FD, NSC, Sukanya Samriddhi, RD, Post Office MIS, IFSC codes, or ask for a summary of your completed levels — or click "🎙️ Talk with ${guideName}" for live voice chat!`,
     },
   ])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
+  const previousInteractionIdRef = useRef(null)
 
-  // Voice & Mute State (Never auto-reads; ONLY reads when the user clicks "Read" on a message)
+  // Voice & "Talk with Luna" Live Voice Conversation State
   const [isVoiceMuted, setIsVoiceMuted] = useState(false)
   const [speakingIdx, setSpeakingIdx] = useState(null)
+  const [talkModeActive, setTalkModeActive] = useState(false)
+  const [isListeningVoice, setIsListeningVoice] = useState(false)
+  const recognitionRef = useRef(null)
 
-  // Mouse Pointer Tracking & Login Page Excitement State
+  // Mouse Pointer Tracking, Login Excitement & Quiz Reaction State
   const [lookVec, setLookVec] = useState({ x: 0, y: 0 })
   const [isExcitedByLogin, setIsExcitedByLogin] = useState(false)
+  const [quizReaction, setQuizReaction] = useState(null) // { type: 'excited' | 'disappointed', text: string }
   const companionRef = useRef(null)
   const chatScrollRef = useRef(null)
+
+  // Listen to custom 'luna-quiz-reaction' events from Level 1 Examination Quiz!
+  useEffect(() => {
+    const handleQuizReaction = (e) => {
+      const detail = e?.detail || {}
+      const isRight = detail.type === 'excited'
+      const qNum = detail.questionNumber || ''
+      setQuizReaction({
+        type: isRight ? 'excited' : 'disappointed',
+        text: isRight
+          ? `🎉 Yay! Q${qNum} is Correct! Superstar move!`
+          : `😟 Oh no, Q${qNum} wasn't right — keep going, you've got this!`,
+      })
+      const timer = setTimeout(() => {
+        setQuizReaction(null)
+      }, 3400)
+      return () => clearTimeout(timer)
+    }
+
+    window.addEventListener('luna-quiz-reaction', handleQuizReaction)
+    return () => window.removeEventListener('luna-quiz-reaction', handleQuizReaction)
+  }, [])
 
   useEffect(() => {
     const handleMouseMove = (e) => {
       const mx = e.clientX
       const my = e.clientY
 
-      // Calculate direction vector from the standing person in bottom-right to mouse pointer
       if (companionRef.current) {
         const rect = companionRef.current.getBoundingClientRect()
         const cx = rect.left + rect.width / 2
@@ -368,11 +431,10 @@ export default function Chatbot({
         })
       }
 
-      // Check if mouse pointer is moving towards / hovering over the Login Page card
       const loginEl = document.querySelector('[data-login-card="true"]')
       if (loginEl) {
         const lRect = loginEl.getBoundingClientRect()
-        const pad = 70 // get excited as pointer approaches within 70px of login card
+        const pad = 70
         const nearLogin =
           mx >= lRect.left - pad &&
           mx <= lRect.right + pad &&
@@ -405,7 +467,7 @@ export default function Chatbot({
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) return
     if (isVoiceMuted) return
 
-    if (speakingIdx === idx) {
+    if (speakingIdx === idx && idx !== 'auto_voice') {
       stopSpeech()
       return
     }
@@ -416,7 +478,8 @@ export default function Chatbot({
       .replace(/[^\w\s.,?!₹+-/:\u0900-\u097F\u0C80-\u0CFF]/g, ' ')
     const utter = new SpeechSynthesisUtterance(cleanSpeech)
     utter.lang = lang === 'kn' ? 'kn-IN' : lang === 'hi' ? 'hi-IN' : 'en-IN'
-    utter.rate = 1.0
+    utter.rate = 1.02
+    utter.pitch = aiGuideAvatar === 'male' ? 0.95 : 1.12
     utter.onend = () => setSpeakingIdx(null)
     utter.onerror = () => setSpeakingIdx(null)
     setSpeakingIdx(idx)
@@ -431,7 +494,7 @@ export default function Chatbot({
     })
   }
 
-  const handleSendMessage = async (customPrompt) => {
+  const handleSendMessage = async (customPrompt, autoSpeakReply = false) => {
     const text = (customPrompt !== undefined ? customPrompt : input).trim()
     if (!text || loading) return
 
@@ -447,26 +510,98 @@ export default function Chatbot({
       updatedHistory,
       user?.name || 'Friend',
       xp || 0,
-      lang
+      lang,
+      state,
+      previousInteractionIdRef
     )
 
-    setMsgs((prev) => [
-      ...prev,
-      {
-        id: 'b_' + Date.now(),
-        from: 'bot',
-        text: replyText,
-      },
-    ])
+    const newBotMsg = {
+      id: 'b_' + Date.now(),
+      from: 'bot',
+      text: replyText,
+    }
+
+    setMsgs((prev) => {
+      const nextList = [...prev, newBotMsg]
+      if ((autoSpeakReply || talkModeActive) && !isVoiceMuted) {
+        setTimeout(() => {
+          handleReadAloud(replyText, nextList.length - 1)
+        }, 120)
+      }
+      return nextList
+    })
     setLoading(false)
   }
+
+  // "Talk with Luna 🎙️" Speech-to-Text + Voice Reply Handler
+  const startOrToggleTalkWithLuna = () => {
+    soundEngine.playClick()
+    if (typeof window === 'undefined') return
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+    if (!SpeechRecognition) {
+      setTalkModeActive((prev) => !prev)
+      setMsgs((prev) => [
+        ...prev,
+        {
+          id: 'b_voice_info_' + Date.now(),
+          from: 'bot',
+          text: `🎙️ Voice Reply Mode is now ${!talkModeActive ? 'ON' : 'OFF'}! Type any message below and I will speak my response out loud to you!`,
+        },
+      ])
+      return
+    }
+
+    if (isListeningVoice && recognitionRef.current) {
+      try {
+        recognitionRef.current.stop()
+      } catch {}
+      setIsListeningVoice(false)
+      return
+    }
+
+    stopSpeech()
+    setTalkModeActive(true)
+    const recognition = new SpeechRecognition()
+    recognitionRef.current = recognition
+    recognition.lang = lang === 'kn' ? 'kn-IN' : lang === 'hi' ? 'hi-IN' : 'en-IN'
+    recognition.interimResults = false
+    recognition.maxAlternatives = 1
+
+    recognition.onstart = () => {
+      setIsListeningVoice(true)
+    }
+    recognition.onresult = (event) => {
+      const transcript = event?.results?.[0]?.[0]?.transcript
+      setIsListeningVoice(false)
+      if (transcript && transcript.trim()) {
+        handleSendMessage(transcript.trim(), true)
+      }
+    }
+    recognition.onerror = () => {
+      setIsListeningVoice(false)
+    }
+    recognition.onend = () => {
+      setIsListeningVoice(false)
+    }
+
+    try {
+      recognition.start()
+    } catch {
+      setIsListeningVoice(false)
+    }
+  }
+
+  const isCompanionExcited = isExcitedByLogin || quizReaction?.type === 'excited'
+  const isCompanionDisappointed = quizReaction?.type === 'disappointed'
 
   return (
     <>
       {/* ═══════════════════════════════════════════════════════════════════════
           SMALL PERSON STANDING IN THE BOTTOM-RIGHT SIDE FROM THE VERY BEGINNING
           - Eyes & head follow the mouse pointer
-          - Jumps & cheers excitedly when mouse pointer moves toward Login page
+          - Jumps & cheers excitedly on right quiz answers or near Login card
+          - Shows slight disappointment on wrong quiz answers
       ═══════════════════════════════════════════════════════════════════════ */}
       <div
         ref={companionRef}
@@ -482,7 +617,7 @@ export default function Chatbot({
           cursor: 'pointer',
           userSelect: 'none',
         }}
-        title="Click to ask your AI Companion any question!"
+        title="Click to chat or Talk with Luna!"
       >
         {/* Dynamic Speech Bubble Above the Small Person */}
         <div
@@ -490,38 +625,61 @@ export default function Chatbot({
             marginBottom: '4px',
             padding: '6px 12px',
             borderRadius: '14px',
-            background: isExcitedByLogin
-              ? 'linear-gradient(135deg, #F59E0B, #10B981)'
-              : 'rgba(15, 23, 42, 0.94)',
-            color: isExcitedByLogin ? '#020617' : '#F8FAFC',
-            border: isExcitedByLogin ? '2px solid #FEF08A' : '1.5px solid rgba(56,189,248,0.6)',
-            boxShadow: isExcitedByLogin
+            background: quizReaction
+              ? quizReaction.type === 'excited'
+                ? 'linear-gradient(135deg, #10B981, #F59E0B)'
+                : 'linear-gradient(135deg, #F43F5E, #FB7185)'
+              : isExcitedByLogin
+                ? 'linear-gradient(135deg, #F59E0B, #10B981)'
+                : 'rgba(15, 23, 42, 0.94)',
+            color: quizReaction
+              ? quizReaction.type === 'excited'
+                ? '#020617'
+                : '#FFFFFF'
+              : isExcitedByLogin
+                ? '#020617'
+                : '#F8FAFC',
+            border: isCompanionExcited
+              ? '2px solid #FEF08A'
+              : isCompanionDisappointed
+                ? '2px solid #FDA4AF'
+                : '1.5px solid rgba(56,189,248,0.6)',
+            boxShadow: isCompanionExcited
               ? '0 0 24px rgba(251,191,36,0.85)'
-              : '0 6px 20px rgba(0,0,0,0.45)',
+              : isCompanionDisappointed
+                ? '0 0 24px rgba(244,63,94,0.75)'
+                : '0 6px 20px rgba(0,0,0,0.45)',
             fontSize: '11px',
             fontWeight: 900,
             whiteSpace: 'nowrap',
-            transform: isExcitedByLogin ? 'scale(1.06)' : 'scale(1)',
+            transform: isCompanionExcited || isCompanionDisappointed ? 'scale(1.06)' : 'scale(1)',
             transition: 'all 0.2s ease',
           }}
         >
-          {isExcitedByLogin
-            ? `🎉 Yay! Log in & let's explore!`
-            : isOpen
-              ? `💬 Chatting with ${guideName}`
-              : `👋 Ask ${guideName} Anything!`}
+          {quizReaction
+            ? quizReaction.text
+            : isExcitedByLogin
+              ? `🎉 Yay! Log in & let's explore!`
+              : isOpen
+                ? `💬 Chatting with ${guideName}`
+                : `👋 Ask or Talk with ${guideName} 🎙️`}
         </div>
 
         {/* Standing Small Person SVG */}
         <div
           style={{
-            animation: isExcitedByLogin ? 'companionJump 0.55s ease-in-out infinite alternate' : 'none',
+            animation: isCompanionExcited
+              ? 'companionJump 0.5s ease-in-out infinite alternate'
+              : isCompanionDisappointed
+                ? 'companionShake 0.45s ease-in-out infinite alternate'
+                : 'none',
           }}
         >
           <StandingCompanionPersonSVG
             lookX={lookVec.x}
             lookY={lookVec.y}
-            isExcited={isExcitedByLogin}
+            isExcited={isCompanionExcited}
+            isDisappointed={isCompanionDisappointed}
             isSpeaking={speakingIdx !== null}
             gender={aiGuideAvatar}
           />
@@ -532,12 +690,17 @@ export default function Chatbot({
             0% { transform: translateY(0px) rotate(-2deg); }
             100% { transform: translateY(-14px) rotate(2deg); }
           }
+          @keyframes companionShake {
+            0% { transform: translateX(-3px) rotate(-3deg); }
+            100% { transform: translateX(3px) rotate(3deg); }
+          }
         `}</style>
       </div>
 
       {/* ═══════════════════════════════════════════════════════════════════════
-          CHATBOT CONVERSATION WINDOW (NO API KEY OPTION, DYNAMIC OWN ANSWERS,
-          DISPLAYS TEXT ONLY, READS ALOUD ONLY WHEN "READ" BUTTON IS CLICKED)
+          CHATBOT CONVERSATION WINDOW
+          - Real-Time Gemini AI Assistant + Deterministic Level 1/2/3 Summary Gate
+          - "🎙️ Talk with Luna" Live Voice Conversation Mode
       ═══════════════════════════════════════════════════════════════════════ */}
       {isOpen && (
         <div
@@ -545,8 +708,8 @@ export default function Chatbot({
             position: 'fixed',
             right: '112px',
             bottom: '20px',
-            width: 'min(92vw, 410px)',
-            height: 'min(78vh, 540px)',
+            width: 'min(92vw, 425px)',
+            height: 'min(80vh, 565px)',
             background: 'linear-gradient(165deg, #0B1120 0%, #0F172A 100%)',
             border: '2px solid rgba(56, 189, 248, 0.45)',
             borderRadius: '22px',
@@ -559,7 +722,7 @@ export default function Chatbot({
             fontFamily: "'Inter', 'Segoe UI', sans-serif",
           }}
         >
-          {/* Header (No API Key button!) */}
+          {/* Header */}
           <div
             style={{
               padding: '12px 16px',
@@ -588,17 +751,43 @@ export default function Chatbot({
               </div>
               <div>
                 <div style={{ fontSize: '14px', fontWeight: 900, color: '#FFFFFF' }}>
-                  {guideName} • Personal Finance Guide
+                  {guideName} • Gemini AI Financial Mentor
                 </div>
                 <div style={{ fontSize: '10.5px', color: '#E0F2FE', fontWeight: 700 }}>
-                  ✨ Dynamic AI Answers • Click &ldquo;Read&rdquo; for Voice
+                  {isListeningVoice
+                    ? '🎙️ Listening to your voice now...'
+                    : '✨ Multi-Turn AI • Level Summaries • Voice Chat'}
                 </div>
               </div>
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              {/* Talk with Luna 🎙️ Button */}
+              <button
+                type="button"
+                onClick={startOrToggleTalkWithLuna}
+                style={{
+                  background: isListeningVoice
+                    ? 'linear-gradient(135deg, #EC4899, #F43F5E)'
+                    : talkModeActive
+                      ? 'rgba(16, 185, 129, 0.35)'
+                      : 'rgba(15, 23, 42, 0.35)',
+                  border: isListeningVoice ? '1.5px solid #FDE047' : '1px solid rgba(255,255,255,0.35)',
+                  color: '#fff',
+                  borderRadius: '8px',
+                  padding: '5px 8px',
+                  fontSize: '11px',
+                  fontWeight: 900,
+                  cursor: 'pointer',
+                }}
+                title={`Talk with ${guideName} using your microphone`}
+              >
+                {isListeningVoice ? '🛑 Stop Mic' : `🎙️ Talk`}
+              </button>
+
               {/* Mute / Unmute Toggle */}
               <button
+                type="button"
                 onClick={toggleMute}
                 style={{
                   background: isVoiceMuted ? 'rgba(239,68,68,0.28)' : 'rgba(15,23,42,0.35)',
@@ -612,10 +801,11 @@ export default function Chatbot({
                 }}
                 title={isVoiceMuted ? 'Unmute Voice' : 'Mute Voice'}
               >
-                {isVoiceMuted ? '🔇 Muted' : '🔊 Voice On'}
+                {isVoiceMuted ? '🔇' : '🔊'}
               </button>
 
               <button
+                type="button"
                 onClick={handleCloseChat}
                 style={{
                   background: 'rgba(15,23,42,0.35)',
@@ -633,6 +823,45 @@ export default function Chatbot({
                 ✕
               </button>
             </div>
+          </div>
+
+          {/* Quick Level Summary & Voice Action Pills */}
+          <div
+            style={{
+              padding: '8px 12px',
+              background: 'rgba(15, 23, 42, 0.9)',
+              borderBottom: '1px solid rgba(148, 163, 184, 0.15)',
+              display: 'flex',
+              gap: '6px',
+              overflowX: 'auto',
+              flexShrink: 0,
+            }}
+          >
+            {[
+              { label: '📊 Summary L1', prompt: 'Give summary of Level 1' },
+              { label: '💻 Summary L2', prompt: 'Summarize Level 2' },
+              { label: '🏛️ Summary L3', prompt: 'Explain Level 3' },
+              { label: '⭐ My Progress', prompt: 'What is my current level and XP progress?' },
+            ].map((qItem) => (
+              <button
+                key={qItem.label}
+                type="button"
+                onClick={() => handleSendMessage(qItem.prompt)}
+                style={{
+                  background: 'rgba(30, 41, 59, 0.95)',
+                  border: '1px solid rgba(56, 189, 248, 0.35)',
+                  color: '#BAE6FD',
+                  borderRadius: '999px',
+                  padding: '4px 10px',
+                  fontSize: '10.5px',
+                  fontWeight: 800,
+                  whiteSpace: 'nowrap',
+                  cursor: 'pointer',
+                }}
+              >
+                {qItem.label}
+              </button>
+            ))}
           </div>
 
           {/* Messages List */}
@@ -674,6 +903,7 @@ export default function Chatbot({
                   {!isUser && (
                     <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '7px' }}>
                       <button
+                        type="button"
                         onClick={() => handleReadAloud(m.text, idx)}
                         disabled={isVoiceMuted}
                         style={{
@@ -702,6 +932,23 @@ export default function Chatbot({
               )
             })}
 
+            {isListeningVoice && (
+              <div
+                style={{
+                  alignSelf: 'center',
+                  background: 'rgba(236, 72, 153, 0.2)',
+                  border: '1.5px solid #F472B6',
+                  borderRadius: '14px',
+                  padding: '8px 14px',
+                  fontSize: '11.5px',
+                  color: '#FBCFE8',
+                  fontWeight: 800,
+                }}
+              >
+                🎙️ Listening... Speak your question to {guideName}!
+              </div>
+            )}
+
             {loading && (
               <div
                 style={{
@@ -714,12 +961,12 @@ export default function Chatbot({
                   fontWeight: 700,
                 }}
               >
-                ✨ {guideName} is thinking & calculating your answer...
+                ✨ {guideName} is thinking & analyzing your live progress...
               </div>
             )}
           </div>
 
-          {/* Input Box */}
+          {/* Input Box + Microphone Button */}
           <form
             onSubmit={(e) => {
               e.preventDefault()
@@ -730,14 +977,38 @@ export default function Chatbot({
               background: 'rgba(15, 23, 42, 0.98)',
               borderTop: '1px solid rgba(148, 163, 184, 0.2)',
               display: 'flex',
-              gap: '8px',
+              gap: '7px',
+              alignItems: 'center',
             }}
           >
+            <button
+              type="button"
+              onClick={startOrToggleTalkWithLuna}
+              style={{
+                background: isListeningVoice
+                  ? 'linear-gradient(135deg, #EC4899, #E11D48)'
+                  : 'rgba(30, 41, 59, 0.95)',
+                color: '#FFFFFF',
+                border: isListeningVoice ? '1.5px solid #FDE047' : '1px solid rgba(56, 189, 248, 0.4)',
+                borderRadius: '12px',
+                width: '38px',
+                height: '38px',
+                fontSize: '16px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                flexShrink: 0,
+              }}
+              title={`Talk with ${guideName} via Microphone`}
+            >
+              🎙️
+            </button>
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder={`Ask ${guideName} any question (e.g. ₹4000/mo for 8 yrs)...`}
+              placeholder={`Ask ${guideName} or say "Summarize Level 1"...`}
               style={{
                 flex: 1,
                 background: '#1E293B',
@@ -757,7 +1028,8 @@ export default function Chatbot({
                 color: '#FFFFFF',
                 border: 'none',
                 borderRadius: '12px',
-                padding: '0 16px',
+                padding: '0 15px',
+                height: '38px',
                 fontSize: '12px',
                 fontWeight: 900,
                 cursor: loading || !input.trim() ? 'not-allowed' : 'pointer',
