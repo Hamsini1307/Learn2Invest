@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { AI_AVATARS } from '../components/AiAvatarSelector.jsx'
-import { BEGINNER_VIDEO_IDS, isLevel1Completed } from '../data.js'
 
 const VIDEO_FILES = [
   { id: 'video1', title: 'Introduction to Investing', subtitle: 'Why investing matters for your financial future', category: 'FINANCIAL FOUNDATIONS', duration: '3:45', src: '/videos/video1.mp4',
@@ -182,8 +181,17 @@ const LessonGraphic = ({ id }) => {
 function VideoCard({ v, watched, onWatch, delay = 1, activeAvatar, guideName }) {
   const [showPlayer, setShowPlayer] = useState(false)
   const [showTakeaway, setShowTakeaway] = useState(false)
-  const [canMarkWatched, setCanMarkWatched] = useState(false)
+  const [canMarkWatched, setCanMarkWatched] = useState(watched)
+  const [watchPct, setWatchPct] = useState(watched ? 100 : 0)
+  const [justCompleted, setJustCompleted] = useState(false)
   const [hovered, setHovered] = useState(false)
+
+  useEffect(() => {
+    if (watched) {
+      setCanMarkWatched(true)
+      setWatchPct(100)
+    }
+  }, [watched])
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -199,21 +207,37 @@ function VideoCard({ v, watched, onWatch, delay = 1, activeAvatar, guideName }) 
 
   const handleOpenPlayer = () => {
     setShowPlayer(true)
-    setCanMarkWatched(isDraft)
+    setJustCompleted(false)
+    setCanMarkWatched(watched || isDraft)
   }
 
   const handleTimeUpdate = (e) => {
     const videoElem = e.target
-    if (videoElem.duration && (videoElem.currentTime / videoElem.duration >= 0.85)) {
-      setCanMarkWatched(true)
+    if (videoElem.duration && videoElem.duration > 0) {
+      const ratio = videoElem.currentTime / videoElem.duration
+      const pct = Math.min(100, Math.round(ratio * 100))
+      setWatchPct((prev) => Math.max(prev, pct))
+      if (ratio >= 0.80 && !canMarkWatched) {
+        setCanMarkWatched(true)
+        if (!watched) {
+          onWatch(v.id)
+          setJustCompleted(true)
+        }
+      }
     }
   }
 
   const handleVideoEnd = () => {
+    setWatchPct(100)
     setCanMarkWatched(true)
+    if (!watched) {
+      onWatch(v.id)
+      setJustCompleted(true)
+    }
   }
 
   const handleMarkWatched = () => {
+    if (!canMarkWatched) return
     onWatch(v.id)
     setShowPlayer(false)
     setShowTakeaway(true)
@@ -482,23 +506,34 @@ function VideoCard({ v, watched, onWatch, delay = 1, activeAvatar, guideName }) 
             padding: '16px 24px',
             background: '#12100c',
             borderTop: '1.5px solid rgba(217, 119, 6, 0.3)',
-            display: 'flex', justifyContent: 'center', alignItems: 'center'
+            display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 14, flexWrap: 'wrap'
           }} onClick={e => e.stopPropagation()}>
-            {!watched && (
+            {(watched || canMarkWatched) ? (
               <button
-                disabled={!canMarkWatched}
                 onClick={handleMarkWatched}
-                className={canMarkWatched ? 'btn-primary' : 'btn-outline'}
+                className="btn-primary"
                 style={{
                   fontSize: 14, padding: '12px 32px',
-                  opacity: canMarkWatched ? 1 : 0.6,
-                  cursor: canMarkWatched ? 'pointer' : 'not-allowed',
+                  background: 'linear-gradient(135deg, #10b981, #059669)',
+                  color: '#ffffff',
+                  fontWeight: 900,
+                  cursor: 'pointer',
+                  boxShadow: '0 8px 24px rgba(16,185,129,0.45)',
                 }}
               >
-                {canMarkWatched 
-                  ? (isDraft ? '⏭️ SKIP DRAFT LESSON & CLAIM +30 XP' : '✅ MARK AS WATCHED & CLAIM +30 XP')
-                  : '⏳ WATCH 85% OF VIDEO TO COMPLETE'
-                }
+                ✅ Lesson Completed (+30 XP Claimed) {justCompleted ? '🎉 VIDEO COMPLETED!' : ''}
+              </button>
+            ) : (
+              <button
+                disabled
+                className="btn-outline"
+                style={{
+                  fontSize: 14, padding: '12px 32px',
+                  opacity: 0.7,
+                  cursor: 'not-allowed',
+                }}
+              >
+                ⏳ Watch at least 80% to complete ({watchPct}% / 80%)
               </button>
             )}
           </div>
@@ -518,22 +553,16 @@ export default function BeginnerLevel({ go, goBack, state, update, addXP, aiGuid
   const total = VIDEO_FILES.length
   const [activeTab, setActiveTab] = useState('classroom') // 'classroom' | 'lessons' | 'takeaways'
 
-  const isIntermediateStart = state.startingLevel === 'intermediate'
-  const begCleared = isLevel1Completed(state)
-  const watchedCount = BEGINNER_VIDEO_IDS.filter(id => watched.includes(id)).length
-  const isQuizUnlocked = isIntermediateStart || watchedCount >= 5
-  const progress = begCleared ? total : Math.min(watchedCount, total)
-  const progressPct = begCleared ? 100 : Math.min(100, Math.round((progress / total) * 100))
+  const watchedLevel1Count = VIDEO_FILES.filter(v => watched.includes(v.id)).length
+  const begCleared = watchedLevel1Count >= 5 && (state.quizScore || 0) >= 60
+  const isQuizUnlocked = watchedLevel1Count >= 5
+  const progress = watchedLevel1Count
+  const progressPct = Math.min(100, Math.round((progress / total) * 100))
 
   const handleWatch = (id) => {
     if (!watched.includes(id)) {
       const newWatched = [...watched, id]
-      const allFiveWatched = BEGINNER_VIDEO_IDS.every(vid => newWatched.includes(vid))
-      const lvl1NowComplete = allFiveWatched && (state.quizScore || 0) >= 60
-      update({
-        lessonsWatched: newWatched,
-        ...(lvl1NowComplete ? { intermediateUnlocked: true, level1Completed: true } : {}),
-      })
+      update({ lessonsWatched: newWatched })
       addXP(30)
     }
   }
@@ -580,7 +609,7 @@ export default function BeginnerLevel({ go, goBack, state, update, addXP, aiGuid
         backgroundPosition: 'center',
         display: 'flex',
         flexDirection: 'column',
-        justify: 'space-between',
+        justifyContent: 'space-between',
         padding: '24px'
       }}>
         {/* Ambient Dark Overlay */}
@@ -598,21 +627,8 @@ export default function BeginnerLevel({ go, goBack, state, update, addXP, aiGuid
             width: 280,
             boxShadow: '0 12px 32px rgba(0,0,0,0.6)'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-              <div style={{ fontSize: 10, fontWeight: 900, color: '#38bdf8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                LEVEL 1 PROGRESS
-              </div>
-              <span style={{
-                fontSize: 10,
-                fontWeight: 900,
-                padding: '2px 8px',
-                borderRadius: 999,
-                background: begCleared ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.2)',
-                border: `1px solid ${begCleared ? '#10b981' : '#f59e0b'}`,
-                color: begCleared ? '#6ee7b7' : '#fbbf24',
-              }}>
-                {begCleared ? '✓ Completed' : 'In Progress'}
-              </span>
+            <div style={{ fontSize: 10, fontWeight: 900, color: '#38bdf8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 8 }}>
+              LEVEL 1 PROGRESS ({progress}/5)
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 14 }}>
@@ -627,15 +643,15 @@ export default function BeginnerLevel({ go, goBack, state, update, addXP, aiGuid
                   background: 'var(--bg-main, #080705)', display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontSize: 12, fontWeight: 900, color: '#10b981'
                 }}>
-                  {progressPct}%
+                  {progress}/5
                 </div>
               </div>
               <div>
                 <div style={{ fontSize: 13, fontWeight: 900, color: 'var(--heading-color, #ffffff)' }}>
-                  {progress} of {total} Lessons
+                  {progress}/5 Lessons
                 </div>
-                <div style={{ fontSize: 10, color: begCleared ? '#6ee7b7' : 'var(--text-muted, #94a3b8)', fontWeight: 700 }}>
-                  {begCleared ? 'Level 1 Completed' : 'Watched'}
+                <div style={{ fontSize: 10, color: 'var(--text-muted, #94a3b8)', fontWeight: 700 }}>
+                  Completed (80%+ watched)
                 </div>
               </div>
             </div>
@@ -736,54 +752,37 @@ export default function BeginnerLevel({ go, goBack, state, update, addXP, aiGuid
         </div>
 
         {/* Quiz Prompt Callout */}
-        <div className="glass-card-deep anim-fade" style={{ padding: 20, borderRadius: 18, marginBottom: 20, border: `2px solid ${begCleared ? '#10b981' : '#ea580c'}`, background: begCleared ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(5, 150, 105, 0.15))' : 'linear-gradient(135deg, rgba(234, 88, 12, 0.12), rgba(245, 158, 11, 0.15))' }}>
+        <div className="glass-card-deep anim-fade" style={{ padding: 20, borderRadius: 18, marginBottom: 20, border: '2px solid #ea580c', background: 'linear-gradient(135deg, rgba(234, 88, 12, 0.12), rgba(245, 158, 11, 0.15))' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
             <div>
-              <div style={{ fontSize: 16, fontWeight: 900, color: begCleared ? '#6ee7b7' : '#f59e0b', marginBottom: 4 }}>
-                {begCleared ? '✅ LEVEL 1 STATUS: COMPLETED' : "📝 LET'S TEST YOUR KNOWLEDGE!"}
+              <div style={{ fontSize: 16, fontWeight: 900, color: '#f59e0b', marginBottom: 4 }}>
+                📝 LET'S TEST YOUR KNOWLEDGE!
               </div>
               <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-sub, #d1d5db)' }}>
-                {begCleared
-                  ? `🎉 Level 1 is Completed (Quiz Score: ${state.quizScore || 0}%)! Level 2 Investment Lab is unlocked.`
-                  : isQuizUnlocked
-                  ? '🎉 All 5 video lessons complete! Take the Level 1 Quiz to unlock Level 2 Investment Lab!' 
-                  : `Watched ${watchedCount}/5 video lessons. Watch all 5 videos to unlock the Level 1 Quiz!`}
+                {isQuizUnlocked
+                  ? '🎉 All 5/5 video lessons complete! Take the Level 1 Quiz to unlock Level 2 Investment Lab!' 
+                  : `Progress: ${progress}/5 video lessons watched (at least 80% each). Watch all 5/5 videos to unlock the Level 1 Quiz!`}
               </div>
             </div>
-            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-              {begCleared && (
-                <button
-                  onClick={() => go('intermediate')}
-                  className="btn-primary"
-                  style={{
-                    padding: '12px 20px', fontSize: 13, fontWeight: 900,
-                    background: 'linear-gradient(135deg, #10b981, #059669)',
-                    color: '#fff',
-                  }}
-                >
-                  🚀 OPEN LEVEL 2 →
-                </button>
-              )}
-              <button
-                onClick={() => {
-                  if (!isQuizUnlocked) {
-                    alert("🔒 Please watch all 5 video lessons to unlock the Level 1 Quiz!")
-                    return
-                  }
-                  go('quiz')
-                }}
-                disabled={!isQuizUnlocked}
-                className={isQuizUnlocked ? "btn-primary" : "btn-outline"}
-                style={{
-                  padding: '12px 24px', fontSize: 13, fontWeight: 900,
-                  opacity: isQuizUnlocked ? 1 : 0.6,
-                  cursor: isQuizUnlocked ? 'pointer' : 'not-allowed',
-                  boxShadow: isQuizUnlocked ? '0 0 16px rgba(234,88,12,0.4)' : 'none'
-                }}
-              >
-                {begCleared ? '📝 RETAKE LEVEL 1 QUIZ' : isQuizUnlocked ? '📝 TAKE LEVEL 1 QUIZ →' : `🔒 WATCH ALL 5 VIDEOS (${watchedCount}/5)`}
-              </button>
-            </div>
+            <button
+              onClick={() => {
+                if (!isQuizUnlocked) {
+                  alert(`🔒 Please watch all 5/5 video lessons (at least 80% each) to unlock the Level 1 Quiz! Current progress: ${progress}/5`)
+                  return
+                }
+                go('quiz')
+              }}
+              disabled={!isQuizUnlocked}
+              className={isQuizUnlocked ? "btn-primary" : "btn-outline"}
+              style={{
+                padding: '12px 24px', fontSize: 13, fontWeight: 900,
+                opacity: isQuizUnlocked ? 1 : 0.6,
+                cursor: isQuizUnlocked ? 'pointer' : 'not-allowed',
+                boxShadow: isQuizUnlocked ? '0 0 16px rgba(234,88,12,0.4)' : 'none'
+              }}
+            >
+              {isQuizUnlocked ? '📝 TAKE LEVEL 1 QUIZ (5/5) →' : `🔒 WATCH ALL 5 VIDEOS (${progress}/5)`}
+            </button>
           </div>
         </div>
 
@@ -792,7 +791,7 @@ export default function BeginnerLevel({ go, goBack, state, update, addXP, aiGuid
             <VideoCard
               key={i.id}
               v={i}
-              watched={begCleared || watched.includes(i.id)}
+              watched={watched.includes(i.id)}
               onWatch={handleWatch}
               delay={idx + 1}
               activeAvatar={activeAvatar}

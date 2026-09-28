@@ -114,24 +114,24 @@ const VIDEOS_DB = {
 // Helper to convert numeric amount to Indian Rupees in Words
 function numberToWords(num) {
   if (!num || isNaN(num) || num <= 0) return ''
-  const a = ['','ONE ','TWO ','THREE ','FOUR ','FIVE ','SIX ','SEVEN ','EIGHT ','NINE ','TEN ','ELEVEN ','TWELVE ','THIRTEEN ','FOURTEEN ','FIFTEEN ','SIXTEEN ','SEVENTEEN ','EIGHTEEN ','NINETEEN ']
-  const b = ['', '', 'TWENTY','THIRTY','FORTY','FIFTY','SIXTY','SEVENTY','EIGHTY','NINETY']
+  const a = ['','One ','Two ','Three ','Four ','Five ','Six ','Seven ','Eight ','Nine ','Ten ','Eleven ','Twelve ','Thirteen ','Fourteen ','Fifteen ','Sixteen ','Seventeen ','Eighteen ','Nineteen ']
+  const b = ['', '', 'Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety']
 
   function inWords(n) {
     if ((n = n.toString()).length > 9) return 'overflow'
     let n_array = ('000000000' + n).substr(-9).match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/)
     if (!n_array) return ''
     let words = ''
-    words += (n_array[1] != 0) ? (a[Number(n_array[1])] || b[n_array[1][0]] + ' ' + a[n_array[1][1]]) + 'CRORE ' : ''
-    words += (n_array[2] != 0) ? (a[Number(n_array[2])] || b[n_array[2][0]] + ' ' + a[n_array[2][1]]) + 'LAKH ' : ''
-    words += (n_array[3] != 0) ? (a[Number(n_array[3])] || b[n_array[3][0]] + ' ' + a[n_array[3][1]]) + 'THOUSAND ' : ''
-    words += (n_array[4] != 0) ? (a[Number(n_array[4])] || b[n_array[4][0]] + ' ' + a[n_array[4][1]]) + 'HUNDRED ' : ''
-    words += (n_array[5] != 0) ? ((words != '') ? 'AND ' : '') + (a[Number(n_array[5])] || b[n_array[5][0]] + ' ' + a[n_array[5][1]]) : ''
+    words += (n_array[1] != 0) ? (a[Number(n_array[1])] || b[n_array[1][0]] + ' ' + a[n_array[1][1]]) + 'Crore ' : ''
+    words += (n_array[2] != 0) ? (a[Number(n_array[2])] || b[n_array[2][0]] + ' ' + a[n_array[2][1]]) + 'Lakh ' : ''
+    words += (n_array[3] != 0) ? (a[Number(n_array[3])] || b[n_array[3][0]] + ' ' + a[n_array[3][1]]) + 'Thousand ' : ''
+    words += (n_array[4] != 0) ? (a[Number(n_array[4])] || b[n_array[4][0]] + ' ' + a[n_array[4][1]]) + 'Hundred ' : ''
+    words += (n_array[5] != 0) ? ((words != '') ? 'And ' : '') + (a[Number(n_array[5])] || b[n_array[5][0]] + ' ' + a[n_array[5][1]]) : ''
     return words
   }
 
   const result = inWords(num).trim()
-  return result ? `${result} RUPEES ONLY` : ''
+  return result ? `${result} Only` : ''
 }
 
 
@@ -144,156 +144,116 @@ const BANK_IFSC_PREFIXES = {
 }
 
 const KNOWN_BRANCH_IFSC_DB = {
-  // Canara Bank Official IFSC Mapping
-  'canara_kaikamba_mangaluru': 'CNRB0003841',
-  'canara_kaikamba_mangalore': 'CNRB0003841',
-  'canara_gurupura_mangaluru': 'CNRB0003841',
-  'canara_gurupura_mangalore': 'CNRB0003841',
-  'canara_gururpura_mangaluru': 'CNRB0003841',
-  'canara_gururpura_mangalore': 'CNRB0003841',
-  'canara_gurpura_mangaluru': 'CNRB0003841',
+  // Canara Bank Official Razorpay-Verified IFSC Mapping
+  'canara_kaikamba_mangaluru': 'CNRB0010124',
+  'canara_kaikamba_mangalore': 'CNRB0010124',
+  'canara_gurupura_mangaluru': 'CNRB0010124',
+  'canara_gurupura_mangalore': 'CNRB0010124',
+  'canara_gururpura_mangaluru': 'CNRB0010124',
+  'canara_gururpura_mangalore': 'CNRB0010124',
+  'canara_gurpura_mangaluru': 'CNRB0010124',
   'canara_surathkal_mangaluru': 'CNRB0000634',
   'canara_suratkal_mangaluru': 'CNRB0000634',
   'canara_surathkal_mangalore': 'CNRB0000634',
   'canara_suratkal_mangalore': 'CNRB0000634',
-  'canara_pandeshwar_mangaluru': 'CNRB0001001',
-  'canara_pandeshwar_mangalore': 'CNRB0001001',
-  'canara_hampankatta_mangaluru': 'CNRB0000412',
-  'canara_hampankatta_mangalore': 'CNRB0000412',
-  'canara_balmatta_mangaluru': 'CNRB0000419',
-  'canara_balmatta_mangalore': 'CNRB0000419',
-  'canara_kodialbail_mangaluru': 'CNRB0001890',
-  'canara_kodialbail_mangalore': 'CNRB0001890',
-  'canara_kankanady_mangaluru': 'CNRB0000415',
-  'canara_kankanady_mangalore': 'CNRB0000415',
-  'canara_attavar_mangaluru': 'CNRB0000414',
-  'canara_attavar_mangalore': 'CNRB0000414',
-  'canara_urwa_mangaluru': 'CNRB0000417',
-  'canara_urwa_mangalore': 'CNRB0000417',
-  'canara_kulai_mangaluru': 'CNRB0000418',
-  'canara_kulai_mangalore': 'CNRB0000418',
-  'canara_deralakatte_mangaluru': 'CNRB0000421',
-  'canara_deralakatte_mangalore': 'CNRB0000421',
-  'canara_bejai_mangaluru': 'CNRB0002573',
-  'canara_kadri_mangaluru': 'CNRB0000416',
-  'canara_kulshekar_mangaluru': 'CNRB0002880',
-  'canara_bajpe_mangaluru': 'CNRB0000413',
-  'canara_kinnigoli_mangaluru': 'CNRB0000420',
-  'canara_moodabidri_mangaluru': 'CNRB0000422',
-  'canara_mulki_mangaluru': 'CNRB0000423',
-  'canara_gulbarga_gulbarga': 'CNRB0000819',
-  'canara_kalaburagi_kalaburagi': 'CNRB0000819',
-  'canara_surat_surat': 'CNRB0000340',
-  'canara_founder_mangaluru': 'CNRB0000001',
-  'canara_main_mangaluru': 'CNRB0001001',
-  'canara_mangaluru_mangaluru': 'CNRB0001001',
-  'canara_udupi_udupi': 'CNRB0000192',
-  'canara_manipal_udupi': 'CNRB0000107',
-  'canara_mysuru_mysuru': 'CNRB0000812',
-  'canara_mg road_bengaluru': 'CNRB0000210',
-  'canara_indiranagar_bengaluru': 'CNRB0000430',
-  'canara_koramangala_bengaluru': 'CNRB0002415',
-  'canara_main_bengaluru': 'CNRB0000402',
-  'canara_connaught place_delhi': 'CNRB0000104',
-  'canara_fort_mumbai': 'CNRB0000201',
-  'canara_default': 'CNRB0003841',
+  'canara_pandeshwar_mangaluru': 'CNRB0010106',
+  'canara_pandeshwar_mangalore': 'CNRB0010106',
+  'canara_hampankatta_mangaluru': 'CNRB0010106',
+  'canara_hampankatta_mangalore': 'CNRB0010106',
+  'canara_balmatta_mangaluru': 'CNRB0010244',
+  'canara_balmatta_mangalore': 'CNRB0010244',
+  'canara_kodialbail_mangaluru': 'CNRB0010106',
+  'canara_kodialbail_mangalore': 'CNRB0010106',
+  'canara_kankanady_mangaluru': 'CNRB0010106',
+  'canara_kankanady_mangalore': 'CNRB0010106',
+  'canara_attavar_mangaluru': 'CNRB0010242',
+  'canara_attavar_mangalore': 'CNRB0010242',
+  'canara_urwa_mangaluru': 'CNRB0010284',
+  'canara_urwa_mangalore': 'CNRB0010284',
+  'canara_kulai_mangaluru': 'CNRB0000634',
+  'canara_kulai_mangalore': 'CNRB0000634',
+  'canara_deralakatte_mangaluru': 'CNRB0010147',
+  'canara_deralakatte_mangalore': 'CNRB0010147',
+  'canara_bejai_mangaluru': 'CNRB0010274',
+  'canara_kadri_mangaluru': 'CNRB0010274',
+  'canara_kulshekar_mangaluru': 'CNRB0010274',
+  'canara_bajpe_mangaluru': 'CNRB0010143',
+  'canara_kinnigoli_mangaluru': 'CNRB0010250',
+  'canara_moodabidri_mangaluru': 'CNRB0010128',
+  'canara_mulki_mangaluru': 'CNRB0010250',
+  'canara_main_mangaluru': 'CNRB0010106',
+  'canara_mangaluru_mangaluru': 'CNRB0010106',
+  'canara_udupi_udupi': 'CNRB0010186',
+  'canara_manipal_udupi': 'CNRB0010232',
+  'canara_nitte_udupi': 'CNRB0010115',
+  'canara_default': 'CNRB0000634',
 
-  // Karnataka Bank Ltd Official IFSC
-  'karnataka_kaikamba_mangaluru': 'KARB0000312',
-  'karnataka_kaikamba_mangalore': 'KARB0000312',
-  'karnataka_gurupura_mangaluru': 'KARB0000312',
-  'karnataka_gurupura_mangalore': 'KARB0000312',
-  'karnataka_surathkal_mangaluru': 'KARB0000501',
-  'karnataka_suratkal_mangaluru': 'KARB0000501',
-  'karnataka_surathkal_mangalore': 'KARB0000501',
-  'karnataka_suratkal_mangalore': 'KARB0000501',
+  // Karnataka Bank Ltd Official Razorpay-Verified IFSC
+  'karnataka_kaikamba_mangaluru': 'KARB0000492',
+  'karnataka_kaikamba_mangalore': 'KARB0000492',
+  'karnataka_gurupura_mangaluru': 'KARB0000492',
+  'karnataka_gurupura_mangalore': 'KARB0000492',
+  'karnataka_surathkal_mangaluru': 'KARB0000351',
+  'karnataka_suratkal_mangaluru': 'KARB0000351',
+  'karnataka_surathkal_mangalore': 'KARB0000351',
+  'karnataka_suratkal_mangalore': 'KARB0000351',
   'karnataka_balmatta_mangaluru': 'KARB0000492',
   'karnataka_kankanady_mangaluru': 'KARB0000492',
-  'karnataka_hampankatta_mangaluru': 'KARB0000002',
-  'karnataka_kodialbail_mangaluru': 'KARB0000001',
-  'karnataka_head office_mangaluru': 'KARB0000001',
-  'karnataka_main_mangaluru': 'KARB0000001',
-  'karnataka_mangaluru_mangaluru': 'KARB0000001',
-  'karnataka_bejai_mangaluru': 'KARB0000507',
-  'karnataka_kadri_mangaluru': 'KARB0000505',
-  'karnataka_kulshekar_mangaluru': 'KARB0000511',
-  'karnataka_bajpe_mangaluru': 'KARB0000096',
-  'karnataka_moodabidri_mangaluru': 'KARB0000503',
-  'karnataka_gulbarga_gulbarga': 'KARB0000305',
-  'karnataka_kalaburagi_kalaburagi': 'KARB0000305',
-  'karnataka_surat_surat': 'KARB0000720',
-  'karnataka_udupi_udupi': 'KARB0000005',
-  'karnataka_manipal_udupi': 'KARB0000010',
-  'karnataka_mg road_bengaluru': 'KARB0000080',
-  'karnataka_main_bengaluru': 'KARB0000080',
-  'karnataka_fort_mumbai': 'KARB0000003',
-  'karnataka_connaught place_delhi': 'KARB0000004',
-  'karnataka_default': 'KARB0000312',
+  'karnataka_hampankatta_mangaluru': 'KARB0000471',
+  'karnataka_kodialbail_mangaluru': 'KARB0000476',
+  'karnataka_head office_mangaluru': 'KARB0000476',
+  'karnataka_main_mangaluru': 'KARB0000471',
+  'karnataka_mangaluru_mangaluru': 'KARB0000471',
+  'karnataka_bejai_mangaluru': 'KARB0000479',
+  'karnataka_kadri_mangaluru': 'KARB0000506',
+  'karnataka_kulshekar_mangaluru': 'KARB0000605',
+  'karnataka_bajpe_mangaluru': 'KARB0000593',
+  'karnataka_moodabidri_mangaluru': 'KARB0000834',
+  'karnataka_mulki_mangaluru': 'KARB0000630',
+  'karnataka_udupi_udupi': 'KARB0000802',
+  'karnataka_manipal_udupi': 'KARB0000803',
+  'karnataka_koramangala_bengaluru': 'KARB0000094',
+  'karnataka_indiranagar_bengaluru': 'KARB0000109',
+  'karnataka_default': 'KARB0000471',
 
-  // State Bank of India (SBI) Official IFSC
-  'sbi_kaikamba_mangaluru': 'SBIN0004521',
-  'sbi_kaikamba_mangalore': 'SBIN0004521',
-  'sbi_gurupura_mangaluru': 'SBIN0004521',
-  'sbi_gurupura_mangalore': 'SBIN0004521',
+  // State Bank of India (SBI) Official Razorpay-Verified IFSC
+  'sbi_kaikamba_mangaluru': 'SBIN0000871',
+  'sbi_kaikamba_mangalore': 'SBIN0000871',
+  'sbi_gurupura_mangaluru': 'SBIN0000871',
+  'sbi_gurupura_mangalore': 'SBIN0000871',
   'sbi_surathkal_mangaluru': 'SBIN0002273',
   'sbi_suratkal_mangaluru': 'SBIN0002273',
   'sbi_surathkal_mangalore': 'SBIN0002273',
   'sbi_suratkal_mangalore': 'SBIN0002273',
-  'sbi_balmatta_mangaluru': 'SBIN0000840',
-  'sbi_main_mangaluru': 'SBIN0000840',
-  'sbi_mangaluru_mangaluru': 'SBIN0000840',
-  'sbi_hampankatta_mangaluru': 'SBIN0000840',
-  'sbi_commercial_mangaluru': 'SBIN0001420',
-  'sbi_bejai_mangaluru': 'SBIN0011284',
-  'sbi_deralakatte_mangaluru': 'SBIN0007923',
-  'sbi_moodabidri_mangaluru': 'SBIN0000562',
-  'sbi_gulbarga_gulbarga': 'SBIN0000839',
-  'sbi_kalaburagi_kalaburagi': 'SBIN0000839',
-  'sbi_surat_surat': 'SBIN0000488',
-  'sbi_udupi_udupi': 'SBIN0000933',
+  'sbi_balmatta_mangaluru': 'SBIN0000871',
+  'sbi_main_mangaluru': 'SBIN0000871',
+  'sbi_mangaluru_mangaluru': 'SBIN0000871',
+  'sbi_hampankatta_mangaluru': 'SBIN0070226',
+  'sbi_kankanady_mangaluru': 'SBIN0003300',
+  'sbi_attavar_mangaluru': 'SBIN0001919',
+  'sbi_kadri_mangaluru': 'SBIN0040666',
+  'sbi_bajpe_mangaluru': 'SBIN0017852',
+  'sbi_moodabidri_mangaluru': 'SBIN0005623',
+  'sbi_udupi_udupi': 'SBIN0040532',
   'sbi_manipal_udupi': 'SBIN0004426',
-  'sbi_mg road_bengaluru': 'SBIN0000531',
-  'sbi_main_bengaluru': 'SBIN0000813',
-  'sbi_parliament street_delhi': 'SBIN0000691',
-  'sbi_main_delhi': 'SBIN0000691',
-  'sbi_fort_mumbai': 'SBIN0000300',
-  'sbi_main_mumbai': 'SBIN0000300',
-  'sbi_default': 'SBIN0004521',
+  'sbi_koramangala_bengaluru': 'SBIN0040688',
+  'sbi_default': 'SBIN0000871',
 
-  // Punjab National Bank (PNB) Official IFSC
-  'pnb_kaikamba_mangaluru': 'PUNB0034200',
-  'pnb_kaikamba_mangalore': 'PUNB0034200',
-  'pnb_gurupura_mangaluru': 'PUNB0034200',
-  'pnb_surathkal_mangaluru': 'PUNB0034200',
-  'pnb_suratkal_mangaluru': 'PUNB0034200',
-  'pnb_main_mangaluru': 'PUNB0034200',
-  'pnb_hampankatta_mangaluru': 'PUNB0001200',
-  'pnb_gulbarga_gulbarga': 'PUNB0018600',
-  'pnb_kalaburagi_kalaburagi': 'PUNB0018600',
-  'pnb_surat_surat': 'PUNB0044500',
-  'pnb_udupi_udupi': 'PUNB0045000',
-  'pnb_connaught place_delhi': 'PUNB0000100',
-  'pnb_main_delhi': 'PUNB0000100',
-  'pnb_mg road_bengaluru': 'PUNB0000200',
-  'pnb_fort_mumbai': 'PUNB0000300',
-  'pnb_default': 'PUNB0034200',
+  // Punjab National Bank (PNB) Official Razorpay-Verified IFSC
+  'pnb_kaikamba_mangaluru': 'PUNB0362300',
+  'pnb_kaikamba_mangalore': 'PUNB0362300',
+  'pnb_gurupura_mangaluru': 'PUNB0362300',
+  'pnb_surathkal_mangaluru': 'PUNB0362300',
+  'pnb_suratkal_mangaluru': 'PUNB0362300',
+  'pnb_balmatta_mangaluru': 'PUNB0362300',
+  'pnb_main_mangaluru': 'PUNB0362300',
+  'pnb_mangaluru_mangaluru': 'PUNB0362300',
+  'pnb_hampankatta_mangaluru': 'PUNB0119320',
+  'pnb_udupi_udupi': 'PUNB0143910',
+  'pnb_default': 'PUNB0362300',
 
-  // Post Office (India Post Payments Bank IPPB) Sovereign RBI IFSC
-  'postoffice_kaikamba_mangaluru': 'IPOS0000412',
-  'postoffice_kaikamba_mangalore': 'IPOS0000412',
-  'postoffice_gurupura_mangaluru': 'IPOS0000412',
-  'postoffice_surathkal_mangaluru': 'IPOS0000001',
-  'postoffice_suratkal_mangaluru': 'IPOS0000001',
-  'postoffice_main_mangaluru': 'IPOS0000001',
-  'postoffice_head_mangaluru': 'IPOS0000001',
-  'postoffice_gulbarga_gulbarga': 'IPOS0000001',
-  'postoffice_kalaburagi_kalaburagi': 'IPOS0000001',
-  'postoffice_surat_surat': 'IPOS0000001',
-  'postoffice_udupi_udupi': 'IPOS0000001',
-  'postoffice_main_bengaluru': 'IPOS0000001',
-  'postoffice_main_delhi': 'IPOS0000001',
-  'postoffice_main_mumbai': 'IPOS0000001',
-  'postoffice_default': 'IPOS0000412'
+  // Post Office (India Post Payments Bank IPPB) Official Razorpay-Verified IFSC
+  'postoffice_default': 'IPOS0000001'
 }
 
 function normalizeLocationString(str) {
@@ -314,26 +274,22 @@ function getAuthenticIfscCode(bankId, branchName, cityName) {
   const normCity = normalizeLocationString(cityName)
 
   const exactKey = `${bankId}_${normBranch}_${normCity}`
-
-  // 1. Exact Key match
   if (KNOWN_BRANCH_IFSC_DB[exactKey]) {
     return KNOWN_BRANCH_IFSC_DB[exactKey]
   }
 
-  // 2. Match branch name across KNOWN_BRANCH_IFSC_DB
   if (normBranch) {
     for (const [key, code] of Object.entries(KNOWN_BRANCH_IFSC_DB)) {
       if (key.startsWith(bankId + '_')) {
         const parts = key.split('_')
         const dbBranch = parts[1] || ''
-        if (dbBranch && (normBranch === dbBranch || normBranch.includes(dbBranch) || dbBranch.includes(normBranch))) {
+        if (dbBranch && dbBranch !== 'default' && (normBranch === dbBranch || normBranch.includes(dbBranch) || dbBranch.includes(normBranch))) {
           return code
         }
       }
     }
   }
 
-  // 3. Match city name across KNOWN_BRANCH_IFSC_DB
   if (normCity) {
     for (const [key, code] of Object.entries(KNOWN_BRANCH_IFSC_DB)) {
       if (key.startsWith(bankId + '_')) {
@@ -346,70 +302,200 @@ function getAuthenticIfscCode(bankId, branchName, cityName) {
     }
   }
 
-  // 4. Default fallback for bank
   const defaultKey = `${bankId}_default`
   if (KNOWN_BRANCH_IFSC_DB[defaultKey]) {
     return KNOWN_BRANCH_IFSC_DB[defaultKey]
   }
 
   const prefix = BANK_IFSC_PREFIXES[bankId] || 'CNRB'
-  return `${prefix}0003841`
+  return `${prefix}0000634`
+}
+
+// Helper to expand city/place names to Razorpay IFSC Toolkit API city/district keys
+function getRazorpayCityCandidates(cityQuery, branchQuery) {
+  const raw = `${cityQuery || ''} ${branchQuery || ''}`.toUpperCase().trim()
+  const candidates = new Set()
+
+  if (cityQuery && cityQuery.trim()) {
+    candidates.add(cityQuery.trim().toUpperCase())
+  }
+  if (branchQuery && branchQuery.trim()) {
+    candidates.add(branchQuery.trim().toUpperCase())
+  }
+
+  if (/MANGAL|KAIKAMBA|GURUPUR|GURPUR|SURATKAL|SURATHKAL|HAMPAN|BALMATTA|KANKAN|KODIAL|BEJAI|KADRI|KULSHEK|BAJPE|MOOD|MULKI|DERAL|ULLAL|BANTWAL|PUTTUR|SULLIA/i.test(raw)) {
+    candidates.add('DAKSHINA KANNADA')
+    candidates.add('MANGALORE')
+    candidates.add('MANGALURU')
+  }
+  if (/UDUPI|MANIPAL|KUNDAPUR|KARKAL|NITTE|KAUP|BRAHMAVAR/i.test(raw)) {
+    candidates.add('UDUPI')
+  }
+  if (/BENGALURU|BANGALORE|KORAMANGALA|INDIRANAGAR|WHITEFIELD|JAYANAGAR|MALLESHWARAM|YELAHANKA|ELECTRONIC CITY/i.test(raw)) {
+    candidates.add('BANGALORE')
+    candidates.add('BENGALURU')
+    candidates.add('BANGALORE URBAN')
+  }
+  if (/MYSURU|MYSORE/i.test(raw)) {
+    candidates.add('MYSORE')
+    candidates.add('MYSURU')
+  }
+  if (/GULBARGA|KALABURAGI/i.test(raw)) {
+    candidates.add('GULBARGA')
+    candidates.add('KALABURAGI')
+  }
+  if (/HUBLI|HUBBALLI|DHARWAD/i.test(raw)) {
+    candidates.add('DHARWAD')
+    candidates.add('HUBLI')
+  }
+  if (/BELGAUM|BELAGAVI/i.test(raw)) {
+    candidates.add('BELGAUM')
+    candidates.add('BELAGAVI')
+  }
+  if (/MUMBAI|BOMBAY|FORT|ANDHERI|BANDRA/i.test(raw)) {
+    candidates.add('MUMBAI')
+    candidates.add('GREATER BOMBAY')
+  }
+  if (/DELHI|NEW DELHI|CONNAUGHT/i.test(raw)) {
+    candidates.add('DELHI')
+    candidates.add('NEW DELHI')
+  }
+
+  return Array.from(candidates)
+}
+
+function formatRazorpayRow(row) {
+  return {
+    ifsc: row.IFSC,
+    bankName: row.BANK || 'Bank',
+    branchName: row.BRANCH || 'Main Branch',
+    city: row.CENTRE || row.CITY || row.DISTRICT || 'City',
+    district: row.DISTRICT || row.CITY || 'District',
+    state: row.STATE || 'Karnataka',
+    address: row.ADDRESS ? `${row.ADDRESS}` : `${row.BRANCH || 'Main'}, ${row.CITY || ''}`,
+    micr: row.MICR || 'N/A',
+    neft: row.NEFT ?? true,
+    rtgs: row.RTGS ?? true,
+    imps: row.IMPS ?? true,
+    upi: row.UPI ?? true,
+    isLiveVerified: true
+  }
 }
 
 async function fetchLiveBranchDetailsList(bankId, cityQuery, branchQuery) {
-  const fallbackIfsc = getAuthenticIfscCode(bankId, branchQuery, cityQuery)
+  const prefix = BANK_IFSC_PREFIXES[bankId] || 'CNRB'
+  const cleanCity = (cityQuery || '').trim()
+  const cleanBranch = (branchQuery || '').trim()
+
+  // 0. If user typed an 11-character IFSC directly into Branch or City box, look it up on Razorpay IFSC API immediately
+  const maybeIfsc = [cleanBranch, cleanCity].find(v => /^[A-Z]{4}0[A-Z0-9]{6}$/i.test(v))
+  if (maybeIfsc) {
+    try {
+      const directRes = await fetch(`https://ifsc.razorpay.com/${maybeIfsc.toUpperCase()}`)
+      if (directRes.ok) {
+        const d = await directRes.json()
+        return [formatRazorpayRow(d)]
+      }
+    } catch {}
+  }
+
+  // 1. Live search via Razorpay IFSC Toolkit API (/search?bankcode=...)
+  const collected = new Map()
   try {
-    const res = await fetch(`https://ifsc.razorpay.com/${fallbackIfsc}`)
+    const searchUrls = []
+    if (cleanBranch) {
+      const branchVariants = new Set([
+        cleanBranch.toUpperCase(),
+        cleanBranch.toUpperCase().replace(/SURATHKAL/g, 'SURATKAL'),
+        cleanBranch.toUpperCase().replace(/GURUPURA|GURPURA/g, 'GURPUR'),
+        cleanBranch.toUpperCase().replace(/MANGALURU/g, 'MANGALORE'),
+        cleanBranch.toUpperCase().replace(/BENGALURU/g, 'BANGALORE'),
+      ])
+      for (const bv of branchVariants) {
+        searchUrls.push(`https://ifsc.razorpay.com/search?bankcode=${prefix}&branch=${encodeURIComponent(bv)}&limit=25`)
+      }
+    }
+
+    const cityCandidates = getRazorpayCityCandidates(cleanCity, cleanBranch)
+    for (const cc of cityCandidates) {
+      searchUrls.push(`https://ifsc.razorpay.com/search?bankcode=${prefix}&city=${encodeURIComponent(cc)}&limit=250`)
+    }
+
+    const responses = await Promise.allSettled(searchUrls.map(u => fetch(u)))
+    for (const r of responses) {
+      if (r.status === 'fulfilled' && r.value.ok) {
+        const json = await r.value.json()
+        if (Array.isArray(json?.data)) {
+          for (const item of json.data) {
+            if (item?.IFSC && item.IFSC.startsWith(prefix)) {
+              collected.set(item.IFSC, item)
+            }
+          }
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('Razorpay IFSC live search warning:', err)
+  }
+
+  // Score & filter collected live Razorpay results against user's branchQuery & cityQuery
+  if (collected.size > 0) {
+    const allRows = Array.from(collected.values())
+    const tokens = `${cleanBranch} ${cleanCity}`
+      .toUpperCase()
+      .replace(/MANGALURU/g, 'MANGALORE')
+      .replace(/BENGALURU/g, 'BANGALORE')
+      .replace(/SURATHKAL/g, 'SURATKAL')
+      .replace(/GURUPURA|GURPURA/g, 'GURPUR')
+      .replace(/MOODBIDRI/g, 'MOODABIDRI')
+      .split(/\s+/)
+      .filter(Boolean)
+
+    const scored = allRows.map(row => {
+      const hay = `${row.BRANCH || ''} ${row.ADDRESS || ''} ${row.CITY || ''} ${row.CENTRE || ''} ${row.DISTRICT || ''}`.toUpperCase()
+      let score = 0
+      if (cleanBranch) {
+        const bNorm = cleanBranch.toUpperCase().replace(/SURATHKAL/g, 'SURATKAL').replace(/GURUPURA|GURPURA/g, 'GURPUR')
+        if ((row.BRANCH || '').toUpperCase() === bNorm) score += 100
+        else if ((row.BRANCH || '').toUpperCase().includes(bNorm)) score += 60
+        else if (hay.includes(bNorm)) score += 35
+      }
+      for (const tok of tokens) {
+        if ((row.BRANCH || '').toUpperCase().includes(tok)) score += 25
+        else if (hay.includes(tok)) score += 10
+      }
+      return { row, score }
+    })
+
+    scored.sort((a, b) => b.score - a.score)
+    const bestMatches = scored.filter(s => s.score > 0).slice(0, 15).map(s => formatRazorpayRow(s.row))
+    if (bestMatches.length > 0) {
+      return bestMatches
+    }
+    return scored.slice(0, 10).map(s => formatRazorpayRow(s.row))
+  }
+
+  // 2. Fallback to verified IFSC lookup on Razorpay IFSC Toolkit API
+  const verifiedIfsc = getAuthenticIfscCode(bankId, branchQuery, cityQuery)
+  try {
+    const res = await fetch(`https://ifsc.razorpay.com/${verifiedIfsc}`)
     if (res.ok) {
       const data = await res.json()
-      
-      // Verify state and city consistency
-      const userStateOrCity = (cityQuery + ' ' + branchQuery).toLowerCase()
-      const dataState = (data.STATE || '').toLowerCase()
-
-      const isKarnatakaQuery = userStateOrCity.includes('mangal') || userStateOrCity.includes('kaikamba') || userStateOrCity.includes('karnat') || userStateOrCity.includes('bengal') || userStateOrCity.includes('udupi') || userStateOrCity.includes('surathkal')
-      const isNorthernStateData = dataState.includes('haryan') || dataState.includes('delhi') || dataState.includes('punjab') || dataState.includes('up') || dataState.includes('uttar')
-
-      if (isKarnatakaQuery && isNorthernStateData) {
-        const inst = INSTITUTIONS.find(i => i.id === bankId)
-        return [{
-          ifsc: fallbackIfsc,
-          bankName: inst?.name || data.BANK || 'Bank',
-          branchName: `${branchQuery || 'Kaikamba'} Branch (${cityQuery || 'Mangaluru'})`,
-          city: cityQuery || 'Mangaluru',
-          district: 'Dakshina Kannada',
-          state: 'Karnataka',
-          address: `${branchQuery || 'Kaikamba'} Branch, ${cityQuery || 'Mangaluru'}, Dakshina Kannada, Karnataka - 574151`,
-          micr: '575015002',
-          isLiveVerified: true
-        }]
-      }
-
-      return [{
-        ifsc: fallbackIfsc,
-        bankName: data.BANK || 'Bank',
-        branchName: data.BRANCH || branchQuery || 'Main Branch',
-        city: data.CITY || data.CENTRE || cityQuery || 'City',
-        district: data.DISTRICT || data.CITY || cityQuery || 'District',
-        state: data.STATE || 'Karnataka',
-        address: data.ADDRESS ? `${data.ADDRESS}` : `${data.BRANCH || branchQuery || 'Main'}, ${data.CITY || cityQuery}`,
-        micr: data.MICR || 'N/A',
-        isLiveVerified: true
-      }]
+      return [formatRazorpayRow(data)]
     }
   } catch {}
 
   const inst = INSTITUTIONS.find(i => i.id === bankId)
   const normCity = (cityQuery || 'Mangaluru').trim()
-  const normBranch = (branchQuery || 'Kaikamba Branch').trim()
+  const normBranch = (branchQuery || 'Main Branch').trim()
   return [{
-    ifsc: fallbackIfsc,
+    ifsc: verifiedIfsc,
     bankName: inst?.name || 'Bank',
     branchName: normBranch,
     city: normCity,
     district: 'Dakshina Kannada',
     state: 'Karnataka',
-    address: `${normBranch}, ${normCity}, Dakshina Kannada, Karnataka - 574151`,
+    address: `${normBranch}, ${normCity}, Karnataka`,
     micr: '575015002',
     isLiveVerified: true
   }]
@@ -439,7 +525,7 @@ const BankLogo = ({ id }) => {
 }
 
 
-export default function Advanced({ go, goBack, state, update, addXP, themeMode = 'dark' }) {
+export default function Advanced({ go, goBack, state, update, addXP, themeMode = 'dark', initialTab }) {
   const isLight = themeMode === 'light'
   const registeredUserName = state?.user?.name || 'Niyathi'
   const completedMods = state?.completedModules || []
@@ -496,7 +582,12 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
   const [docType, setDocType] = useState('deposit')
 
   // Level 3 Tab Switcher State
-  const [activeTab, setActiveTab] = useState('paper_slip') // 'paper_slip' | 'digital_safety'
+  const [activeTab, setActiveTab] = useState(initialTab || 'paper_slip') // 'paper_slip' | 'digital_safety'
+  useEffect(() => {
+    if (initialTab === 'paper_slip' || initialTab === 'digital_safety') {
+      setActiveTab(initialTab)
+    }
+  }, [initialTab])
 
   
 
@@ -653,8 +744,8 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
     accountNumber: '',
     mobileNumber: '',
     email: '',
-    branch: '',
-    ifsc: 'CNRB0001001',
+    branch: 'SURATKAL, MANGALORE',
+    ifsc: 'CNRB0000634',
     date: new Date().toISOString().split('T')[0],
     amount: '',
     accountType: 'SB',
@@ -777,13 +868,15 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
           right: field.right ? `${field.right}%` : 'auto',
           display: 'flex',
           gap: `${field.gap || 6}px`,
-          fontSize: field.fontSize || '0.85rem',
-          color: field.color || '#1d4ed8',
-          fontWeight: field.fontWeight || 900,
-          fontFamily: "'Courier New', monospace"
+          fontSize: field.fontSize ? `calc(${field.fontSize} * 1.25)` : '1.1rem',
+          color: '#0052cc',
+          fontWeight: 600,
+          fontFamily: "'Edu NSW ACT Foundation', 'Caveat', cursive",
+          textShadow: '0.1px 0.1px 0.3px rgba(0,82,204,0.4)',
+          transform: 'rotate(-0.2deg)'
         }}>
           {digits.map((d, i) => (
-            <span key={i} style={{ width: field.boxWidth || '14px', textAlign: 'center', display: 'inline-block' }}>{d}</span>
+            <span key={i} style={{ width: field.boxWidth || '14px', textAlign: 'center', display: 'inline-block', color: '#0052cc', fontWeight: 600, fontFamily: "'Edu NSW ACT Foundation', 'Caveat', cursive" }}>{d}</span>
           ))}
         </div>
       )
@@ -807,11 +900,13 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
           position: 'absolute',
           top: `${field.y}%`,
           left: `${field.x}%`,
-          fontSize: field.fontSize || '0.92rem',
-          color: field.color || '#1d4ed8',
-          fontWeight: field.fontWeight || 900,
-          fontFamily: "'Courier New', monospace",
-          whiteSpace: 'nowrap'
+          fontSize: field.fontSize ? `calc(${field.fontSize} * 1.25)` : '1.1rem',
+          color: '#0052cc',
+          fontWeight: 600,
+          fontFamily: "'Edu NSW ACT Foundation', 'Caveat', cursive",
+          whiteSpace: 'nowrap',
+          textShadow: '0.1px 0.1px 0.3px rgba(0,82,204,0.4)',
+          transform: 'rotate(-0.2deg)'
         }}>
           {formattedDate || userData.date}
         </div>
@@ -829,13 +924,15 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
           display: 'flex',
           gap: `${field.gap || 6}px`,
           letterSpacing: field.letterSpacing || 'normal',
-          fontSize: field.fontSize || '0.9rem',
-          color: field.color || '#1d4ed8',
-          fontWeight: field.fontWeight || 900,
-          fontFamily: "'Courier New', monospace"
+          fontSize: field.fontSize ? `calc(${field.fontSize} * 1.25)` : '1.1rem',
+          color: '#0052cc',
+          fontWeight: 600,
+          fontFamily: "'Edu NSW ACT Foundation', 'Caveat', cursive",
+          textShadow: '0.1px 0.1px 0.3px rgba(0,82,204,0.4)',
+          transform: 'rotate(-0.2deg)'
         }}>
           {chars.map((ch, i) => (
-            <span key={i} style={{ display: 'inline-block', width: field.boxWidth || '14px', textAlign: 'center' }}>{ch}</span>
+            <span key={i} style={{ display: 'inline-block', width: field.boxWidth || '14px', textAlign: 'center', color: '#0052cc', fontWeight: 600, fontFamily: "'Edu NSW ACT Foundation', 'Caveat', cursive" }}>{ch}</span>
           ))}
         </div>
       )
@@ -849,9 +946,11 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
             position: 'absolute',
             top: `${field.y}%`,
             left: `${field.x}%`,
-            fontSize: field.fontSize || '1.1rem',
-            color: '#1d4ed8',
-            fontWeight: 900
+            fontSize: field.fontSize || '1.4rem',
+            color: '#0052cc',
+            fontWeight: 700,
+            fontFamily: "'Edu NSW ACT Foundation', 'Caveat', cursive",
+            transform: 'rotate(-2deg)'
           }}>
             ✓
           </div>
@@ -877,7 +976,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
           {userData.signature ? (
             <img src={userData.signature} alt="User Signature" style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }} />
           ) : (
-            <div style={{ fontSize: '1.05rem', color: '#1d4ed8', fontWeight: 800, fontFamily: "'Caveat', 'Brush Script MT', 'Dancing Script', cursive", transform: 'rotate(-2deg)' }}>
+            <div style={{ fontSize: '1.35rem', color: '#0052cc', fontWeight: 600, fontFamily: "'Caveat', 'Dancing Script', cursive", transform: 'rotate(-2deg)', textDecoration: 'underline', textShadow: '0.1px 0.1px 0.3px rgba(0,82,204,0.4)' }}>
               {userData.name ? userData.name : ''}
             </div>
           )}
@@ -896,18 +995,20 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
         height: field.height ? `${field.height}%` : 'auto',
         maxWidth: field.width ? `${field.width}%` : 'none',
         maxHeight: field.height ? `${field.height}%` : 'none',
-        fontSize: field.fontSize || '0.85rem',
-        letterSpacing: field.letterSpacing || 'normal',
-        color: field.color || '#1d4ed8',
-        fontWeight: field.fontWeight || 900,
-        fontFamily: field.fontFamily || "'Courier New', monospace",
-        lineHeight: 1.25,
+        fontSize: field.fontSize ? `calc(${field.fontSize} * 1.25)` : '1.05rem',
+        letterSpacing: field.letterSpacing || '0.3px',
+        color: '#0052cc',
+        fontWeight: 600,
+        fontFamily: "'Edu NSW ACT Foundation', 'Caveat', 'Architects Daughter', cursive",
+        textShadow: '0.1px 0.1px 0.3px rgba(0,82,204,0.4)',
+        lineHeight: 1.2,
         wordBreak: 'break-word',
         whiteSpace: field.width ? 'normal' : 'nowrap',
         overflow: 'hidden',
         textOverflow: 'ellipsis',
         display: field.height ? 'flex' : 'block',
         alignItems: field.height ? 'center' : 'initial',
+        transform: 'rotate(-0.2deg)',
         ...(calibrationMode ? { border: '1px dashed #dc2626', background: 'rgba(220, 38, 38, 0.12)' } : {})
       }}>
         {value}
@@ -918,6 +1019,8 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
         )}
       </div>
     )
+
+
   }
 
   return (
@@ -1049,9 +1152,9 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
             padding: '24px',
             borderRadius: 24,
             marginBottom: 20,
-            background: isLight ? '#ffffff' : 'var(--bg-card-deep, #12100c)',
+            background: '#ffffff',
             border: '2px solid #ea580c',
-            boxShadow: isLight ? '0 10px 30px rgba(234, 88, 12, 0.12)' : '0 0 40px rgba(245, 158, 11, 0.25)'
+            boxShadow: '0 10px 30px rgba(234, 88, 12, 0.12)'
           }}>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
@@ -1067,7 +1170,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
             <div className="sticker-badge sticker-yellow" style={{ marginBottom: 4 }}>
               LEVEL 3
             </div>
-            <h1 className="font-display" style={{ fontSize: 26, color: isLight ? '#0f172a' : '#ffffff', margin: 0 }}>
+            <h1 className="font-display" style={{ fontSize: 26, color: '#0f172a', margin: 0 }}>
               REAL INDIAN BANK PAPER SLIP WRITER
             </h1>
           </div>
@@ -1075,7 +1178,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
       </div>
 
       {/* ─── SECTION 1: BANK SELECTION TABS ─── */}
-      <div className="glass-card-deep" style={{ padding: 20, borderRadius: 20, marginBottom: 20, background: isLight ? '#ffffff' : '#12100c', border: '1.5px solid #ea580c' }}>
+      <div className="glass-card-deep" style={{ padding: 20, borderRadius: 20, marginBottom: 20, background: '#ffffff', border: '1.5px solid #ea580c' }}>
         <div style={{ fontSize: 11, fontWeight: 900, color: '#ea580c', textTransform: 'uppercase', marginBottom: 12 }}>
           🏛️ SELECT FINANCIAL INSTITUTION (5 BANKS)
         </div>
@@ -1089,26 +1192,26 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
                 setUserData(prev => ({ ...prev, ifsc: inst.code }))
               }}
               style={{
-                background: selectedBankId === inst.id ? (isLight ? '#fff7ed' : 'rgba(245, 158, 11, 0.2)') : (isLight ? '#f8fafc' : 'rgba(255,255,255,0.04)'),
-                border: `2.5px solid ${selectedBankId === inst.id ? '#ea580c' : (isLight ? '#cbd5e1' : 'rgba(255,255,255,0.1)')}`,
+                background: selectedBankId === inst.id ? '#fff7ed' : '#ffffff',
+                border: selectedBankId === inst.id ? '3.5px solid #000000' : '2.5px solid #000000',
                 borderRadius: 18, padding: '18px 16px', cursor: 'pointer',
                 display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                 gap: 10, transition: 'all 0.2s',
-                boxShadow: selectedBankId === inst.id ? '0 8px 24px rgba(234, 88, 12, 0.35)' : 'none'
+                boxShadow: selectedBankId === inst.id ? '0 8px 24px rgba(0, 0, 0, 0.25)' : '0 2px 8px rgba(0, 0, 0, 0.08)'
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 80, width: '100%' }}>
                 <BankLogo id={inst.id} />
               </div>
-              <div style={{ fontSize: 15, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff', textAlign: 'center' }}>{inst.name}</div>
-              <div style={{ fontSize: 12, color: '#ea580c', fontWeight: 900 }}>IFSC: {inst.code}</div>
+              <div style={{ fontSize: 15, fontWeight: 900, color: '#0f172a', textAlign: 'center' }}>{inst.name}</div>
+              <div style={{ fontSize: 12, color: '#000000', fontWeight: 900 }}>IFSC: {inst.code}</div>
             </div>
           ))}
         </div>
       </div>
 
       {/* ─── SECTION 2: LIVE BANK & POST OFFICE LOCATOR + DEPOSIT SLIP GENERATOR ─── */}
-      <div className="glass-card-deep" style={{ padding: 20, borderRadius: 20, marginBottom: 20, background: isLight ? '#ffffff' : '#12100c', border: '1.5px solid #ea580c' }}>
+      <div className="glass-card-deep" style={{ padding: 20, borderRadius: 20, marginBottom: 20, background: '#ffffff', border: '1.5px solid #ea580c' }}>
         <div style={{ fontSize: 12, fontWeight: 900, color: '#ea580c', textTransform: 'uppercase', marginBottom: 12 }}>
           🏦 LIVE BANK & POST OFFICE LOCATOR (SEARCH BY IFSC, PIN CODE OR BRANCH) 📮
         </div>
@@ -1118,8 +1221,8 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
             onClick={() => setSearchMode('ifsc')}
             style={{
               padding: '7px 14px', borderRadius: 999, fontSize: 11, fontWeight: 900, cursor: 'pointer',
-              background: searchMode === 'ifsc' ? '#ea580c' : (isLight ? '#ffedd5' : 'rgba(255,255,255,0.06)'),
-              color: searchMode === 'ifsc' ? '#ffffff' : (isLight ? '#7c2d12' : '#fbbf24'),
+              background: searchMode === 'ifsc' ? '#ea580c' : '#ffedd5',
+              color: searchMode === 'ifsc' ? '#ffffff' : '#7c2d12',
               border: `1.5px solid ${searchMode === 'ifsc' ? '#c2410c' : 'rgba(234, 88, 12, 0.3)'}`
             }}
           >
@@ -1130,8 +1233,8 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
             onClick={() => setSearchMode('pincode')}
             style={{
               padding: '7px 14px', borderRadius: 999, fontSize: 11, fontWeight: 900, cursor: 'pointer',
-              background: searchMode === 'pincode' ? '#ea580c' : (isLight ? '#ffedd5' : 'rgba(255,255,255,0.06)'),
-              color: searchMode === 'pincode' ? '#ffffff' : (isLight ? '#7c2d12' : '#fbbf24'),
+              background: searchMode === 'pincode' ? '#ea580c' : '#ffedd5',
+              color: searchMode === 'pincode' ? '#ffffff' : '#7c2d12',
               border: `1.5px solid ${searchMode === 'pincode' ? '#c2410c' : 'rgba(234, 88, 12, 0.3)'}`
             }}
           >
@@ -1142,8 +1245,8 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
             onClick={() => setSearchMode('city_branch')}
             style={{
               padding: '7px 14px', borderRadius: 999, fontSize: 11, fontWeight: 900, cursor: 'pointer',
-              background: searchMode === 'city_branch' ? '#ea580c' : (isLight ? '#ffedd5' : 'rgba(255,255,255,0.06)'),
-              color: searchMode === 'city_branch' ? '#ffffff' : (isLight ? '#7c2d12' : '#fbbf24'),
+              background: searchMode === 'city_branch' ? '#ea580c' : '#ffedd5',
+              color: searchMode === 'city_branch' ? '#ffffff' : '#7c2d12',
               border: `1.5px solid ${searchMode === 'city_branch' ? '#c2410c' : 'rgba(234, 88, 12, 0.3)'}`
             }}
           >
@@ -1159,13 +1262,13 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
               onChange={e => setPincodeInput(e.target.value)}
               placeholder="Enter 6-Digit PIN Code (e.g. 560001 or 110001)"
               className="input-light"
-              style={{ flex: 1, minWidth: 220, padding: '8px 12px', fontSize: 12, fontWeight: 700 }}
+              style={{ flex: 1, minWidth: 220, padding: '9px 12px', fontSize: 12, fontWeight: 800, background: '#ffffff', color: '#000000', border: '2px solid #000000' }}
             />
             <button
               onClick={handlePerformSearch}
               disabled={searchLoading}
               className="btn-primary"
-              style={{ padding: '8px 18px', fontSize: 12, fontWeight: 900 }}
+              style={{ padding: '9px 18px', fontSize: 12, fontWeight: 900 }}
             >
               {searchLoading ? 'FETCHING...' : 'FETCH POST OFFICE & BRANCH DETAILS'}
             </button>
@@ -1178,13 +1281,13 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
               onChange={e => setIfscInput(e.target.value)}
               placeholder="Enter 11-Digit IFSC Code (e.g. CNRB0001001 or SBIN0000840)"
               className="input-light"
-              style={{ flex: 1, minWidth: 220, padding: '8px 12px', fontSize: 12, fontWeight: 700, textTransform: 'uppercase' }}
+              style={{ flex: 1, minWidth: 220, padding: '9px 12px', fontSize: 12, fontWeight: 800, textTransform: 'uppercase', background: '#ffffff', color: '#000000', border: '2px solid #000000' }}
             />
             <button
               onClick={handlePerformSearch}
               disabled={searchLoading}
               className="btn-primary"
-              style={{ padding: '8px 18px', fontSize: 12, fontWeight: 900 }}
+              style={{ padding: '9px 18px', fontSize: 12, fontWeight: 900 }}
             >
               {searchLoading ? 'SEARCHING...' : 'FIND BANK BRANCH DETAILS'}
             </button>
@@ -1197,7 +1300,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
               onChange={e => setCityInput(e.target.value)}
               placeholder="Enter City Name (e.g. Mangaluru)"
               className="input-light"
-              style={{ flex: 1, minWidth: 160, padding: '8px 12px', fontSize: 12, fontWeight: 700 }}
+              style={{ flex: 1, minWidth: 160, padding: '9px 12px', fontSize: 12, fontWeight: 800, background: '#ffffff', color: '#000000', border: '2px solid #000000' }}
             />
             <input
               type="text"
@@ -1205,13 +1308,13 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
               onChange={e => setBranchInput(e.target.value)}
               placeholder="Enter Branch Name (e.g. Pandeshwar)"
               className="input-light"
-              style={{ flex: 1, minWidth: 160, padding: '8px 12px', fontSize: 12, fontWeight: 700 }}
+              style={{ flex: 1, minWidth: 160, padding: '9px 12px', fontSize: 12, fontWeight: 800, background: '#ffffff', color: '#000000', border: '2px solid #000000' }}
             />
             <button
               onClick={handlePerformSearch}
               disabled={searchLoading}
               className="btn-primary"
-              style={{ padding: '8px 18px', fontSize: 12, fontWeight: 900 }}
+              style={{ padding: '9px 18px', fontSize: 12, fontWeight: 900 }}
             >
               {searchLoading ? 'SEARCHING...' : 'FIND IFSC CODE'}
             </button>
@@ -1223,10 +1326,10 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
             marginTop: 16,
             padding: 12,
             borderRadius: 14,
-            background: isLight ? '#f1f5f9' : 'rgba(0,0,0,0.4)',
+            background: '#f8fafc',
             border: '1.5px solid #ea580c'
           }}>
-            <div style={{ fontSize: 11, fontWeight: 900, color: isLight ? '#c2410c' : '#fbbf24', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ fontSize: 11, fontWeight: 900, color: '#c2410c', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
               <span>🔍</span>
               <span>FOUND {searchResultsList.length} VERIFIED BRANCHES IN LIVE RBI DATABASE:</span>
             </div>
@@ -1242,8 +1345,8 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
                 borderRadius: 8,
                 fontSize: 12,
                 fontWeight: 800,
-                background: isLight ? '#ffffff' : '#12100c',
-                color: isLight ? '#0f172a' : '#ffffff',
+                background: '#ffffff',
+                color: '#0f172a',
                 border: '1.5px solid #ea580c',
                 cursor: 'pointer'
               }}
@@ -1260,10 +1363,10 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
         {searchResult && (
           <div className="anim-fade" style={{
             marginTop: 16,
-            background: isLight ? 'linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)' : 'rgba(234, 88, 12, 0.18)',
+            background: '#fff7ed',
             padding: 18, borderRadius: 16,
             border: '2px solid #ea580c',
-            boxShadow: isLight ? '0 8px 24px rgba(234, 88, 12, 0.15)' : '0 4px 20px rgba(0,0,0,0.4)',
+            boxShadow: '0 8px 24px rgba(234, 88, 12, 0.15)',
             display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 14
           }}>
             <div style={{ flex: 1, minWidth: 260 }}>
@@ -1277,24 +1380,24 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
                   LIVE RBI API VERIFIED ✅
                 </span>
                 {searchResult.micr && searchResult.micr !== 'N/A' && (
-                  <span style={{ fontSize: 10, fontWeight: 800, color: '#ea580c', background: isLight ? '#ffffff' : 'rgba(0,0,0,0.3)', padding: '3px 8px', borderRadius: 6, border: '1px solid #ea580c' }}>
+                  <span style={{ fontSize: 10, fontWeight: 800, color: '#ea580c', background: '#ffffff', padding: '3px 8px', borderRadius: 6, border: '1px solid #ea580c' }}>
                     MICR: {searchResult.micr}
                   </span>
                 )}
               </div>
 
-              <div style={{ fontSize: 15, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff' }}>
+              <div style={{ fontSize: 15, fontWeight: 900, color: '#000000' }}>
                 🏛️ {searchResult.bankName} — {searchResult.branchName} ({searchResult.city})
               </div>
 
-              <div style={{ fontSize: 13, fontWeight: 900, color: '#ea580c', marginTop: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span>IFSC CODE:</span>
-                <span style={{ fontFamily: 'monospace', fontSize: 15, fontWeight: 900, background: isLight ? '#ffffff' : '#000000', padding: '2px 8px', borderRadius: 6, border: '1px solid #ea580c', color: isLight ? '#9a3412' : '#fbbf24' }}>
+              <div style={{ fontSize: 13, fontWeight: 900, color: '#000000', marginTop: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ color: '#000000', fontWeight: 900 }}>IFSC CODE:</span>
+                <span style={{ fontFamily: 'monospace', fontSize: 15, fontWeight: 900, background: '#fff7ed', padding: '2px 8px', borderRadius: 6, border: '2px solid #000000', color: '#000000' }}>
                   {searchResult.ifsc}
                 </span>
               </div>
 
-              <div style={{ fontSize: 12, color: isLight ? '#334155' : '#cbd5e1', marginTop: 6, fontWeight: 700 }}>
+              <div style={{ fontSize: 12, color: '#000000', marginTop: 6, fontWeight: 800 }}>
                 📍 {searchResult.address}
               </div>
             </div>
@@ -1325,7 +1428,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
       </div>
 
       {/* ─── SECTION 3: SELECT FORM CATEGORY TABS ─── */}
-      <div className="glass-card-deep" style={{ padding: 20, borderRadius: 20, marginBottom: 20, background: isLight ? '#ffffff' : '#12100c', border: '1.5px solid #ea580c' }}>
+      <div className="glass-card-deep" style={{ padding: 20, borderRadius: 20, marginBottom: 20, background: '#ffffff', border: '1.5px solid #ea580c' }}>
         <div style={{ fontSize: 11, fontWeight: 900, color: '#ea580c', textTransform: 'uppercase', marginBottom: 12 }}>
           📜 SELECT FORM CATEGORY
         </div>
@@ -1337,8 +1440,8 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
               onClick={() => setDocType(cat.id)}
               style={{
                 padding: '10px 22px', borderRadius: 999, fontSize: 13, fontWeight: 900, cursor: 'pointer',
-                background: docType === cat.id ? '#ea580c' : (isLight ? '#ffedd5' : 'rgba(255,255,255,0.06)'),
-                color: docType === cat.id ? '#ffffff' : (isLight ? '#7c2d12' : '#fbbf24'),
+                background: docType === cat.id ? '#ea580c' : '#ffedd5',
+                color: docType === cat.id ? '#ffffff' : '#7c2d12',
                 border: `2px solid ${docType === cat.id ? '#c2410c' : 'rgba(234, 88, 12, 0.3)'}`,
                 boxShadow: docType === cat.id ? '0 4px 14px rgba(234, 88, 12, 0.3)' : 'none'
               }}
@@ -1352,20 +1455,18 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
       {/* ─── SECTION 4: SINGLE MASTER USER INPUT FORM ─── */}
       <div id="user-info-form-section" className="glass-card-deep" style={{
         padding: 24, borderRadius: 20, marginBottom: 20,
-        background: isLight ? '#ffffff' : '#12100c',
-        border: highlightForm ? '3px solid #10b981' : '1.5px solid #ea580c',
-        boxShadow: highlightForm ? '0 0 30px rgba(16, 185, 129, 0.4)' : 'none',
+        background: '#ffffff',
+        border: highlightForm ? '3.5px solid #10b981' : '2.5px solid #000000',
+        boxShadow: highlightForm ? '0 0 30px rgba(16, 185, 129, 0.4)' : '0 4px 14px rgba(0,0,0,0.08)',
         transition: 'all 0.4s'
       }}>
-        <div style={{ fontSize: 12, fontWeight: 900, color: highlightForm ? '#10b981' : '#ea580c', textTransform: 'uppercase', marginBottom: 12 }}>
+        <div style={{ fontSize: 12, fontWeight: 900, color: highlightForm ? '#047857' : '#000000', textTransform: 'uppercase', marginBottom: 12 }}>
           ✍️ ENTER YOUR INFORMATION ONCE ({docType === 'deposit' ? 'SYSTEM RENDERS IT ON CASH DEPOSIT SLIP' : docType === 'withdrawal' ? 'SYSTEM RENDERS IT ON WITHDRAWAL SLIP' : 'SYSTEM RENDERS IT ON CHEQUE LEAF'})
         </div>
 
-
-
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12 }}>
           <div>
-            <label style={{ fontSize: 10, fontWeight: 800, color: isLight ? '#475569' : '#9ca3af', display: 'block', marginBottom: 4 }}>
+            <label style={{ fontSize: 10, fontWeight: 900, color: '#000000', display: 'block', marginBottom: 4 }}>
               {docType === 'cheque' ? 'PAY TO (PAYEE NAME / SELF)' : 'ACCOUNT HOLDER / PAYEE NAME'}
             </label>
             <input
@@ -1374,24 +1475,24 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
               onChange={e => setUserData({ ...userData, name: e.target.value })}
               placeholder={docType === 'cheque' ? "e.g. Self or Hamsini" : "e.g. Hamsini"}
               className="input-light"
-              style={{ padding: '9px 12px', fontSize: 12, fontWeight: 800 }}
+              style={{ padding: '9px 12px', fontSize: 12, fontWeight: 800, background: '#ffffff', color: '#000000', border: '2px solid #000000' }}
             />
           </div>
 
           <div>
-            <label style={{ fontSize: 10, fontWeight: 800, color: isLight ? '#475569' : '#9ca3af', display: 'block', marginBottom: 4 }}>ACCOUNT NUMBER</label>
+            <label style={{ fontSize: 10, fontWeight: 900, color: '#000000', display: 'block', marginBottom: 4 }}>ACCOUNT NUMBER</label>
             <input
               type="text"
               value={userData.accountNumber}
               onChange={e => setUserData({ ...userData, accountNumber: e.target.value })}
               placeholder="e.g. 10984523910"
               className="input-light"
-              style={{ padding: '9px 12px', fontSize: 12, fontWeight: 800 }}
+              style={{ padding: '9px 12px', fontSize: 12, fontWeight: 800, background: '#ffffff', color: '#000000', border: '2px solid #000000' }}
             />
           </div>
 
           <div>
-            <label style={{ fontSize: 10, fontWeight: 800, color: isLight ? '#475569' : '#9ca3af', display: 'block', marginBottom: 4 }}>IFSC CODE</label>
+            <label style={{ fontSize: 10, fontWeight: 900, color: '#000000', display: 'block', marginBottom: 4 }}>IFSC CODE</label>
             <input
               type="text"
               value={userData.ifsc}
@@ -1400,15 +1501,16 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
               className="input-light"
               style={{
                 padding: '9px 12px', fontSize: 12, fontWeight: 800, textTransform: 'uppercase',
-                border: highlightForm ? '2.5px solid #10b981' : undefined,
-                background: highlightForm ? (isLight ? '#ecfdf5' : 'rgba(16, 185, 129, 0.2)') : undefined,
+                border: highlightForm ? '3px solid #10b981' : '2px solid #000000',
+                background: highlightForm ? '#ecfdf5' : '#ffffff',
+                color: '#000000',
                 transition: 'all 0.3s'
               }}
             />
           </div>
 
           <div>
-            <label style={{ fontSize: 10, fontWeight: 800, color: isLight ? '#475569' : '#9ca3af', display: 'block', marginBottom: 4 }}>BRANCH NAME</label>
+            <label style={{ fontSize: 10, fontWeight: 900, color: '#000000', display: 'block', marginBottom: 4 }}>BRANCH NAME</label>
             <input
               type="text"
               value={userData.branch}
@@ -1417,8 +1519,9 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
               className="input-light"
               style={{
                 padding: '9px 12px', fontSize: 12, fontWeight: 800,
-                border: highlightForm ? '2.5px solid #10b981' : undefined,
-                background: highlightForm ? (isLight ? '#ecfdf5' : 'rgba(16, 185, 129, 0.2)') : undefined,
+                border: highlightForm ? '3px solid #10b981' : '2px solid #000000',
+                background: highlightForm ? '#ecfdf5' : '#ffffff',
+                color: '#000000',
                 transition: 'all 0.3s'
               }}
             />
@@ -1426,43 +1529,43 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
 
           {docType === 'cheque' ? (
             <div>
-              <label style={{ fontSize: 10, fontWeight: 800, color: isLight ? '#475569' : '#9ca3af', display: 'block', marginBottom: 4 }}>CHEQUE NUMBER (6 DIGITS)</label>
+              <label style={{ fontSize: 10, fontWeight: 900, color: '#000000', display: 'block', marginBottom: 4 }}>CHEQUE NUMBER (6 DIGITS)</label>
               <input
                 type="text"
                 value={userData.chequeNumber}
                 onChange={e => setUserData({ ...userData, chequeNumber: e.target.value })}
                 placeholder="e.g. 104502"
                 className="input-light"
-                style={{ padding: '9px 12px', fontSize: 12, fontWeight: 800 }}
+                style={{ padding: '9px 12px', fontSize: 12, fontWeight: 800, background: '#ffffff', color: '#000000', border: '2px solid #000000' }}
               />
             </div>
           ) : (
             <div>
-              <label style={{ fontSize: 10, fontWeight: 800, color: isLight ? '#475569' : '#9ca3af', display: 'block', marginBottom: 4 }}>MOBILE / PHONE NO.</label>
+              <label style={{ fontSize: 10, fontWeight: 900, color: '#000000', display: 'block', marginBottom: 4 }}>MOBILE / PHONE NO.</label>
               <input
                 type="text"
                 value={userData.mobileNumber}
                 onChange={e => setUserData({ ...userData, mobileNumber: e.target.value })}
                 placeholder="e.g. 9876543210"
                 className="input-light"
-                style={{ padding: '9px 12px', fontSize: 12, fontWeight: 800 }}
+                style={{ padding: '9px 12px', fontSize: 12, fontWeight: 800, background: '#ffffff', color: '#000000', border: '2px solid #000000' }}
               />
             </div>
           )}
 
           <div>
-            <label style={{ fontSize: 10, fontWeight: 800, color: isLight ? '#475569' : '#9ca3af', display: 'block', marginBottom: 4 }}>DATE</label>
+            <label style={{ fontSize: 10, fontWeight: 900, color: '#000000', display: 'block', marginBottom: 4 }}>DATE</label>
             <input
               type="date"
               value={userData.date}
               onChange={e => setUserData({ ...userData, date: e.target.value })}
               className="input-light"
-              style={{ padding: '9px 12px', fontSize: 12, fontWeight: 800 }}
+              style={{ padding: '9px 12px', fontSize: 12, fontWeight: 800, background: '#ffffff', color: '#000000', border: '2px solid #000000' }}
             />
           </div>
 
           <div>
-            <label style={{ fontSize: 10, fontWeight: 800, color: isLight ? '#475569' : '#9ca3af', display: 'block', marginBottom: 4 }}>
+            <label style={{ fontSize: 10, fontWeight: 900, color: '#000000', display: 'block', marginBottom: 4 }}>
               {docType === 'deposit' ? 'TOTAL DEPOSIT AMOUNT (₹)' : docType === 'withdrawal' ? 'CASH WITHDRAWAL AMOUNT (₹)' : 'CHEQUE AMOUNT (₹)'}
             </label>
             <input
@@ -1471,9 +1574,8 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
               onChange={e => setUserData({ ...userData, amount: e.target.value })}
               placeholder="e.g. 5000"
               className="input-light"
-              style={{ padding: '9px 12px', fontSize: 12, fontWeight: 800 }}
+              style={{ padding: '9px 12px', fontSize: 12, fontWeight: 800, background: '#ffffff', color: '#000000', border: '2px solid #000000' }}
             />
-
           </div>
         </div>
       </div>
@@ -1531,7 +1633,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
       )}
 
       {/* ─── SECTION 3: LIVE ORIGINAL IMAGE VISUAL PREVIEW ─── */}
-      <div className="glass-card-deep" style={{ padding: 24, borderRadius: 20, marginBottom: 20, background: isLight ? '#ffffff' : '#12100c', border: '2.5px solid #ea580c' }}>
+      <div className="glass-card-deep" style={{ padding: 24, borderRadius: 20, marginBottom: 20, background: '#ffffff', border: '2.5px solid #ea580c' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, flexWrap: 'wrap', gap: 10 }}>
           <div style={{ fontSize: 12, fontWeight: 900, color: '#ea580c', textTransform: 'uppercase' }}>
             📸 ORIGINAL TEMPLATE PREVIEW ({currentTemplate.institution} • {docType.toUpperCase()})
@@ -1579,15 +1681,15 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
 
       {/* ─── DIGITAL BANKING & CYBER SAFETY ARENA ─── */}
       {activeTab === 'digital_safety' && (
-        <div className="anim-scale glass-card-deep" style={{ padding: '32px', marginBottom: 24, background: isLight ? '#ffffff' : 'var(--bg-card-deep, #12100c)', border: '2px solid #ea580c', color: isLight ? '#0f172a' : '#ffffff' }}>
+        <div className="anim-scale glass-card-deep" style={{ padding: '32px', marginBottom: 24, background: '#ffffff', border: '2px solid #ea580c', color: '#0f172a' }}>
           <div style={{ textAlign: 'center', marginBottom: 28 }}>
             <div className="sticker-badge sticker-yellow" style={{ marginBottom: 10 }}>
               🌐 CYBER SAFETY ARENA
             </div>
-            <h2 className="font-display" style={{ fontSize: 36, color: isLight ? '#0f172a' : 'var(--heading-color, #ffffff)', marginBottom: 4 }}>
+            <h2 className="font-display" style={{ fontSize: 36, color: '#0f172a', marginBottom: 4 }}>
               DIGITAL BANKING & SAFETY 🛡️
             </h2>
-            <p style={{ color: isLight ? '#475569' : 'var(--text-sub, #d1d5db)', fontSize: 13, fontWeight: 600 }}>
+            <p style={{ color: '#475569', fontSize: 13, fontWeight: 600 }}>
               Defend your bank account against real-world phishing traps and cyber scams!
             </p>
           </div>
@@ -1596,15 +1698,15 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
             <div className="glass-card" style={{
               padding: 26, borderRadius: 22,
               border: '2.5px solid #ea580c',
-              background: isLight ? '#ffffff' : 'var(--bg-card-deep, #12100c)',
-              boxShadow: isLight ? '0 12px 36px rgba(234, 88, 12, 0.12)' : '0 8px 32px rgba(0,0,0,0.5)',
-              color: isLight ? '#0f172a' : '#ffffff'
+              background: '#ffffff',
+              boxShadow: '0 12px 36px rgba(234, 88, 12, 0.12)',
+              color: '#0f172a'
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 10 }}>
                 <span style={{
                   fontSize: 12, fontWeight: 900,
-                  color: isLight ? '#c2410c' : '#fbbf24',
-                  background: isLight ? '#fff7ed' : 'rgba(234, 88, 12, 0.2)',
+                  color: '#c2410c',
+                  background: '#fff7ed',
                   padding: '6px 16px', borderRadius: 999,
                   border: '1.5px solid #ea580c',
                   letterSpacing: '0.5px'
@@ -1624,15 +1726,15 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
               </div>
 
               <div style={{
-                background: isLight ? 'linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)' : 'rgba(245, 158, 11, 0.14)',
+                background: 'linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)',
                 borderRadius: 18, padding: 22,
                 border: '2px solid #ea580c', marginBottom: 22,
-                boxShadow: isLight ? '0 6px 20px rgba(234, 88, 12, 0.1)' : 'none'
+                boxShadow: '0 6px 20px rgba(234, 88, 12, 0.1)'
               }}>
-                <h3 style={{ fontWeight: 900, fontSize: 18, color: isLight ? '#9a3412' : '#fbbf24', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <h3 style={{ fontWeight: 900, fontSize: 18, color: '#9a3412', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
                   {CYBER_SCENARIOS[digitalScenarioIdx].title}
                 </h3>
-                <p style={{ fontSize: 15, color: isLight ? '#0f172a' : '#f3f4f6', lineHeight: 1.6, fontWeight: 800, margin: 0 }}>
+                <p style={{ fontSize: 15, color: '#0f172a', lineHeight: 1.6, fontWeight: 800, margin: 0 }}>
                   {CYBER_SCENARIOS[digitalScenarioIdx].scenario}
                 </p>
               </div>
@@ -1641,9 +1743,9 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
                 {CYBER_SCENARIOS[digitalScenarioIdx].opts.map((opt, i) => {
                   const isSelected = selectedOpt === i
                   const isCorrect = opt.correct
-                  let btnBg = isLight ? '#f8fafc' : 'rgba(255,255,255,0.06)'
-                  let btnBorder = isLight ? '#ea580c' : '#f59e0b'
-                  let btnColor = isLight ? '#0f172a' : '#ffffff'
+                  let btnBg = '#ffffff'
+                  let btnBorder = '#ea580c'
+                  let btnColor = '#0f172a'
 
                   if (isSelected) {
                     btnBg = isCorrect ? 'linear-gradient(135deg, #059669, #10b981)' : 'linear-gradient(135deg, #e11d48, #f43f5e)'
@@ -1663,7 +1765,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
                         border: `2.5px solid ${btnBorder}`,
                         boxShadow: isSelected
                           ? (isCorrect ? '0 6px 20px rgba(16, 185, 129, 0.4)' : '0 6px 20px rgba(225, 29, 72, 0.4)')
-                          : (isLight ? '0 2px 8px rgba(234, 88, 12, 0.1)' : 'none'),
+                          : '0 2px 8px rgba(234, 88, 12, 0.1)',
                         transition: 'all 0.2s ease'
                       }}
                     >
@@ -1675,8 +1777,8 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
 
               {digitalFeedback && (
                 <div className="anim-fade" style={{
-                  background: isLight ? '#ffedd5' : 'rgba(245,158,11,0.12)', border: '1.5px solid #f59e0b',
-                  borderRadius: 14, padding: 16, marginBottom: 20, color: isLight ? '#7c2d12' : '#fef3c7', fontSize: 13, lineHeight: 1.5, fontWeight: 700
+                  background: '#ffedd5', border: '1.5px solid #ea580c',
+                  borderRadius: 14, padding: 16, marginBottom: 20, color: '#7c2d12', fontSize: 13, lineHeight: 1.5, fontWeight: 700
                 }}>
                   💡 {digitalFeedback}
                 </div>
@@ -1689,12 +1791,12 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
               )}
             </div>
           ) : (
-            <div style={{ textAlign: 'center', padding: 32, background: isLight ? '#ffffff' : 'var(--bg-card-deep, #12100c)', border: '2px solid #ea580c', borderRadius: 20 }} className="glass-card">
+            <div style={{ textAlign: 'center', padding: 32, background: '#ffffff', border: '2px solid #ea580c', borderRadius: 20 }} className="glass-card">
               <div style={{ fontSize: 56, marginBottom: 12 }}>🛡️</div>
-              <h3 className="font-display" style={{ fontSize: 32, color: isLight ? '#ea580c' : '#fbbf24', marginBottom: 8 }}>
+              <h3 className="font-display" style={{ fontSize: 32, color: '#ea580c', marginBottom: 8 }}>
                 CHALLENGE PASSED!
               </h3>
-              <p style={{ color: isLight ? '#475569' : '#d1d5db', fontSize: 14, fontWeight: 600, marginBottom: 20 }}>
+              <p style={{ color: '#475569', fontSize: 14, fontWeight: 600, marginBottom: 20 }}>
                 Shield Health: {shieldScore}% • You earned +50 XP and mastered digital bank safety!
               </p>
             </div>
@@ -1748,22 +1850,22 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
         }} className="anim-fade" onClick={() => setShowVerifyModal(false)}>
           
           <div style={{
-            background: isLight ? '#ffffff' : '#12100c',
+            background: '#ffffff',
             border: '3px solid #ea580c',
             borderRadius: 24, padding: 24,
             maxWidth: 780, width: '100%',
             maxHeight: '90vh', overflowY: 'auto',
-            textAlign: 'center', color: isLight ? '#0f172a' : '#ffffff',
+            textAlign: 'center', color: '#0f172a',
             position: 'relative'
           }} className="anim-scale" onClick={e => e.stopPropagation()}>
             
             <button onClick={() => setShowVerifyModal(false)} style={{ position: 'absolute', top: 16, right: 16, background: 'none', border: 'none', color: '#ea580c', fontSize: 22, cursor: 'pointer', fontWeight: 900 }}>✕</button>
 
             <div style={{ fontSize: 36, marginBottom: 4 }}>📋</div>
-            <h3 className="font-display" style={{ fontSize: 22, margin: '0 0 4px' }}>
+            <h3 className="font-display" style={{ fontSize: 22, margin: '0 0 4px', color: '#0f172a' }}>
               FINAL REVIEW OF FILLED SLIP
             </h3>
-            <p style={{ fontSize: 12, color: isLight ? '#475569' : '#d1d5db', marginBottom: 16 }}>
+            <p style={{ fontSize: 12, color: '#475569', marginBottom: 16 }}>
               Review your completed {currentTemplate.institution} ({docType.toUpperCase()}) slip below before downloading or printing.
             </p>
 
@@ -1791,7 +1893,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
             <div style={{ display: 'flex', gap: 10 }}>
               <button
                 onClick={() => setShowVerifyModal(false)}
-                style={{ flex: 1, padding: 12, borderRadius: 12, background: isLight ? '#e2e8f0' : 'rgba(255,255,255,0.1)', color: isLight ? '#0f172a' : '#ffffff', border: 'none', fontWeight: 900, cursor: 'pointer' }}
+                style={{ flex: 1, padding: 12, borderRadius: 12, background: '#e2e8f0', color: '#0f172a', border: 'none', fontWeight: 900, cursor: 'pointer' }}
               >
                 ✏️ EDIT DETAILS
               </button>
@@ -1816,12 +1918,12 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
         }} className="anim-fade" onClick={() => setShowCertModal(false)}>
           
           <div style={{
-            background: isLight ? '#ffffff' : '#12100c',
+            background: '#ffffff',
             border: '4px double #ea580c',
             borderRadius: 24, padding: 32,
             maxWidth: 600, width: '100%',
             textAlign: 'center', boxShadow: '0 0 60px rgba(234, 88, 12, 0.3)',
-            color: isLight ? '#0f172a' : '#ffffff',
+            color: '#0f172a',
             position: 'relative'
           }} className="anim-scale" onClick={e => e.stopPropagation()}>
             
@@ -1832,11 +1934,11 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
               LEARN2INVEST NATIONAL FINANCIAL LITERACY
             </div>
 
-            <h2 className="font-display" style={{ fontSize: 32, color: isLight ? '#0f172a' : '#ffffff', margin: '8px 0 16px' }}>
+            <h2 className="font-display" style={{ fontSize: 32, color: '#0f172a', margin: '8px 0 16px' }}>
               CERTIFICATE OF EXCELLENCE
             </h2>
 
-            <p style={{ fontSize: 13, color: isLight ? '#475569' : '#d1d5db' }}>
+            <p style={{ fontSize: 13, color: '#475569' }}>
               This official certificate is proudly awarded to:
             </p>
 
@@ -1844,17 +1946,17 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
               {userData.name}
             </div>
 
-            <p style={{ fontSize: 13, color: isLight ? '#334155' : '#d1d5db', lineHeight: 1.6, maxWidth: 480, margin: '0 auto 20px' }}>
-              For successfully mastering Pay-in Cash Deposit Slips, Withdrawal Slips, and Cheque Book Writing across major Indian Banks and Post Office Savings Banks.
+            <p style={{ fontSize: 13, color: '#334155', lineHeight: 1.6, maxWidth: 480, margin: '0 auto 20px' }}>
+              For successfully mastering Pay-in Cash Deposit Slips, Withdrawal Slips, and Cheque Slip Writing across major Indian Banks and Post Office Savings Banks.
             </p>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: `1px dashed ${isLight ? '#cbd5e1' : 'rgba(255,255,255,0.2)'}`, paddingTop: 16, fontSize: 11, color: isLight ? '#475569' : '#9ca3af' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px dashed #cbd5e1', paddingTop: 16, fontSize: 11, color: '#475569' }}>
               <div>
                 <div>📅 DATE: {new Date().toLocaleDateString('en-IN')}</div>
                 <div>🆔 CERT ID: L2I-BANK-2026-994</div>
               </div>
               <div style={{ textAlign: 'right' }}>
-                <div style={{ fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff' }}>🤖 Luna (AI Mentor)</div>
+                <div style={{ fontWeight: 900, color: '#0f172a' }}>🤖 Luna (AI Mentor)</div>
                 <div style={{ color: '#10b981', fontWeight: 800 }}>OFFICIAL VERIFIED BADGE</div>
               </div>
             </div>

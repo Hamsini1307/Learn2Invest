@@ -27,52 +27,69 @@ export function BeginnerComplete({ go, state }) {
   return (
     <div className="content-area" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '80vh', fontFamily: "'Space Grotesk', sans-serif" }}>
       <ConfettiDots />
-      <div className="glass-card-deep anim-scale" style={{ padding: '50px 40px', maxWidth: 500, width: '100%', textAlign: 'center', background: 'var(--bg-card-deep, #12100c)', border: '2px solid #d97706' }}>
-        <div style={{ fontSize: 64, marginBottom: 16, animation: 'popIn 0.6s cubic-bezier(0.34,1.56,0.64,1)' }}>🎊</div>
+      <div className="glass-card-deep anim-scale" style={{ padding: '44px 36px', maxWidth: 520, width: '100%', textAlign: 'center', background: 'linear-gradient(145deg, #1e162b 0%, #120c1d 100%)', border: '2.5px solid #fde047', borderRadius: 28, boxShadow: '0 0 60px rgba(250, 204, 21, 0.35)' }}>
+        <div style={{ fontSize: 52, marginBottom: 10, animation: 'popIn 0.45s cubic-bezier(0.18,1.56,0.34,1)' }}>👧🌸🎊👦✨</div>
 
         <div className="sticker-badge sticker-yellow" style={{ marginBottom: 10 }}>
-          LEVEL 1 STATUS: COMPLETED ✓
+          🏆 LEVEL 1 SCHOOL GRADUATED!
         </div>
 
-        <h1 className="font-display" style={{ fontSize: 36, color: 'var(--heading-color, #ffffff)', marginBottom: 10 }}>
-          BEGINNER COMPLETE!
+        {/* Fast-Motion Animated 150 XP Hero Entry */}
+        <div style={{
+          margin: '10px auto 16px',
+          padding: '16px 28px',
+          borderRadius: 22,
+          background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(236, 72, 153, 0.25))',
+          border: '2.5px solid #fde047',
+          boxShadow: '0 0 40px rgba(250, 204, 21, 0.6)',
+          animation: 'fastXpEntry 0.45s cubic-bezier(0.16, 1.45, 0.3, 1) forwards',
+        }}>
+          <div style={{ fontSize: 11, fontWeight: 900, color: '#fbcfe8', letterSpacing: '2px' }}>⚡ QUIZ VICTORY REWARD ⚡</div>
+          <div className="font-display" style={{ fontSize: 64, fontWeight: 900, color: '#fde047', lineHeight: 1.05, textShadow: '0 0 28px rgba(250,204,21,0.85)' }}>
+            150 XP ⭐
+          </div>
+          <div style={{ fontSize: 12, fontWeight: 800, color: '#6ee7b7', marginTop: 4 }}>
+            Total Balance: {state.xp} XP
+          </div>
+        </div>
+
+        <h1 className="font-display" style={{ fontSize: 34, color: '#ffffff', marginBottom: 8 }}>
+          LEVEL 1 COMPLETE!
         </h1>
-        <p style={{ fontSize: 15, color: 'var(--text-sub, #d1d5db)', fontWeight: 600, marginBottom: 20 }}>
-          You passed with <strong style={{ color: '#fbbf24' }}>{state.quizScore}%</strong>! All Level 1 videos are marked as watched 🌟
+        <p style={{ fontSize: 15, color: '#cbd5e1', fontWeight: 600, marginBottom: 18 }}>
+          You passed with <strong style={{ color: '#fde047' }}>{state.quizScore}%</strong> ({state.correctCount}/{state.quizTotal || 5} Correct) 🌟
         </p>
-
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 14, marginBottom: 28, flexWrap: 'wrap' }}>
-          <div className="sticker-badge sticker-yellow" style={{ fontSize: 14, padding: '10px 18px' }}>
-            ⭐ {state.xp} XP EARNED
-          </div>
-          <div className="sticker-badge sticker-yellow" style={{ fontSize: 14, padding: '10px 18px', background: 'rgba(245,158,11,0.2)' }}>
-            🎯 {state.correctCount}/{state.quizTotal || 10} CORRECT
-          </div>
-        </div>
 
         {/* Unlocked banner */}
         <div style={{
-          background: 'rgba(245, 158, 11, 0.12)',
-          border: '2px solid #f59e0b',
-          borderRadius: 18, padding: '20px',
-          marginBottom: 28, animation: 'fadeUp 0.5s ease 0.3s both',
+          background: 'rgba(16, 185, 129, 0.14)',
+          border: '2px solid #10b981',
+          borderRadius: 18, padding: '18px',
+          marginBottom: 24, animation: 'fadeUp 0.4s ease 0.2s both',
         }}>
-          <div style={{ fontSize: 28, marginBottom: 6 }}>🔓</div>
-          <div className="font-display" style={{ color: '#fbbf24', fontSize: 22 }}>INTERMEDIATE LEVEL UNLOCKED!</div>
-          <div style={{ color: 'var(--text-sub, #d1d5db)', fontSize: 13, fontWeight: 600, marginTop: 4 }}>
-            Investment simulations & portfolio strategy await!
+          <div style={{ fontSize: 28, marginBottom: 4 }}>🏛️🔓</div>
+          <div className="font-display" style={{ color: '#6ee7b7', fontSize: 22 }}>LEVEL 2 GOVT DISTRICT UNLOCKED!</div>
+          <div style={{ color: '#cbd5e1', fontSize: 13, fontWeight: 600, marginTop: 4 }}>
+            Explore the 3D Government Financial District & Institutional Simulators!
           </div>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <button className="btn-primary" onClick={() => go('intermediate')} style={{ width: '100%', fontSize: 15 }}>
-            🚀 GO TO INTERMEDIATE LEVEL
+            🏛️ ENTER LEVEL 2: GOVT FINANCIAL DISTRICT →
           </button>
-          <button className="btn-outline" onClick={() => go('level-map')} style={{ width: '100%' }}>
-            ⬅ Back
+          <button className="btn-outline" onClick={() => go('beginner')} style={{ width: '100%' }}>
+            🏫 Back to 3D Classroom
           </button>
         </div>
       </div>
+      <style>{`
+        @keyframes fastXpEntry {
+          0% { transform: scale(2.3) rotate(-6deg); opacity: 0; filter: blur(10px); }
+          65% { transform: scale(0.94) rotate(2deg); opacity: 1; filter: blur(0px); }
+          100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+      `}</style>
     </div>
   )
 }
@@ -85,14 +102,14 @@ export function IntermediateComplete({ go, state }) {
         <div style={{ fontSize: 64, marginBottom: 16, animation: 'popIn 0.6s cubic-bezier(0.34,1.56,0.64,1)' }}>🏅</div>
 
         <div className="sticker-badge sticker-yellow" style={{ marginBottom: 10 }}>
-          LEVEL 2 STATUS: COMPLETED ✓
+          INTERMEDIATE PASSED!
         </div>
 
         <h1 className="font-display" style={{ fontSize: 36, color: 'var(--heading-color, #ffffff)', marginBottom: 10 }}>
           INTERMEDIATE COMPLETE!
         </h1>
         <p style={{ fontSize: 15, color: 'var(--text-sub, #d1d5db)', fontWeight: 600, marginBottom: 24 }}>
-          You've completed all 3 sections of Level 2! Ready for the top tier? 🚀
+          You're mastering Indian investments! Ready for the top tier? 🚀
         </p>
 
         <div style={{
@@ -107,8 +124,8 @@ export function IntermediateComplete({ go, state }) {
           </div>
         </div>
 
-        <button className="btn-primary" onClick={() => go('advanced')} style={{ width: '100%', fontSize: 15, marginBottom: 12 }}>
-          🏢 ENTER LEVEL 3: PORTFOLIO TOWER
+        <button className="btn-primary" onClick={() => go('unlock-adv')} style={{ width: '100%', fontSize: 15, marginBottom: 12 }}>
+          🏢 UNLOCK PORTFOLIO TOWER
         </button>
         <button className="btn-outline" onClick={() => go('level-map')} style={{ width: '100%' }}>
           🗺️ LEVEL MAP
@@ -120,7 +137,7 @@ export function IntermediateComplete({ go, state }) {
 
 export function UnlockAdvanced({ go, state, update }) {
   const handleUnlock = () => {
-    update({ advancedUnlocked: true, level2Completed: true })
+    update({ advancedUnlocked: true })
     go('advanced')
   }
 
@@ -181,7 +198,7 @@ export function AdvancedResult({ go, state }) {
         <div style={{ fontSize: 72, marginBottom: 16, animation: 'floatY 3s ease-in-out infinite' }}>🌟</div>
 
         <div className="sticker-badge sticker-yellow" style={{ marginBottom: 10 }}>
-          LEVEL 3 STATUS: COMPLETED ✓
+          FINANCIAL MASTERY
         </div>
 
         <h1 className="font-display" style={{ fontSize: 38, color: '#fbbf24', marginBottom: 12 }}>

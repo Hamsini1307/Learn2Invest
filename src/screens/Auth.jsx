@@ -35,7 +35,18 @@ const InputField = ({ type, placeholder, value, onChange, onKeyDown }) => (
     className="input-light"
     type={type} placeholder={placeholder} value={value}
     onChange={onChange} onKeyDown={onKeyDown}
-    style={{ color: '#0f172a', fontWeight: 900, fontSize: 13 }}
+    style={{
+      color: '#ffffff',
+      background: '#181512',
+      border: '1.5px solid #d97706',
+      borderRadius: '12px',
+      padding: '12px 16px',
+      fontWeight: 800,
+      fontSize: 14,
+      width: '100%',
+      outline: 'none',
+      boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.4)'
+    }}
   />
 )
 

@@ -1,5 +1,6 @@
 import React from 'react'
-import { AI_AVATARS } from './AiAvatarSelector.jsx'
+import { AI_AVATARS, CuteChibiAvatarSVG } from './AiAvatarSelector.jsx'
+import { soundEngine } from '../utils/soundEngine.js'
 
 export default function Navbar({
   user,
@@ -29,17 +30,44 @@ export default function Navbar({
   const [showHelpModal, setShowHelpModal] = React.useState(false)
   const [showLogoutConfirm, setShowLogoutConfirm] = React.useState(false)
   const [showAccountMenu, setShowAccountMenu] = React.useState(false)
+  const [showAudioPopover, setShowAudioPopover] = React.useState(false)
+  const [audioMuted, setAudioMuted] = React.useState(() =>
+    Boolean(soundEngine?.isMuted ? soundEngine.isMuted() : soundEngine?.muted)
+  )
+  const [audioVolume, setAudioVolume] = React.useState(() =>
+    Math.round((soundEngine?.getVolume ? soundEngine.getVolume() : 0.25) * 100)
+  )
+
+  const handleToggleAudio = () => {
+    const nextMuted = soundEngine.toggleMute()
+    setAudioMuted(nextMuted)
+    if (!nextMuted) {
+      soundEngine.playClick()
+    }
+  }
+
+  const handleVolumeChange = (pct) => {
+    const val = Math.max(0, Math.min(100, Number(pct)))
+    setAudioVolume(val)
+    if (soundEngine?.setVolume) {
+      soundEngine.setVolume(val / 100)
+    }
+    setAudioMuted(val === 0)
+  }
 
   const handleLogout = () => {
     localStorage.removeItem('l2i_isLoggedIn')
     localStorage.removeItem('l2i_currentUser')
     localStorage.removeItem('l2i_token')
-    window.location.reload()
+    go('garden', { replace: true })
+    setShowLogoutConfirm(false)
   }
 
   const navItems = [
-    { label: 'Journey', icon: '✨', screen: 'landing' },
-    { label: 'Campus', icon: '🗺️', screen: 'level-map' },
+    { label: '3D Garden', icon: '🌳', screen: 'garden' },
+    { label: 'L1 School', icon: '🏫', screen: 'beginner' },
+    { label: 'L2 Govt', icon: '🏛️', screen: 'intermediate' },
+    { label: 'L3 Future', icon: '🌆', screen: 'advanced' },
   ]
 
   return (
@@ -94,7 +122,7 @@ export default function Navbar({
               </button>
             )}
 
-            <div onClick={() => go('landing')} style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
+            <div onClick={() => go('garden')} style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
               <div style={{
                 width: 40, height: 40, borderRadius: 12,
                 background: 'linear-gradient(135deg, #10b981, #0284c7)',
@@ -103,147 +131,243 @@ export default function Navbar({
                 boxShadow: '0 0 16px rgba(16, 185, 129, 0.4)',
                 border: '1.5px solid #6ee7b7',
                 fontWeight: 900
-              }}>📖</div>
+              }}>🌱</div>
               <div>
                 <div style={{
                   fontFamily: "'Space Grotesk', sans-serif",
                   fontWeight: 900, fontSize: 20, letterSpacing: '0.5px',
                   color: 'var(--heading-color, #ffffff)', lineHeight: 1, display: 'flex', alignItems: 'center', gap: 4
                 }}>
-                  LEARN<span style={{ color: '#10b981' }}>2</span>INVEST
+                  Learn<span style={{ color: '#84cc16' }}>2</span>Invest
                 </div>
                 <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted, #94a3b8)', marginTop: 2 }}>
-                  Your Journey to Financial Freedom
+                  Learn • Practice • Grow
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Navigation Items Group */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-            <button
-              onClick={() => go('landing')}
-              style={{
-                background: currentScreen === 'landing' 
-                  ? 'linear-gradient(135deg, #d97706, #f59e0b)' 
-                  : (themeMode === 'light' ? '#fff7ed' : 'rgba(217, 119, 6, 0.2)'),
-                border: currentScreen === 'landing'
-                  ? '2px solid #b45309'
-                  : `2px solid ${themeMode === 'light' ? '#d97706' : '#f59e0b'}`,
-                color: currentScreen === 'landing' ? '#ffffff' : (themeMode === 'light' ? '#0f172a' : '#fde047'),
-                borderRadius: '999px',
-                padding: '7px 16px',
-                fontSize: '12px',
-                fontWeight: 900,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-                transition: 'all 0.2s',
-                boxShadow: themeMode === 'light' ? '0 2px 8px rgba(217,119,6,0.2)' : 'none'
-              }}
-            >
-              <span>✨</span>
-              <span style={{ color: 'inherit' }}>Journey</span>
-            </button>
+          {/* Navigation Items Group: 3D Worlds + Journey & Map */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+            {[
+              { id: 'garden', icon: '🌳', label: '3D Garden', color: '#10b981' },
+              { id: 'beginner', icon: '🏫', label: 'L1 School', color: '#10b981' },
+              { id: 'quiz', icon: '🏛️', label: '3D Exam Hall', color: '#ec4899' },
+              { id: 'intermediate', icon: '🏦', label: 'L2 Govt', color: '#f59e0b' },
+              { id: 'advanced', icon: '🌆', label: 'L3 City', color: '#38bdf8' },
+              { id: 'landing', icon: '✨', label: 'Journey', color: '#d97706' },
+              { id: 'level-map', icon: '🗺️', label: 'Campus Map', color: '#059669' },
+            ].map((item) => {
+              const active = currentScreen === item.id
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    soundEngine.playClick()
+                    go(item.id)
+                  }}
+                  style={{
+                    background: active
+                      ? 'rgba(245, 158, 11, 0.24)'
+                      : (themeMode === 'light' ? '#fff7ed' : 'rgba(255, 255, 255, 0.08)'),
+                    border: `1.5px solid ${active ? item.color : (themeMode === 'light' ? '#c2410c' : 'rgba(255, 255, 255, 0.2)')}`,
+                    color: active ? item.color : (themeMode === 'light' ? '#0f172a' : '#ffffff'),
+                    borderRadius: '999px',
+                    padding: '6px 12px',
+                    fontSize: '11.5px',
+                    fontWeight: 900,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 5,
+                    transition: 'all 0.2s',
+                    boxShadow: active ? `0 0 12px ${item.color}44` : 'none',
+                  }}
+                >
+                  <span>{item.icon}</span>
+                  <span>{item.label}</span>
+                </button>
+              )
+            })}
 
-            <button
-              onClick={() => go('dashboard')}
-              style={{
-                background: currentScreen === 'dashboard' 
-                  ? 'linear-gradient(135deg, #0284c7, #2563eb)' 
-                  : (themeMode === 'light' ? '#e0f2fe' : 'rgba(2, 132, 199, 0.2)'),
-                border: currentScreen === 'dashboard'
-                  ? '2px solid #0369a1'
-                  : `2px solid ${themeMode === 'light' ? '#0284c7' : '#38bdf8'}`,
-                color: currentScreen === 'dashboard' ? '#ffffff' : (themeMode === 'light' ? '#0f172a' : '#7dd3fc'),
-                borderRadius: '999px',
-                padding: '7px 16px',
-                fontSize: '12px',
-                fontWeight: 900,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-                transition: 'all 0.2s',
-                boxShadow: themeMode === 'light' ? '0 2px 8px rgba(2,132,199,0.2)' : 'none'
-              }}
-            >
-              <span>📊</span>
-              <span style={{ color: 'inherit' }}>Dashboard</span>
-            </button>
-
-            <button
-              onClick={() => go('level-map')}
-              style={{
-                background: currentScreen === 'level-map' 
-                  ? 'linear-gradient(135deg, #059669, #10b981)' 
-                  : (themeMode === 'light' ? '#ecfdf5' : 'rgba(16, 185, 129, 0.2)'),
-                border: currentScreen === 'level-map'
-                  ? '2px solid #047857'
-                  : `2px solid ${themeMode === 'light' ? '#059669' : '#10b981'}`,
-                color: currentScreen === 'level-map' ? '#ffffff' : (themeMode === 'light' ? '#0f172a' : '#6ee7b7'),
-                borderRadius: '999px',
-                padding: '7px 16px',
-                fontSize: '12px',
-                fontWeight: 900,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-                transition: 'all 0.2s',
-                boxShadow: themeMode === 'light' ? '0 2px 8px rgba(16,185,129,0.2)' : 'none'
-              }}
-            >
-              <span>🗺️</span>
-              <span style={{ color: 'inherit' }}>Campus Map</span>
-            </button>
-
-            <button
-              onClick={() => go('saved-simulations')}
-              style={{
-                background: currentScreen === 'saved-simulations' 
-                  ? 'linear-gradient(135deg, #7c3aed, #a855f7)' 
-                  : (themeMode === 'light' ? '#f3e8ff' : 'rgba(168, 85, 247, 0.2)'),
-                border: currentScreen === 'saved-simulations'
-                  ? '2px solid #6b21a8'
-                  : `2px solid ${themeMode === 'light' ? '#7c3aed' : '#a855f7'}`,
-                color: currentScreen === 'saved-simulations' ? '#ffffff' : (themeMode === 'light' ? '#0f172a' : '#e9d5ff'),
-                borderRadius: '999px',
-                padding: '7px 16px',
-                fontSize: '12px',
-                fontWeight: 900,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-                transition: 'all 0.2s',
-                boxShadow: themeMode === 'light' ? '0 2px 8px rgba(124,58,237,0.2)' : 'none'
-              }}
-            >
-              <span>📁</span>
-              <span style={{ color: 'inherit' }}>Saved Simulations</span>
-            </button>
+            {state?.intermediateUnlocked && (
+              <button
+                onClick={() => go('saved-simulations')}
+                style={{
+                  background: currentScreen === 'saved-simulations' 
+                    ? 'linear-gradient(135deg, #7c3aed, #a855f7)' 
+                    : (themeMode === 'light' ? '#f3e8ff' : 'rgba(168, 85, 247, 0.2)'),
+                  border: currentScreen === 'saved-simulations'
+                    ? '2px solid #6b21a8'
+                    : `2px solid ${themeMode === 'light' ? '#7c3aed' : '#a855f7'}`,
+                  color: currentScreen === 'saved-simulations' ? '#ffffff' : (themeMode === 'light' ? '#0f172a' : '#e9d5ff'),
+                  borderRadius: '999px',
+                  padding: '6px 12px',
+                  fontSize: '11.5px',
+                  fontWeight: 900,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  transition: 'all 0.2s',
+                  boxShadow: themeMode === 'light' ? '0 2px 8px rgba(124,58,237,0.2)' : 'none'
+                }}
+              >
+                <span>📁</span>
+                <span style={{ color: 'inherit' }}>Saved Sims</span>
+              </button>
+            )}
           </div>
 
-          {/* Center-Right: Ask AI & Utility Buttons */}
+          {/* Center-Right: Cute Character Badge + Music Volume Adjustment + Ask AI */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+            {/* Cute Girl / Boy Avatar Selector Pill */}
+            {openAvatarModal && (
+              <button
+                onClick={openAvatarModal}
+                style={{
+                  background: 'linear-gradient(135deg, rgba(236, 72, 153, 0.22), rgba(139, 92, 246, 0.22))',
+                  border: '1.5px solid #f472b6',
+                  color: '#fbcfe8',
+                  borderRadius: 999,
+                  padding: '3px 12px 3px 5px',
+                  fontSize: 11.5,
+                  fontWeight: 900,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  boxShadow: '0 0 14px rgba(236, 72, 153, 0.3)',
+                }}
+                title="Switch Cute Girl / Cute Boy Character"
+              >
+                <CuteChibiAvatarSVG type={aiGuideAvatar} size={26} />
+                <span>{aiGuideAvatar === 'female' ? '👧 Cute Girl' : '👦 Cute Boy'}</span>
+              </button>
+            )}
+
+            {/* Music & Sound Volume Adjustment Popover Control */}
+            <div style={{ position: 'relative' }}>
+              <button
+                onClick={() => setShowAudioPopover((p) => !p)}
+                style={{
+                  background: audioMuted ? 'rgba(239, 68, 68, 0.15)' : 'rgba(16, 185, 129, 0.18)',
+                  border: `1.5px solid ${audioMuted ? '#ef4444' : '#10b981'}`,
+                  color: audioMuted ? '#fca5a5' : '#6ee7b7',
+                  borderRadius: 999,
+                  padding: '6px 12px',
+                  fontSize: 11.5,
+                  fontWeight: 900,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 5,
+                  boxShadow: audioMuted ? 'none' : '0 0 12px rgba(16, 185, 129, 0.28)',
+                }}
+                title="Adjust Music Volume & Sound Settings"
+              >
+                <span>{audioMuted ? '🔇' : '🎵'}</span>
+                <span>{audioMuted ? 'MUTED' : `MUSIC ${audioVolume}%`}</span>
+                <span style={{ fontSize: 9 }}>▼</span>
+              </button>
+
+              {showAudioPopover && (
+                <>
+                  <div
+                    style={{ position: 'fixed', inset: 0, zIndex: 115 }}
+                    onClick={() => setShowAudioPopover(false)}
+                  />
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: 'calc(100% + 10px)',
+                      right: 0,
+                      width: 260,
+                      zIndex: 125,
+                      background: 'rgba(15, 23, 42, 0.96)',
+                      backdropFilter: 'blur(20px)',
+                      border: '1.5px solid #10b981',
+                      borderRadius: 18,
+                      padding: 16,
+                      boxShadow: '0 18px 40px rgba(0,0,0,0.75)',
+                      color: '#ffffff',
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                      <span style={{ fontSize: 12, fontWeight: 900, color: '#6ee7b7' }}>
+                        🎵 MUSIC & SFX VOLUME
+                      </span>
+                      <span style={{ fontSize: 12, fontWeight: 900, color: '#fbbf24' }}>
+                        {audioMuted ? 'Muted (0%)' : `${audioVolume}%`}
+                      </span>
+                    </div>
+                    <input
+                      type="range"
+                      min={0}
+                      max={100}
+                      value={audioMuted ? 0 : audioVolume}
+                      onChange={(e) => handleVolumeChange(e.target.value)}
+                      style={{ width: '100%', accentColor: '#10b981', cursor: 'pointer', marginBottom: 10 }}
+                    />
+                    <div style={{ display: 'flex', gap: 6, justifyContent: 'space-between' }}>
+                      {[
+                        { label: '🔇 Mute', val: 0 },
+                        { label: '🔉 Soft 20%', val: 20 },
+                        { label: '🔊 Med 50%', val: 50 },
+                        { label: '📢 Max 100%', val: 100 },
+                      ].map((preset) => (
+                        <button
+                          key={preset.label}
+                          onClick={() => {
+                            if (preset.val === 0) {
+                              soundEngine.setMuted(true)
+                              setAudioMuted(true)
+                            } else {
+                              handleVolumeChange(preset.val)
+                              soundEngine.playClick()
+                            }
+                          }}
+                          style={{
+                            flex: 1,
+                            padding: '5px 4px',
+                            fontSize: 9.5,
+                            fontWeight: 800,
+                            borderRadius: 8,
+                            border: '1px solid rgba(255,255,255,0.2)',
+                            background: (!audioMuted && audioVolume === preset.val) || (audioMuted && preset.val === 0)
+                              ? '#10b981'
+                              : 'rgba(255,255,255,0.08)',
+                            color: (!audioMuted && audioVolume === preset.val) || (audioMuted && preset.val === 0)
+                              ? '#022c22'
+                              : '#e2e8f0',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          {preset.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+
             <button
               onClick={onChatToggle}
               style={{
-                background: 'linear-gradient(135deg, #0284c7, #2563eb)',
+                background: 'linear-gradient(135deg, #ec4899, #8b5cf6)',
                 color: '#ffffff',
-                border: '2px solid #38bdf8',
-                borderRadius: 999, padding: '7px 18px',
+                border: '1.5px solid #f472b6',
+                borderRadius: 999, padding: '6px 16px',
                 fontSize: 12, fontWeight: 900, cursor: 'pointer',
                 display: 'flex', alignItems: 'center', gap: 8,
-                boxShadow: '0 0 16px rgba(2, 132, 199, 0.4)',
+                boxShadow: '0 0 16px rgba(236, 72, 153, 0.45)',
                 transition: 'transform 0.2s'
               }}
             >
-              <span>{activeAvatar.icon}</span>
-              <span>Ask {guideName}</span>
-              <span>→</span>
+              <span>✨🎙️</span>
+              <span>AI Assistant ({guideName})</span>
             </button>
 
             {openLeaderboard && (

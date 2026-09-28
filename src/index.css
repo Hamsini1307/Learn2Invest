@@ -1,3 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Bebas+Neue&family=Caveat:wght@500;600;700&family=Dancing+Script:wght@700&family=Edu+NSW+ACT+Foundation:wght@500;600&family=Inter:wght@400;500;600;800&family=Kalam:wght@700&family=Outfit:wght@400;600;700;800;900&family=Patrick+Hand&family=Shadows+Into+Light&family=Space+Grotesk:wght@500;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* ─── GLOBAL GOLD & DARK OBSIDIAN PALETTE ─── */
 *, *::before, *::after {
   font-family: 'Outfit', 'Space Grotesk', 'Inter', sans-serif;
@@ -704,26 +710,43 @@ input[type=range] {
   color: var(--heading-color, #ffffff);
 }
 
-/* ─── DARK GOLD INPUT FIELDS ─── */
-.input-light {
-  width: 100%;
-  background: var(--input-bg, #1a1610);
-  border: 1.5px solid var(--border-light, rgba(217, 119, 6, 0.3));
-  border-radius: var(--radius-sm);
-  padding: 10px 14px;
-  color: var(--text-main, #fef3c7);
-  font-size: 13px;
-  font-family: 'Outfit', sans-serif;
-  font-weight: 600;
-  outline: none;
-  transition: all 0.2s;
+/* ─── FORM INPUT FIELDS STYLING (HIGH CONTRAST WHITE BG & BLACK BORDER) ─── */
+.input-light,
+input[type="text"],
+input[type="number"],
+input[type="date"],
+select,
+textarea {
+  background: #ffffff !important;
+  border: 2px solid #000000 !important;
+  border-radius: var(--radius-sm, 10px) !important;
+  padding: 9px 12px !important;
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+  font-size: 13px !important;
+  font-family: 'Outfit', 'Space Grotesk', 'Inter', sans-serif !important;
+  font-weight: 800 !important;
+  outline: none !important;
+  opacity: 1 !important;
+  transition: border-color 0.2s, box-shadow 0.2s !important;
 }
-.input-light:focus {
-  border-color: var(--gold-primary, #f59e0b);
-  box-shadow: 0 0 12px var(--gold-bg, rgba(245, 158, 11, 0.3));
+
+.input-light:focus,
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: #ea580c !important;
+  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.25) !important;
 }
-.input-light::placeholder {
-  color: var(--text-muted, #9ca3af);
+
+.input-light::placeholder,
+input::placeholder,
+textarea::placeholder,
+select::placeholder {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+  opacity: 0.75 !important;
+  font-weight: 700 !important;
 }
 
 /* Autofill override */
@@ -731,10 +754,12 @@ input:-webkit-autofill,
 input:-webkit-autofill:hover, 
 input:-webkit-autofill:focus, 
 input:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 1000px var(--input-bg, #1a1610) inset !important;
-  -webkit-text-fill-color: var(--text-main, #fef3c7) !important;
-  transition: background-color 5000s ease-in-out 0s;
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+  -webkit-text-fill-color: #000000 !important;
+  transition: background-color 5000s ease-in-out 0s !important;
 }
+
+
 
 /* ─── XP BADGE ─── */
 .xp-badge {
@@ -877,3 +902,43 @@ input:-webkit-autofill:active {
     background: #ffffff !important;
   }
 }
+
+@keyframes floatGlassPanel {
+  0%, 100% {
+    transform: translateY(0px) rotateX(2deg) rotateY(-1.5deg);
+  }
+  50% {
+    transform: translateY(-8px) rotateX(-1.5deg) rotateY(1.5deg);
+  }
+}
+
+/* ─── CRISP BLACK INPUT PLACEHOLDER FONT ─── */
+input::placeholder,
+textarea::placeholder,
+select::placeholder,
+.input-light::placeholder {
+  color: #000000 !important;
+  opacity: 0.85 !important;
+  font-weight: 800 !important;
+}
+
+/* ─── VIBRANT BLUE BALLPOINT PEN INK HANDWRITING OVERLAY (EXACT SAMPLE MATCH) ─── */
+.printable-slip-area div,
+.printable-slip-area span {
+  color: #0052cc !important;
+  -webkit-text-fill-color: #0052cc !important;
+  font-family: 'Edu NSW ACT Foundation', 'Caveat', 'Architects Daughter', 'Patrick Hand', cursive !important;
+  font-weight: 600 !important;
+  font-style: normal !important;
+  text-transform: none !important;
+  opacity: 1 !important;
+  letter-spacing: 0.3px !important;
+  text-shadow: 0.1px 0.1px 0.3px rgba(0, 82, 204, 0.4) !important;
+}
+
+
+
+
+
+
+
