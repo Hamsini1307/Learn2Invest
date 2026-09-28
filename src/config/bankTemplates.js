@@ -12,7 +12,7 @@ export const INSTITUTIONS = [
 export const FORM_CATEGORIES = [
   { id: 'deposit', label: '📜 Cash Deposit / Pay-In Slip' },
   { id: 'withdrawal', label: '💳 Cash Withdrawal Slip' },
-  { id: 'cheque', label: '✒️ Cheque Book' }
+  { id: 'cheque', label: '✒️ Cheque Slip' }
 ]
 
 // ─── CANONICAL FIELD MAPPING DICTIONARY ───

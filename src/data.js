@@ -169,21 +169,6 @@ export const modules = [
   { id: 'po', emoji: '🏤', name: 'Post Office MIS', desc: 'Monthly Income Scheme — regular payout', rate: '7.4%', defRate: 7.4, defYears: 5, defMonthly: 10000, color: '#6366f1' },
 ]
 
-export const chatResponses = [
-  { keys: ['ppf', 'public provident'], reply: 'PPF offers 7.1% tax-free interest with a 15-year lock-in. Perfect for long-term wealth creation! Invest up to ₹1.5L/year. 💰' },
-  { keys: ['fd', 'fixed deposit'], reply: 'Fixed Deposits offer 6.5–7.5% interest. Flexible tenure from 7 days to 10 years. Safe & guaranteed returns! 🏦' },
-  { keys: ['nsc', 'national savings'], reply: 'NSC gives 7.7% for 5 years from Post Office. Great tax benefit under Section 80C! 📮' },
-  { keys: ['ssy', 'sukanya'], reply: 'Sukanya Samriddhi Yojana gives 8.2% — highest government scheme! For girl children below 10 years. 👧' },
-  { keys: ['tax', '80c', 'exempt'], reply: 'PPF, SSY are under EEE category — completely tax free. NSC and FD interest is taxable. 📊' },
-  { keys: ['best', 'recommend', 'suggest'], reply: 'For students: Start with ₹500/month in PPF for long-term + ₹500 in RD. Small steps compound to big results! 🚀' },
-  { keys: ['risk', 'safe', 'government'], reply: 'All schemes here (PPF, FD, NSC, SSY, RD) are government-backed — ZERO risk! Perfect for first-time investors. 🛡️' },
-  { keys: ['start', 'begin', 'new'], reply: 'Start your journey in Beginner Level! Watch 4 videos → Take quiz → Unlock the Investment Simulator. Go! 🌱' },
-  { keys: ['hi', 'hello', 'hey'], reply: 'Hello! 👋 I\'m your AI Investment Guide. Ask me about PPF, FD, NSC, SSY, or any investment tip!' },
-  { keys: ['xp', 'points', 'score'], reply: 'Earn XP by watching lessons (+30 XP each) and completing the quiz (+150 XP). Unlock levels to earn more! ⭐' },
-  { keys: ['video', 'lesson', 'watch'], reply: 'Head to Beginner Level to watch 4 short videos on PPF, FD, NSC and SSY. Each video earns you +30 XP! 🎬' },
-  { keys: ['quiz', 'test', 'exam'], reply: 'The quiz has 5 questions. Score 60% or above to unlock the Intermediate level. You can retry if needed! 📝' },
-]
-
 export const advRates = { PPF: 7.1, FD: 7.25, GOLD: 9.5, NSC: 7.7, SSY: 8.2, RD: 6.5 }
 
 export const onboardingSlides = [

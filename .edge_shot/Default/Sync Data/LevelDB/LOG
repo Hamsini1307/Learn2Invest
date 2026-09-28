@@ -1,4 +1,0 @@
-2026/09/27-18:01:36.229 3a58 Creating DB d:\Learn2Invest\.edge_shot\Default\Sync Data\LevelDB since it was missing.
-2026/09/27-18:01:36.401 3a58 Reusing MANIFEST d:\Learn2Invest\.edge_shot\Default\Sync Data\LevelDB/MANIFEST-000001
-2026/09/27-18:01:36.402 3a58 Recovering log #3
-2026/09/27-18:01:36.402 3a58 Reusing old log d:\Learn2Invest\.edge_shot\Default\Sync Data\LevelDB/000003.log 
