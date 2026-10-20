@@ -353,22 +353,7 @@ export default function Navbar({
               )}
             </div>
 
-            <button
-              onClick={onChatToggle}
-              style={{
-                background: 'linear-gradient(135deg, #ec4899, #8b5cf6)',
-                color: '#ffffff',
-                border: '1.5px solid #f472b6',
-                borderRadius: 999, padding: '6px 16px',
-                fontSize: 12, fontWeight: 900, cursor: 'pointer',
-                display: 'flex', alignItems: 'center', gap: 8,
-                boxShadow: '0 0 16px rgba(236, 72, 153, 0.45)',
-                transition: 'transform 0.2s'
-              }}
-            >
-              <span>✨🎙️</span>
-              <span>AI Assistant ({guideName})</span>
-            </button>
+
 
             {openLeaderboard && (
               <button

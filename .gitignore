@@ -26,3 +26,10 @@ server/local_db.json
 .DS_Store
 Thumbs.db
 Learn2Invest_Upgraded.zip
+
+# Documents & PDFs
+*.pdf
+
+# Scratch test files
+scratch_test.html
+scratch/generate_pdf.py

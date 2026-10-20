@@ -9,7 +9,11 @@ export async function initDb(uri) {
     console.log('Successfully connected to MongoDB Atlas.')
   } catch (err) {
     console.error('MongoDB Atlas connection error:', err?.message || err)
+    try {
+      await mongoose.disconnect()
+    } catch (_) {}
     throw err
   }
 }
+
 

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import soundEngine from '../utils/soundEngine.js'
 
-function getLiveProgressSnapshot(state) {
+function getLiveProgressSnapshot(state, currentScreen) {
   let stored = {}
   try {
     stored = JSON.parse(localStorage.getItem('l2i_live_progress') || '{}') || {}
@@ -15,18 +15,22 @@ function getLiveProgressSnapshot(state) {
   if (state?.level3Completed) completedSet.add(3)
 
   const completedLevels = Array.from(completedSet).sort()
-  const currentLevel = stored.currentLevel || (completedLevels.includes(2) ? 3 : completedLevels.includes(1) ? 2 : 1)
+  const currentLevel = currentScreen === 'advanced' || currentScreen === 'futuristic-city' ? 3
+    : currentScreen === 'intermediate' || currentScreen === 'simulation' || currentScreen === 'government-district' ? 2
+    : (completedLevels.includes(2) ? 3 : completedLevels.includes(1) ? 2 : 1)
 
   const recentActions = []
-  if ((stored.lessonsWatchedCount || 0) > 0) {
-    recentActions.push(`Watched ${stored.lessonsWatchedCount}/5 classroom videos`)
+  if ((stored.lessonsWatchedCount || state?.lessonsWatched?.length || 0) > 0) {
+    recentActions.push(`Watched ${stored.lessonsWatchedCount || state?.lessonsWatched?.length}/5 classroom videos`)
   }
-  if ((stored.quizAnsweredCount || 0) > 0) {
-    recentActions.push(`Answered ${stored.quizAnsweredCount}/10 quiz questions (Score: ${stored.quizScore || 0}/10)`)
+  if ((stored.quizAnsweredCount || 0) > 0 || (state?.quizScore || 0) > 0) {
+    recentActions.push(`Quiz Score: ${stored.quizScore ?? state?.quizScore ?? 0}/10`)
   }
-  if (stored.simCompleted) recentActions.push('Completed Computer 1 (6 Scheme Simulators)')
-  if (stored.mixerCompleted) recentActions.push('Completed Computer 2 (Savings Mixer Studio)')
-  if (stored.metricsCompleted) recentActions.push('Completed Computer 3 (Portfolio Simulation)')
+  if (stored.simCompleted || (state?.completedModules || []).length > 0) {
+    recentActions.push(`Completed Modules: ${(state?.completedModules || []).join(', ') || 'Computer 1'}`)
+  }
+  if (stored.mixerCompleted) recentActions.push('Completed Savings Mixer Studio')
+  if (stored.metricsCompleted) recentActions.push('Completed Portfolio Simulation')
   if (Array.isArray(stored.completedBankSections) && stored.completedBankSections.length > 0) {
     recentActions.push(`Completed Bank Cabins: ${stored.completedBankSections.join(', ')}`)
   }
@@ -34,6 +38,7 @@ function getLiveProgressSnapshot(state) {
   return {
     currentLevel,
     completedLevels,
+    currentScreen: currentScreen || 'Campus',
     lessonsWatchedCount: stored.lessonsWatchedCount ?? (state?.lessonsWatched?.length || 0),
     quizScore: stored.quizScore ?? (state?.quizScore || 0),
     bankedXp: stored.bankedXp ?? 0,
@@ -42,7 +47,7 @@ function getLiveProgressSnapshot(state) {
   }
 }
 
-// Pure Independent AI Chatbot Client — Zero Predefined Rules!
+// Pure Independent AI Chatbot Client — Project-Aware Gemini Integration
 async function fetchDynamicBotAnswer(
   message,
   history,
@@ -50,14 +55,46 @@ async function fetchDynamicBotAnswer(
   xp,
   lang,
   state,
+  currentScreen,
   previousInteractionIdRef
 ) {
-  const progress = getLiveProgressSnapshot(state)
+  const progress = getLiveProgressSnapshot(state, currentScreen)
 
-  const systemInstruction = `You are Luna, an independent, accurate, and intelligent AI chatbot and financial mentor speaking with ${userName || 'a learner'} (${xp || 0} XP).
-Answer the user's exact question naturally, accurately, and directly using your own knowledge and reasoning — never use canned or predefined rules.
-You can answer any question on personal finance, economics, investments (PPF, FD, NSC, Sukanya Samriddhi, RD, Post Office MIS, stocks, mutual funds, SIPs, taxes, banking, IFSC, UPI safety), math calculations, coding, science, or general topics.
-Optional context if the user asks about their Learn2Invest status: Current Level ${progress.currentLevel}, Completed Levels: ${JSON.stringify(progress.completedLevels)}, Wallet XP: ${xp || 0}, Banked XP: ${progress.bankedXp || 0}.`
+  const systemInstruction = `You are Luna, the intelligent, helpful, and project-aware AI assistant and financial mentor inside Learn2Invest.
+
+LEARN2INVEST PROJECT ARCHITECTURE & FEATURE KNOWLEDGE:
+1. LEVEL 1 - SCHOOL ENVIRONMENT (Classroom):
+   - 5 Financial Literacy Video Lessons (Saving basics, compounding, banking fundamentals).
+   - 10-Question Examination Quiz (+100 XP upon passing).
+2. LEVEL 2 - GOVERNMENT DISTRICT (Investment Lab):
+   - Computer 1 (6 Scheme Simulators): Public Provident Fund (PPF @ 7.1%), Fixed Deposit (FD @ 6.5%), National Savings Certificate (NSC @ 7.7%), Sukanya Samriddhi Yojana (SSY @ 8.2%), Recurring Deposit (RD @ 6.7%), Post Office Monthly Income Scheme (MIS @ 7.4%). Math calculation: Monthly * (((1 + r/12)^(years*12) - 1) / (r/12)) * (1 + r/12).
+   - Computer 2 (Savings Mixer Studio): User mixes allocations across PPF (30%), FD (25%), NSC (20%), SSY (15%), RD (10%) totaling 100% to calculate blended interest returns.
+   - Computer 3 (Portfolio Simulation & Smart Allocation): Asset diversification across Fixed Income (FD/PPF), Nifty 50 Index Funds, Equity Mutual Funds, Gold ETFs. Rule: No fixed required number of investments, but allocating across 2-4 asset classes balances safety and growth. Smart Allocation provides an educational algorithmic suggestion based on risk profile, not guaranteed financial advice.
+3. LEVEL 3 - FUTURISTIC CITY (Portfolio Tower & Banking Hub):
+   - Banking Hub: Practice with 5 Indian Institutions — Canara Bank (IFSC: CNRB0001001), Karnataka Bank Ltd. (KARB0000501), Post Office Savings Bank (IPOS0000001), Punjab National Bank (PUNB0034200), State Bank of India (SBIN0000840).
+   - Bank Slip Operations: 3 Form categories per institution (Cash Deposit Pay-In Slip with Left Counterfoil & Right Bank Copy, Cash Withdrawal Slip, Cheque Slip). Fields: Account Number (left counterfoil & right main boxes), Date (DD/MM/YYYY top right), Amount in Words (designated rupees line), Amount in Figures (₹ box), Depositor Signature (above signature line), IFSC Code (11-character bank branch identifier).
+4. DIGITAL SAFETY:
+   - OTP Protection (Never share 6-digit OTPs or PINs with anyone).
+   - Phishing & Scam Detection (Spotting suspicious link shorteners, fake emergency calls, promises of guaranteed double returns).
+5. VIRTUAL SIMULATION DISCLAIMER:
+   - All investments, balances, and profits in Learn2Invest use educational virtual money for learning.
+
+CORE CHATBOT BEHAVIOR RULES:
+- Semantic Intent & Typo Handling: Seamlessly understand misspelled or informal queries ("portfoliyo sim", "savings mix", "smart alocation", "banking hub explain", "what we doing here").
+- Current Screen Context: Answer questions in context of active screen "${currentScreen || 'Campus'}".
+- Character Level Summaries: Only provide a completed-level summary if the user has actually completed that level (check completedLevels). If a level is NOT completed, explicitly say: "Level X hasn't been completed yet by your character, so I don't have a completed Level X summary for you yet. Complete Level X to unlock its summary!"
+- Response Length: Adapt length appropriately. Simple questions (e.g. "What is SIP?") get short, clear answers (2-3 sentences). Complex queries get thorough structured breakdowns.
+- Tone: Friendly, expert financial mentor speaking with ${userName || 'a learner'}.
+
+LIVE USER PROGRESS SNAPSHOT:
+- User Name: ${userName || 'Learner'}
+- Active Screen: ${currentScreen || 'Campus'}
+- Current Level: Level ${progress.currentLevel}
+- Completed Levels: ${JSON.stringify(progress.completedLevels)}
+- Wallet XP: ${xp || 0} XP
+- Lessons Watched: ${progress.lessonsWatchedCount}/5
+- Quiz Score: ${progress.quizScore}/10
+- Allocations: ${JSON.stringify(progress.allocations)}`
 
   const contents = [
     ...history
@@ -83,7 +120,8 @@ Optional context if the user asks about their Learn2Invest status: Current Level
         userContext: {
           userName: userName || 'Learner',
           xp: xp || 0,
-          lang: 'en',
+          lang,
+          currentScreen,
           ...progress,
         },
       }),
@@ -127,7 +165,7 @@ Optional context if the user asks about their Learn2Invest status: Current Level
     }
   } catch {}
 
-  return 'I encountered a temporary network issue connecting to the AI engine. Please try sending your message again!'
+  return 'I encountered a temporary network issue connecting to the AI engine. Please check your connection or try sending your message again!'
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -512,6 +550,7 @@ export default function Chatbot({
       xp || 0,
       lang,
       state,
+      currentScreen,
       previousInteractionIdRef
     )
 
@@ -534,7 +573,7 @@ export default function Chatbot({
   }
 
   // "Talk with Luna 🎙️" Speech-to-Text + Voice Reply Handler
-  const startOrToggleTalkWithLuna = () => {
+  const startOrToggleTalkWithLuna = async () => {
     soundEngine.playClick()
     if (typeof window === 'undefined') return
 
@@ -546,7 +585,7 @@ export default function Chatbot({
         {
           id: 'b_voice_info_' + Date.now(),
           from: 'bot',
-          text: `🎙️ Voice Reply Mode is now ${!talkModeActive ? 'ON' : 'OFF'}! Type any message below and I will speak my response out loud to you!`,
+          text: `🎙️ Voice Speech Recognition is not supported by this browser version. Voice Read-Aloud is active! Type any question and I will speak the response out loud.`,
         },
       ])
       return
@@ -561,6 +600,24 @@ export default function Chatbot({
     }
 
     stopSpeech()
+
+    // Request microphone permission if needed
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      try {
+        await navigator.mediaDevices.getUserMedia({ audio: true })
+      } catch (err) {
+        setMsgs((prev) => [
+          ...prev,
+          {
+            id: 'b_mic_err_' + Date.now(),
+            from: 'bot',
+            text: `⚠️ Microphone access was denied or ungranted. Please allow microphone permissions in your browser address bar to use "Talk with ${guideName}" voice mode! Text chat is still fully active.`,
+          },
+        ])
+        return
+      }
+    }
+
     setTalkModeActive(true)
     const recognition = new SpeechRecognition()
     recognitionRef.current = recognition
@@ -578,8 +635,18 @@ export default function Chatbot({
         handleSendMessage(transcript.trim(), true)
       }
     }
-    recognition.onerror = () => {
+    recognition.onerror = (event) => {
       setIsListeningVoice(false)
+      if (event?.error === 'not-allowed') {
+        setMsgs((prev) => [
+          ...prev,
+          {
+            id: 'b_mic_denied_' + Date.now(),
+            from: 'bot',
+            text: `⚠️ Microphone permission blocked. Enable microphone access in site settings to speak with ${guideName}.`,
+          },
+        ])
+      }
     }
     recognition.onend = () => {
       setIsListeningVoice(false)
