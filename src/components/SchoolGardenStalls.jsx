@@ -882,11 +882,16 @@ export function SchoolGardenStallModal({
     if (onEquipStallOutfit) {
       onEquipStallOutfit({
         id: item.id,
+        name: item.name,
         label: item.name,
+        color: item.color,
         top: item.top || item.color,
+        shirtColor: item.top || item.color,
         pants: item.pants || '#1E293B',
+        pantsColor: item.pants || '#1E293B',
         bag: item.bag || '#F59E0B',
         ring: item.ring || item.color,
+        hatColor: item.ring || item.color,
       })
     }
   }
@@ -895,27 +900,27 @@ export function SchoolGardenStallModal({
     if (availableXp < item.cost) return
     playStallSfx('buy')
     if (onSpendXp) onSpendXp(item.cost)
-    if (onBuyCloth) onBuyCloth(item.id, item.color)
+    if (onBuyCloth) onBuyCloth(item.id, item)
     const updated = Array.from(new Set([...ownedClothes, item.id]))
     setLocalOwnedClothes(updated)
     try {
       localStorage.setItem('l2i_owned_clothes', JSON.stringify(updated))
     } catch {}
     handleEquipItem(item)
-    showMessage(`🎉 Purchased & Equipped ${item.name} for ${item.cost} XP!`)
+    showMessage(`👕 Purchased & automatically wearing ${item.name} for ${item.cost} XP!`)
   }
 
   const handleBuyIceCreamItem = (ice) => {
     if (availableXp < ice.cost) return
     playStallSfx('buy')
     if (onSpendXp) onSpendXp(ice.cost)
-    if (onBuyIceCream) onBuyIceCream(ice.id)
+    if (onBuyIceCream) onBuyIceCream(ice)
     const updated = { ...iceCreamsBought, [ice.id]: (iceCreamsBought[ice.id] || 0) + 1 }
     setLocalIceCreams(updated)
     try {
       localStorage.setItem('l2i_icecreams_bought', JSON.stringify(updated))
     } catch {}
-    showMessage(`🍦 Yum! Bought ${ice.name} for just ${ice.cost} XP (< 10 XP smart budget)!`)
+    showMessage(`🍦 Holding & enjoying delicious ${ice.name} for 20 seconds!`)
   }
 
   const handleSpinWheel = () => {
