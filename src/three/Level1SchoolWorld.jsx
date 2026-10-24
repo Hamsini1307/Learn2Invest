@@ -1699,14 +1699,28 @@ function CourtyardTree3D({ position, scale = 1, pink = false }) {
   )
 }
 
-function SchoolYardAndFacade3D({ frontDoorOpenRef, isNightMode = false }) {
+function SchoolYardAndFacade3D({ frontDoorOpenRef, charStateRef, isNightMode = false }) {
   const leftDoorRef = useRef()
   const rightDoorRef = useRef()
 
-  useFrame(() => {
-    const open = frontDoorOpenRef.current
-    if (leftDoorRef.current) leftDoorRef.current.rotation.y = THREE.MathUtils.lerp(leftDoorRef.current.rotation.y, -open * 1.45, 0.1)
-    if (rightDoorRef.current) rightDoorRef.current.rotation.y = THREE.MathUtils.lerp(rightDoorRef.current.rotation.y, open * 1.45, 0.1)
+  const lastDoorSoundTime = useRef(0)
+  useFrame(({ clock }) => {
+    const charX = charStateRef?.current?.x ?? 999
+    const charZ = charStateRef?.current?.z ?? 999
+    // Automatically opens when character approaches entrance steps/portico
+    const isNearEntrance = Math.abs(charX) < 4.8 && charZ > -2.0 && charZ < 8.8
+    const targetOpen = (frontDoorOpenRef?.current === 1 || isNearEntrance) ? 1.0 : 0.0
+
+    const now = clock.getElapsedTime()
+    if (targetOpen === 1.0 && now - lastDoorSoundTime.current > 3.0) {
+      if (leftDoorRef.current && Math.abs(leftDoorRef.current.rotation.y) < 0.08) {
+        lastDoorSoundTime.current = now
+        try { soundEngine.playDoorOpen() } catch {}
+      }
+    }
+
+    if (leftDoorRef.current) leftDoorRef.current.rotation.y = THREE.MathUtils.lerp(leftDoorRef.current.rotation.y, -targetOpen * 1.45, 0.1)
+    if (rightDoorRef.current) rightDoorRef.current.rotation.y = THREE.MathUtils.lerp(rightDoorRef.current.rotation.y, targetOpen * 1.45, 0.1)
   })
 
   const balconyConfigs = [
@@ -2154,11 +2168,12 @@ function SchoolVeranda3D({ charStateRef }) {
     const now = clock.getElapsedTime()
 
     doors.forEach((door, idx) => {
-      // Proximity detection: open when character approaches the door
+      // Proximity detection: open when character approaches the door from hallway or classroom
       const dx = charX - (-5.1)
       const dz = charZ - door.z
       const dist = Math.hypot(dx, dz)
-      const isNear = dist < 4.5 || (Math.abs(dz) < 2.6 && charX > -7.0 && charX < -1.2)
+      // Opens reliably when approaching from hallway (centered at x=0) or entering from room
+      const isNear = dist < 7.2 || (Math.abs(dz) < 4.2 && charX > -9.5 && charX < 3.8)
       const target = isNear ? 1.0 : 0.0
 
       if (target === 1.0 && doorOpenStates.current[idx] < 0.05 && now - lastSoundTimes.current[idx] > 2.0) {
@@ -2184,6 +2199,138 @@ function SchoolVeranda3D({ charStateRef }) {
 
   return (
     <group position={[0, 0, 0]}>
+      {/* ─── GRAND VERANDA ATRIUM CEILING & BRIGHT CHANDELIER & LOTS OF CEILING LIGHTS ─── */}
+      <group position={[0, 8.15, -14]}>
+        {/* Main Cream Atrium Ceiling Slab Covering Entire Corridor (Eliminates Open Sky Void) */}
+        <RoundedBox args={[10.6, 0.35, 32]} position={[0, 0, 0]} radius={0.02} receiveShadow>
+          <meshStandardMaterial color="#fdf8f0" roughness={0.6} />
+        </RoundedBox>
+
+        {/* Recessed Architectural Wooden Light Coffer Trims */}
+        {[-3.2, 3.2].map((cx, i) => (
+          <RoundedBox key={i} args={[0.32, 0.14, 31.8]} position={[cx, -0.18, 0]} radius={0.02}>
+            <meshStandardMaterial color="#d49963" roughness={0.5} />
+          </RoundedBox>
+        ))}
+
+        {/* Dual Rows of Modern Recessed LED Downlights with Glow Illuminating the Hallway */}
+        {[-2.8, 2.8].map((lx, side) => (
+          <group key={side}>
+            {[-13, -9, -5, -1, 3, 7, 11, 15].map((lz, idx) => (
+              <group key={idx} position={[lx, -0.16, lz]}>
+                {/* Outer Silver Bezel */}
+                <mesh rotation={[Math.PI / 2, 0, 0]}>
+                  <cylinderGeometry args={[0.34, 0.34, 0.04, 20]} />
+                  <meshStandardMaterial color="#cbd5e1" metalness={0.7} />
+                </mesh>
+                {/* Glowing LED Diffuser Pane */}
+                <mesh position={[0, -0.02, 0]} rotation={[Math.PI / 2, 0, 0]}>
+                  <cylinderGeometry args={[0.26, 0.26, 0.02, 20]} />
+                  <meshBasicMaterial color="#ffffff" />
+                </mesh>
+              </group>
+            ))}
+          </group>
+        ))}
+
+        {/* ─── MAGNIFICENT BRIGHT 3-TIER GOLDEN CRYSTAL CHANDELIER ─── */}
+        <group position={[0, -0.18, 1.2]}>
+          {/* Ceiling Canopy Plate */}
+          <mesh position={[0, 0, 0]} rotation={[Math.PI / 2, 0, 0]}>
+            <cylinderGeometry args={[0.85, 0.85, 0.08, 32]} />
+            <meshStandardMaterial color="#f59e0b" metalness={0.9} roughness={0.15} />
+          </mesh>
+          {/* Suspension Golden Rods */}
+          <mesh position={[0, -0.75, 0]}>
+            <cylinderGeometry args={[0.04, 0.04, 1.5, 12]} />
+            <meshStandardMaterial color="#f59e0b" metalness={0.9} roughness={0.15} />
+          </mesh>
+
+          {/* Tier 1: Large Golden Crystal Ring (Radius 1.35m) */}
+          <group position={[0, -1.5, 0]}>
+            <mesh rotation={[Math.PI / 2, 0, 0]}>
+              <torusGeometry args={[1.35, 0.08, 16, 48]} />
+              <meshStandardMaterial color="#f59e0b" metalness={0.92} roughness={0.12} />
+            </mesh>
+            {/* Hanging Sparkling Crystal Prisms */}
+            {Array.from({ length: 24 }).map((_, cIdx) => {
+              const angle = (cIdx / 24) * Math.PI * 2
+              const cx = Math.cos(angle) * 1.35
+              const cz = Math.sin(angle) * 1.35
+              return (
+                <group key={cIdx} position={[cx, -0.25, cz]}>
+                  <mesh>
+                    <cylinderGeometry args={[0.035, 0.005, 0.42, 6]} />
+                    <meshPhysicalMaterial
+                      color="#ffffff"
+                      transparent
+                      opacity={0.88}
+                      roughness={0.05}
+                      metalness={0.1}
+                      transmission={0.82}
+                    />
+                  </mesh>
+                </group>
+              )
+            })}
+          </group>
+
+          {/* Tier 2: Medium Golden Crystal Ring (Radius 0.9m) */}
+          <group position={[0, -1.95, 0]}>
+            <mesh rotation={[Math.PI / 2, 0, 0]}>
+              <torusGeometry args={[0.9, 0.07, 16, 36]} />
+              <meshStandardMaterial color="#fbbf24" metalness={0.92} roughness={0.12} />
+            </mesh>
+            {Array.from({ length: 16 }).map((_, cIdx) => {
+              const angle = (cIdx / 16) * Math.PI * 2
+              const cx = Math.cos(angle) * 0.9
+              const cz = Math.sin(angle) * 0.9
+              return (
+                <group key={cIdx} position={[cx, -0.2, cz]}>
+                  <mesh>
+                    <cylinderGeometry args={[0.03, 0.005, 0.35, 6]} />
+                    <meshPhysicalMaterial
+                      color="#ffffff"
+                      transparent
+                      opacity={0.88}
+                      roughness={0.05}
+                      transmission={0.82}
+                    />
+                  </mesh>
+                </group>
+              )
+            })}
+          </group>
+
+          {/* Tier 3: Inner Golden Crystal Sphere Core */}
+          <group position={[0, -2.35, 0]}>
+            <mesh rotation={[Math.PI / 2, 0, 0]}>
+              <torusGeometry args={[0.48, 0.06, 12, 28]} />
+              <meshStandardMaterial color="#f59e0b" metalness={0.92} roughness={0.12} />
+            </mesh>
+            {/* Center Crystal Pendant Drop */}
+            <mesh position={[0, -0.32, 0]}>
+              <octahedronGeometry args={[0.22, 0]} />
+              <meshPhysicalMaterial
+                color="#ffffff"
+                transparent
+                opacity={0.92}
+                roughness={0.05}
+                transmission={0.85}
+              />
+            </mesh>
+          </group>
+
+          {/* Bright Chandelier Glow Light */}
+          <pointLight
+            color="#fffbeb"
+            intensity={3.4}
+            distance={24}
+            decay={1.8}
+            position={[0, -2.0, 0]}
+          />
+        </group>
+      </group>
       {/* Polished Warm Cream Tile Floor of Veranda */}
       <mesh position={[0, 0.02, -14]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
         <planeGeometry args={[10.4, 32]} />
@@ -2266,12 +2413,14 @@ function SchoolVeranda3D({ charStateRef }) {
         </RoundedBox>
       </group>
 
-      {/* ─── ROOM 102 INTERIOR ENCLOSURE (Encloses Room 102 so no outdoor void is visible) ─── */}
+      {/* ─── ROOM 102 INTERIOR ENCLOSURE (Furnished Classroom Visible When Doors Slide Open) ─── */}
       <group position={[-14, 0, -15.5]}>
+        {/* Honey-Cream Classroom Floor */}
         <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
           <planeGeometry args={[16.5, 7.8]} />
           <meshStandardMaterial color="#e8c8a7" roughness={0.32} metalness={0.08} />
         </mesh>
+        {/* Left Window Wall */}
         <mesh position={[-8.1, 3.8, 0]} receiveShadow>
           <boxGeometry args={[0.35, 7.6, 7.8]} />
           <meshStandardMaterial color="#f5ebe0" roughness={0.75} />
@@ -2280,6 +2429,47 @@ function SchoolVeranda3D({ charStateRef }) {
           <planeGeometry args={[4.2, 2.8]} />
           <meshStandardMaterial color="#bae6fd" roughness={0.2} metalness={0.3} />
         </mesh>
+
+        {/* Front Sage-Green Blackboard Inside Room 102 */}
+        <group position={[0, 3.4, -3.7]}>
+          <RoundedBox args={[7.2, 2.8, 0.08]} radius={0.02} castShadow>
+            <meshStandardMaterial color="#c88d54" roughness={0.5} />
+          </RoundedBox>
+          <RoundedBox args={[6.9, 2.5, 0.06]} position={[0, 0, 0.02]} radius={0.01}>
+            <meshStandardMaterial color="#4f6d54" roughness={0.75} />
+          </RoundedBox>
+        </group>
+
+        {/* Student Desks Inside Room 102 */}
+        {[-2.2, 2.2].map((dx, dIdx) => (
+          <group key={dIdx} position={[dx, 0, 0.6]}>
+            <RoundedBox args={[1.8, 0.08, 0.95]} position={[0, 0.78, 0]} radius={0.02} castShadow receiveShadow>
+              <meshStandardMaterial color="#d99b66" roughness={0.42} />
+            </RoundedBox>
+            {[-0.78, 0.78].map((lx, l) => (
+              <RoundedBox key={l} args={[0.07, 0.76, 0.82]} position={[lx, 0.38, 0]} radius={0.01}>
+                <meshStandardMaterial color="#64748b" />
+              </RoundedBox>
+            ))}
+            {/* Student Chair */}
+            <RoundedBox args={[0.76, 0.07, 0.72]} position={[0, 0.44, 0.68]} radius={0.02} castShadow>
+              <meshStandardMaterial color="#6b8e78" />
+            </RoundedBox>
+            <RoundedBox args={[0.76, 0.45, 0.07]} position={[0, 0.7, 1.02]} radius={0.02} castShadow>
+              <meshStandardMaterial color="#6b8e78" />
+            </RoundedBox>
+          </group>
+        ))}
+
+        {/* Teacher Desk & Laptop Inside Room 102 */}
+        <group position={[3.8, 0, -2.6]}>
+          <RoundedBox args={[2.0, 1.15, 0.95]} position={[0, 0.58, 0]} radius={0.02} castShadow>
+            <meshStandardMaterial color="#d49963" roughness={0.48} />
+          </RoundedBox>
+          <RoundedBox args={[0.48, 0.3, 0.04]} position={[0, 1.25, 0.05]} rotation={[-0.2, 0, 0]} radius={0.01}>
+            <meshStandardMaterial color="#cbd5e1" metalness={0.6} roughness={0.3} />
+          </RoundedBox>
+        </group>
       </group>
 
       {/* ─── LEFT VERANDA DOORWAYS "101", "102", "103" WITH AUTOMATIC SLIDING DOUBLE DOORS ─── */}
@@ -2305,31 +2495,72 @@ function SchoolVeranda3D({ charStateRef }) {
           </RoundedBox>
 
           {/* ─── AUTOMATIC SLIDING DOUBLE DOORS (OPENS AUTOMATICALLY WHEN WALKING NEAR) ─── */}
+          {/* Top Sliding Door Track / Header Runner Bar */}
+          <RoundedBox args={[0.22, 0.08, 3.5]} position={[0, 3.65, 0]} radius={0.01}>
+            <meshStandardMaterial color="#475569" metalness={0.7} roughness={0.3} />
+          </RoundedBox>
+
           {/* Left Sliding Door Leaf */}
           <group
             ref={(el) => (leftDoorRefs.current[idx] = el)}
             position={[0, 1.82, 0.78]}
           >
-            {/* Warm Oak Door Leaf */}
-            <RoundedBox args={[0.1, 3.62, 1.54]} position={[0, 0, 0]} radius={0.03} castShadow>
-              <meshStandardMaterial color="#b45309" roughness={0.4} />
+            {/* Rich Warm Oak Door Leaf Body */}
+            <RoundedBox args={[0.09, 3.58, 1.54]} position={[0, 0, 0]} radius={0.02} castShadow receiveShadow>
+              <meshStandardMaterial color="#b45309" roughness={0.42} />
             </RoundedBox>
-            {/* Vertical Frosted Glass Vision Panel */}
-            <mesh position={[0, 0, 0]}>
-              <boxGeometry args={[0.12, 2.7, 0.92]} />
-              <meshStandardMaterial
-                color="#e0f2fe"
+
+            {/* Recessed Lower Wood Panel (Wainscot Bevel) */}
+            <RoundedBox args={[0.11, 1.25, 1.28]} position={[0, -0.92, 0]} radius={0.02}>
+              <meshStandardMaterial color="#92400e" roughness={0.5} />
+            </RoundedBox>
+            <RoundedBox args={[0.12, 1.15, 1.18]} position={[0, -0.92, 0]} radius={0.01}>
+              <meshStandardMaterial color="#78350f" roughness={0.55} />
+            </RoundedBox>
+
+            {/* Upper Dark Frame for Vertical Glass Viewing Window */}
+            <RoundedBox args={[0.11, 1.68, 0.42]} position={[0, 0.72, -0.36]} radius={0.02}>
+              <meshStandardMaterial color="#1c1917" roughness={0.6} />
+            </RoundedBox>
+            {/* Narrow Clean Glass Viewing Pane */}
+            <mesh position={[0, 0.72, -0.36]}>
+              <boxGeometry args={[0.08, 1.55, 0.32]} />
+              <meshPhysicalMaterial
+                color="#bae6fd"
                 transparent
-                opacity={0.45}
-                roughness={0.1}
-                metalness={0.2}
+                opacity={0.35}
+                roughness={0.08}
+                metalness={0.15}
               />
             </mesh>
-            {/* Vertical Silver Door Pull Handle */}
-            <mesh position={[0.08, 0, -0.62]}>
-              <cylinderGeometry args={[0.02, 0.02, 0.75, 10]} />
-              <meshStandardMaterial color="#f8fafc" metalness={0.8} roughness={0.2} />
-            </mesh>
+
+            {/* Brushed Silver Vertical Pull Handle (Outside / Hallway Side) */}
+            <group position={[0.08, 0, -0.62]}>
+              <mesh castShadow>
+                <cylinderGeometry args={[0.02, 0.02, 0.88, 14]} />
+                <meshStandardMaterial color="#e2e8f0" metalness={0.88} roughness={0.15} />
+              </mesh>
+              {[-0.38, 0.38].map((hy, hIdx) => (
+                <mesh key={hIdx} position={[-0.03, hy, 0]} rotation={[0, 0, Math.PI / 2]}>
+                  <cylinderGeometry args={[0.015, 0.015, 0.06, 10]} />
+                  <meshStandardMaterial color="#94a3b8" metalness={0.85} />
+                </mesh>
+              ))}
+            </group>
+
+            {/* Brushed Silver Vertical Pull Handle (Inside / Classroom Side) */}
+            <group position={[-0.08, 0, -0.62]}>
+              <mesh>
+                <cylinderGeometry args={[0.02, 0.02, 0.88, 14]} />
+                <meshStandardMaterial color="#e2e8f0" metalness={0.88} roughness={0.15} />
+              </mesh>
+              {[-0.38, 0.38].map((hy, hIdx) => (
+                <mesh key={hIdx} position={[0.03, hy, 0]} rotation={[0, 0, Math.PI / 2]}>
+                  <cylinderGeometry args={[0.015, 0.015, 0.06, 10]} />
+                  <meshStandardMaterial color="#94a3b8" metalness={0.85} />
+                </mesh>
+              ))}
+            </group>
           </group>
 
           {/* Right Sliding Door Leaf */}
@@ -2337,26 +2568,62 @@ function SchoolVeranda3D({ charStateRef }) {
             ref={(el) => (rightDoorRefs.current[idx] = el)}
             position={[0, 1.82, -0.78]}
           >
-            {/* Warm Oak Door Leaf */}
-            <RoundedBox args={[0.1, 3.62, 1.54]} position={[0, 0, 0]} radius={0.03} castShadow>
-              <meshStandardMaterial color="#b45309" roughness={0.4} />
+            {/* Rich Warm Oak Door Leaf Body */}
+            <RoundedBox args={[0.09, 3.58, 1.54]} position={[0, 0, 0]} radius={0.02} castShadow receiveShadow>
+              <meshStandardMaterial color="#b45309" roughness={0.42} />
             </RoundedBox>
-            {/* Vertical Frosted Glass Vision Panel */}
-            <mesh position={[0, 0, 0]}>
-              <boxGeometry args={[0.12, 2.7, 0.92]} />
-              <meshStandardMaterial
-                color="#e0f2fe"
+
+            {/* Recessed Lower Wood Panel (Wainscot Bevel) */}
+            <RoundedBox args={[0.11, 1.25, 1.28]} position={[0, -0.92, 0]} radius={0.02}>
+              <meshStandardMaterial color="#92400e" roughness={0.5} />
+            </RoundedBox>
+            <RoundedBox args={[0.12, 1.15, 1.18]} position={[0, -0.92, 0]} radius={0.01}>
+              <meshStandardMaterial color="#78350f" roughness={0.55} />
+            </RoundedBox>
+
+            {/* Upper Dark Frame for Vertical Glass Viewing Window */}
+            <RoundedBox args={[0.11, 1.68, 0.42]} position={[0, 0.72, 0.36]} radius={0.02}>
+              <meshStandardMaterial color="#1c1917" roughness={0.6} />
+            </RoundedBox>
+            {/* Narrow Clean Glass Viewing Pane */}
+            <mesh position={[0, 0.72, 0.36]}>
+              <boxGeometry args={[0.08, 1.55, 0.32]} />
+              <meshPhysicalMaterial
+                color="#bae6fd"
                 transparent
-                opacity={0.45}
-                roughness={0.1}
-                metalness={0.2}
+                opacity={0.35}
+                roughness={0.08}
+                metalness={0.15}
               />
             </mesh>
-            {/* Vertical Silver Door Pull Handle */}
-            <mesh position={[0.08, 0, 0.62]}>
-              <cylinderGeometry args={[0.02, 0.02, 0.75, 10]} />
-              <meshStandardMaterial color="#f8fafc" metalness={0.8} roughness={0.2} />
-            </mesh>
+
+            {/* Brushed Silver Vertical Pull Handle (Outside / Hallway Side) */}
+            <group position={[0.08, 0, 0.62]}>
+              <mesh castShadow>
+                <cylinderGeometry args={[0.02, 0.02, 0.88, 14]} />
+                <meshStandardMaterial color="#e2e8f0" metalness={0.88} roughness={0.15} />
+              </mesh>
+              {[-0.38, 0.38].map((hy, hIdx) => (
+                <mesh key={hIdx} position={[-0.03, hy, 0]} rotation={[0, 0, Math.PI / 2]}>
+                  <cylinderGeometry args={[0.015, 0.015, 0.06, 10]} />
+                  <meshStandardMaterial color="#94a3b8" metalness={0.85} />
+                </mesh>
+              ))}
+            </group>
+
+            {/* Brushed Silver Vertical Pull Handle (Inside / Classroom Side) */}
+            <group position={[-0.08, 0, 0.62]}>
+              <mesh>
+                <cylinderGeometry args={[0.02, 0.02, 0.88, 14]} />
+                <meshStandardMaterial color="#e2e8f0" metalness={0.88} roughness={0.15} />
+              </mesh>
+              {[-0.38, 0.38].map((hy, hIdx) => (
+                <mesh key={hIdx} position={[0.03, hy, 0]} rotation={[0, 0, Math.PI / 2]}>
+                  <cylinderGeometry args={[0.015, 0.015, 0.06, 10]} />
+                  <meshStandardMaterial color="#94a3b8" metalness={0.85} />
+                </mesh>
+              ))}
+            </group>
           </group>
 
           {/* Dark Slate Room Number Sign ("101", "102", "103") Above Door Frame (Image 4) */}
@@ -3139,9 +3406,330 @@ function ExaminationCenter103Scene3D({ examProjectorContent }) {
 // 6. ZONE 5: GRAND STAIRCASE TO FLOOR 2 ("↑ Floor 2") & FLOOR 2 VERANDA
 //    Stairs rise from y = 0, z = -26.5 to y = 6.2, z = -37.5
 // ═══════════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════════
+// GRAND HIGH ATRIUM CEILING & 3-TIER GOLDEN CRYSTAL CHANDELIERS & 72 RECESSED LIGHTS
+// Covers entire two-story central school hall & Grand Staircase (y = 13.8m, z = 2.0 to -48.2)
+// ═══════════════════════════════════════════════════════════════════════════════
+function GrandAtriumCeilingAndChandeliers3D({ isNightMode = false }) {
+  const beamZs = [1.0, -5.0, -11.0, -17.0, -23.0, -29.0, -35.0, -41.0, -47.0]
+
+  return (
+    <group position={[0, 0, 0]}>
+      {/* ─── 1. HIGH GRAND ATRIUM ROOF CEILING (y = 13.8m, covers z = 2.0 to -48.0) ─── */}
+      <group position={[0, 13.8, -23.0]}>
+        {/* Main Ivory/Cream Ceiling Slab */}
+        <RoundedBox args={[21.4, 0.42, 50.5]} position={[0, 0, 0]} radius={0.02} receiveShadow>
+          <meshStandardMaterial color="#fdf8f0" roughness={0.65} />
+        </RoundedBox>
+
+        {/* Exposed Architectural Timber Roof Trusses & Cross-Beams */}
+        {beamZs.map((bz, bIdx) => (
+          <group key={bIdx} position={[0, -0.32, bz - (-23.0)]}>
+            {/* Main Horizontal Timber Cross-Beam */}
+            <RoundedBox args={[21.2, 0.48, 0.45]} radius={0.03} castShadow>
+              <meshStandardMaterial color="#9a501e" roughness={0.48} />
+            </RoundedBox>
+            {/* Decorative Gold End Brackets */}
+            {[-10.2, 10.2].map((bx, side) => (
+              <RoundedBox key={side} args={[0.32, 0.62, 0.48]} position={[bx, -0.07, 0]} radius={0.02}>
+                <meshStandardMaterial color="#f59e0b" metalness={0.85} roughness={0.2} />
+              </RoundedBox>
+            ))}
+          </group>
+        ))}
+
+        {/* Linear LED Warm Light Troughs Along Ceiling Longitudinal Edges */}
+        {[-8.5, 8.5].map((tx, tSide) => (
+          <mesh key={tSide} position={[tx, -0.22, 0]}>
+            <boxGeometry args={[0.35, 0.08, 49.0]} />
+            <meshStandardMaterial
+              color="#ffffff"
+              emissive="#fef08a"
+              emissiveIntensity={isNightMode ? 1.8 : 0.6}
+            />
+          </mesh>
+        ))}
+
+        {/* Grid of Recessed Modern Ceiling Spotlights (6 Columns x 12 Rows = 72 Lights) */}
+        {[-7.2, -4.5, -1.8, 1.8, 4.5, 7.2].map((lx, col) => (
+          <group key={col}>
+            {[-21, -17, -13, -9, -5, -1, 3, 7, 11, 15, 19, 23].map((lz, row) => (
+              <group key={row} position={[lx, -0.22, lz]}>
+                <mesh rotation={[Math.PI / 2, 0, 0]}>
+                  <cylinderGeometry args={[0.3, 0.3, 0.05, 16]} />
+                  <meshStandardMaterial color="#cbd5e1" metalness={0.7} />
+                </mesh>
+                <mesh position={[0, -0.025, 0]} rotation={[Math.PI / 2, 0, 0]}>
+                  <cylinderGeometry args={[0.22, 0.22, 0.02, 16]} />
+                  <meshBasicMaterial color="#ffffff" />
+                </mesh>
+              </group>
+            ))}
+          </group>
+        ))}
+      </group>
+
+      {/* ─── 2. UPPER HIGH ENCLOSING WALLS (y = 8.2m to 13.8m, seals all sky voids) ─── */}
+      {/* Front High Wall Above Entrance Portico (z = 2.0, y = 11.0) */}
+      <group position={[0, 11.0, 2.0]}>
+        <RoundedBox args={[21.4, 5.6, 0.6]} radius={0.03} receiveShadow castShadow>
+          <meshStandardMaterial color="#b85d43" roughness={0.72} />
+        </RoundedBox>
+        {/* Arched Sunlit Upper Clerestory Windows */}
+        {[-6.0, 0, 6.0].map((wx, wIdx) => (
+          <group key={wIdx} position={[wx, 0.2, 0.1]}>
+            <RoundedBox args={[3.4, 3.2, 0.12]} radius={0.8}>
+              <meshStandardMaterial color="#f5ebe0" roughness={0.5} />
+            </RoundedBox>
+            <mesh position={[0, 0, 0.08]}>
+              <planeGeometry args={[3.0, 2.8]} />
+              <meshStandardMaterial
+                color="#bae6fd"
+                emissive="#fef08a"
+                emissiveIntensity={isNightMode ? 0.9 : 0.25}
+                transparent
+                opacity={0.7}
+              />
+            </mesh>
+          </group>
+        ))}
+      </group>
+
+      {/* Left Upper Wall (x = -10.6, y = 11.0, z = -23.0) */}
+      <mesh position={[-10.6, 11.0, -23.0]} receiveShadow>
+        <boxGeometry args={[0.5, 5.6, 50.5]} />
+        <meshStandardMaterial color="#f8efe2" roughness={0.7} />
+      </mesh>
+
+      {/* Right Upper Wall (x = 10.6, y = 11.0, z = -23.0) */}
+      <mesh position={[10.6, 11.0, -23.0]} receiveShadow>
+        <boxGeometry args={[0.5, 5.6, 50.5]} />
+        <meshStandardMaterial color="#f8efe2" roughness={0.7} />
+      </mesh>
+
+      {/* Rear Upper Wall above Floor 2 Landing (z = -48.2, y = 11.0) */}
+      <mesh position={[0, 11.0, -48.2]} receiveShadow>
+        <boxGeometry args={[21.4, 5.6, 0.6]} />
+        <meshStandardMaterial color="#f8efe2" roughness={0.7} />
+      </mesh>
+
+      {/* ─── 3. GRAND CHANDELIER #1 (AT ATRIUM CENTER, z = -14.0) ─── */}
+      <group position={[0, 13.8, -14.0]}>
+        {/* Ceiling Gold Rose Canopy */}
+        <mesh position={[0, 0, 0]} rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[1.1, 1.1, 0.12, 32]} />
+          <meshStandardMaterial color="#f59e0b" metalness={0.92} roughness={0.12} />
+        </mesh>
+        {/* Heavy Polished Brass Suspension Rod */}
+        <mesh position={[0, -2.1, 0]}>
+          <cylinderGeometry args={[0.05, 0.05, 4.2, 16]} />
+          <meshStandardMaterial color="#f59e0b" metalness={0.92} roughness={0.12} />
+        </mesh>
+
+        {/* Tier 1: Giant 2.2m Golden Crystal Ring */}
+        <group position={[0, -4.2, 0]}>
+          <mesh rotation={[Math.PI / 2, 0, 0]}>
+            <torusGeometry args={[2.2, 0.11, 16, 56]} />
+            <meshStandardMaterial color="#f59e0b" metalness={0.95} roughness={0.1} />
+          </mesh>
+          {Array.from({ length: 32 }).map((_, i) => {
+            const angle = (i / 32) * Math.PI * 2
+            const cx = Math.cos(angle) * 2.2
+            const cz = Math.sin(angle) * 2.2
+            return (
+              <group key={i} position={[cx, -0.38, cz]}>
+                <mesh>
+                  <cylinderGeometry args={[0.045, 0.005, 0.65, 6]} />
+                  <meshPhysicalMaterial
+                    color="#ffffff"
+                    transparent
+                    opacity={0.9}
+                    roughness={0.04}
+                    metalness={0.12}
+                    transmission={0.88}
+                  />
+                </mesh>
+              </group>
+            )
+          })}
+        </group>
+
+        {/* Tier 2: 1.5m Golden Crystal Ring */}
+        <group position={[0, -4.85, 0]}>
+          <mesh rotation={[Math.PI / 2, 0, 0]}>
+            <torusGeometry args={[1.5, 0.09, 16, 44]} />
+            <meshStandardMaterial color="#fbbf24" metalness={0.95} roughness={0.1} />
+          </mesh>
+          {Array.from({ length: 22 }).map((_, i) => {
+            const angle = (i / 22) * Math.PI * 2
+            const cx = Math.cos(angle) * 1.5
+            const cz = Math.sin(angle) * 1.5
+            return (
+              <group key={i} position={[cx, -0.32, cz]}>
+                <mesh>
+                  <cylinderGeometry args={[0.04, 0.005, 0.52, 6]} />
+                  <meshPhysicalMaterial color="#ffffff" transparent opacity={0.9} transmission={0.88} />
+                </mesh>
+              </group>
+            )
+          })}
+        </group>
+
+        {/* Tier 3: 0.9m Golden Crystal Ring */}
+        <group position={[0, -5.4, 0]}>
+          <mesh rotation={[Math.PI / 2, 0, 0]}>
+            <torusGeometry args={[0.9, 0.075, 14, 32]} />
+            <meshStandardMaterial color="#f59e0b" metalness={0.95} roughness={0.1} />
+          </mesh>
+          {Array.from({ length: 14 }).map((_, i) => {
+            const angle = (i / 14) * Math.PI * 2
+            const cx = Math.cos(angle) * 0.9
+            const cz = Math.sin(angle) * 0.9
+            return (
+              <group key={i} position={[cx, -0.26, cz]}>
+                <mesh>
+                  <cylinderGeometry args={[0.035, 0.005, 0.42, 6]} />
+                  <meshPhysicalMaterial color="#ffffff" transparent opacity={0.9} transmission={0.88} />
+                </mesh>
+              </group>
+            )
+          })}
+        </group>
+
+        {/* Tier 4: Bottom Golden Crystal Drop */}
+        <group position={[0, -5.9, 0]}>
+          <mesh>
+            <octahedronGeometry args={[0.34, 0]} />
+            <meshPhysicalMaterial color="#ffffff" transparent opacity={0.95} transmission={0.92} />
+          </mesh>
+        </group>
+
+        {/* Central High-Intensity Warm Point Light */}
+        <pointLight
+          color="#fffbeb"
+          intensity={4.8}
+          distance={36}
+          decay={1.7}
+          position={[0, -5.0, 0]}
+        />
+      </group>
+
+      {/* ─── 4. GRAND STAIRCASE CHANDELIER #2 (DIRECTLY ABOVE "↑ FLOOR 2" STAIRCASE, z = -32.5) ─── */}
+      {/* (Directly in front of the camera when standing on Floor 2 looking south!) */}
+      <group position={[0, 13.8, -32.5]}>
+        <mesh position={[0, 0, 0]} rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[0.95, 0.95, 0.1, 28]} />
+          <meshStandardMaterial color="#f59e0b" metalness={0.92} roughness={0.12} />
+        </mesh>
+        <mesh position={[0, -1.8, 0]}>
+          <cylinderGeometry args={[0.045, 0.045, 3.6, 14]} />
+          <meshStandardMaterial color="#f59e0b" metalness={0.92} roughness={0.12} />
+        </mesh>
+
+        {/* Tier 1: 1.7m Golden Crystal Ring */}
+        <group position={[0, -3.6, 0]}>
+          <mesh rotation={[Math.PI / 2, 0, 0]}>
+            <torusGeometry args={[1.7, 0.09, 16, 48]} />
+            <meshStandardMaterial color="#f59e0b" metalness={0.95} roughness={0.1} />
+          </mesh>
+          {Array.from({ length: 26 }).map((_, i) => {
+            const angle = (i / 26) * Math.PI * 2
+            const cx = Math.cos(angle) * 1.7
+            const cz = Math.sin(angle) * 1.7
+            return (
+              <group key={i} position={[cx, -0.32, cz]}>
+                <mesh>
+                  <cylinderGeometry args={[0.04, 0.005, 0.55, 6]} />
+                  <meshPhysicalMaterial color="#ffffff" transparent opacity={0.9} transmission={0.88} />
+                </mesh>
+              </group>
+            )
+          })}
+        </group>
+
+        {/* Tier 2: 1.1m Golden Crystal Ring */}
+        <group position={[0, -4.15, 0]}>
+          <mesh rotation={[Math.PI / 2, 0, 0]}>
+            <torusGeometry args={[1.1, 0.075, 14, 36]} />
+            <meshStandardMaterial color="#fbbf24" metalness={0.95} roughness={0.1} />
+          </mesh>
+          {Array.from({ length: 18 }).map((_, i) => {
+            const angle = (i / 18) * Math.PI * 2
+            const cx = Math.cos(angle) * 1.1
+            const cz = Math.sin(angle) * 1.1
+            return (
+              <group key={i} position={[cx, -0.28, cz]}>
+                <mesh>
+                  <cylinderGeometry args={[0.035, 0.005, 0.45, 6]} />
+                  <meshPhysicalMaterial color="#ffffff" transparent opacity={0.9} transmission={0.88} />
+                </mesh>
+              </group>
+            )
+          })}
+        </group>
+
+        {/* Tier 3: 0.65m Golden Crystal Sphere Core */}
+        <group position={[0, -4.65, 0]}>
+          <mesh rotation={[Math.PI / 2, 0, 0]}>
+            <torusGeometry args={[0.65, 0.06, 12, 28]} />
+            <meshStandardMaterial color="#f59e0b" metalness={0.95} roughness={0.1} />
+          </mesh>
+          <mesh position={[0, -0.25, 0]}>
+            <octahedronGeometry args={[0.26, 0]} />
+            <meshPhysicalMaterial color="#ffffff" transparent opacity={0.95} transmission={0.92} />
+          </mesh>
+        </group>
+
+        {/* Staircase Chandelier Bright Light */}
+        <pointLight
+          color="#fffbeb"
+          intensity={4.2}
+          distance={30}
+          decay={1.7}
+          position={[0, -4.0, 0]}
+        />
+      </group>
+
+      {/* ─── 5. PENDANT CHANDELIER LIGHTS (ENTRANCE & LANDINGS) ─── */}
+      {[-2.0, -23.0, -43.0].map((pz, pIdx) => (
+        <group key={pIdx} position={[0, 13.8, pz]}>
+          <mesh position={[0, -1.2, 0]}>
+            <cylinderGeometry args={[0.02, 0.02, 2.4, 10]} />
+            <meshStandardMaterial color="#f59e0b" metalness={0.9} />
+          </mesh>
+          <group position={[0, -2.4, 0]}>
+            <mesh rotation={[Math.PI / 2, 0, 0]}>
+              <torusGeometry args={[0.65, 0.05, 12, 28]} />
+              <meshStandardMaterial color="#f59e0b" metalness={0.9} />
+            </mesh>
+            <mesh position={[0, -0.15, 0]}>
+              <octahedronGeometry args={[0.18, 0]} />
+              <meshPhysicalMaterial color="#ffffff" transparent opacity={0.9} transmission={0.85} />
+            </mesh>
+            <pointLight color="#fef08a" intensity={1.8} distance={14} decay={1.8} />
+          </group>
+        </group>
+      ))}
+    </group>
+  )
+}
+
 function StaircaseAndFloor2Veranda3D() {
   return (
     <group>
+      {/* ─── 1. SEAMLESS GROUND-LEVEL POLISHED ACADEMY FLOOR SLAB (Eliminates Green Lawn Void) ─── */}
+      <mesh position={[0, 0.02, -37.5]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+        <planeGeometry args={[16.8, 23.5]} />
+        <meshStandardMaterial color="#f5ebe1" roughness={0.25} metalness={0.12} />
+      </mesh>
+
+      {/* ─── 2. SOLID STRUCTURAL FOUNDATION RISER (Seals Void Underneath Grand Staircase) ─── */}
+      <mesh position={[0, 3.1, -37.0]} receiveShadow>
+        <boxGeometry args={[6.2, 6.2, 0.35]} />
+        <meshStandardMaterial color="#ead7c3" roughness={0.6} />
+      </mesh>
+
+      {/* ─── 3. GRAND STAIRCASE STEPS (14 Warm Oak/Stone Treads) ─── */}
       {Array.from({ length: 14 }).map((_, i) => {
         const stepY = 0.22 + i * 0.44
         const stepZ = -26.5 - i * 0.8
@@ -3159,6 +3747,12 @@ function StaircaseAndFloor2Veranda3D() {
         )
       })}
 
+      {/* Top Stair-to-Landing Bridge Slab at y = 6.0m */}
+      <RoundedBox args={[6.4, 0.44, 0.85]} position={[0, 6.0, -36.6]} radius={0.02} receiveShadow>
+        <meshStandardMaterial color="#ead7c3" roughness={0.52} />
+      </RoundedBox>
+
+      {/* ─── 4. GRAND STAIRCASE TEMPERED GLASS & POLISHED WOOD HANDRAILS ─── */}
       {[-3.35, 3.35].map((rx, sideIdx) => (
         <group key={sideIdx}>
           <RoundedBox
@@ -3208,6 +3802,7 @@ function StaircaseAndFloor2Veranda3D() {
         </group>
       ))}
 
+      {/* ─── 5. ARCHITECTURAL FLOOR 2 SIGNPOST ─── */}
       <group position={[0, 7.85, -31.5]}>
         {[-1.2, 1.2].map((hx, i) => (
           <mesh key={i} position={[hx, 0.85, 0]}>
@@ -3241,6 +3836,256 @@ function StaircaseAndFloor2Veranda3D() {
         </Text>
       </group>
 
+      {/* ─── 6. RIGHT FLANK ENCLOSURE (Completely Encloses Open Void in Screenshot) ─── */}
+      {/* Right Transition Return Wall (z = -30.0, connects x = 5.3 to x = 7.8) */}
+      <group position={[6.55, 4.25, -30.0]}>
+        <RoundedBox args={[2.7, 8.5, 0.45]} radius={0.02} receiveShadow castShadow>
+          <meshStandardMaterial color="#f8efe2" roughness={0.7} />
+        </RoundedBox>
+        {/* Exterior Brick Façade Facing Courtyard */}
+        <mesh position={[0, 0, 0.24]}>
+          <planeGeometry args={[2.7, 8.5]} />
+          <meshStandardMaterial color="#b85d43" roughness={0.75} />
+        </mesh>
+      </group>
+
+      {/* Full Continuous Right Staircase Wall (x = 7.8, z = -30.0 to -48.2, y = 0 to 8.5m) */}
+      <group position={[7.8, 4.25, -39.1]}>
+        {/* Structural Core Wall */}
+        <RoundedBox args={[0.45, 8.5, 18.2]} position={[0, 0, 0]} radius={0.02} receiveShadow castShadow>
+          <meshStandardMaterial color="#f8efe2" roughness={0.7} />
+        </RoundedBox>
+
+        {/* Exterior Red Brick Façade */}
+        <mesh position={[0.24, 0, 0]} rotation={[0, Math.PI / 2, 0]}>
+          <planeGeometry args={[18.2, 8.5]} />
+          <meshStandardMaterial color="#b85d43" roughness={0.75} />
+        </mesh>
+
+        {/* Interior Baseboard Oak Trim */}
+        <RoundedBox args={[0.08, 0.28, 18.1]} position={[-0.23, -4.1, 0]} radius={0.01}>
+          <meshStandardMaterial color="#9a501e" roughness={0.45} />
+        </RoundedBox>
+        {/* Interior Wainscot Chair-Rail Oak Trim */}
+        <RoundedBox args={[0.08, 0.16, 18.1]} position={[-0.23, -2.8, 0]} radius={0.01}>
+          <meshStandardMaterial color="#b45309" roughness={0.45} />
+        </RoundedBox>
+
+        {/* Grand Arched Academy Windows on Right Wall Bringing Daylight (z = -33.5, -38.5, -43.5) */}
+        {[-5.6, -0.6, 4.4].map((wz, wIdx) => (
+          <group key={wIdx} position={[-0.23, 0.4, wz]}>
+            {/* Architectural Window Frame & Sill */}
+            <RoundedBox args={[0.12, 3.8, 2.4]} radius={0.12}>
+              <meshStandardMaterial color="#fdf8f0" roughness={0.5} />
+            </RoundedBox>
+            {/* Warm Oak Sill Ledge */}
+            <RoundedBox args={[0.22, 0.12, 2.7]} position={[-0.04, -1.9, 0]} radius={0.02}>
+              <meshStandardMaterial color="#c08248" roughness={0.45} />
+            </RoundedBox>
+            {/* Translucent Double-Glazed Window Glass */}
+            <mesh position={[-0.02, 0, 0]} rotation={[0, Math.PI / 2, 0]}>
+              <planeGeometry args={[2.1, 3.5]} />
+              <meshPhysicalMaterial
+                color="#bae6fd"
+                transparent
+                opacity={0.35}
+                roughness={0.08}
+                metalness={0.2}
+                transmission={0.8}
+              />
+            </mesh>
+            {/* Brass Window Grille Mullions */}
+            <mesh position={[-0.03, 0, 0]}>
+              <boxGeometry args={[0.04, 3.4, 0.05]} />
+              <meshStandardMaterial color="#d4af37" metalness={0.8} roughness={0.2} />
+            </mesh>
+            <mesh position={[-0.03, 0.3, 0]}>
+              <boxGeometry args={[0.04, 0.05, 2.0]} />
+              <meshStandardMaterial color="#d4af37" metalness={0.8} roughness={0.2} />
+            </mesh>
+          </group>
+        ))}
+
+        {/* Warm Golden Wall Sconces Illuminating Right Walkway */}
+        {[-7.2, -2.5, 2.2, 7.0].map((sz, sIdx) => (
+          <group key={sIdx} position={[-0.26, 0.8, sz]}>
+            <mesh position={[0, 0, 0]}>
+              <cylinderGeometry args={[0.08, 0.08, 0.18, 12]} />
+              <meshStandardMaterial color="#d4af37" metalness={0.85} roughness={0.2} />
+            </mesh>
+            <mesh position={[-0.08, 0.1, 0]}>
+              <sphereGeometry args={[0.14, 12, 12]} />
+              <meshBasicMaterial color="#fef08a" />
+            </mesh>
+            <pointLight color="#fde047" intensity={0.9} distance={8} decay={2} position={[-0.2, 0.1, 0]} />
+          </group>
+        ))}
+      </group>
+
+      {/* ─── 7. LEFT FLANK ENCLOSURE (Completely Encloses Open Void on Left Side) ─── */}
+      {/* Left Transition Return Wall (z = -30.0, connects x = -5.1 to x = -7.8) */}
+      <group position={[-6.45, 4.25, -30.0]}>
+        <RoundedBox args={[2.9, 8.5, 0.45]} radius={0.02} receiveShadow castShadow>
+          <meshStandardMaterial color="#f8efe2" roughness={0.7} />
+        </RoundedBox>
+        {/* Exterior Brick Façade */}
+        <mesh position={[0, 0, 0.24]}>
+          <planeGeometry args={[2.9, 8.5]} />
+          <meshStandardMaterial color="#b85d43" roughness={0.75} />
+        </mesh>
+      </group>
+
+      {/* Full Continuous Left Staircase Wall (x = -7.8, z = -30.0 to -48.2, y = 0 to 8.5m) */}
+      <group position={[-7.8, 4.25, -39.1]}>
+        {/* Structural Core Wall */}
+        <RoundedBox args={[0.45, 8.5, 18.2]} position={[0, 0, 0]} radius={0.02} receiveShadow castShadow>
+          <meshStandardMaterial color="#f8efe2" roughness={0.7} />
+        </RoundedBox>
+
+        {/* Exterior Red Brick Façade */}
+        <mesh position={[-0.24, 0, 0]} rotation={[0, -Math.PI / 2, 0]}>
+          <planeGeometry args={[18.2, 8.5]} />
+          <meshStandardMaterial color="#b85d43" roughness={0.75} />
+        </mesh>
+
+        {/* Interior Baseboard Oak Trim */}
+        <RoundedBox args={[0.08, 0.28, 18.1]} position={[0.23, -4.1, 0]} radius={0.01}>
+          <meshStandardMaterial color="#9a501e" roughness={0.45} />
+        </RoundedBox>
+        {/* Interior Wainscot Chair-Rail Oak Trim */}
+        <RoundedBox args={[0.08, 0.16, 18.1]} position={[0.23, -2.8, 0]} radius={0.01}>
+          <meshStandardMaterial color="#b45309" roughness={0.45} />
+        </RoundedBox>
+
+        {/* Grand Arched Academy Windows on Left Wall (z = -33.5, -38.5, -43.5) */}
+        {[-5.6, -0.6, 4.4].map((wz, wIdx) => (
+          <group key={wIdx} position={[0.23, 0.4, wz]}>
+            <RoundedBox args={[0.12, 3.8, 2.4]} radius={0.12}>
+              <meshStandardMaterial color="#fdf8f0" roughness={0.5} />
+            </RoundedBox>
+            <RoundedBox args={[0.22, 0.12, 2.7]} position={[0.04, -1.9, 0]} radius={0.02}>
+              <meshStandardMaterial color="#c08248" roughness={0.45} />
+            </RoundedBox>
+            <mesh position={[0.02, 0, 0]} rotation={[0, -Math.PI / 2, 0]}>
+              <planeGeometry args={[2.1, 3.5]} />
+              <meshPhysicalMaterial
+                color="#bae6fd"
+                transparent
+                opacity={0.35}
+                roughness={0.08}
+                metalness={0.2}
+                transmission={0.8}
+              />
+            </mesh>
+            <mesh position={[0.03, 0, 0]}>
+              <boxGeometry args={[0.04, 3.4, 0.05]} />
+              <meshStandardMaterial color="#d4af37" metalness={0.8} roughness={0.2} />
+            </mesh>
+            <mesh position={[0.03, 0.3, 0]}>
+              <boxGeometry args={[0.04, 0.05, 2.0]} />
+              <meshStandardMaterial color="#d4af37" metalness={0.8} roughness={0.2} />
+            </mesh>
+          </group>
+        ))}
+
+        {/* Warm Golden Wall Sconces Illuminating Left Walkway */}
+        {[-7.2, -2.5, 2.2, 7.0].map((sz, sIdx) => (
+          <group key={sIdx} position={[0.26, 0.8, sz]}>
+            <mesh position={[0, 0, 0]}>
+              <cylinderGeometry args={[0.08, 0.08, 0.18, 12]} />
+              <meshStandardMaterial color="#d4af37" metalness={0.85} roughness={0.2} />
+            </mesh>
+            <mesh position={[0.08, 0.1, 0]}>
+              <sphereGeometry args={[0.14, 12, 12]} />
+              <meshBasicMaterial color="#fef08a" />
+            </mesh>
+            <pointLight color="#fde047" intensity={0.9} distance={8} decay={2} position={[0.2, 0.1, 0]} />
+          </group>
+        ))}
+      </group>
+
+      {/* ─── 8. SOLID GROUND-TO-CEILING REAR BULKHEAD WALL (z = -48.2, y = 0 to 8.5m) ─── */}
+      <RoundedBox args={[16.2, 8.5, 0.45]} position={[0, 4.25, -48.2]} radius={0.02} receiveShadow castShadow>
+        <meshStandardMaterial color="#f8efe2" roughness={0.7} />
+      </RoundedBox>
+
+      {/* ─── 9. COZY UNDER-STAIRCASE ACADEMY STUDY FEATURES ─── */}
+      {/* Right Side Under-Stair Study Bench & Oak Bookshelf */}
+      <group position={[5.4, 0, -33.5]}>
+        {/* Polished Oak Academy Bookshelf */}
+        <RoundedBox args={[0.75, 2.6, 2.4]} position={[0, 1.3, 0]} radius={0.03} castShadow>
+          <meshStandardMaterial color="#b45309" roughness={0.45} />
+        </RoundedBox>
+        {/* Book Rows */}
+        {[-0.6, 0.2, 1.0].map((by, bIdx) => (
+          <group key={bIdx} position={[-0.05, by, 0]}>
+            {[-0.8, -0.4, 0, 0.4, 0.8].map((bz, bookIdx) => (
+              <RoundedBox key={bookIdx} args={[0.6, 0.55, 0.28]} position={[0, 0, bz]} radius={0.01}>
+                <meshStandardMaterial color={['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'][bookIdx % 5]} />
+              </RoundedBox>
+            ))}
+          </group>
+        ))}
+        {/* Gold Trophy Cup on Top */}
+        <mesh position={[0, 2.75, 0]} castShadow>
+          <cylinderGeometry args={[0.18, 0.12, 0.32, 16]} />
+          <meshStandardMaterial color="#fbbf24" metalness={0.92} roughness={0.15} />
+        </mesh>
+        {/* Reading Bench Beside Bookcase */}
+        <RoundedBox args={[0.85, 0.45, 1.6]} position={[0, 0.225, 2.2]} radius={0.03} castShadow>
+          <meshStandardMaterial color="#9a501e" roughness={0.48} />
+        </RoundedBox>
+        <RoundedBox args={[0.78, 0.1, 1.5]} position={[0, 0.5, 2.2]} radius={0.02}>
+          <meshStandardMaterial color="#e0e7ff" roughness={0.65} />
+        </RoundedBox>
+      </group>
+
+      {/* Left Side Under-Stair Notice Board & Potted Indoor Academy Tree */}
+      <group position={[-5.4, 0, -33.5]}>
+        {/* Gold-Framed Academy Bulletin Board */}
+        <RoundedBox args={[0.1, 2.2, 2.8]} position={[-0.2, 2.2, 0]} radius={0.02}>
+          <meshStandardMaterial color="#d4af37" metalness={0.8} roughness={0.25} />
+        </RoundedBox>
+        <RoundedBox args={[0.08, 2.05, 2.65]} position={[-0.18, 2.2, 0]} radius={0.01}>
+          <meshStandardMaterial color="#fde68a" roughness={0.6} />
+        </RoundedBox>
+        {/* Potted Indoor Academy Ficus Tree */}
+        <group position={[0, 0, 2.2]}>
+          <mesh position={[0, 0.45, 0]} castShadow>
+            <cylinderGeometry args={[0.42, 0.32, 0.9, 20]} />
+            <meshStandardMaterial color="#f8fafc" roughness={0.35} />
+          </mesh>
+          <mesh position={[0, 1.3, 0]} castShadow>
+            <cylinderGeometry args={[0.1, 0.14, 1.2, 10]} />
+            <meshStandardMaterial color="#6b4423" />
+          </mesh>
+          <mesh position={[0, 2.2, 0]} castShadow>
+            <sphereGeometry args={[0.85, 16, 16]} />
+            <meshStandardMaterial color="#15803d" roughness={0.7} />
+          </mesh>
+        </group>
+      </group>
+
+      {/* ─── 10. SECOND-FLOOR MEZZANINE BALCONIES CONNECTING TO LANDING (y = 6.02m) ─── */}
+      {[-5.6, 5.6].map((mx, mIdx) => (
+        <group key={mIdx}>
+          {/* Mezzanine Walkway Slab */}
+          <RoundedBox args={[3.8, 0.35, 6.4]} position={[mx, 6.02, -33.2]} radius={0.03} receiveShadow>
+            <meshStandardMaterial color="#f6eadc" roughness={0.3} />
+          </RoundedBox>
+          {/* Safety Wood Top Rail */}
+          <RoundedBox args={[0.08, 0.12, 6.4]} position={[mIdx === 0 ? mx + 1.8 : mx - 1.8, 6.95, -33.2]} radius={0.02}>
+            <meshStandardMaterial color="#c88d54" roughness={0.45} />
+          </RoundedBox>
+          {/* Tempered Safety Glass Balustrade */}
+          <mesh position={[mIdx === 0 ? mx + 1.8 : mx - 1.8, 6.55, -33.2]}>
+            <boxGeometry args={[0.04, 0.72, 6.3]} />
+            <meshPhysicalMaterial color="#e0f2fe" transparent opacity={0.38} roughness={0.1} />
+          </mesh>
+        </group>
+      ))}
+
+      {/* ─── 11. FLOOR 2 LANDING (x = 0, y = 6.2, z = -41.5) ─── */}
       <group position={[0, 6.2, -41.5]}>
         <mesh position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
           <planeGeometry args={[16.0, 10.5]} />
@@ -3508,14 +4353,103 @@ function Floor2ComputerLabScene3D({
               </RoundedBox>
             </group>
 
-            {/* Ergonomic Office Chair Placed Slightly to the Left of Monitor so Player is Seated Without Blocking Screen */}
+            {/* ─── VERY GOOD LUXURY ERGONOMIC EXECUTIVE OFFICE CHAIR (5-Star Chrome Caster Base, Contoured Lumbar, 3D Armrests & Headrest) ─── */}
             <group position={[-0.95, 0, 0.92]}>
-              <RoundedBox args={[0.82, 0.08, 0.76]} position={[0, 0.44, 0]} radius={0.03} castShadow>
-                <meshStandardMaterial color="#1e293b" />
-              </RoundedBox>
-              <RoundedBox args={[0.8, 0.56, 0.09]} position={[0, 0.76, 0.36]} radius={0.04} castShadow>
-                <meshStandardMaterial color="#1e293b" />
-              </RoundedBox>
+              {/* 1. Chrome 5-Star Caster Wheel Base */}
+              <group position={[0, 0.06, 0]}>
+                {/* Center Chrome Hub */}
+                <mesh position={[0, 0.08, 0]}>
+                  <cylinderGeometry args={[0.08, 0.1, 0.16, 16]} />
+                  <meshStandardMaterial color="#cbd5e1" metalness={0.92} roughness={0.12} />
+                </mesh>
+                {/* Chrome Pneumatic Gas-Lift Cylinder Column */}
+                <mesh position={[0, 0.22, 0]}>
+                  <cylinderGeometry args={[0.038, 0.042, 0.24, 16]} />
+                  <meshStandardMaterial color="#e2e8f0" metalness={0.95} roughness={0.08} />
+                </mesh>
+                {/* 5 Radiating Chrome Star Legs with Rolling Wheels */}
+                {[0, 1, 2, 3, 4].map((leg) => {
+                  const angle = (leg / 5) * Math.PI * 2
+                  const legX = Math.cos(angle) * 0.38
+                  const legZ = Math.sin(angle) * 0.38
+                  return (
+                    <group key={leg}>
+                      <mesh position={[legX * 0.5, 0.04, legZ * 0.5]} rotation={[0, -angle, 0.18]}>
+                        <boxGeometry args={[0.42, 0.035, 0.045]} />
+                        <meshStandardMaterial color="#cbd5e1" metalness={0.9} roughness={0.15} />
+                      </mesh>
+                      {/* Black Rolling Caster Wheel */}
+                      <mesh position={[legX, 0, legZ]} rotation={[0, angle, Math.PI / 2]}>
+                        <cylinderGeometry args={[0.042, 0.042, 0.036, 12]} />
+                        <meshStandardMaterial color="#0f172a" roughness={0.5} />
+                      </mesh>
+                    </group>
+                  )
+                })}
+              </group>
+
+              {/* 2. Deep Contoured Ergonomic Seat Cushion */}
+              <group position={[0, 0.46, 0]}>
+                {/* Main Leather Seat Cushion with Waterfall Front */}
+                <RoundedBox args={[0.84, 0.12, 0.82]} position={[0, 0, 0]} radius={0.05} castShadow receiveShadow>
+                  <meshStandardMaterial color="#0f172a" roughness={0.38} />
+                </RoundedBox>
+                {/* Cyan Accent Piping Trim */}
+                <RoundedBox args={[0.86, 0.02, 0.84]} position={[0, 0.04, 0]} radius={0.02}>
+                  <meshStandardMaterial color="#38bdf8" roughness={0.3} />
+                </RoundedBox>
+                {/* Under-Seat Control Mechanism Box & Recline Lever */}
+                <RoundedBox args={[0.34, 0.08, 0.32]} position={[0, -0.09, 0]} radius={0.02}>
+                  <meshStandardMaterial color="#1e293b" metalness={0.7} />
+                </RoundedBox>
+                <mesh position={[0.24, -0.08, 0.08]} rotation={[0, 0, 0.3]}>
+                  <cylinderGeometry args={[0.012, 0.012, 0.14, 8]} />
+                  <meshStandardMaterial color="#cbd5e1" metalness={0.9} />
+                </mesh>
+              </group>
+
+              {/* 3. High-Back Ergonomic Lumbar Backrest & Spine Support */}
+              <group position={[0, 0.94, 0.36]}>
+                {/* Rear Chrome Spine Bracket */}
+                <RoundedBox args={[0.1, 0.72, 0.05]} position={[0, -0.06, 0.06]} radius={0.02}>
+                  <meshStandardMaterial color="#cbd5e1" metalness={0.92} roughness={0.12} />
+                </RoundedBox>
+
+                {/* Contoured Breathable Mesh Backrest */}
+                <RoundedBox args={[0.8, 0.82, 0.08]} position={[0, 0, 0]} radius={0.04} castShadow>
+                  <meshStandardMaterial color="#1e293b" roughness={0.55} />
+                </RoundedBox>
+
+                {/* Ergonomic Lower Lumbar Support Cushion */}
+                <RoundedBox args={[0.72, 0.32, 0.06]} position={[0, -0.22, -0.04]} radius={0.03}>
+                  <meshStandardMaterial color="#0f172a" roughness={0.4} />
+                </RoundedBox>
+
+                {/* Integrated Padded Executive Headrest */}
+                <group position={[0, 0.49, 0.02]}>
+                  <RoundedBox args={[0.52, 0.22, 0.09]} radius={0.04} castShadow>
+                    <meshStandardMaterial color="#0f172a" roughness={0.35} />
+                  </RoundedBox>
+                  <RoundedBox args={[0.54, 0.02, 0.1]} position={[0, 0, 0]} radius={0.01}>
+                    <meshStandardMaterial color="#38bdf8" />
+                  </RoundedBox>
+                </group>
+              </group>
+
+              {/* 4. Adjustable Ergonomic T-Armrests with Padded Arm Cushions */}
+              {[-0.46, 0.46].map((ax, aIdx) => (
+                <group key={aIdx} position={[ax, 0.68, 0.04]}>
+                  {/* Chrome Upright Support Post */}
+                  <mesh position={[0, -0.08, 0]}>
+                    <cylinderGeometry args={[0.022, 0.022, 0.28, 12]} />
+                    <meshStandardMaterial color="#cbd5e1" metalness={0.9} roughness={0.12} />
+                  </mesh>
+                  {/* Soft PU Padded Armrest Pad */}
+                  <RoundedBox args={[0.13, 0.045, 0.38]} position={[0, 0.06, 0.02]} radius={0.02} castShadow>
+                    <meshStandardMaterial color="#0f172a" roughness={0.4} />
+                  </RoundedBox>
+                </group>
+              ))}
             </group>
           </group>
         )
@@ -4319,6 +5253,18 @@ export default function Level1SchoolWorld({
         const turnDir = (pk.right ? 1 : 0) - (pk.left ? 1 : 0)
         const moveActive = pk.up || pk.down || pk.left || pk.right
 
+        // Proximity-based automatic sitting at nearby chairs
+        const nearbyChairs = [
+          // Classroom 101 seat
+          { x: -16.1, z: -12.68, y: 0.08, rotY: Math.PI, level: 1 },
+          // Exam Center 103 seat
+          { x: -16.1, z: -28.68, y: 0.08, rotY: Math.PI, level: 1.5 },
+          // Level 2 Computer Lab workstation chairs
+          { x: -4.35, z: -51.08, y: 6.28, rotY: Math.PI - 0.22, level: 2 },
+          { x: -0.95, z: -51.08, y: 6.28, rotY: Math.PI - 0.22, level: 2 },
+          { x: 2.45, z: -51.08, y: 6.28, rotY: Math.PI - 0.22, level: 2 },
+        ]
+
         if (moveActive) {
           setHasMovedInYard(true)
           if (timelineRef.current && timelineRef.current.isActive && timelineRef.current.isActive()) {
@@ -4343,9 +5289,24 @@ export default function Level1SchoolWorld({
 
           manualCamFollowUntilRef.current = performance.now() + 2000
           updateCameraBehindCharacter(cs, 0.11)
-        } else if (performance.now() < manualCamFollowUntilRef.current) {
-          // Keep orbiting the camera smoothly until it finishes aligning behind the character
-          updateCameraBehindCharacter(charStateRef.current, 0.11)
+        } else {
+          // When standing still, automatically sit down if near any chair!
+          const cs = charStateRef.current
+          const closeChair = nearbyChairs.find(
+            (ch) => Math.hypot(cs.x - ch.x, cs.z - ch.z) < 1.35 && Math.abs(cs.y - ch.y) < 0.8
+          )
+          if (closeChair) {
+            cs.x = THREE.MathUtils.lerp(cs.x, closeChair.x, 0.1)
+            cs.z = THREE.MathUtils.lerp(cs.z, closeChair.z, 0.1)
+            cs.rotY = THREE.MathUtils.lerp(cs.rotY, closeChair.rotY, 0.15)
+            cs.pose = 'seated'
+            if (closeChair.level === 1 && journeyStage === 'walking_to_classroom') {
+              setJourneyStage('classroom_projector')
+            }
+          }
+          if (performance.now() < manualCamFollowUntilRef.current) {
+            updateCameraBehindCharacter(charStateRef.current, 0.11)
+          }
         }
       }
       rafId = requestAnimationFrame(tickMovement)
@@ -4385,6 +5346,11 @@ export default function Level1SchoolWorld({
     completedBankSections.length > 0
   const isComputer2Unlocked = simCompleted || mixerCompleted || metricsCompleted || completedBankSections.length > 0
   const isComputer3Unlocked = mixerCompleted || metricsCompleted || completedBankSections.length > 0
+  const completedComputers = [
+    simCompleted && 1,
+    mixerCompleted && 2,
+    metricsCompleted && 3,
+  ].filter(Boolean)
   const isLevel3Unlocked = metricsCompleted || completedBankSections.length > 0
   const isBankSec2Unlocked = completedBankSections.includes(1) || completedBankSections.includes(2)
   const isJourneyCompleteUnlocked = completedBankSections.includes(2)
@@ -6640,6 +7606,13 @@ export default function Level1SchoolWorld({
         dpr={[1, 2]}
         shadows
         camera={{ position: [0, 3.3, 27.2], fov: 46, near: 0.1, far: 290 }}
+        onPointerDown={(e) => {
+          // When user clicks the mouse anywhere on the 3D scene while in school yard:
+          if (hasLoggedIn && journeyStage === 'school_yard') {
+            soundEngine.playClick()
+            beginSchoolEntrySequence()
+          }
+        }}
         gl={{
           antialias: true,
           powerPreference: 'high-performance',
@@ -6678,7 +7651,7 @@ export default function Level1SchoolWorld({
           <Level1CinematicCameraRig camStateRef={camStateRef} journeyStage={journeyStage} />
 
           {/* 1. 3D School Yard & Neoclassical Facade with 6 Animated Student Balconies & Stylized Learn2Invest Crest */}
-          <SchoolYardAndFacade3D frontDoorOpenRef={frontDoorOpenRef} isNightMode={isNightMode} />
+          <SchoolYardAndFacade3D frontDoorOpenRef={frontDoorOpenRef} charStateRef={charStateRef} isNightMode={isNightMode} />
 
           {/* 1B. Right-Side Garden 3 Interactive Stalls (Stall 1: Clothes >= 20 XP, Stall 2: Ice Cream < 10 XP, Stall 3: Spin the Finance Wheel) */}
           <SchoolGardenStalls3D
@@ -6693,6 +7666,7 @@ export default function Level1SchoolWorld({
           <SchoolToBankRoadWithStreetLights3D isNightMode={isNightMode} />
 
           {/* 2. 3D Ground-Floor Veranda */}
+          <GrandAtriumCeilingAndChandeliers3D isNightMode={isNightMode} />
           <SchoolVeranda3D charStateRef={charStateRef} />
 
           {/* 3. 3D Classroom 101 with Seated Students, Teacher & Physical Video Projector Screen */}
