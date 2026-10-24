@@ -26,3 +26,5 @@ server/local_db.json
 .DS_Store
 Thumbs.db
 Learn2Invest_Upgraded.zip
+*.zip
+scratch/

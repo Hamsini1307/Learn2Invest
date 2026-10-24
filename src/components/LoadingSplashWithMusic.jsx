@@ -348,16 +348,19 @@ export default function LoadingSplashWithMusic({ isOpen = true, onFinish, onFini
         }}
       />
 
-      {/* Top-Right Energetic Music Control & Enter Button */}
+      {/* Top-Right Energetic Music Control & Enter Button (200px tall x 200px wide) */}
       <div
         style={{
           position: 'absolute',
-          top: '20px',
-          right: '24px',
+          top: '28px',
+          right: '28px',
           display: 'flex',
+          flexWrap: 'wrap',
+          justifyContent: 'flex-end',
           alignItems: 'center',
-          gap: '10px',
+          gap: '20px',
           zIndex: 10,
+          maxWidth: 'calc(100vw - 48px)',
         }}
       >
         <button
@@ -365,22 +368,34 @@ export default function LoadingSplashWithMusic({ isOpen = true, onFinish, onFini
           onClick={handleToggleMusic}
           style={{
             background: musicActive
-              ? 'linear-gradient(135deg, rgba(16,185,129,0.92), rgba(5,150,105,0.92))'
-              : 'rgba(15,23,42,0.85)',
+              ? 'linear-gradient(135deg, rgba(16,185,129,0.96), rgba(5,150,105,0.96))'
+              : 'rgba(15,23,42,0.95)',
             color: '#FFFFFF',
-            border: '1.5px solid rgba(255,255,255,0.3)',
-            borderRadius: '999px',
-            padding: '8px 16px',
-            fontSize: '12px',
-            fontWeight: 800,
+            border: '4px solid rgba(255,255,255,0.7)',
+            borderRadius: '32px',
+            width: '200px',
+            minWidth: '200px',
+            height: '200px',
+            minHeight: '200px',
+            padding: '16px',
             cursor: 'pointer',
             display: 'flex',
+            flexDirection: 'column',
             alignItems: 'center',
-            gap: '7px',
-            boxShadow: '0 6px 20px rgba(0,0,0,0.4)',
+            justifyContent: 'center',
+            gap: '10px',
+            boxShadow: '0 12px 35px rgba(0,0,0,0.6)',
+            transition: 'all 0.2s ease',
+            textAlign: 'center',
           }}
         >
-          <span>{musicActive ? '🎵 Energetic Music: ON' : '🔇 Music: Muted'}</span>
+          <span style={{ fontSize: '56px', lineHeight: 1 }}>{musicActive ? '🎵' : '🔇'}</span>
+          <span style={{ fontSize: '24px', fontWeight: 900, lineHeight: 1.2 }}>
+            {musicActive ? 'Music: ON' : 'Music: OFF'}
+          </span>
+          <span style={{ fontSize: '13px', fontWeight: 700, color: '#A7F3D0' }}>
+            Click to Toggle
+          </span>
         </button>
 
         <button
@@ -389,19 +404,34 @@ export default function LoadingSplashWithMusic({ isOpen = true, onFinish, onFini
           style={{
             background: 'linear-gradient(135deg, #F59E0B, #D97706)',
             color: '#0F172A',
-            border: 'none',
-            borderRadius: '999px',
-            padding: '8px 16px',
-            fontSize: '12px',
-            fontWeight: 900,
+            border: '4px solid #FEF08A',
+            borderRadius: '32px',
+            width: '200px',
+            minWidth: '200px',
+            height: '200px',
+            minHeight: '200px',
+            padding: '16px',
             cursor: 'pointer',
-            boxShadow: '0 6px 20px rgba(245,158,11,0.45)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '10px',
+            boxShadow: '0 12px 35px rgba(245,158,11,0.65)',
+            transition: 'all 0.2s ease',
+            textAlign: 'center',
           }}
         >
-          Enter Now →
+          <span style={{ fontSize: '56px', lineHeight: 1 }}>🚀</span>
+          <span style={{ fontSize: '26px', fontWeight: 900, lineHeight: 1.2 }}>
+            Enter Now
+          </span>
+          <span style={{ fontSize: '13px', fontWeight: 800, color: '#78350F' }}>
+            Start Campus →
+          </span>
         </button>
       </div>
-    </div>
+      </div>
   )
 }
 

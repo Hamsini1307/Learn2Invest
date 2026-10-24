@@ -6394,60 +6394,74 @@ export default function Level1SchoolWorld({
 
       {/* ═══════════════════════════════════════════════════════════════════
           GLOBAL RESPONSIVE TOP BAR HUD
-          (BACK, HOME, 🏆 RANK LIST, 🗺️ MAP & ATM, STAGE PILL,
+          (BACK, HOME, 🏆 RANK LIST, 🗺️ MAP, STAGE PILL,
            ☀️ DAYLIGHT / 🌙 NIGHT MODE THEME CHANGER, ⭐ XP, 🎵 VOLUME, 🚪 LOGOUT)
+          All buttons exactly 200px tall x 200px wide with enlarged text!
       ═══════════════════════════════════════════════════════════════════ */}
-      <div className="absolute top-3.5 left-4 right-4 z-30 flex items-center justify-between pointer-events-none flex-wrap gap-2">
-        {/* Left: BACK (One Logical Step), HOME, Rank List, Map & Current Stage Pill */}
-        <div className="flex items-center gap-2 pointer-events-auto flex-wrap">
+      <div className="absolute top-4 left-4 right-4 z-30 flex items-start justify-between pointer-events-none flex-wrap gap-4 overflow-x-auto max-w-full pb-4">
+        {/* Left: BACK, HOME, Rank List, MAP & Stage Pill */}
+        <div className="flex items-center gap-4 pointer-events-auto flex-wrap">
           {journeyStage !== 'login' && journeyStage !== 'school_yard' && (
             <button
               onClick={handleGlobalBackOneStep}
-              className="px-4 py-2 rounded-full bg-slate-900/90 hover:bg-slate-900 text-amber-300 border-2 border-amber-400/60 text-xs sm:text-sm font-black shadow-lg backdrop-blur-md flex items-center gap-1.5 transition-transform hover:scale-105 active:scale-95 cursor-pointer"
+              style={{ width: '200px', minWidth: '200px', height: '200px', minHeight: '200px' }}
+              className="w-[200px] min-w-[200px] h-[200px] min-h-[200px] p-4 rounded-3xl bg-slate-900/95 hover:bg-slate-800 text-amber-300 border-4 border-amber-400/80 shadow-2xl backdrop-blur-md flex flex-col items-center justify-center gap-2 transition-transform hover:scale-105 active:scale-95 cursor-pointer text-center"
               title="Move back one logical step"
             >
-              <span>⬅</span>
-              <span>BACK</span>
+              <span className="text-5xl leading-none">⬅</span>
+              <span className="text-2xl font-black tracking-wide">BACK</span>
+              <span className="text-xs text-amber-200 font-bold">Previous Step</span>
             </button>
           )}
+
+          {/* HOME Button (200px tall x 200px wide) */}
           <button
             onClick={handleGlobalHome}
-            className="px-4 py-2 rounded-full bg-slate-900/90 hover:bg-slate-900 text-white border-2 border-white/30 text-xs sm:text-sm font-black shadow-lg backdrop-blur-md flex items-center gap-1.5 transition-transform hover:scale-105 active:scale-95 cursor-pointer"
+            style={{ width: '200px', minWidth: '200px', height: '200px', minHeight: '200px' }}
+            className="w-[200px] min-w-[200px] h-[200px] min-h-[200px] p-4 rounded-3xl bg-slate-900/95 hover:bg-slate-800 text-white border-4 border-white/60 shadow-2xl backdrop-blur-md flex flex-col items-center justify-center gap-2 transition-transform hover:scale-105 active:scale-95 cursor-pointer text-center"
             title="Return to Learn2Invest School Yard Home"
           >
-            <span>🏠</span>
-            <span>HOME</span>
+            <span className="text-5xl leading-none">🏠</span>
+            <span className="text-2xl font-black tracking-wide">HOME</span>
+            <span className="text-xs text-slate-300 font-bold">School Yard</span>
           </button>
 
-          {/* 🏆 Rank List Button in Top Bar */}
+          {/* 🏆 Rank List Button (200px tall x 200px wide) */}
           <button
             onClick={() => {
               soundEngine.playClick()
               setShowRankModal((m) => !m)
             }}
-            className="px-4 py-2 rounded-full bg-gradient-to-r from-amber-500/90 via-yellow-400/90 to-amber-400/90 hover:from-amber-400 hover:to-yellow-300 text-slate-950 border-2 border-amber-200 text-xs sm:text-sm font-black shadow-[0_0_20px_rgba(251,191,36,0.45)] flex items-center gap-1.5 transition-transform hover:scale-105 active:scale-95 cursor-pointer"
+            style={{ width: '200px', minWidth: '200px', height: '200px', minHeight: '200px' }}
+            className="w-[200px] min-w-[200px] h-[200px] min-h-[200px] p-4 rounded-3xl bg-gradient-to-br from-amber-500 via-yellow-400 to-amber-500 hover:from-amber-400 hover:to-yellow-300 text-slate-950 border-4 border-amber-200 shadow-[0_0_30px_rgba(251,191,36,0.6)] flex flex-col items-center justify-center gap-2 transition-transform hover:scale-105 active:scale-95 cursor-pointer text-center"
             title="View Top Learners Rank List"
           >
-            <span>🏆</span>
-            <span>Rank List</span>
+            <span className="text-5xl leading-none">🏆</span>
+            <span className="text-2xl font-black tracking-wide">Rank List</span>
+            <span className="text-xs text-amber-950 font-bold">Leaderboard</span>
           </button>
 
-          {/* 🗺️ Campus Map & ATM Button */}
+          {/* 🗺️ MAP Button (200px tall x 200px wide) */}
           <button
             onClick={() => {
               soundEngine.playClick()
               setShowCampusMapModal((m) => !m)
             }}
-            className="px-3.5 py-2 rounded-full bg-slate-900/90 hover:bg-slate-800 text-cyan-200 border-2 border-cyan-400/60 text-xs sm:text-sm font-black shadow-lg backdrop-blur-md flex items-center gap-1.5 transition-transform hover:scale-105 active:scale-95 cursor-pointer"
-            title="Open Campus Map with School, Stalls, Road, Bank & ATM Location"
+            style={{ width: '200px', minWidth: '200px', height: '200px', minHeight: '200px' }}
+            className="w-[200px] min-w-[200px] h-[200px] min-h-[200px] p-4 rounded-3xl bg-slate-900/95 hover:bg-slate-800 text-cyan-200 border-4 border-cyan-400/90 shadow-2xl backdrop-blur-md flex flex-col items-center justify-center gap-2 transition-transform hover:scale-105 active:scale-95 cursor-pointer text-center"
+            title="Open Campus Map"
           >
-            <span>🗺️</span>
-            <span>Map & ATM</span>
+            <span className="text-5xl leading-none">🗺️</span>
+            <span className="text-2xl font-black tracking-wide">MAP</span>
+            <span className="text-xs text-cyan-300 font-bold">School & Bank</span>
           </button>
 
-          {/* Current Level & Journey Stage Pill */}
-          <div className="hidden xl:flex items-center gap-2 px-3.5 py-2 rounded-full bg-slate-900/85 border border-emerald-400/50 text-white text-xs font-bold backdrop-blur-md shadow-md">
-            <span className="text-emerald-400 font-black">
+          {/* Current Level & Journey Stage Pill (200px tall x 200px wide) */}
+          <div
+            style={{ width: '200px', minWidth: '200px', height: '200px', minHeight: '200px' }}
+            className="w-[200px] min-w-[200px] h-[200px] min-h-[200px] p-4 rounded-3xl bg-slate-900/95 border-4 border-emerald-400/80 text-white shadow-2xl backdrop-blur-md flex flex-col items-center justify-center gap-2 text-center"
+          >
+            <span className="text-sm text-emerald-400 font-black tracking-wider uppercase">
               {[
                 'walking_to_bank',
                 'bank_employee',
@@ -6456,69 +6470,57 @@ export default function Level1SchoolWorld({
                 'walking_bank_exit',
                 'journey_complete',
               ].includes(journeyStage)
-                ? 'LEVEL 3 • BANK'
+                ? '🏛️ LEVEL 3'
                 : ['walking_to_floor2_lab', 'computer_lab', 'walking_to_exit', 'reached_exit'].includes(journeyStage)
-                  ? 'LEVEL 2 • LAB'
-                  : 'LEVEL 1 • SCHOOL'}
+                  ? '💻 LEVEL 2'
+                  : '🌱 LEVEL 1'}
             </span>
-            <span className="text-slate-500">•</span>
-            <span>{characterChoice === 'leo' || characterChoice === 'max' ? '👦 Leo' : '👧 Luna'}</span>
-            <span className="text-emerald-300">•</span>
-            <span className="text-amber-300 font-extrabold">
+            <span className="text-xl font-black text-white">
+              {characterChoice === 'leo' || characterChoice === 'max' ? '👦 Leo' : '👧 Luna'}
+            </span>
+            <span className="text-xs text-amber-300 font-extrabold line-clamp-2">
               {journeyStage === 'login' && !hasLoggedIn && 'School Yard (Login)'}
-              {(journeyStage === 'school_yard' || (journeyStage === 'login' && hasLoggedIn)) && 'School Yard (Campus Home)'}
-              {journeyStage === 'walking_to_classroom' && 'Classroom 101 Entry'}
-              {journeyStage === 'classroom_projector' &&
-                `Classroom 101 (Video ${currentVideoIdx + 1}/${LEVEL1_VIDEOS.length})`}
-              {journeyStage === 'walking_to_exam' && 'Examination Center Entry'}
-              {journeyStage === 'exam_projector' &&
-                (quizSubStage === 'start_screen'
-                  ? 'Examination Center • Start Quiz'
-                  : quizSubStage === 'questions'
-                    ? `Examination Center • ${currentQuestionIdx + 1} / ${LEVEL1_QUIZ_QUESTIONS.length} Questions`
-                    : 'Examination Center • Quiz Completed!')}
-              {journeyStage === 'walking_to_floor2_lab' && 'Floor 2 Computer Lab Entry'}
-              {journeyStage === 'computer_lab' &&
-                (activeComputerIndex === 1
-                  ? 'Floor 2 Lab • Computer 1 (Simulators)'
-                  : activeComputerIndex === 2
-                    ? 'Floor 2 Lab • Computer 2 (Savings Mixer)'
-                    : 'Floor 2 Lab • Computer 3 (Portfolio Sim)')}
-              {journeyStage === 'walking_to_exit' && 'Walking Out School → Road → Bank'}
-              {journeyStage === 'reached_exit' && 'Road Path to Bank Reached'}
-              {journeyStage === 'walking_to_bank' && 'Level 3 Bank Entry'}
-              {journeyStage === 'bank_employee' && 'Level 3 Bank Lobby • Maya'}
-              {(journeyStage === 'bank_section' || journeyStage === 'walking_bank_section') &&
-                `Level 3 Bank • Cabin ${activeBankSection} (${
-                  activeBankSection === 1 ? 'Banking Slip Writing' : 'Digital Banking Safety'
-                })`}
+              {(journeyStage === 'school_yard' || (journeyStage === 'login' && hasLoggedIn)) && 'School Yard Home'}
+              {journeyStage === 'walking_to_classroom' && 'Classroom Entry'}
+              {journeyStage === 'classroom_projector' && `Classroom (Video ${currentVideoIdx + 1})`}
+              {journeyStage === 'walking_to_exam' && 'Exam Entry'}
+              {journeyStage === 'exam_projector' && 'Exam Center'}
+              {journeyStage === 'walking_to_floor2_lab' && 'Lab Entry'}
+              {journeyStage === 'computer_lab' && `Lab (PC ${activeComputerIndex})`}
+              {journeyStage === 'walking_to_exit' && 'School Exit'}
+              {journeyStage === 'reached_exit' && 'Road to Bank'}
+              {journeyStage === 'walking_to_bank' && 'Bank Entry'}
+              {journeyStage === 'bank_employee' && 'Bank Lobby'}
+              {(journeyStage === 'bank_section' || journeyStage === 'walking_bank_section') && `Bank Cabin ${activeBankSection}`}
               {journeyStage === 'walking_bank_exit' && 'Bank Exit'}
-              {journeyStage === 'journey_complete' && 'ALL 3 LEVELS COMPLETED'}
+              {journeyStage === 'journey_complete' && 'COMPLETED'}
             </span>
           </div>
         </div>
 
-        {/* Right: Daylight / Night Mode Theme Changer, XP & Banked XP, Volume & Logout */}
-        <div className="flex items-center gap-2 pointer-events-auto flex-wrap">
-          {/* ☀️ Daylight / 🌙 Night Mode Theme Changer */}
+        {/* Right: Daylight / Night Mode, XP tab, music button, Logout */}
+        <div className="flex items-center gap-4 pointer-events-auto flex-wrap">
+          {/* ☀️ Daylight Button (200px tall x 200px wide) */}
           <button
             type="button"
             onClick={() => {
               soundEngine.playClick()
               setIsNightMode((prev) => !prev)
             }}
-            className={`px-3.5 py-2 rounded-full border-2 text-xs font-black backdrop-blur-md shadow-lg flex items-center gap-1.5 transition-all hover:scale-105 active:scale-95 cursor-pointer ${
+            style={{ width: '200px', minWidth: '200px', height: '200px', minHeight: '200px' }}
+            className={`w-[200px] min-w-[200px] h-[200px] min-h-[200px] p-4 rounded-3xl border-4 shadow-2xl backdrop-blur-md flex flex-col items-center justify-center gap-2 transition-all hover:scale-105 active:scale-95 cursor-pointer text-center ${
               isNightMode
-                ? 'bg-indigo-950/95 border-amber-300 text-amber-200 shadow-[0_0_20px_rgba(251,191,36,0.45)]'
-                : 'bg-amber-400/95 border-white text-slate-950 shadow-[0_0_18px_rgba(251,191,36,0.45)]'
+                ? 'bg-indigo-950/95 border-amber-300 text-amber-200 shadow-[0_0_30px_rgba(251,191,36,0.5)]'
+                : 'bg-amber-400/95 border-white text-slate-950 shadow-[0_0_30px_rgba(251,191,36,0.5)]'
             }`}
-            title="Switch between Daylight (Default) and Night Mode with Moon, Stars & Campus Lights"
+            title="Switch between Daylight and Night Mode"
           >
-            <span>{isNightMode ? '🌙' : '☀️'}</span>
-            <span>{isNightMode ? 'Night Mode' : 'Daylight'}</span>
+            <span className="text-5xl leading-none">{isNightMode ? '🌙' : '☀️'}</span>
+            <span className="text-2xl font-black tracking-wide">{isNightMode ? 'Night' : 'Daylight'}</span>
+            <span className="text-xs font-bold opacity-80">Toggle Light</span>
           </button>
 
-          {/* ⛶ Level 2 Computer Full Screen Toggle Button */}
+          {/* ⛶ Level 2 Computer Full Screen Toggle Button (200px tall x 200px wide) */}
           {journeyStage === 'computer_lab' && (
             <button
               type="button"
@@ -6526,33 +6528,60 @@ export default function Level1SchoolWorld({
                 soundEngine.playClick()
                 setIsComputerFullscreen((prev) => !prev)
               }}
-              className="px-3.5 py-2 rounded-full bg-cyan-400 hover:bg-cyan-300 border-2 border-white text-slate-950 text-xs font-black shadow-lg flex items-center gap-1.5 transition-transform hover:scale-105 cursor-pointer"
-              title="Toggle Full Screen view for the active Level 2 Computer screen"
+              style={{ width: '200px', minWidth: '200px', height: '200px', minHeight: '200px' }}
+              className="w-[200px] min-w-[200px] h-[200px] min-h-[200px] p-4 rounded-3xl bg-cyan-400 hover:bg-cyan-300 border-4 border-white text-slate-950 shadow-2xl flex flex-col items-center justify-center gap-2 transition-transform hover:scale-105 cursor-pointer text-center"
+              title="Toggle Full Screen view for active Level 2 Computer screen"
             >
-              <span>{isComputerFullscreen ? '🗗' : '⛶'}</span>
-              <span>{isComputerFullscreen ? 'Exit Full Screen' : 'Full Screen Computer'}</span>
+              <span className="text-5xl leading-none">{isComputerFullscreen ? '🗗' : '⛶'}</span>
+              <span className="text-2xl font-black tracking-wide">
+                {isComputerFullscreen ? 'Exit Full' : 'Full Screen'}
+              </span>
+              <span className="text-xs font-bold text-slate-800">Maximize</span>
             </button>
           )}
 
+          {/* XP Tab (200px tall x 200px wide) */}
           <button
             type="button"
             onClick={() => {
               soundEngine.playClick()
               setShowAtmModal(true)
             }}
-            className="px-3.5 py-2 rounded-full bg-slate-900/90 hover:bg-slate-800 border-2 border-amber-400/60 text-amber-300 text-xs sm:text-sm font-black backdrop-blur-md shadow-lg flex items-center gap-2 cursor-pointer"
-            title="Wallet XP & Banked XP Vault (Click to Open ATM / Vault)"
+            style={{ width: '200px', minWidth: '200px', height: '200px', minHeight: '200px' }}
+            className="w-[200px] min-w-[200px] h-[200px] min-h-[200px] p-4 rounded-3xl bg-slate-900/95 hover:bg-slate-800 border-4 border-amber-400/90 text-amber-300 shadow-2xl backdrop-blur-md flex flex-col items-center justify-center gap-2 cursor-pointer transition-transform hover:scale-105 text-center"
+            title="Wallet XP & Banked XP Vault"
           >
-            <span>⭐ {state?.xp || 0} XP</span>
-            {bankedXp > 0 && (
-              <span className="px-2 py-0.5 rounded-full bg-emerald-500/25 border border-emerald-400/60 text-emerald-300 text-[11px]">
+            <span className="text-5xl leading-none">⭐</span>
+            <span className="text-2xl font-black tracking-wide">{state?.xp || 0} XP</span>
+            {bankedXp > 0 ? (
+              <span className="text-xs font-black px-2.5 py-1 rounded-xl bg-emerald-500/30 text-emerald-300 border border-emerald-400">
                 🏦 {bankedXp} Banked
               </span>
+            ) : (
+              <span className="text-xs text-slate-300 font-bold">ATM & Vault</span>
             )}
           </button>
 
-          <div className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-slate-900/90 border border-white/25 text-white text-xs backdrop-blur-md shadow-lg">
-            <span>{audioVolume === 0 ? '🔇' : '🎵'}</span>
+          {/* Music Button & Volume Slider (200px tall x 200px wide) */}
+          <div
+            style={{ width: '200px', minWidth: '200px', height: '200px', minHeight: '200px' }}
+            className="w-[200px] min-w-[200px] h-[200px] min-h-[200px] p-4 rounded-3xl bg-slate-900/95 border-4 border-white/60 text-white shadow-2xl backdrop-blur-md flex flex-col items-center justify-center gap-2 text-center"
+          >
+            <button
+              type="button"
+              onClick={() => {
+                const next = audioVolume === 0 ? 30 : 0
+                setAudioVolume(next)
+                soundEngine.setVolume(next / 100)
+              }}
+              className="cursor-pointer hover:scale-105 transition-transform flex flex-col items-center gap-1"
+              title={audioVolume === 0 ? 'Unmute Music' : 'Mute Music'}
+            >
+              <span className="text-5xl leading-none">{audioVolume === 0 ? '🔇' : '🎵'}</span>
+              <span className="text-xl font-black tracking-wide">
+                {audioVolume === 0 ? 'Muted' : 'Music ON'}
+              </span>
+            </button>
             <input
               type="range"
               min={0}
@@ -6563,19 +6592,23 @@ export default function Level1SchoolWorld({
                 setAudioVolume(v)
                 soundEngine.setVolume(v / 100)
               }}
-              className="w-16 accent-emerald-400 cursor-pointer"
+              className="w-32 h-4 accent-emerald-400 cursor-pointer mt-1"
+              title={`Volume: ${audioVolume}%`}
             />
+            <span className="text-[11px] font-bold text-slate-300">{audioVolume}% Volume</span>
           </div>
 
-          {/* 🚪 Logout Button (Visible whenever logged in) */}
+          {/* 🚪 Logout Button (200px tall x 200px wide) */}
           {hasLoggedIn && (
             <button
               onClick={handleLogout}
-              className="px-3.5 py-2 rounded-full bg-rose-500/90 hover:bg-rose-500 text-white border-2 border-rose-300/70 text-xs font-black shadow-lg backdrop-blur-md flex items-center gap-1.5 transition-transform hover:scale-105 active:scale-95 cursor-pointer"
+              style={{ width: '200px', minWidth: '200px', height: '200px', minHeight: '200px' }}
+              className="w-[200px] min-w-[200px] h-[200px] min-h-[200px] p-4 rounded-3xl bg-rose-500/95 hover:bg-rose-500 text-white border-4 border-rose-300 shadow-2xl backdrop-blur-md flex flex-col items-center justify-center gap-2 transition-transform hover:scale-105 active:scale-95 cursor-pointer text-center"
               title="Logout and return to Login page"
             >
-              <span>🚪</span>
-              <span>Logout</span>
+              <span className="text-5xl leading-none">🚪</span>
+              <span className="text-2xl font-black tracking-wide">Logout</span>
+              <span className="text-xs text-rose-100 font-bold">Return to Login</span>
             </button>
           )}
         </div>
@@ -7465,29 +7498,33 @@ export default function Level1SchoolWorld({
         )}
 
       {/* ═══════════════════════════════════════════════════════════════════
-          LOGIN & SIGN IN UI CENTERED IN THE MIDDLE OF THE SCREEN
-          - First Sign In to register account; Log In directly only if account exists!
-          - Only 2 Avatars: Luna & Leo (Outfit Style Box Removed)
-          - Beginner, Intermediate (starts directly at Quiz!), & 🔒 Advanced (Locked)
+          LOGIN & SIGN IN UI (2000px wide x 1990px tall)
+          Writings enlarged proportionally according to the box width and fitted cleanly inside!
       ═══════════════════════════════════════════════════════════════════ */}
       {!showLoadingSplash && journeyStage === 'login' && !hasLoggedIn && (
-        <div className="absolute inset-0 z-20 flex items-center justify-center p-3 sm:p-4 pt-14 pointer-events-none overflow-y-auto">
+        <div className="absolute inset-0 z-20 flex items-start justify-center p-8 overflow-auto pointer-events-auto">
           <div
             ref={loginPanelRef}
             data-login-card="true"
-            className="pointer-events-auto w-[min(95vw,540px)] max-h-[87vh] overflow-y-auto rounded-3xl bg-white/90 backdrop-blur-xl border-2 border-emerald-600 shadow-[0_24px_80px_rgba(0,0,0,0.55)] p-5 sm:p-6 text-black transition-all"
+            style={{
+              width: '2000px',
+              minWidth: '2000px',
+              height: '1990px',
+              minHeight: '1990px',
+            }}
+            className="w-[2000px] min-w-[2000px] h-[1990px] min-h-[1990px] rounded-[48px] bg-white/95 backdrop-blur-2xl border-8 border-emerald-600 shadow-[0_30px_100px_rgba(0,0,0,0.7)] p-16 text-black transition-all flex flex-col justify-between overflow-y-auto"
           >
             {/* Header + Sign In / Log In Mode Switcher */}
-            <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center text-2xl shadow-lg border border-black/20 shrink-0 text-white">
+            <div className="flex items-center justify-between gap-8 pb-6 border-b-4 border-slate-200">
+              <div className="flex items-center gap-8">
+                <div className="w-32 h-32 rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center text-6xl shadow-xl border-4 border-black/20 shrink-0 text-white">
                   🌱
                 </div>
                 <div>
-                  <h1 className="text-xl sm:text-2xl font-black tracking-tight text-black leading-none">
+                  <h1 className="text-6xl font-black tracking-tight text-black leading-none">
                     Learn<span className="text-emerald-700">2</span>Invest School
                   </h1>
-                  <p className="text-xs font-extrabold text-black mt-1">
+                  <p className="text-3xl font-extrabold text-black mt-3">
                     {authMode === 'signin'
                       ? 'Step 1: Sign In First to Create Your Account'
                       : 'Returning User: Log In with Your Registered Account'}
@@ -7496,7 +7533,7 @@ export default function Level1SchoolWorld({
               </div>
 
               {/* Sign In / Log In Toggle Pills */}
-              <div className="flex items-center bg-slate-200/90 p-1 rounded-2xl border border-slate-400">
+              <div className="flex items-center bg-slate-200 p-3 rounded-3xl border-4 border-slate-400 gap-4">
                 <button
                   type="button"
                   onClick={() => {
@@ -7504,10 +7541,10 @@ export default function Level1SchoolWorld({
                     setAuthMode('signin')
                     setAuthError('')
                   }}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                  className={`px-12 py-6 rounded-2xl text-3xl font-black transition-all cursor-pointer ${
                     authMode === 'signin'
-                      ? 'bg-cyan-400 text-black shadow-sm'
-                      : 'text-black hover:bg-white/60'
+                      ? 'bg-cyan-400 text-black shadow-lg scale-105'
+                      : 'text-black hover:bg-white/70'
                   }`}
                 >
                   🔑 Sign In (New)
@@ -7519,10 +7556,10 @@ export default function Level1SchoolWorld({
                     setAuthMode('login')
                     setAuthError('')
                   }}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                  className={`px-12 py-6 rounded-2xl text-3xl font-black transition-all cursor-pointer ${
                     authMode === 'login'
-                      ? 'bg-emerald-500 text-black shadow-sm'
-                      : 'text-black hover:bg-white/60'
+                      ? 'bg-emerald-500 text-black shadow-lg scale-105'
+                      : 'text-black hover:bg-white/70'
                   }`}
                 >
                   🚀 Log In (Existing)
@@ -7531,19 +7568,19 @@ export default function Level1SchoolWorld({
             </div>
 
             {/* Account Rule Helper Banner */}
-            <div className="mb-3 px-3.5 py-2 rounded-2xl bg-emerald-100/90 border border-emerald-500 text-[11px] font-bold text-black flex items-center gap-2">
-              <span className="text-base">ℹ️</span>
-              <span>
+            <div className="my-6 px-10 py-6 rounded-3xl bg-emerald-100 border-4 border-emerald-500 text-2xl font-bold text-black flex items-center gap-6">
+              <span className="text-5xl">ℹ️</span>
+              <span className="leading-relaxed">
                 <strong>First time here?</strong> Please <strong>Sign In</strong> first to register your account. Only learners who already have an account can <strong>Log In</strong> directly!
               </span>
             </div>
 
             {/* 1. Choose Your 3D Character Avatar (Only Luna & Leo) */}
-            <div className="mb-3">
-              <label className="block text-[11px] font-black uppercase tracking-wider text-black mb-1.5">
+            <div className="my-6">
+              <label className="block text-3xl font-black uppercase tracking-wider text-black mb-4">
                 1. Choose Your 3D Avatar
               </label>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-8">
                 {[
                   { id: 'luna', name: 'Luna', desc: 'Sweater & Jeans', gender: 'female' },
                   { id: 'leo', name: 'Leo', desc: 'Jacket & Cargo', gender: 'male' },
@@ -7560,16 +7597,16 @@ export default function Level1SchoolWorld({
                         setCharacterChoice(ch.id)
                         if (setAiGuideAvatar) setAiGuideAvatar(ch.gender, ch.name)
                       }}
-                      className={`p-2.5 rounded-2xl border-2 text-left flex items-center gap-3 transition-all cursor-pointer ${
+                      className={`p-8 rounded-3xl border-4 text-left flex items-center gap-8 transition-all cursor-pointer ${
                         active
-                          ? 'bg-emerald-200/90 border-emerald-700 shadow-md scale-[1.01]'
-                          : 'bg-white/75 border-slate-300 hover:bg-white'
+                          ? 'bg-emerald-200 border-emerald-700 shadow-xl scale-[1.01]'
+                          : 'bg-white/80 border-slate-300 hover:bg-white'
                       }`}
                     >
-                      <CuteChibiAvatarSVG type={ch.gender} size={36} />
+                      <CuteChibiAvatarSVG type={ch.gender} size={110} />
                       <div className="min-w-0">
-                        <div className="text-sm font-black text-black truncate">{ch.name}</div>
-                        <div className="text-[11px] text-black font-bold truncate">{ch.desc}</div>
+                        <div className="text-4xl font-black text-black truncate">{ch.name}</div>
+                        <div className="text-2xl text-black font-bold truncate mt-1">{ch.desc}</div>
                       </div>
                     </button>
                   )
@@ -7578,11 +7615,11 @@ export default function Level1SchoolWorld({
             </div>
 
             {/* 2. Choose Starting Level (Beginner, Intermediate -> Starts at Quiz, Advanced -> Locked) */}
-            <div className="mb-3">
-              <label className="block text-[11px] font-black uppercase tracking-wider text-black mb-1.5">
+            <div className="my-6">
+              <label className="block text-3xl font-black uppercase tracking-wider text-black mb-4">
                 2. Select Starting Level (Advanced Level Locked 🔒)
               </label>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 gap-6">
                 {/* Beginner Option */}
                 <button
                   type="button"
@@ -7590,64 +7627,64 @@ export default function Level1SchoolWorld({
                     soundEngine.playClick()
                     setLoginLevelChoice('beginner')
                   }}
-                  className={`p-2.5 rounded-2xl border-2 text-left transition-all cursor-pointer ${
+                  className={`p-8 rounded-3xl border-4 text-left transition-all cursor-pointer ${
                     loginLevelChoice === 'beginner'
-                      ? 'bg-emerald-200/95 border-emerald-700 shadow-md'
-                      : 'bg-white/75 border-slate-300 hover:bg-white'
+                      ? 'bg-emerald-200 border-emerald-700 shadow-xl'
+                      : 'bg-white/80 border-slate-300 hover:bg-white'
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-base">🌱</span>
-                    <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-emerald-600 text-white">
+                    <span className="text-6xl">🌱</span>
+                    <span className="text-xl font-black uppercase px-4 py-1.5 rounded-xl bg-emerald-600 text-white">
                       Level 1
                     </span>
                   </div>
-                  <div className="text-xs font-black text-black mt-1">Beginner</div>
-                  <div className="text-[10px] text-black font-bold leading-tight mt-0.5">
+                  <div className="text-3xl font-black text-black mt-4">Beginner</div>
+                  <div className="text-xl text-black font-bold leading-normal mt-2">
                     Starts at Classroom 101 Videos
                   </div>
                 </button>
 
-                {/* Intermediate Option (Starts Directly from the Quiz!) */}
+                {/* Intermediate Option */}
                 <button
                   type="button"
                   onClick={() => {
                     soundEngine.playClick()
                     setLoginLevelChoice('intermediate')
                   }}
-                  className={`p-2.5 rounded-2xl border-2 text-left transition-all cursor-pointer ${
+                  className={`p-8 rounded-3xl border-4 text-left transition-all cursor-pointer ${
                     loginLevelChoice === 'intermediate'
-                      ? 'bg-cyan-200/95 border-cyan-700 shadow-md'
-                      : 'bg-white/75 border-slate-300 hover:bg-white'
+                      ? 'bg-cyan-200 border-cyan-700 shadow-xl'
+                      : 'bg-white/80 border-slate-300 hover:bg-white'
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-base">⚡</span>
-                    <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-cyan-700 text-white">
+                    <span className="text-6xl">⚡</span>
+                    <span className="text-xl font-black uppercase px-4 py-1.5 rounded-xl bg-cyan-700 text-white">
                       Quiz Start
                     </span>
                   </div>
-                  <div className="text-xs font-black text-black mt-1">Intermediate</div>
-                  <div className="text-[10px] text-black font-bold leading-tight mt-0.5">
+                  <div className="text-3xl font-black text-black mt-4">Intermediate</div>
+                  <div className="text-xl text-black font-bold leading-normal mt-2">
                     Starts directly from the Quiz!
                   </div>
                 </button>
 
-                {/* Advanced Option (Locked!) */}
+                {/* Advanced Option (Locked) */}
                 <button
                   type="button"
                   disabled
-                  className="p-2.5 rounded-2xl border-2 border-slate-400 bg-slate-200/80 text-left opacity-75 cursor-not-allowed"
+                  className="p-8 rounded-3xl border-4 border-slate-400 bg-slate-200/90 text-left opacity-75 cursor-not-allowed"
                   title="Complete Beginner & Intermediate levels to unlock Advanced Banking!"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-base">🔒</span>
-                    <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-rose-600 text-white">
+                    <span className="text-6xl">🔒</span>
+                    <span className="text-xl font-black uppercase px-4 py-1.5 rounded-xl bg-rose-600 text-white">
                       Locked
                     </span>
                   </div>
-                  <div className="text-xs font-black text-black mt-1">Advanced</div>
-                  <div className="text-[10px] text-black font-bold leading-tight mt-0.5">
+                  <div className="text-3xl font-black text-black mt-4">Advanced</div>
+                  <div className="text-xl text-black font-bold leading-normal mt-2">
                     Locked • Unlock via Level 2
                   </div>
                 </button>
@@ -7655,10 +7692,10 @@ export default function Level1SchoolWorld({
             </div>
 
             {/* 3. Sign In / Log In Form with Black Text */}
-            <form onSubmit={handleLoginSubmit} noValidate className="space-y-2.5">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <form onSubmit={handleLoginSubmit} noValidate className="my-6 space-y-8">
+              <div className="grid grid-cols-2 gap-8">
                 <div>
-                  <label className="block text-[11px] font-black uppercase tracking-wider text-black mb-1">
+                  <label className="block text-2xl font-black uppercase tracking-wider text-black mb-3">
                     Username or Learner ID
                   </label>
                   <input
@@ -7669,12 +7706,12 @@ export default function Level1SchoolWorld({
                       setUsernameInput(e.target.value)
                       if (authError) setAuthError('')
                     }}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-white border-2 border-slate-400 text-black placeholder-slate-500 text-xs sm:text-sm font-bold focus:outline-none focus:border-emerald-600 transition-colors"
+                    className="w-full h-[90px] px-8 rounded-2xl bg-white border-4 border-slate-400 text-black placeholder-slate-500 text-2xl font-bold focus:outline-none focus:border-emerald-600 transition-colors"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-black uppercase tracking-wider text-black mb-1">
+                  <label className="block text-2xl font-black uppercase tracking-wider text-black mb-3">
                     Email Address
                   </label>
                   <input
@@ -7685,13 +7722,13 @@ export default function Level1SchoolWorld({
                       setEmailInput(e.target.value)
                       if (authError) setAuthError('')
                     }}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-white border-2 border-slate-400 text-black placeholder-slate-500 text-xs sm:text-sm font-bold focus:outline-none focus:border-emerald-600 transition-colors"
+                    className="w-full h-[90px] px-8 rounded-2xl bg-white border-4 border-slate-400 text-black placeholder-slate-500 text-2xl font-bold focus:outline-none focus:border-emerald-600 transition-colors"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[11px] font-black uppercase tracking-wider text-black mb-1">
+                <label className="block text-2xl font-black uppercase tracking-wider text-black mb-3">
                   Password
                 </label>
                 <input
@@ -7702,26 +7739,24 @@ export default function Level1SchoolWorld({
                     setPasswordInput(e.target.value)
                     if (authError) setAuthError('')
                   }}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-white border-2 border-slate-400 text-black placeholder-slate-500 text-xs sm:text-sm font-bold focus:outline-none focus:border-emerald-600 transition-colors"
+                  className="w-full h-[90px] px-8 rounded-2xl bg-white border-4 border-slate-400 text-black placeholder-slate-500 text-2xl font-bold focus:outline-none focus:border-emerald-600 transition-colors"
                 />
               </div>
 
-              {/* Validation Alert Box if user tries to Log In without an account or with missing credentials */}
+              {/* Validation Alert Box */}
               {authError && (
-                <div className="p-3 rounded-2xl bg-rose-100 border-2 border-rose-600 text-rose-950 text-xs font-black flex items-start gap-2.5 shadow-md">
-                  <span className="text-base leading-none mt-0.5">⚠️</span>
-                  <div className="flex-1">
-                    <div>{authError}</div>
-                  </div>
+                <div className="p-8 rounded-3xl bg-rose-100 border-4 border-rose-600 text-rose-950 text-2xl font-black flex items-center gap-6 shadow-xl">
+                  <span className="text-4xl">⚠️</span>
+                  <div className="flex-1">{authError}</div>
                 </div>
               )}
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+              <div className="grid grid-cols-2 gap-8 pt-4">
                 <button
                   type="button"
                   onClick={() => executeSignInOrLogIn('signin')}
                   onMouseEnter={() => soundEngine.playHover()}
-                  className={`w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-cyan-400 to-blue-400 text-black border-2 border-black/20 font-black text-xs sm:text-sm tracking-wide shadow-md hover:scale-[1.01] active:scale-95 transition-all cursor-pointer ${
+                  className={`w-full h-[110px] py-6 px-10 rounded-3xl bg-gradient-to-r from-cyan-400 to-blue-400 text-black border-4 border-black/30 font-black text-3xl tracking-wide shadow-2xl hover:scale-[1.01] active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-4 ${
                     loginBtnPressed && authMode === 'signin' ? 'scale-95 opacity-80' : ''
                   }`}
                 >
@@ -7734,7 +7769,7 @@ export default function Level1SchoolWorld({
                   type="button"
                   onClick={() => executeSignInOrLogIn('login')}
                   onMouseEnter={() => soundEngine.playHover()}
-                  className={`w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-emerald-400 via-teal-400 to-lime-400 text-black border-2 border-black/20 font-black text-xs sm:text-sm tracking-wide shadow-md hover:scale-[1.01] active:scale-95 transition-all cursor-pointer ${
+                  className={`w-full h-[110px] py-6 px-10 rounded-3xl bg-gradient-to-r from-emerald-400 via-teal-400 to-lime-400 text-black border-4 border-black/30 font-black text-3xl tracking-wide shadow-2xl hover:scale-[1.01] active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-4 ${
                     loginBtnPressed && authMode === 'login' ? 'scale-95 opacity-80' : ''
                   }`}
                 >
