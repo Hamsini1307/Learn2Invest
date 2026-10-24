@@ -323,11 +323,18 @@ async function fetchDynamicBotAnswer(
   // 2. Direct Browser-to-LLM Independent Inference
   try {
     const screenInfo = SCREEN_KNOWLEDGE[currentScreen] || SCREEN_KNOWLEDGE.garden
-    const directSystemInstruction = `You are Leo, the intelligent, friendly AI Website Assistant and Financial Mentor for Learn2Invest.
-Learn2Invest is an interactive 3D gamified Indian financial literacy learning platform using virtual money.
-User is currently on screen: "${screenInfo.title}" (${currentPath || '/'}).
-User Name: ${userName || 'Learner'}, XP: ${xp || 0}, Current Level: Level ${progress.currentLevel}.
-Explain concepts simply with numbered steps, bullet points, rupee values (₹), and reference pages like [Level 1 School], [Level 2 Lab], [Level 3 Banking], [Campus Map], [Saved Simulations].`
+    const directSystemInstruction = `You are ${guideName || 'Luna'}, the intelligent, direct, concise AI Financial Mentor for Learn2Invest.
+CRITICAL CHATBOT GUIDELINES:
+- BE CONCISE, DIRECT, AND PRACTICAL. Act like a modern smart chatbot assistant, NOT a textbook.
+- NEVER start responses with generic boilerplate like "Welcome to Learn2Invest" or "Learn2Invest is a risk-free simulator" unless asked.
+- ANSWER IN THE VERY FIRST SENTENCE.
+- WHEN A USER ASKS WHERE TO PUT OR INVEST AN AMOUNT (e.g. "I have 10000", "I have 19999", "where should I put", "where to invest"):
+  * Give an INSTANT, PRACTICAL, SMART ASSET ALLOCATION BREAKDOWN calculating exact rupee amounts:
+    1. 50% (~₹X) — Index Mutual Funds (e.g. Nifty 50) for long-term growth.
+    2. 30% (~₹Y) — Safe Fixed Income (PPF 7.1% or FD 7.25%) for guaranteed capital protection.
+    3. 20% (~₹Z) — Emergency Savings / Gold ETF for quick liquidity.
+  * End with: "💡 You can simulate this portfolio in [Level 2 Lab]!"
+- Keep general responses short (under 120 words), clear, using bullet points, bold key terms, and Indian Rupee formatting (₹).`
 
     const openAiMessages = [
       { role: 'system', content: directSystemInstruction },
@@ -357,6 +364,23 @@ Explain concepts simply with numbered steps, bullet points, rupee values (₹), 
 
   // 3. Client-Side Deterministic Fallback grounded in website knowledge
   const qLower = message.toLowerCase()
+  const numMatch = message.replace(/,/g, '').match(/\b(\d{3,9})\b/)
+  if (numMatch && (qLower.includes('invest') || qLower.includes('put') || qLower.includes('have') || qLower.includes('allocate') || qLower.includes('money') || qLower.includes('rupee'))) {
+    const total = parseFloat(numMatch[1])
+    if (total > 0) {
+      const eq = Math.round(total * 0.5)
+      const debt = Math.round(total * 0.3)
+      const liq = total - eq - debt
+      return `Here is your smart asset allocation for **₹${total.toLocaleString('en-IN')}**:
+
+* **50% (~₹${eq.toLocaleString('en-IN')})** — Index Mutual Funds (e.g. Nifty 50) for long-term growth.
+* **30% (~₹${debt.toLocaleString('en-IN')})** — Safe Fixed Income (PPF at 7.1% or FD at 7.25%) for capital protection.
+* **20% (~₹${liq.toLocaleString('en-IN')})** — Emergency Savings / Gold ETF for quick liquidity.
+
+💡 You can simulate this portfolio in [Level 2 Lab]!`
+    }
+  }
+
   if (qLower.includes('about') || qLower.includes('website') || qLower.includes('what is this') || qLower.includes('explain this website')) {
     return `**Welcome to Learn2Invest!** 🎓
 Learn2Invest is an interactive 3D gamified learning simulator designed to teach practical Indian financial literacy.
@@ -993,29 +1017,28 @@ Ask me any real-time financial question, or tap one of the suggested topics belo
         .l2i-chat-window {
           position: fixed;
           bottom: 24px;
-          right: 24px;
-          width: 440px;
-          max-width: 95vw;
-          height: 640px;
-          max-height: 85vh;
+          right: 28px;
+          width: min(440px, calc(100vw - 32px));
+          height: min(580px, calc(100vh - 48px));
+          max-height: calc(100vh - 48px);
+          top: auto;
           background: linear-gradient(165deg, #070D19 0%, #0D172A 100%);
           border: 2px solid rgba(56, 189, 248, 0.6);
-          border-radius: 24px;
-          box-shadow: 0 28px 85px rgba(0, 0, 0, 0.9);
+          border-radius: 20px;
+          box-shadow: 0 24px 70px rgba(0, 0, 0, 0.9);
           z-index: 99999;
           display: flex;
           flex-direction: column;
           overflow: hidden;
           color: #F8FAFC;
           font-family: 'Space Grotesk', 'Inter', -apple-system, sans-serif;
-          animation: l2iSlideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+          animation: l2iSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .l2i-chat-window.expanded {
-          width: 680px;
-          max-width: 96vw;
-          height: 800px;
-          max-height: 90vh;
+          width: min(680px, calc(100vw - 32px));
+          height: min(740px, calc(100vh - 48px));
+          max-height: calc(100vh - 48px);
         }
 
         @keyframes l2iSlideUp {
@@ -1155,6 +1178,7 @@ Ask me any real-time financial question, or tap one of the suggested topics belo
               alignItems: 'center',
               justifyContent: 'space-between',
               borderBottom: '1.5px solid rgba(56, 189, 248, 0.3)',
+              flexShrink: 0,
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -1323,6 +1347,7 @@ Ask me any real-time financial question, or tap one of the suggested topics belo
             ref={chatScrollRef}
             style={{
               flex: 1,
+              minHeight: 0,
               overflowY: 'auto',
               padding: '16px',
               display: 'flex',
@@ -1496,6 +1521,7 @@ Ask me any real-time financial question, or tap one of the suggested topics belo
               display: 'flex',
               flexDirection: 'column',
               gap: '8px',
+              flexShrink: 0,
             }}
           >
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
