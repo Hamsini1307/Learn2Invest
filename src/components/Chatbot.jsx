@@ -1,5 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react'
 import soundEngine from '../utils/soundEngine.js'
+import {
+  WEBSITE_INFO,
+  SCREEN_KNOWLEDGE,
+  getContextualSuggestions,
+} from '../data/websiteKnowledge.js'
 
 function getLiveProgressSnapshot(state, currentScreen) {
   let stored = {}
@@ -38,16 +43,226 @@ function getLiveProgressSnapshot(state, currentScreen) {
   return {
     currentLevel,
     completedLevels,
-    currentScreen: currentScreen || 'Campus',
+    currentScreen: currentScreen || 'garden',
     lessonsWatchedCount: stored.lessonsWatchedCount ?? (state?.lessonsWatched?.length || 0),
     quizScore: stored.quizScore ?? (state?.quizScore || 0),
-    bankedXp: stored.bankedXp ?? 0,
+    bankedXp: stored.bankedXp ?? (state?.xp || 0),
     allocations: state?.allocations || { PPF: 30, FD: 25, NSC: 20, SSY: 15, RD: 10 },
     recentActions,
   }
 }
 
-// Pure Independent AI Chatbot Client — Project-Aware Gemini Integration
+// Extract interactive navigation buttons from bot response
+function extractActionPills(text) {
+  if (!text) return []
+  const pills = []
+  const lower = text.toLowerCase()
+
+  if (lower.includes('[level 1 school]') || lower.includes('[level 1]') || lower.includes('/school')) {
+    pills.push({ label: '🏫 Level 1 School', screen: 'beginner', path: '/school' })
+  }
+  if (lower.includes('[level 2 lab]') || lower.includes('[level 2]') || lower.includes('/government-district')) {
+    pills.push({ label: '🏛️ Level 2 Lab', screen: 'intermediate', path: '/government-district' })
+  }
+  if (lower.includes('[level 3 banking]') || lower.includes('[level 3]') || lower.includes('/futuristic-city')) {
+    pills.push({ label: '🌆 Level 3 Banking Hub', screen: 'advanced', path: '/futuristic-city' })
+  }
+  if (lower.includes('[campus map]') || lower.includes('/campus-map') || lower.includes('/dashboard')) {
+    pills.push({ label: '🗺️ Campus Map', screen: 'level-map', path: '/campus-map' })
+  }
+  if (lower.includes('[saved simulations]') || lower.includes('/saved-simulations')) {
+    pills.push({ label: '📁 Saved Simulations', screen: 'saved-simulations', path: '/saved-simulations' })
+  }
+  if (lower.includes('[admin panel]') || lower.includes('/admin')) {
+    pills.push({ label: '🛡️ Admin Panel', screen: 'admin', path: '/admin' })
+  }
+  if (lower.includes('[leaderboard]')) {
+    pills.push({ label: '🏆 Leaderboard', modal: 'leaderboard' })
+  }
+  if (lower.includes('[badges]')) {
+    pills.push({ label: '🎖️ Badges', modal: 'badges' })
+  }
+  if (lower.includes('[performance report]')) {
+    pills.push({ label: '📊 Performance Report', modal: 'report' })
+  }
+
+  return pills.filter((p, i, arr) => arr.findIndex(x => x.label === p.label) === i)
+}
+
+// Formatted markdown text renderer with extra-large, ultra-readable typography (18-20px)
+function FormattedMessage({ text, onActionClick }) {
+  if (!text) return null
+
+  const lines = text.split('\n')
+  const elements = []
+  let inTable = false
+  let tableRows = []
+
+  const flushTable = (key) => {
+    if (tableRows.length > 0) {
+      elements.push(
+        <div key={key} style={{ overflowX: 'auto', margin: '14px 0' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '16px', background: 'rgba(15,23,42,0.7)', borderRadius: '10px', overflow: 'hidden' }}>
+            <tbody>
+              {tableRows.map((r, rIdx) => (
+                <tr key={rIdx} style={{ borderBottom: '1px solid rgba(148,163,184,0.25)' }}>
+                  {r.map((cell, cIdx) => (
+                    rIdx === 0 ? (
+                      <th key={cIdx} style={{ padding: '10px 14px', textAlign: 'left', color: '#38BDF8', fontWeight: 900, background: 'rgba(15,23,42,0.9)' }}>
+                        {formatInline(cell)}
+                      </th>
+                    ) : (
+                      <td key={cIdx} style={{ padding: '10px 14px', color: '#F1F5F9', fontSize: '16px' }}>
+                        {formatInline(cell)}
+                      </td>
+                    )
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )
+      tableRows = []
+    }
+    inTable = false
+  }
+
+  lines.forEach((line, idx) => {
+    const trimmed = line.trim()
+
+    if (trimmed.startsWith('|') && trimmed.endsWith('|')) {
+      inTable = true
+      if (!trimmed.includes('---')) {
+        const cells = trimmed.split('|').slice(1, -1).map(c => c.trim())
+        tableRows.push(cells)
+      }
+      return
+    } else if (inTable) {
+      flushTable(`table_${idx}`)
+    }
+
+    if (!trimmed) {
+      elements.push(<div key={`empty_${idx}`} style={{ height: '10px' }} />)
+      return
+    }
+
+    if (trimmed.startsWith('### ')) {
+      elements.push(
+        <h4 key={`h3_${idx}`} style={{ fontSize: '20px', fontWeight: 900, color: '#38BDF8', margin: '14px 0 6px', letterSpacing: '-0.01em' }}>
+          {formatInline(trimmed.replace('### ', ''))}
+        </h4>
+      )
+    } else if (trimmed.startsWith('## ')) {
+      elements.push(
+        <h3 key={`h2_${idx}`} style={{ fontSize: '22px', fontWeight: 900, color: '#FBBF24', margin: '16px 0 8px', letterSpacing: '-0.01em' }}>
+          {formatInline(trimmed.replace('## ', ''))}
+        </h3>
+      )
+    } else if (trimmed.startsWith('# ')) {
+      elements.push(
+        <h2 key={`h1_${idx}`} style={{ fontSize: '24px', fontWeight: 900, color: '#34D399', margin: '18px 0 10px', letterSpacing: '-0.01em' }}>
+          {formatInline(trimmed.replace('# ', ''))}
+        </h2>
+      )
+    } else if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+      elements.push(
+        <div key={`bullet_${idx}`} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', margin: '8px 0', paddingLeft: '4px' }}>
+          <span style={{ color: '#38BDF8', fontWeight: 900, fontSize: '20px', lineHeight: '1.3' }}>•</span>
+          <div style={{ flex: 1, fontSize: '18px', lineHeight: 1.6 }}>{formatInline(trimmed.slice(2))}</div>
+        </div>
+      )
+    } else if (/^\d+\.\s/.test(trimmed)) {
+      const match = trimmed.match(/^(\d+)\.\s(.*)/)
+      elements.push(
+        <div key={`num_${idx}`} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', margin: '8px 0', paddingLeft: '4px' }}>
+          <span style={{ color: '#FBBF24', fontWeight: 900, minWidth: '24px', fontSize: '18px' }}>{match[1]}.</span>
+          <div style={{ flex: 1, fontSize: '18px', lineHeight: 1.6 }}>{formatInline(match[2])}</div>
+        </div>
+      )
+    } else {
+      elements.push(
+        <p key={`p_${idx}`} style={{ margin: '8px 0', lineHeight: 1.6, fontSize: '18px', color: '#F8FAFC' }}>
+          {formatInline(trimmed)}
+        </p>
+      )
+    }
+  })
+
+  if (inTable) flushTable(`table_end`)
+
+  const actionPills = extractActionPills(text)
+
+  return (
+    <div>
+      {elements}
+      {actionPills.length > 0 && onActionClick && (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginTop: '16px', paddingTop: '14px', borderTop: '1px solid rgba(148,163,184,0.25)' }}>
+          {actionPills.map(p => (
+            <button
+              key={p.label}
+              type="button"
+              onClick={() => onActionClick(p)}
+              style={{
+                background: 'linear-gradient(135deg, rgba(14, 165, 233, 0.35), rgba(99, 102, 241, 0.35))',
+                border: '2px solid #38BDF8',
+                color: '#E0F2FE',
+                borderRadius: '12px',
+                padding: '9px 18px',
+                fontSize: '17px',
+                fontWeight: 900,
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                transition: 'all 0.15s ease',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.35)',
+              }}
+              title={`Click to open ${p.label}`}
+            >
+              <span>{p.label}</span>
+              <span style={{ fontSize: '14px' }}>↗</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function formatInline(str) {
+  if (!str) return ''
+  const parts = str.split(/(\*\*.*?\*\*|`.*?`)/g)
+  return parts.map((part, i) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return (
+        <strong key={i} style={{ color: '#FFFFFF', fontWeight: 900 }}>
+          {part.slice(2, -2)}
+        </strong>
+      )
+    }
+    if (part.startsWith('`') && part.endsWith('`')) {
+      return (
+        <code
+          key={i}
+          style={{
+            background: 'rgba(0,0,0,0.5)',
+            padding: '2px 8px',
+            borderRadius: '6px',
+            color: '#F472B6',
+            fontSize: '16px',
+            fontFamily: 'monospace',
+          }}
+        >
+          {part.slice(1, -1)}
+        </code>
+      )
+    }
+    return part
+  })
+}
+
+// Pure Independent AI Chatbot Client — Project-Aware
 async function fetchDynamicBotAnswer(
   message,
   history,
@@ -56,45 +271,10 @@ async function fetchDynamicBotAnswer(
   lang,
   state,
   currentScreen,
+  currentPath,
   previousInteractionIdRef
 ) {
   const progress = getLiveProgressSnapshot(state, currentScreen)
-
-  const systemInstruction = `You are Luna, the intelligent, helpful, and project-aware AI assistant and financial mentor inside Learn2Invest.
-
-LEARN2INVEST PROJECT ARCHITECTURE & FEATURE KNOWLEDGE:
-1. LEVEL 1 - SCHOOL ENVIRONMENT (Classroom):
-   - 5 Financial Literacy Video Lessons (Saving basics, compounding, banking fundamentals).
-   - 10-Question Examination Quiz (+100 XP upon passing).
-2. LEVEL 2 - GOVERNMENT DISTRICT (Investment Lab):
-   - Computer 1 (6 Scheme Simulators): Public Provident Fund (PPF @ 7.1%), Fixed Deposit (FD @ 6.5%), National Savings Certificate (NSC @ 7.7%), Sukanya Samriddhi Yojana (SSY @ 8.2%), Recurring Deposit (RD @ 6.7%), Post Office Monthly Income Scheme (MIS @ 7.4%). Math calculation: Monthly * (((1 + r/12)^(years*12) - 1) / (r/12)) * (1 + r/12).
-   - Computer 2 (Savings Mixer Studio): User mixes allocations across PPF (30%), FD (25%), NSC (20%), SSY (15%), RD (10%) totaling 100% to calculate blended interest returns.
-   - Computer 3 (Portfolio Simulation & Smart Allocation): Asset diversification across Fixed Income (FD/PPF), Nifty 50 Index Funds, Equity Mutual Funds, Gold ETFs. Rule: No fixed required number of investments, but allocating across 2-4 asset classes balances safety and growth. Smart Allocation provides an educational algorithmic suggestion based on risk profile, not guaranteed financial advice.
-3. LEVEL 3 - FUTURISTIC CITY (Portfolio Tower & Banking Hub):
-   - Banking Hub: Practice with 5 Indian Institutions — Canara Bank (IFSC: CNRB0001001), Karnataka Bank Ltd. (KARB0000501), Post Office Savings Bank (IPOS0000001), Punjab National Bank (PUNB0034200), State Bank of India (SBIN0000840).
-   - Bank Slip Operations: 3 Form categories per institution (Cash Deposit Pay-In Slip with Left Counterfoil & Right Bank Copy, Cash Withdrawal Slip, Cheque Slip). Fields: Account Number (left counterfoil & right main boxes), Date (DD/MM/YYYY top right), Amount in Words (designated rupees line), Amount in Figures (₹ box), Depositor Signature (above signature line), IFSC Code (11-character bank branch identifier).
-4. DIGITAL SAFETY:
-   - OTP Protection (Never share 6-digit OTPs or PINs with anyone).
-   - Phishing & Scam Detection (Spotting suspicious link shorteners, fake emergency calls, promises of guaranteed double returns).
-5. VIRTUAL SIMULATION DISCLAIMER:
-   - All investments, balances, and profits in Learn2Invest use educational virtual money for learning.
-
-CORE CHATBOT BEHAVIOR RULES:
-- Semantic Intent & Typo Handling: Seamlessly understand misspelled or informal queries ("portfoliyo sim", "savings mix", "smart alocation", "banking hub explain", "what we doing here").
-- Current Screen Context: Answer questions in context of active screen "${currentScreen || 'Campus'}".
-- Character Level Summaries: Only provide a completed-level summary if the user has actually completed that level (check completedLevels). If a level is NOT completed, explicitly say: "Level X hasn't been completed yet by your character, so I don't have a completed Level X summary for you yet. Complete Level X to unlock its summary!"
-- Response Length: Adapt length appropriately. Simple questions (e.g. "What is SIP?") get short, clear answers (2-3 sentences). Complex queries get thorough structured breakdowns.
-- Tone: Friendly, expert financial mentor speaking with ${userName || 'a learner'}.
-
-LIVE USER PROGRESS SNAPSHOT:
-- User Name: ${userName || 'Learner'}
-- Active Screen: ${currentScreen || 'Campus'}
-- Current Level: Level ${progress.currentLevel}
-- Completed Levels: ${JSON.stringify(progress.completedLevels)}
-- Wallet XP: ${xp || 0} XP
-- Lessons Watched: ${progress.lessonsWatchedCount}/5
-- Quiz Score: ${progress.quizScore}/10
-- Allocations: ${JSON.stringify(progress.allocations)}`
 
   const contents = [
     ...history
@@ -115,13 +295,13 @@ LIVE USER PROGRESS SNAPSHOT:
       body: JSON.stringify({
         message,
         contents,
-        systemInstruction,
         previousInteractionId: previousInteractionIdRef?.current || undefined,
         userContext: {
           userName: userName || 'Learner',
           xp: xp || 0,
           lang,
-          currentScreen,
+          currentScreen: currentScreen || 'garden',
+          currentPath: currentPath || window.location.pathname || '/',
           ...progress,
         },
       }),
@@ -133,20 +313,30 @@ LIVE USER PROGRESS SNAPSHOT:
       }
       const text = data?.reply || data?.candidates?.[0]?.content?.parts?.[0]?.text
       if (text && text.trim()) {
-        return text.replace(/\*\*(.*?)\*\*/g, '$1').trim()
+        return text.trim()
       }
     }
-  } catch {}
+  } catch (err) {
+    console.warn('Backend /api/chat proxy error:', err)
+  }
 
-  // 2. Direct Browser-to-LLM Independent Inference (ensures 100% live AI accuracy even if backend server is restarting)
+  // 2. Direct Browser-to-LLM Independent Inference
   try {
+    const screenInfo = SCREEN_KNOWLEDGE[currentScreen] || SCREEN_KNOWLEDGE.garden
+    const directSystemInstruction = `You are Leo, the intelligent, friendly AI Website Assistant and Financial Mentor for Learn2Invest.
+Learn2Invest is an interactive 3D gamified Indian financial literacy learning platform using virtual money.
+User is currently on screen: "${screenInfo.title}" (${currentPath || '/'}).
+User Name: ${userName || 'Learner'}, XP: ${xp || 0}, Current Level: Level ${progress.currentLevel}.
+Explain concepts simply with numbered steps, bullet points, rupee values (₹), and reference pages like [Level 1 School], [Level 2 Lab], [Level 3 Banking], [Campus Map], [Saved Simulations].`
+
     const openAiMessages = [
-      { role: 'system', content: systemInstruction },
+      { role: 'system', content: directSystemInstruction },
       ...contents.map((c) => ({
         role: c.role === 'user' ? 'user' : 'assistant',
         content: c?.parts?.[0]?.text || '',
       })),
     ]
+
     const directRes = await fetch('https://text.pollinations.ai/openai', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -160,21 +350,40 @@ LIVE USER PROGRESS SNAPSHOT:
       const directData = await directRes.json()
       const replyText = directData?.choices?.[0]?.message?.content
       if (replyText && replyText.trim()) {
-        return replyText.replace(/\*\*(.*?)\*\*/g, '$1').trim()
+        return replyText.trim()
       }
     }
   } catch {}
 
-  return 'I encountered a temporary network issue connecting to the AI engine. Please check your connection or try sending your message again!'
+  // 3. Client-Side Deterministic Fallback grounded in website knowledge
+  const qLower = message.toLowerCase()
+  if (qLower.includes('about') || qLower.includes('website') || qLower.includes('what is this') || qLower.includes('explain this website')) {
+    return `**Welcome to Learn2Invest!** 🎓
+Learn2Invest is an interactive 3D gamified learning simulator designed to teach practical Indian financial literacy.
+
+Here is what you can do on the platform:
+1. **Level 1 (School Classroom)**: Watch 5 bite-sized financial literacy video lessons on PPF, FD, NSC, and Sukanya Samriddhi, then pass the 10-Question Examination Center (+100 XP).
+2. **Level 2 (Government District Lab)**: Test 6 government investment scheme simulators, mix savings allocations in the Mixer Studio, and run multi-asset portfolio simulations with Smart Allocation.
+3. **Level 3 (Futuristic City Banking Hub)**: Practice filling realistic Indian bank deposit slips, withdrawal forms, and cheques with dual counterfoils, and learn digital cyber safety against OTP and phishing scams.
+4. **Campus Map & Saved Simulations**: Navigate between districts, earn milestone badges, and save your custom portfolio calculations.
+
+*Note: All money and investments used in Learn2Invest are 100% educational virtual money.*`
+  }
+
+  return `I am your Learn2Invest Website Assistant! 🎓
+You are currently viewing **${SCREEN_KNOWLEDGE[currentScreen]?.title || 'Campus Entrance'}**.
+You can ask me:
+- *"Explain this page."*
+- *"Help me navigate."*
+- *"How do I unlock Level 2?"*
+- *"What is PPF and FD?"*
+- *"How do I fill out a bank deposit slip?"*
+
+How can I assist you right now?`
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// SMALL PERSON CHARACTER STANDING IN THE BOTTOM-RIGHT SIDE FROM THE BEGINNING
-// - Eyes & head look in the direction of the mouse pointer
-// - Gets visibly excited (jumping, waving arms, cheering) when pointer moves toward Login card
-//   OR when the user selects a RIGHT answer in the Quiz!
-// - Looks slightly disappointed (droopy brows, gentle frown, slumped shoulders) when the user
-//   selects a WRONG answer in the Quiz!
+// ANIMATED COMPANION PERSON SVG (BOY IN BLUE JACKET / GIRL) — 175px TALL & LARGE
 // ═══════════════════════════════════════════════════════════════════════════════
 function StandingCompanionPersonSVG({
   lookX = 0,
@@ -182,7 +391,7 @@ function StandingCompanionPersonSVG({
   isExcited = false,
   isDisappointed = false,
   isSpeaking = false,
-  gender = 'female',
+  gender = 'male',
 }) {
   const pupilDx = Math.max(-4.2, Math.min(4.2, lookX * 4.5))
   const pupilDy = Math.max(-3.0, Math.min(3.0, lookY * 3.2))
@@ -191,18 +400,18 @@ function StandingCompanionPersonSVG({
 
   return (
     <svg
-      width="86"
-      height="118"
-      viewBox="0 0 110 145"
+      width="135"
+      height="175"
+      viewBox="-8 -4 126 154"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       style={{
         overflow: 'visible',
-        filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.45))',
+        filter: 'drop-shadow(0 14px 28px rgba(0,0,0,0.65))',
         transform: isExcited
-          ? 'translateY(-6px) scale(1.06)'
+          ? 'translateY(-8px) scale(1.06)'
           : isDisappointed
-            ? 'translateY(3px) scale(0.97)'
+            ? 'translateY(4px) scale(0.97)'
             : 'translateY(0px) scale(1)',
         transition: 'transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1)',
       }}
@@ -211,37 +420,37 @@ function StandingCompanionPersonSVG({
       <ellipse
         cx="55"
         cy="136"
-        rx={isExcited ? '34' : '28'}
-        ry="7"
+        rx={isExcited ? '42' : '35'}
+        ry="9"
         fill={isExcited ? '#FBBF24' : isDisappointed ? '#F43F5E' : '#38BDF8'}
-        fillOpacity={isExcited ? '0.6' : isDisappointed ? '0.45' : '0.35'}
+        fillOpacity={isExcited ? '0.75' : isDisappointed ? '0.6' : '0.5'}
       />
       <ellipse
         cx="55"
         cy="136"
-        rx="20"
-        ry="4"
+        rx="24"
+        ry="5"
         fill={isDisappointed ? '#FB7185' : '#10B981'}
-        fillOpacity="0.5"
+        fillOpacity="0.7"
       />
 
-      {/* Excitement Sparkles when Mouse Pointer is near Login or Right Quiz Answer */}
+      {/* Excitement Sparkles */}
       {isExcited && (
         <g>
-          <circle cx="14" cy="24" r="4" fill="#FBBF24" />
-          <circle cx="96" cy="20" r="4.5" fill="#34D399" />
-          <circle cx="10" cy="60" r="3.5" fill="#F472B6" />
-          <circle cx="100" cy="56" r="3.5" fill="#38BDF8" />
-          <text x="6" y="16" fontSize="14">✨</text>
-          <text x="88" y="14" fontSize="14">🎉</text>
+          <circle cx="10" cy="24" r="5" fill="#FBBF24" />
+          <circle cx="100" cy="20" r="5.5" fill="#34D399" />
+          <circle cx="6" cy="60" r="4.5" fill="#F472B6" />
+          <circle cx="104" cy="56" r="4.5" fill="#38BDF8" />
+          <text x="0" y="16" fontSize="18">✨</text>
+          <text x="94" y="14" fontSize="18">🎉</text>
         </g>
       )}
 
-      {/* Slight Disappointment Sweat Drop / Cloud when Wrong Quiz Answer */}
+      {/* Disappointment Sweat Drop */}
       {isDisappointed && (
         <g>
-          <text x="8" y="20" fontSize="14">💧</text>
-          <text x="86" y="20" fontSize="13">😟</text>
+          <text x="2" y="20" fontSize="18">💧</text>
+          <text x="92" y="20" fontSize="17">😟</text>
         </g>
       )}
 
@@ -253,10 +462,10 @@ function StandingCompanionPersonSVG({
         <rect x="57" y="125" width="16" height="9" rx="4.5" fill="#EC4899" />
       </g>
 
-      {/* Torso / Smart Campus Jacket */}
+      {/* Torso / Electric Blue Jacket */}
       <path
         d="M34 64 C34 57 76 57 76 64 L80 102 C80 105 30 105 30 102 Z"
-        fill={gender === 'male' ? '#2563EB' : '#8B5CF6'}
+        fill={gender === 'female' ? '#8B5CF6' : '#2563EB'}
       />
       <polygon points="48,60 55,73 62,60" fill="#F8FAFC" />
       <circle cx="55" cy="77" r="4" fill="#FBBF24" />
@@ -274,7 +483,7 @@ function StandingCompanionPersonSVG({
           transition: 'transform 0.2s ease-out',
         }}
       >
-        <rect x="20" y="62" width="13" height="32" rx="6.5" fill={gender === 'male' ? '#1D4ED8' : '#7C3AED'} />
+        <rect x="20" y="62" width="13" height="32" rx="6.5" fill={gender === 'female' ? '#7C3AED' : '#1D4ED8'} />
         <circle cx="26.5" cy="96" r="6" fill="#FDE68A" />
       </g>
 
@@ -290,7 +499,7 @@ function StandingCompanionPersonSVG({
           transition: 'transform 0.2s ease-out',
         }}
       >
-        <rect x="77" y="62" width="13" height="32" rx="6.5" fill={gender === 'male' ? '#1D4ED8' : '#7C3AED'} />
+        <rect x="77" y="62" width="13" height="32" rx="6.5" fill={gender === 'female' ? '#7C3AED' : '#1D4ED8'} />
         <circle cx="83.5" cy="96" r="6" fill="#FDE68A" />
       </g>
 
@@ -306,8 +515,8 @@ function StandingCompanionPersonSVG({
         }}
       >
         {/* Back Hair */}
-        <circle cx="55" cy="34" r="24" fill={gender === 'male' ? '#1E293B' : '#3B1D0B'} />
-        {gender !== 'male' && (
+        <circle cx="55" cy="34" r="24" fill={gender === 'female' ? '#3B1D0B' : '#1E293B'} />
+        {gender === 'female' && (
           <>
             <circle cx="31" cy="42" r="9" fill="#3B1D0B" />
             <circle cx="79" cy="42" r="9" fill="#3B1D0B" />
@@ -320,10 +529,10 @@ function StandingCompanionPersonSVG({
         {/* Front Hair Bangs */}
         <path
           d="M35 30 C38 14 72 14 75 30 C68 22 44 22 35 30 Z"
-          fill={gender === 'male' ? '#1E293B' : '#3B1D0B'}
+          fill={gender === 'female' ? '#3B1D0B' : '#1E293B'}
         />
 
-        {/* Eyebrows (raised when excited, droopy when disappointed) */}
+        {/* Eyebrows */}
         <path
           d={
             isExcited
@@ -376,6 +585,9 @@ function StandingCompanionPersonSVG({
   )
 }
 
+// ═══════════════════════════════════════════════════════════════════════════════
+// MAIN CHATBOT COMPONENT (LARGER, HIGH CONTRAST, RESPONSIVE)
+// ═══════════════════════════════════════════════════════════════════════════════
 export default function Chatbot({
   open,
   onToggle,
@@ -383,13 +595,22 @@ export default function Chatbot({
   user,
   xp,
   state,
-  aiGuideAvatar = 'female',
+  currentScreen = 'garden',
+  currentPath = '/',
+  go,
+  openLeaderboard,
+  openBadges,
+  openReport,
+  openProfile,
+  openAvatarModal,
+  aiGuideAvatar = 'male',
   aiGuideName,
   lang = 'en',
 }) {
-  const guideName = aiGuideName || (aiGuideAvatar === 'male' ? 'Leo' : 'Luna')
+  const guideName = aiGuideName || (aiGuideAvatar === 'female' ? 'Luna' : 'Leo')
   const [internalOpen, setInternalOpen] = useState(false)
   const isOpen = open !== undefined ? open : internalOpen
+  const [isExpanded, setIsExpanded] = useState(false)
 
   const handleToggleOpen = () => {
     soundEngine.playClick()
@@ -399,38 +620,71 @@ export default function Chatbot({
 
   const handleCloseChat = () => {
     soundEngine.playClick()
+    stopSpeech()
     if (onClose) onClose()
     else if (onToggle && isOpen) onToggle()
     else setInternalOpen(false)
   }
+
+  const initialGreeting = `👋 Hello! I am ${guideName}, your personal AI Financial Mentor for Learn2Invest.
+
+I am powered by Google Gemini and have full knowledge of Indian savings schemes, portfolio investing, banking procedures, cyber fraud protection, and this website's features.
+
+Ask me any real-time financial question, or tap one of the suggested topics below to get started!`
 
   const [msgs, setMsgs] = useState(() => [
     {
       id: 'welcome_1',
       from: 'bot',
       isGreeting: true,
-      text: `Hi! I'm ${guideName} 👋 Your AI Financial Mentor! Ask me any question about saving, PPF, FD, NSC, Sukanya Samriddhi, RD, Post Office MIS, IFSC codes, or ask for a summary of your completed levels — or click "🎙️ Talk with ${guideName}" for live voice chat!`,
+      text: initialGreeting,
     },
   ])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const previousInteractionIdRef = useRef(null)
 
-  // Voice & "Talk with Luna" Live Voice Conversation State
+  // Voice State
   const [isVoiceMuted, setIsVoiceMuted] = useState(false)
   const [speakingIdx, setSpeakingIdx] = useState(null)
-  const [talkModeActive, setTalkModeActive] = useState(false)
   const [isListeningVoice, setIsListeningVoice] = useState(false)
   const recognitionRef = useRef(null)
 
-  // Mouse Pointer Tracking, Login Excitement & Quiz Reaction State
+  // Mouse Pointer & Quiz Reaction State
   const [lookVec, setLookVec] = useState({ x: 0, y: 0 })
   const [isExcitedByLogin, setIsExcitedByLogin] = useState(false)
-  const [quizReaction, setQuizReaction] = useState(null) // { type: 'excited' | 'disappointed', text: string }
+  const [quizReaction, setQuizReaction] = useState(null)
   const companionRef = useRef(null)
   const chatScrollRef = useRef(null)
 
-  // Listen to custom 'luna-quiz-reaction' events from Level 1 Examination Quiz!
+  // Preload speech synthesis voices on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.getVoices()
+      const handleVoices = () => window.speechSynthesis.getVoices()
+      window.speechSynthesis.onvoiceschanged = handleVoices
+      return () => {
+        window.speechSynthesis.onvoiceschanged = null
+      }
+    }
+  }, [])
+
+  // Reset conversation handler
+  const handleResetChat = () => {
+    soundEngine.playClick()
+    stopSpeech()
+    previousInteractionIdRef.current = null
+    setMsgs([
+      {
+        id: 'welcome_' + Date.now(),
+        from: 'bot',
+        isGreeting: true,
+        text: initialGreeting,
+      },
+    ])
+  }
+
+  // Quiz reaction event listener
   useEffect(() => {
     const handleQuizReaction = (e) => {
       const detail = e?.detail || {}
@@ -439,8 +693,8 @@ export default function Chatbot({
       setQuizReaction({
         type: isRight ? 'excited' : 'disappointed',
         text: isRight
-          ? `🎉 Yay! Q${qNum} is Correct! Superstar move!`
-          : `😟 Oh no, Q${qNum} wasn't right — keep going, you've got this!`,
+          ? `🎉 Correct on Q${qNum}! Superstar move!`
+          : `😟 Q${qNum} wasn't right — keep going!`,
       })
       const timer = setTimeout(() => {
         setQuizReaction(null)
@@ -452,6 +706,7 @@ export default function Chatbot({
     return () => window.removeEventListener('luna-quiz-reaction', handleQuizReaction)
   }, [])
 
+  // Mouse cursor tracking
   useEffect(() => {
     const handleMouseMove = (e) => {
       const mx = e.clientX
@@ -472,7 +727,7 @@ export default function Chatbot({
       const loginEl = document.querySelector('[data-login-card="true"]')
       if (loginEl) {
         const lRect = loginEl.getBoundingClientRect()
-        const pad = 70
+        const pad = 80
         const nearLogin =
           mx >= lRect.left - pad &&
           mx <= lRect.right + pad &&
@@ -492,7 +747,7 @@ export default function Chatbot({
     if (chatScrollRef.current) {
       chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight
     }
-  }, [msgs, loading, isOpen])
+  }, [msgs, loading, isOpen, isExpanded])
 
   const stopSpeech = () => {
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
@@ -511,13 +766,36 @@ export default function Chatbot({
     }
 
     window.speechSynthesis.cancel()
+    if (window.speechSynthesis.paused) {
+      window.speechSynthesis.resume()
+    }
+
     const cleanSpeech = (textToRead || '')
       .replace(/₹/g, ' Rupees ')
-      .replace(/[^\w\s.,?!₹+-/:\u0900-\u097F\u0C80-\u0CFF]/g, ' ')
+      .replace(/p\.a\./gi, ' per annum ')
+      .replace(/\[(.*?)\]/g, '$1')
+      .replace(/[*#_`|]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+
+    if (!cleanSpeech) return
+
     const utter = new SpeechSynthesisUtterance(cleanSpeech)
-    utter.lang = lang === 'kn' ? 'kn-IN' : lang === 'hi' ? 'hi-IN' : 'en-IN'
-    utter.rate = 1.02
-    utter.pitch = aiGuideAvatar === 'male' ? 0.95 : 1.12
+    const allVoices = window.speechSynthesis.getVoices()
+    const preferredVoice =
+      allVoices.find((v) => v.lang === 'en-IN') ||
+      allVoices.find((v) => v.lang.startsWith('en')) ||
+      allVoices[0]
+
+    if (preferredVoice) {
+      utter.voice = preferredVoice
+      utter.lang = preferredVoice.lang
+    } else {
+      utter.lang = 'en-IN'
+    }
+
+    utter.rate = 1.0
+    utter.pitch = aiGuideAvatar === 'female' ? 1.08 : 0.95
     utter.onend = () => setSpeakingIdx(null)
     utter.onerror = () => setSpeakingIdx(null)
     setSpeakingIdx(idx)
@@ -546,11 +824,12 @@ export default function Chatbot({
     const replyText = await fetchDynamicBotAnswer(
       text,
       updatedHistory,
-      user?.name || 'Friend',
+      user?.name || 'Learner',
       xp || 0,
       lang,
       state,
       currentScreen,
+      currentPath,
       previousInteractionIdRef
     )
 
@@ -562,30 +841,45 @@ export default function Chatbot({
 
     setMsgs((prev) => {
       const nextList = [...prev, newBotMsg]
-      if ((autoSpeakReply || talkModeActive) && !isVoiceMuted) {
+      if (autoSpeakReply && !isVoiceMuted) {
         setTimeout(() => {
           handleReadAloud(replyText, nextList.length - 1)
-        }, 120)
+        }, 150)
       }
       return nextList
     })
     setLoading(false)
   }
 
-  // "Talk with Luna 🎙️" Speech-to-Text + Voice Reply Handler
-  const startOrToggleTalkWithLuna = async () => {
+  // Handle direct navigation when clicking action buttons inside chat
+  const handleActionClick = (action) => {
+    soundEngine.playClick()
+    if (action.screen && go) {
+      go(action.screen)
+    } else if (action.modal === 'leaderboard' && openLeaderboard) {
+      openLeaderboard()
+    } else if (action.modal === 'badges' && openBadges) {
+      openBadges()
+    } else if (action.modal === 'report' && openReport) {
+      openReport()
+    } else if (action.modal === 'profile' && openProfile) {
+      openProfile()
+    }
+  }
+
+  // Voice Speech Recognition (Speech-to-Text)
+  const startOrToggleTalk = () => {
     soundEngine.playClick()
     if (typeof window === 'undefined') return
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
     if (!SpeechRecognition) {
-      setTalkModeActive((prev) => !prev)
       setMsgs((prev) => [
         ...prev,
         {
           id: 'b_voice_info_' + Date.now(),
           from: 'bot',
-          text: `🎙️ Voice Speech Recognition is not supported by this browser version. Voice Read-Aloud is active! Type any question and I will speak the response out loud.`,
+          text: `🎙️ Voice input is not supported in this browser version. You can type any question, and tap the 🔊 Listen button on any response to hear it spoken aloud!`,
         },
       ])
       return
@@ -601,60 +895,60 @@ export default function Chatbot({
 
     stopSpeech()
 
-    // Request microphone permission if needed
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      try {
-        await navigator.mediaDevices.getUserMedia({ audio: true })
-      } catch (err) {
-        setMsgs((prev) => [
-          ...prev,
-          {
-            id: 'b_mic_err_' + Date.now(),
-            from: 'bot',
-            text: `⚠️ Microphone access was denied or ungranted. Please allow microphone permissions in your browser address bar to use "Talk with ${guideName}" voice mode! Text chat is still fully active.`,
-          },
-        ])
-        return
-      }
-    }
-
-    setTalkModeActive(true)
-    const recognition = new SpeechRecognition()
-    recognitionRef.current = recognition
-    recognition.lang = lang === 'kn' ? 'kn-IN' : lang === 'hi' ? 'hi-IN' : 'en-IN'
-    recognition.interimResults = false
-    recognition.maxAlternatives = 1
-
-    recognition.onstart = () => {
-      setIsListeningVoice(true)
-    }
-    recognition.onresult = (event) => {
-      const transcript = event?.results?.[0]?.[0]?.transcript
-      setIsListeningVoice(false)
-      if (transcript && transcript.trim()) {
-        handleSendMessage(transcript.trim(), true)
-      }
-    }
-    recognition.onerror = (event) => {
-      setIsListeningVoice(false)
-      if (event?.error === 'not-allowed') {
-        setMsgs((prev) => [
-          ...prev,
-          {
-            id: 'b_mic_denied_' + Date.now(),
-            from: 'bot',
-            text: `⚠️ Microphone permission blocked. Enable microphone access in site settings to speak with ${guideName}.`,
-          },
-        ])
-      }
-    }
-    recognition.onend = () => {
-      setIsListeningVoice(false)
-    }
-
     try {
+      const recognition = new SpeechRecognition()
+      recognitionRef.current = recognition
+      recognition.lang = 'en-IN'
+      recognition.interimResults = true
+      recognition.continuous = false
+      recognition.maxAlternatives = 1
+
+      recognition.onstart = () => {
+        setIsListeningVoice(true)
+      }
+
+      recognition.onresult = (event) => {
+        let interim = ''
+        let final = ''
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            final += event.results[i][0].transcript
+          } else {
+            interim += event.results[i][0].transcript
+          }
+        }
+        if (interim) {
+          setInput(interim)
+        }
+        if (final && final.trim()) {
+          setInput(final.trim())
+          setIsListeningVoice(false)
+          handleSendMessage(final.trim(), true)
+        }
+      }
+
+      recognition.onerror = (e) => {
+        console.warn('SpeechRecognition error:', e.error)
+        setIsListeningVoice(false)
+        if (e.error === 'not-allowed' || e.error === 'permission-denied') {
+          setMsgs((prev) => [
+            ...prev,
+            {
+              id: 'b_mic_err_' + Date.now(),
+              from: 'bot',
+              text: `⚠️ Microphone access was blocked. Please click the lock or camera icon in your browser URL bar and allow microphone permissions to speak with ${guideName}!`,
+            },
+          ])
+        }
+      }
+
+      recognition.onend = () => {
+        setIsListeningVoice(false)
+      }
+
       recognition.start()
-    } catch {
+    } catch (err) {
+      console.warn('Speech recognition start error:', err)
       setIsListeningVoice(false)
     }
   }
@@ -662,337 +956,474 @@ export default function Chatbot({
   const isCompanionExcited = isExcitedByLogin || quizReaction?.type === 'excited'
   const isCompanionDisappointed = quizReaction?.type === 'disappointed'
 
+  // Dynamic suggested quick actions based on current screen
+  const contextualSuggestions = getContextualSuggestions(currentScreen)
+  const defaultStarters = [
+    'Explain this website',
+    'Where should I start?',
+    'PPF vs Mutual Funds',
+    'What is Repo Rate?',
+    'How do I fill a bank slip?',
+    'How to spot OTP scams?',
+    'Save tax under Section 80C',
+  ]
+  const starterChips = Array.from(new Set([...contextualSuggestions, ...defaultStarters])).slice(0, 6)
+
   return (
     <>
+      <style>{`
+        /* Chat Launcher & Window Animations */
+        .l2i-chat-launcher {
+          position: fixed;
+          right: 24px;
+          bottom: 24px;
+          z-index: 99998;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          cursor: pointer;
+          user-select: none;
+          filter: drop-shadow(0 14px 28px rgba(0,0,0,0.65));
+          transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .l2i-chat-launcher:hover {
+          transform: scale(1.06) translateY(-4px);
+        }
+
+        .l2i-chat-window {
+          position: fixed;
+          bottom: 24px;
+          right: 24px;
+          width: 440px;
+          max-width: 95vw;
+          height: 640px;
+          max-height: 85vh;
+          background: linear-gradient(165deg, #070D19 0%, #0D172A 100%);
+          border: 2px solid rgba(56, 189, 248, 0.6);
+          border-radius: 24px;
+          box-shadow: 0 28px 85px rgba(0, 0, 0, 0.9);
+          z-index: 99999;
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+          color: #F8FAFC;
+          font-family: 'Space Grotesk', 'Inter', -apple-system, sans-serif;
+          animation: l2iSlideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .l2i-chat-window.expanded {
+          width: 680px;
+          max-width: 96vw;
+          height: 800px;
+          max-height: 90vh;
+        }
+
+        @keyframes l2iSlideUp {
+          from {
+            opacity: 0;
+            transform: translateY(30px) scale(0.96);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
+        }
+
+        @keyframes companionHover {
+          0% { transform: translateY(0px); }
+          100% { transform: translateY(-6px); }
+        }
+
+        @media (max-width: 640px) {
+          .l2i-chat-window {
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100vw !important;
+            max-width: 100vw !important;
+            height: 90vh !important;
+            max-height: 92vh !important;
+            border-radius: 20px 20px 0 0 !important;
+            border-bottom: none !important;
+          }
+          .l2i-chat-launcher {
+            right: 16px !important;
+            bottom: 16px !important;
+          }
+        }
+      `}</style>
+
       {/* ═══════════════════════════════════════════════════════════════════════
-          SMALL PERSON STANDING IN THE BOTTOM-RIGHT SIDE FROM THE VERY BEGINNING
-          - Eyes & head follow the mouse pointer
-          - Jumps & cheers excitedly on right quiz answers or near Login card
-          - Shows slight disappointment on wrong quiz answers
+          NORMAL CHATBOT LAUNCHER (VISIBLE WHEN CLOSED)
+          - Animated boy Leo in blue jacket (135px tall, fully inside viewport)
+          - Speech bubble tooltip prompting user to ask questions
+          - Clicking cleanly opens the chat window at this exact corner
       ═══════════════════════════════════════════════════════════════════════ */}
-      <div
-        ref={companionRef}
-        onClick={handleToggleOpen}
-        style={{
-          position: 'fixed',
-          right: '18px',
-          bottom: '12px',
-          zIndex: 9990,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          cursor: 'pointer',
-          userSelect: 'none',
-        }}
-        title="Click to chat or Talk with Luna!"
-      >
-        {/* Dynamic Speech Bubble Above the Small Person */}
+      {!isOpen && (
         <div
-          style={{
-            marginBottom: '4px',
-            padding: '6px 12px',
-            borderRadius: '14px',
-            background: quizReaction
-              ? quizReaction.type === 'excited'
-                ? 'linear-gradient(135deg, #10B981, #F59E0B)'
-                : 'linear-gradient(135deg, #F43F5E, #FB7185)'
-              : isExcitedByLogin
-                ? 'linear-gradient(135deg, #F59E0B, #10B981)'
-                : 'rgba(15, 23, 42, 0.94)',
-            color: quizReaction
-              ? quizReaction.type === 'excited'
-                ? '#020617'
-                : '#FFFFFF'
-              : isExcitedByLogin
-                ? '#020617'
-                : '#F8FAFC',
-            border: isCompanionExcited
-              ? '2px solid #FEF08A'
-              : isCompanionDisappointed
-                ? '2px solid #FDA4AF'
-                : '1.5px solid rgba(56,189,248,0.6)',
-            boxShadow: isCompanionExcited
-              ? '0 0 24px rgba(251,191,36,0.85)'
-              : isCompanionDisappointed
-                ? '0 0 24px rgba(244,63,94,0.75)'
-                : '0 6px 20px rgba(0,0,0,0.45)',
-            fontSize: '11px',
-            fontWeight: 900,
-            whiteSpace: 'nowrap',
-            transform: isCompanionExcited || isCompanionDisappointed ? 'scale(1.06)' : 'scale(1)',
-            transition: 'all 0.2s ease',
-          }}
+          ref={companionRef}
+          onClick={handleToggleOpen}
+          className="l2i-chat-launcher"
+          title={`Click to chat with ${guideName}!`}
         >
-          {quizReaction
-            ? quizReaction.text
-            : isExcitedByLogin
-              ? `🎉 Yay! Log in & let's explore!`
-              : isOpen
-                ? `💬 Chatting with ${guideName}`
-                : `👋 Ask or Talk with ${guideName} 🎙️`}
-        </div>
+          {/* Dynamic Speech Bubble */}
+          <div
+            style={{
+              marginBottom: '8px',
+              padding: '8px 16px',
+              borderRadius: '20px',
+              background: quizReaction
+                ? quizReaction.type === 'excited'
+                  ? 'linear-gradient(135deg, #10B981, #F59E0B)'
+                  : 'linear-gradient(135deg, #F43F5E, #FB7185)'
+                : isExcitedByLogin
+                  ? 'linear-gradient(135deg, #F59E0B, #10B981)'
+                  : 'rgba(15, 23, 42, 0.96)',
+              color: quizReaction || isExcitedByLogin ? '#020617' : '#F8FAFC',
+              border: isCompanionExcited
+                ? '2px solid #FEF08A'
+                : '2px solid rgba(56,189,248,0.7)',
+              boxShadow: isCompanionExcited
+                ? '0 0 25px rgba(251,191,36,0.9)'
+                : '0 8px 24px rgba(0,0,0,0.5)',
+              fontSize: '14px',
+              fontWeight: 800,
+              whiteSpace: 'nowrap',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+            }}
+          >
+            <span style={{ fontSize: '16px' }}>💬</span>
+            <span>
+              {quizReaction
+                ? quizReaction.text
+                : isExcitedByLogin
+                  ? `🎉 Log in & let's explore!`
+                  : `Ask ${guideName} • AI Mentor 🎙️`}
+            </span>
+          </div>
 
-        {/* Standing Small Person SVG */}
-        <div
-          style={{
-            animation: isCompanionExcited
-              ? 'companionJump 0.5s ease-in-out infinite alternate'
-              : isCompanionDisappointed
-                ? 'companionShake 0.45s ease-in-out infinite alternate'
-                : 'none',
-          }}
-        >
-          <StandingCompanionPersonSVG
-            lookX={lookVec.x}
-            lookY={lookVec.y}
-            isExcited={isCompanionExcited}
-            isDisappointed={isCompanionDisappointed}
-            isSpeaking={speakingIdx !== null}
-            gender={aiGuideAvatar}
-          />
-        </div>
+          {/* 135px Standing Person SVG */}
+          <div
+            style={{
+              animation: isCompanionExcited
+                ? 'companionJump 0.5s ease-in-out infinite alternate'
+                : isCompanionDisappointed
+                  ? 'companionShake 0.45s ease-in-out infinite alternate'
+                  : 'companionHover 2.6s ease-in-out infinite alternate',
+            }}
+          >
+            <StandingCompanionPersonSVG
+              lookX={lookVec.x}
+              lookY={lookVec.y}
+              isExcited={isCompanionExcited}
+              isDisappointed={isCompanionDisappointed}
+              isSpeaking={speakingIdx !== null}
+              gender={aiGuideAvatar}
+            />
+          </div>
 
-        <style>{`
-          @keyframes companionJump {
-            0% { transform: translateY(0px) rotate(-2deg); }
-            100% { transform: translateY(-14px) rotate(2deg); }
-          }
-          @keyframes companionShake {
-            0% { transform: translateX(-3px) rotate(-3deg); }
-            100% { transform: translateX(3px) rotate(3deg); }
-          }
-        `}</style>
-      </div>
+          <style>{`
+            @keyframes companionJump {
+              0% { transform: translateY(0px) rotate(-2deg); }
+              100% { transform: translateY(-16px) rotate(2deg); }
+            }
+            @keyframes companionShake {
+              0% { transform: translateX(-4px) rotate(-3deg); }
+              100% { transform: translateX(4px) rotate(3deg); }
+            }
+          `}</style>
+        </div>
+      )}
 
       {/* ═══════════════════════════════════════════════════════════════════════
-          CHATBOT CONVERSATION WINDOW
-          - Real-Time Gemini AI Assistant + Deterministic Level 1/2/3 Summary Gate
-          - "🎙️ Talk with Luna" Live Voice Conversation Mode
+          STANDARD MODERN CHATBOT WINDOW (DOCKED AT BOTTOM-RIGHT)
+          - Opens cleanly right at bottom: 24px, right: 24px
+          - Leo's avatar with live pulsing online badge in header
+          - Clear conversation stream with starter suggestions that scroll naturally
+          - Direct navigation buttons for levels, bank slips, and map
+          - Working speech recognition (Speech-to-Text) and text-to-speech
       ═══════════════════════════════════════════════════════════════════════ */}
       {isOpen && (
-        <div
-          style={{
-            position: 'fixed',
-            right: '112px',
-            bottom: '20px',
-            width: 'min(92vw, 425px)',
-            height: 'min(80vh, 565px)',
-            background: 'linear-gradient(165deg, #0B1120 0%, #0F172A 100%)',
-            border: '2px solid rgba(56, 189, 248, 0.45)',
-            borderRadius: '22px',
-            boxShadow: '0 24px 70px rgba(0, 0, 0, 0.85)',
-            zIndex: 9995,
-            display: 'flex',
-            flexDirection: 'column',
-            overflow: 'hidden',
-            color: '#F8FAFC',
-            fontFamily: "'Inter', 'Segoe UI', sans-serif",
-          }}
-        >
+        <div className={`l2i-chat-window ${isExpanded ? 'expanded' : ''}`}>
           {/* Header */}
           <div
             style={{
-              padding: '12px 16px',
-              background: 'linear-gradient(135deg, #0284C7 0%, #4F46E5 100%)',
+              padding: '14px 18px',
+              background: 'linear-gradient(135deg, #0F172A 0%, #1E3A8A 50%, #0369A1 100%)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              borderBottom: '1px solid rgba(255,255,255,0.15)',
+              borderBottom: '1.5px solid rgba(56, 189, 248, 0.3)',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <div
-                style={{
-                  width: '36px',
-                  height: '36px',
-                  borderRadius: '50%',
-                  background: 'rgba(255,255,255,0.2)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '18px',
-                  border: '1.5px solid #fff',
-                }}
-              >
-                {aiGuideAvatar === 'male' ? '👦' : '👧'}
-              </div>
-              <div>
-                <div style={{ fontSize: '14px', fontWeight: 900, color: '#FFFFFF' }}>
-                  {guideName} • Gemini AI Financial Mentor
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{ position: 'relative' }}>
+                <div
+                  style={{
+                    width: '42px',
+                    height: '42px',
+                    borderRadius: '50%',
+                    background: 'linear-gradient(135deg, #0284C7, #4F46E5)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '22px',
+                    border: '2px solid #38BDF8',
+                    boxShadow: '0 4px 14px rgba(0,0,0,0.4)',
+                  }}
+                >
+                  {aiGuideAvatar === 'female' ? '👧' : '👦'}
                 </div>
-                <div style={{ fontSize: '10.5px', color: '#E0F2FE', fontWeight: 700 }}>
+                {/* Live pulsing online badge */}
+                <span
+                  style={{
+                    position: 'absolute',
+                    bottom: '0',
+                    right: '0',
+                    width: '12px',
+                    height: '12px',
+                    borderRadius: '50%',
+                    background: '#10B981',
+                    border: '2px solid #0F172A',
+                    boxShadow: '0 0 8px #10B981',
+                  }}
+                />
+              </div>
+
+              <div>
+                <div
+                  style={{
+                    fontSize: '17px',
+                    fontWeight: 800,
+                    color: '#FFFFFF',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                  }}
+                >
+                  <span>{guideName}</span>
+                  <span
+                    style={{
+                      fontSize: '11px',
+                      background: 'rgba(56,189,248,0.2)',
+                      border: '1px solid #38BDF8',
+                      color: '#7DD3FC',
+                      padding: '1px 7px',
+                      borderRadius: '999px',
+                      fontWeight: 700,
+                    }}
+                  >
+                    AI Mentor
+                  </span>
+                </div>
+                <div style={{ fontSize: '12.5px', color: '#93C5FD', fontWeight: 600 }}>
                   {isListeningVoice
                     ? '🎙️ Listening to your voice now...'
-                    : '✨ Multi-Turn AI • Level Summaries • Voice Chat'}
+                    : '⚡ Live Google Gemini AI'}
                 </div>
               </div>
             </div>
 
+            {/* Header Control Buttons */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              {/* Talk with Luna 🎙️ Button */}
+              {/* Reset Chat */}
               <button
                 type="button"
-                onClick={startOrToggleTalkWithLuna}
+                onClick={handleResetChat}
                 style={{
-                  background: isListeningVoice
-                    ? 'linear-gradient(135deg, #EC4899, #F43F5E)'
-                    : talkModeActive
-                      ? 'rgba(16, 185, 129, 0.35)'
-                      : 'rgba(15, 23, 42, 0.35)',
-                  border: isListeningVoice ? '1.5px solid #FDE047' : '1px solid rgba(255,255,255,0.35)',
-                  color: '#fff',
+                  background: 'rgba(255,255,255,0.1)',
+                  border: '1px solid rgba(255,255,255,0.25)',
+                  color: '#E2E8F0',
                   borderRadius: '8px',
-                  padding: '5px 8px',
-                  fontSize: '11px',
-                  fontWeight: 900,
+                  width: '32px',
+                  height: '32px',
+                  fontSize: '14px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                   cursor: 'pointer',
                 }}
-                title={`Talk with ${guideName} using your microphone`}
+                title="Clear chat and start fresh"
               >
-                {isListeningVoice ? '🛑 Stop Mic' : `🎙️ Talk`}
+                🔄
               </button>
 
-              {/* Mute / Unmute Toggle */}
+              {/* Mute/Voice Toggle */}
               <button
                 type="button"
                 onClick={toggleMute}
                 style={{
-                  background: isVoiceMuted ? 'rgba(239,68,68,0.28)' : 'rgba(15,23,42,0.35)',
-                  border: '1px solid rgba(255,255,255,0.3)',
-                  color: '#fff',
+                  background: isVoiceMuted ? 'rgba(239,68,68,0.25)' : 'rgba(255,255,255,0.1)',
+                  border: isVoiceMuted ? '1px solid #EF4444' : '1px solid rgba(255,255,255,0.25)',
+                  color: '#E2E8F0',
                   borderRadius: '8px',
-                  padding: '5px 8px',
-                  fontSize: '11px',
-                  fontWeight: 800,
+                  width: '32px',
+                  height: '32px',
+                  fontSize: '14px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                   cursor: 'pointer',
                 }}
-                title={isVoiceMuted ? 'Unmute Voice' : 'Mute Voice'}
+                title={isVoiceMuted ? 'Unmute voice' : 'Mute voice'}
               >
                 {isVoiceMuted ? '🔇' : '🔊'}
               </button>
 
+              {/* Expand / Collapse */}
+              <button
+                type="button"
+                onClick={() => setIsExpanded((p) => !p)}
+                style={{
+                  background: isExpanded ? 'rgba(56,189,248,0.25)' : 'rgba(255,255,255,0.1)',
+                  border: '1px solid rgba(255,255,255,0.25)',
+                  color: '#E2E8F0',
+                  borderRadius: '8px',
+                  width: '32px',
+                  height: '32px',
+                  fontSize: '14px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                }}
+                title={isExpanded ? 'Normal size' : 'Expand window'}
+              >
+                {isExpanded ? '❐' : '⛶'}
+              </button>
+
+              {/* Close Button */}
               <button
                 type="button"
                 onClick={handleCloseChat}
                 style={{
-                  background: 'rgba(15,23,42,0.35)',
+                  background: 'rgba(255,255,255,0.1)',
                   border: '1px solid rgba(255,255,255,0.25)',
-                  color: '#fff',
+                  color: '#E2E8F0',
                   borderRadius: '8px',
-                  width: '28px',
-                  height: '28px',
-                  fontSize: '13px',
-                  fontWeight: 900,
+                  width: '32px',
+                  height: '32px',
+                  fontSize: '16px',
+                  fontWeight: 700,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                   cursor: 'pointer',
                 }}
-                title="Minimize Chat"
+                title="Close chat window"
               >
                 ✕
               </button>
             </div>
           </div>
 
-          {/* Quick Level Summary & Voice Action Pills */}
-          <div
-            style={{
-              padding: '8px 12px',
-              background: 'rgba(15, 23, 42, 0.9)',
-              borderBottom: '1px solid rgba(148, 163, 184, 0.15)',
-              display: 'flex',
-              gap: '6px',
-              overflowX: 'auto',
-              flexShrink: 0,
-            }}
-          >
-            {[
-              { label: '📊 Summary L1', prompt: 'Give summary of Level 1' },
-              { label: '💻 Summary L2', prompt: 'Summarize Level 2' },
-              { label: '🏛️ Summary L3', prompt: 'Explain Level 3' },
-              { label: '⭐ My Progress', prompt: 'What is my current level and XP progress?' },
-            ].map((qItem) => (
-              <button
-                key={qItem.label}
-                type="button"
-                onClick={() => handleSendMessage(qItem.prompt)}
-                style={{
-                  background: 'rgba(30, 41, 59, 0.95)',
-                  border: '1px solid rgba(56, 189, 248, 0.35)',
-                  color: '#BAE6FD',
-                  borderRadius: '999px',
-                  padding: '4px 10px',
-                  fontSize: '10.5px',
-                  fontWeight: 800,
-                  whiteSpace: 'nowrap',
-                  cursor: 'pointer',
-                }}
-              >
-                {qItem.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Messages List */}
+          {/* Messages Stream */}
           <div
             ref={chatScrollRef}
             style={{
               flex: 1,
               overflowY: 'auto',
-              padding: '14px',
+              padding: '16px',
               display: 'flex',
               flexDirection: 'column',
-              gap: '10px',
+              gap: '14px',
             }}
           >
             {msgs.map((m, idx) => {
               const isUser = m.from === 'user'
               const isReadingThis = speakingIdx === idx
               return (
-                <div
-                  key={m.id || idx}
-                  style={{
-                    alignSelf: isUser ? 'flex-end' : 'flex-start',
-                    maxWidth: '88%',
-                    background: isUser
-                      ? 'linear-gradient(135deg, #0EA5E9, #2563EB)'
-                      : 'rgba(30, 41, 59, 0.92)',
-                    border: isUser ? 'none' : '1px solid rgba(148, 163, 184, 0.25)',
-                    borderRadius: isUser ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
-                    padding: '10px 12px',
-                    color: '#F8FAFC',
-                    fontSize: '12.5px',
-                    lineHeight: 1.5,
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
-                  }}
-                >
-                  <div style={{ whiteSpace: 'pre-line', fontWeight: isUser ? 700 : 500 }}>{m.text}</div>
+                <div key={m.id || idx} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <div
+                    style={{
+                      alignSelf: isUser ? 'flex-end' : 'flex-start',
+                      maxWidth: '88%',
+                      background: isUser
+                        ? 'linear-gradient(135deg, #0284C7 0%, #2563EB 100%)'
+                        : 'rgba(15, 23, 42, 0.88)',
+                      border: isUser ? 'none' : '1px solid rgba(56, 189, 248, 0.25)',
+                      borderRadius: isUser ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
+                      padding: '14px 16px',
+                      color: '#F8FAFC',
+                      fontSize: '15.5px',
+                      lineHeight: 1.55,
+                      boxShadow: '0 4px 18px rgba(0,0,0,0.3)',
+                    }}
+                  >
+                    <FormattedMessage text={m.text} onActionClick={handleActionClick} />
 
-                  {/* Read Aloud Button ONLY on Bot Messages */}
-                  {!isUser && (
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '7px' }}>
-                      <button
-                        type="button"
-                        onClick={() => handleReadAloud(m.text, idx)}
-                        disabled={isVoiceMuted}
-                        style={{
-                          background: isReadingThis
-                            ? 'rgba(245, 158, 11, 0.25)'
-                            : 'rgba(56, 189, 248, 0.15)',
-                          border: isReadingThis
-                            ? '1px solid #FBBF24'
-                            : '1px solid rgba(56, 189, 248, 0.4)',
-                          color: isVoiceMuted ? '#64748B' : isReadingThis ? '#FDE68A' : '#38BDF8',
-                          borderRadius: '999px',
-                          padding: '3px 10px',
-                          fontSize: '10.5px',
-                          fontWeight: 800,
-                          cursor: isVoiceMuted ? 'not-allowed' : 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '4px',
-                        }}
-                      >
-                        <span>{isReadingThis ? '⏹ Stop Reading' : '🔊 Read'}</span>
-                      </button>
+                    {/* Read Aloud Button on Bot Messages */}
+                    {!isUser && (
+                      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '10px' }}>
+                        <button
+                          type="button"
+                          onClick={() => handleReadAloud(m.text, idx)}
+                          disabled={isVoiceMuted}
+                          style={{
+                            background: isReadingThis
+                              ? 'rgba(245, 158, 11, 0.25)'
+                              : 'rgba(56, 189, 248, 0.12)',
+                            border: isReadingThis
+                              ? '1px solid #F59E0B'
+                              : '1px solid rgba(56, 189, 248, 0.35)',
+                            color: isVoiceMuted ? '#64748B' : isReadingThis ? '#FDE68A' : '#7DD3FC',
+                            borderRadius: '999px',
+                            padding: '4px 12px',
+                            fontSize: '13px',
+                            fontWeight: 700,
+                            cursor: isVoiceMuted ? 'not-allowed' : 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '5px',
+                          }}
+                        >
+                          <span>{isReadingThis ? '⏹ Stop' : '🔊 Listen'}</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Starter Suggestion Chips (only rendered right below the initial welcome message) */}
+                  {m.isGreeting && msgs.length === 1 && (
+                    <div
+                      style={{
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        gap: '8px',
+                        marginTop: '4px',
+                        paddingLeft: '4px',
+                      }}
+                    >
+                      {starterChips.map((prompt) => (
+                        <button
+                          key={prompt}
+                          type="button"
+                          onClick={() => handleSendMessage(prompt)}
+                          style={{
+                            background: 'rgba(30, 41, 59, 0.85)',
+                            border: '1px solid rgba(56, 189, 248, 0.4)',
+                            color: '#E0F2FE',
+                            borderRadius: '999px',
+                            padding: '7px 14px',
+                            fontSize: '13.5px',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.25)',
+                            transition: 'all 0.15s ease',
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.borderColor = '#38BDF8'
+                            e.currentTarget.style.background = 'rgba(56, 189, 248, 0.18)'
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.borderColor = 'rgba(56, 189, 248, 0.4)'
+                            e.currentTarget.style.background = 'rgba(30, 41, 59, 0.85)'
+                          }}
+                        >
+                          {prompt}
+                        </button>
+                      ))}
                     </div>
                   )}
                 </div>
@@ -1005,14 +1436,18 @@ export default function Chatbot({
                   alignSelf: 'center',
                   background: 'rgba(236, 72, 153, 0.2)',
                   border: '1.5px solid #F472B6',
-                  borderRadius: '14px',
-                  padding: '8px 14px',
-                  fontSize: '11.5px',
+                  borderRadius: '16px',
+                  padding: '10px 18px',
+                  fontSize: '14.5px',
                   color: '#FBCFE8',
                   fontWeight: 800,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
                 }}
               >
-                🎙️ Listening... Speak your question to {guideName}!
+                <span style={{ fontSize: '18px' }}>🎙️</span>
+                <span>Listening to your voice... Speak now!</span>
               </div>
             )}
 
@@ -1020,91 +1455,143 @@ export default function Chatbot({
               <div
                 style={{
                   alignSelf: 'flex-start',
-                  background: 'rgba(30,41,59,0.85)',
-                  borderRadius: '14px',
-                  padding: '8px 12px',
-                  fontSize: '11.5px',
+                  background: 'rgba(15, 23, 42, 0.85)',
+                  border: '1px solid rgba(56, 189, 248, 0.25)',
+                  borderRadius: '16px',
+                  padding: '10px 16px',
+                  fontSize: '14.5px',
                   color: '#38BDF8',
                   fontWeight: 700,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
                 }}
               >
-                ✨ {guideName} is thinking & analyzing your live progress...
+                <span>✨ Gemini is thinking</span>
+                <span style={{ display: 'inline-flex', gap: '4px' }}>
+                  <span style={{ animation: 'blink 1.2s infinite', fontSize: '18px' }}>•</span>
+                  <span style={{ animation: 'blink 1.2s infinite 0.2s', fontSize: '18px' }}>•</span>
+                  <span style={{ animation: 'blink 1.2s infinite 0.4s', fontSize: '18px' }}>•</span>
+                </span>
+                <style>{`
+                  @keyframes blink {
+                    0%, 100% { opacity: 0.2; }
+                    50% { opacity: 1; }
+                  }
+                `}</style>
               </div>
             )}
           </div>
 
-          {/* Input Box + Microphone Button */}
+          {/* Bottom Input Area */}
           <form
             onSubmit={(e) => {
               e.preventDefault()
               handleSendMessage()
             }}
             style={{
-              padding: '10px 12px',
+              padding: '12px 16px 14px',
               background: 'rgba(15, 23, 42, 0.98)',
               borderTop: '1px solid rgba(148, 163, 184, 0.2)',
               display: 'flex',
-              gap: '7px',
-              alignItems: 'center',
+              flexDirection: 'column',
+              gap: '8px',
             }}
           >
-            <button
-              type="button"
-              onClick={startOrToggleTalkWithLuna}
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              {/* Voice Microphone Button */}
+              <button
+                type="button"
+                onClick={startOrToggleTalk}
+                style={{
+                  background: isListeningVoice
+                    ? 'linear-gradient(135deg, #EC4899, #E11D48)'
+                    : 'rgba(30, 41, 59, 0.95)',
+                  color: '#FFFFFF',
+                  border: isListeningVoice
+                    ? '2px solid #FDE047'
+                    : '1px solid rgba(56, 189, 248, 0.4)',
+                  borderRadius: '12px',
+                  width: '44px',
+                  height: '44px',
+                  fontSize: '20px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  flexShrink: 0,
+                  boxShadow: isListeningVoice ? '0 0 15px rgba(236,72,153,0.7)' : 'none',
+                  transition: 'all 0.2s ease',
+                }}
+                title={isListeningVoice ? 'Stop listening' : 'Speak using microphone'}
+              >
+                {isListeningVoice ? '🛑' : '🎙️'}
+              </button>
+
+              {/* Text Input Box */}
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder={
+                  isListeningVoice
+                    ? 'Listening to your speech...'
+                    : `Ask anything about investing or this website...`
+                }
+                style={{
+                  flex: 1,
+                  background: '#1E293B',
+                  border: isListeningVoice
+                    ? '1.5px solid #EC4899'
+                    : '1px solid rgba(56, 189, 248, 0.35)',
+                  borderRadius: '12px',
+                  padding: '10px 14px',
+                  color: '#FFFFFF',
+                  fontSize: '15px',
+                  height: '44px',
+                  outline: 'none',
+                }}
+              />
+
+              {/* Send Button */}
+              <button
+                type="submit"
+                disabled={loading || !input.trim()}
+                style={{
+                  background: 'linear-gradient(135deg, #0284C7, #2563EB)',
+                  color: '#FFFFFF',
+                  border: 'none',
+                  borderRadius: '12px',
+                  padding: '0 18px',
+                  height: '44px',
+                  fontSize: '15px',
+                  fontWeight: 800,
+                  cursor: loading || !input.trim() ? 'not-allowed' : 'pointer',
+                  opacity: loading || !input.trim() ? 0.45 : 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  boxShadow: '0 4px 14px rgba(2,132,199,0.3)',
+                }}
+              >
+                <span>Send</span>
+                <span style={{ fontSize: '13px' }}>➤</span>
+              </button>
+            </div>
+
+            <div
               style={{
-                background: isListeningVoice
-                  ? 'linear-gradient(135deg, #EC4899, #E11D48)'
-                  : 'rgba(30, 41, 59, 0.95)',
-                color: '#FFFFFF',
-                border: isListeningVoice ? '1.5px solid #FDE047' : '1px solid rgba(56, 189, 248, 0.4)',
-                borderRadius: '12px',
-                width: '38px',
-                height: '38px',
-                fontSize: '16px',
                 display: 'flex',
+                justifyContent: 'space-between',
                 alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                flexShrink: 0,
-              }}
-              title={`Talk with ${guideName} via Microphone`}
-            >
-              🎙️
-            </button>
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder={`Ask ${guideName} or say "Summarize Level 1"...`}
-              style={{
-                flex: 1,
-                background: '#1E293B',
-                border: '1px solid rgba(56, 189, 248, 0.35)',
-                borderRadius: '12px',
-                padding: '9px 12px',
-                color: '#FFFFFF',
-                fontSize: '12px',
-                outline: 'none',
-              }}
-            />
-            <button
-              type="submit"
-              disabled={loading || !input.trim()}
-              style={{
-                background: 'linear-gradient(135deg, #10B981, #059669)',
-                color: '#FFFFFF',
-                border: 'none',
-                borderRadius: '12px',
-                padding: '0 15px',
-                height: '38px',
-                fontSize: '12px',
-                fontWeight: 900,
-                cursor: loading || !input.trim() ? 'not-allowed' : 'pointer',
-                opacity: loading || !input.trim() ? 0.6 : 1,
+                fontSize: '11.5px',
+                color: '#64748B',
+                padding: '0 4px',
               }}
             >
-              Send
-            </button>
+              <span>⚡ Google Gemini AI • Live Financial Mentor</span>
+              <span>{SCREEN_KNOWLEDGE[currentScreen]?.badge || 'Campus'}</span>
+            </div>
           </form>
         </div>
       )}

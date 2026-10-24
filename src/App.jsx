@@ -12,6 +12,7 @@ import Intermediate from './screens/Intermediate.jsx'
 import Simulation from './screens/Simulation.jsx'
 import Advanced from './screens/Advanced.jsx'
 import Navbar from './components/Navbar.jsx'
+import Chatbot from './components/Chatbot.jsx'
 
 import FloatingBlobs from './components/FloatingBlobs.jsx'
 import AdminPanel from './screens/AdminPanel.jsx'
@@ -641,6 +642,26 @@ function AppContent() {
               onClose={() => setProfileOpen(false)}
             />
           )}
+
+          <Chatbot
+            open={chatOpen}
+            onToggle={() => setChatOpen(o => !o)}
+            onClose={() => setChatOpen(false)}
+            user={state.user}
+            xp={state.xp}
+            state={state}
+            currentScreen={screen}
+            currentPath={location.pathname}
+            go={go}
+            openLeaderboard={() => setLeaderboardOpen(true)}
+            openBadges={() => setBadgesOpen(true)}
+            openReport={() => setReportOpen(true)}
+            openProfile={() => setProfileOpen(true)}
+            openAvatarModal={openAvatarModal}
+            aiGuideAvatar={aiGuideAvatar}
+            aiGuideName={aiGuideName}
+            lang={lang}
+          />
         </div>
       </div>
     </div>

@@ -427,6 +427,32 @@ export default function Navbar({
               </button>
             )}
 
+            {onChatToggle && (
+              <button
+                onClick={onChatToggle}
+                style={{
+                  background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(79, 70, 229, 0.25))',
+                  border: '2px solid #38bdf8',
+                  color: '#e0f2fe',
+                  borderRadius: 999,
+                  padding: '7px 15px',
+                  fontSize: 12,
+                  fontWeight: 900,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  boxShadow: '0 0 14px rgba(56, 189, 248, 0.35)',
+                  transition: 'all 0.2s ease',
+                  fontFamily: "'Space Grotesk', sans-serif"
+                }}
+                title="Open AI Website Assistant & Financial Mentor"
+              >
+                <span>🤖</span>
+                <span>ASK AI</span>
+              </button>
+            )}
+
             {/* Mode Changing Button (Light Mode / Dark Mode Toggle) */}
             {toggleThemeMode && (
               <button
