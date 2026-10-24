@@ -7294,18 +7294,27 @@ export default function Level1SchoolWorld({
           ⛶ LEVEL 2 FULL-SCREEN COMPUTER WORKSTATION OVERLAY (Displays All Info Clearly!)
       ═══════════════════════════════════════════════════════════════════ */}
       {isComputerFullscreen && journeyStage === 'computer_lab' && !computerFeedbackBanner && (
-        <div className="fixed inset-0 z-40 bg-slate-950/95 backdrop-blur-xl pt-16 pb-4 px-3 sm:px-6 flex flex-col items-center justify-between pointer-events-auto overflow-hidden">
+        <div
+          style={{ paddingTop: '11.2vh', paddingBottom: '1.8vh', paddingLeft: '2vw', paddingRight: '2vw' }}
+          className="fixed inset-0 z-40 bg-slate-950/95 backdrop-blur-xl flex flex-col items-center justify-between pointer-events-auto overflow-hidden"
+        >
           {/* Top Workstation Switcher & Exit Full Screen Bar */}
-          <div className="w-full max-w-[1360px] mb-2.5 px-4 py-2.5 rounded-2xl bg-slate-900/95 border border-cyan-400/50 flex flex-wrap items-center justify-between gap-3 shrink-0 shadow-lg">
-            <div className="flex items-center gap-2.5 flex-wrap">
-              <span className="px-3 py-1 rounded-full bg-cyan-400 text-slate-950 font-black text-xs uppercase tracking-wider">
+          <div
+            style={{ padding: '1.2vh 2.2vh', borderRadius: '1.6vh', marginBottom: '1.2vh', gap: '1.4vh' }}
+            className="w-full max-w-[96vw] bg-slate-900/95 border border-cyan-400/50 flex flex-wrap items-center justify-between shrink-0 shadow-lg"
+          >
+            <div style={{ gap: '1.2vh' }} className="flex items-center flex-wrap">
+              <span
+                style={{ fontSize: 'max(14px, 1.7vh)', padding: '0.7vh 1.6vh', borderRadius: '999px' }}
+                className="bg-cyan-400 text-slate-950 font-black uppercase tracking-wider"
+              >
                 🖥️ Level 2 Full Screen Mode
               </span>
-              <div className="flex items-center gap-1.5">
+              <div style={{ gap: '1.1vh' }} className="flex items-center flex-wrap">
                 {[
-                  { idx: 1, title: 'Computer 1: Needs vs Wants & Budget', unlocked: isComputer1Unlocked, done: completedComputers.includes(1) },
-                  { idx: 2, title: 'Computer 2: Savings Goal Mixer', unlocked: isComputer2Unlocked, done: completedComputers.includes(2) },
-                  { idx: 3, title: 'Computer 3: Risk vs Return Portfolio', unlocked: isComputer3Unlocked, done: completedComputers.includes(3) },
+                  { idx: 1, title: 'Computer 1: Simulator Modules', unlocked: isComputer1Unlocked, done: simCompleted },
+                  { idx: 2, title: 'Computer 2: Savings Goal Mixer', unlocked: isComputer2Unlocked, done: mixerCompleted },
+                  { idx: 3, title: 'Computer 3: Portfolio Simulator', unlocked: isComputer3Unlocked, done: metricsCompleted },
                 ].map((comp) => (
                   <button
                     key={comp.idx}
@@ -7316,7 +7325,8 @@ export default function Level1SchoolWorld({
                       soundEngine.playClick()
                       setActiveComputerIndex(comp.idx)
                     }}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-black border transition-all flex items-center gap-1.5 ${
+                    style={{ fontSize: 'max(14px, 1.7vh)', padding: '0.8vh 1.8vh', borderRadius: '1.2vh', gap: '0.7vh' }}
+                    className={`font-black border transition-all flex items-center ${
                       activeComputerIndex === comp.idx
                         ? 'bg-emerald-400 text-slate-950 border-white shadow-md cursor-pointer'
                         : comp.unlocked
@@ -7337,7 +7347,8 @@ export default function Level1SchoolWorld({
                 soundEngine.playClick()
                 setIsComputerFullscreen(false)
               }}
-              className="px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs shadow-md flex items-center gap-1.5 cursor-pointer transition-transform hover:scale-105"
+              style={{ fontSize: 'max(14px, 1.7vh)', padding: '0.8vh 2.0vh', borderRadius: '1.2vh', gap: '0.8vh' }}
+              className="bg-amber-400 hover:bg-amber-300 text-slate-950 font-black shadow-md flex items-center cursor-pointer transition-transform hover:scale-105"
             >
               <span>🗗</span>
               <span>Exit Full Screen (3D Desk View)</span>
@@ -7345,15 +7356,27 @@ export default function Level1SchoolWorld({
           </div>
 
           {/* Full-Screen Active Computer Screen Container */}
-          <div className="w-full max-w-[1360px] flex-1 min-h-0 rounded-3xl overflow-hidden border-2 border-cyan-400/70 shadow-[0_20px_80px_rgba(0,0,0,0.85)] bg-white flex flex-col">
+          <div
+            style={{
+              borderRadius: '2vh',
+              zoom:
+                typeof window !== 'undefined'
+                  ? Math.min((window.innerHeight * 0.77) / 485, (window.innerWidth * 0.96) / 860)
+                  : 1.5,
+            }}
+            className="w-full max-w-[96vw] flex-1 min-h-0 overflow-hidden border-2 border-cyan-400/70 shadow-[0_20px_80px_rgba(0,0,0,0.85)] bg-slate-950 flex flex-col"
+          >
             {activeComputerIndex === 1 && (
               <Computer1SimulatorScreen
                 state={state}
                 update={update}
                 addXP={addXP}
-                isCompleted={completedComputers.includes(1)}
-                onCompleteModule={() => handleCompleteComputerModule(1)}
-                onBackToFloor1={handleBackToFloor1Quiz}
+                savedSimulations={savedSimulations}
+                onSaveSimulation={onSaveSimulation}
+                onUpdateSavedSimulation={onUpdateSavedSimulation}
+                onDeleteSavedSimulation={onDeleteSavedSimulation}
+                simCompleted={simCompleted}
+                onCompleteComputer1={handleCompleteComputer1}
                 isFullscreen={true}
                 onToggleFullscreen={() => setIsComputerFullscreen(false)}
               />
@@ -7363,9 +7386,8 @@ export default function Level1SchoolWorld({
                 state={state}
                 update={update}
                 addXP={addXP}
-                isCompleted={completedComputers.includes(2)}
-                onCompleteModule={() => handleCompleteComputerModule(2)}
-                onBackOneStep={() => focusCameraOnComputer(1, false)}
+                mixerCompleted={mixerCompleted}
+                onCompleteComputer2={handleCompleteComputer2}
                 isFullscreen={true}
                 onToggleFullscreen={() => setIsComputerFullscreen(false)}
               />
@@ -7375,10 +7397,12 @@ export default function Level1SchoolWorld({
                 state={state}
                 update={update}
                 addXP={addXP}
-                isCompleted={completedComputers.includes(3)}
-                onCompleteModule={() => handleCompleteComputerModule(3)}
-                onFinishAllLevel2={beginWalkToExit}
-                onBackOneStep={() => focusCameraOnComputer(2, false)}
+                savedPortfolioSimulations={savedPortfolioSimulations}
+                onSavePortfolio={onSavePortfolio}
+                onUpdateSavedPortfolio={onUpdateSavedPortfolio}
+                onDeleteSavedPortfolio={onDeleteSavedPortfolio}
+                metricsCompleted={metricsCompleted}
+                onCompleteComputer3={handleCompleteComputer3}
                 isFullscreen={true}
                 onToggleFullscreen={() => setIsComputerFullscreen(false)}
               />

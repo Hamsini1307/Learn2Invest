@@ -516,7 +516,7 @@ export function Computer1SimulatorScreen({
         fontFamily: "'Inter', 'Segoe UI', sans-serif",
         display: 'flex',
         flexDirection: 'column',
-        padding: isFullscreen ? '18px 26px' : '10px 14px',
+        padding: isFullscreen ? '14px 20px' : '10px 14px',
         boxSizing: 'border-box',
         overflow: 'hidden',
         userSelect: 'none',
@@ -525,15 +525,15 @@ export function Computer1SimulatorScreen({
       {/* Top Header Bar */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(56,189,248,0.22)', paddingBottom: '6px', marginBottom: '7px', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ background: '#0284C7', color: '#fff', fontWeight: 900, fontSize: '10px', padding: '3px 8px', borderRadius: '6px', letterSpacing: '0.7px' }}>
+          <span style={{ background: '#0284C7', color: '#fff', fontWeight: 900, fontSize: '12px', padding: '4px 10px', borderRadius: '6px', letterSpacing: '0.6px' }}>
             🖥️ COMPUTER 1 • ALL 6 SIMULATORS
           </span>
-          <span style={{ fontSize: '11.5px', fontWeight: 800, color: '#E2E8F0' }}>
+          <span style={{ fontSize: '13.5px', fontWeight: 800, color: '#E2E8F0' }}>
             Explore all 6 schemes manually to unlock Computer 1 Completion
           </span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span style={{ fontSize: '10.5px', color: allSixExplored ? '#4ADE80' : '#38BDF8', fontWeight: 800, background: allSixExplored ? 'rgba(16,185,129,0.18)' : 'rgba(56,189,248,0.12)', padding: '3px 10px', borderRadius: '999px', border: `1px solid ${allSixExplored ? '#10B981' : 'rgba(56,189,248,0.3)'}` }}>
+          <span style={{ fontSize: '12px', color: allSixExplored ? '#4ADE80' : '#38BDF8', fontWeight: 800, background: allSixExplored ? 'rgba(16,185,129,0.18)' : 'rgba(56,189,248,0.12)', padding: '4px 11px', borderRadius: '999px', border: `1px solid ${allSixExplored ? '#10B981' : 'rgba(56,189,248,0.3)'}` }}>
             ✓ Explored {Math.min(6, completedMods.length)}/6 Schemes
           </span>
           {allSixExplored && (
@@ -544,8 +544,8 @@ export function Computer1SimulatorScreen({
                 color: '#fff',
                 border: 'none',
                 borderRadius: '7px',
-                padding: '5px 11px',
-                fontSize: '11px',
+                padding: '5px 12px',
+                fontSize: '12.5px',
                 fontWeight: 900,
                 cursor: 'pointer',
               }}
@@ -561,8 +561,8 @@ export function Computer1SimulatorScreen({
                 color: '#fff',
                 border: isFullscreen ? 'none' : '1.5px solid #38BDF8',
                 borderRadius: '7px',
-                padding: '4px 10px',
-                fontSize: '10.5px',
+                padding: '5px 11px',
+                fontSize: '12px',
                 fontWeight: 900,
                 cursor: 'pointer',
               }}
@@ -574,7 +574,7 @@ export function Computer1SimulatorScreen({
       </div>
 
       {/* 6 Scheme Tabs with FULL Names */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '5px', marginBottom: '8px', flexShrink: 0 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '6px', marginBottom: '8px', flexShrink: 0 }}>
         {SIMULATOR_MODULES.map((m) => {
           const active = m.id === selectedId
           const done = completedMods.includes(m.id)
@@ -586,10 +586,10 @@ export function Computer1SimulatorScreen({
                 background: active ? `${m.color}28` : 'rgba(30,41,59,0.75)',
                 border: active ? `2px solid ${m.color}` : '1px solid rgba(148,163,184,0.22)',
                 borderRadius: '8px',
-                padding: '5px 4px',
+                padding: '6px 5px',
                 color: active ? '#FFFFFF' : '#CBD5E1',
-                fontSize: '10.5px',
-                fontWeight: active ? 900 : 700,
+                fontSize: '12.5px',
+                fontWeight: active ? 900 : 800,
                 cursor: 'pointer',
                 display: 'flex',
                 flexDirection: 'column',
@@ -601,10 +601,10 @@ export function Computer1SimulatorScreen({
                 lineHeight: 1.15,
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
-                <span style={{ fontSize: '12px' }}>{m.icon}</span>
-                <span style={{ fontSize: '9.5px', color: active ? '#38BDF8' : '#94A3B8', fontWeight: 800 }}>{m.rate}%</span>
-                {done && <span style={{ color: '#4ADE80', fontSize: '9.5px' }}>✓</span>}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <span style={{ fontSize: '14px' }}>{m.icon}</span>
+                <span style={{ fontSize: '11.5px', color: active ? '#38BDF8' : '#94A3B8', fontWeight: 900 }}>{m.rate}%</span>
+                {done && <span style={{ color: '#4ADE80', fontSize: '11.5px' }}>✓</span>}
               </div>
               <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }}>
                 {m.name}
@@ -617,30 +617,30 @@ export function Computer1SimulatorScreen({
       {/* Main Content Split */}
       <div style={{ display: 'grid', gridTemplateColumns: '1.18fr 1fr', gap: '10px', flex: 1, minHeight: 0 }}>
         {/* Left Column: Sliders & Results */}
-        <div style={{ background: 'rgba(15,23,42,0.85)', border: '1px solid rgba(148,163,184,0.18)', borderRadius: '11px', padding: '10px 12px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+        <div style={{ background: 'rgba(15,23,42,0.85)', border: '1px solid rgba(148,163,184,0.18)', borderRadius: '11px', padding: '12px 14px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '5px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
-                <span style={{ fontSize: '20px' }}>{mod.icon}</span>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '26px' }}>{mod.icon}</span>
                 <div>
-                  <div style={{ fontSize: '14px', fontWeight: 900, color: '#F8FAFC' }}>{mod.fullName}</div>
-                  <div style={{ fontSize: '10.5px', color: '#94A3B8' }}>{mod.name} • Govt / RBI Regulated</div>
+                  <div style={{ fontSize: '17px', fontWeight: 900, color: '#F8FAFC' }}>{mod.fullName}</div>
+                  <div style={{ fontSize: '12.5px', color: '#94A3B8', fontWeight: 600 }}>{mod.name} • Govt / RBI Regulated</div>
                 </div>
               </div>
-              <span style={{ background: `${mod.color}25`, border: `1px solid ${mod.color}`, color: '#F8FAFC', fontWeight: 900, fontSize: '11.5px', padding: '2px 8px', borderRadius: '999px' }}>
+              <span style={{ background: `${mod.color}25`, border: `1.5px solid ${mod.color}`, color: '#F8FAFC', fontWeight: 900, fontSize: '14px', padding: '3px 10px', borderRadius: '999px' }}>
                 {mod.rate}% p.a.
               </span>
             </div>
 
-            <p style={{ fontSize: '10.5px', color: '#CBD5E1', lineHeight: 1.38, margin: '0 0 8px 0' }}>
+            <p style={{ fontSize: '13px', color: '#E2E8F0', lineHeight: 1.42, margin: '0 0 9px 0', fontWeight: 500 }}>
               {mod.description}
             </p>
 
             {/* Amount Slider */}
-            <div style={{ marginBottom: '8px', background: 'rgba(30,41,59,0.55)', padding: '7px 9px', borderRadius: '8px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11.5px', marginBottom: '3px' }}>
-                <span style={{ color: '#94A3B8', fontWeight: 700 }}>{mod.amountLabel}</span>
-                <span style={{ color: '#38BDF8', fontWeight: 900, fontSize: '12.5px' }}>{fmtINR(amount)}</span>
+            <div style={{ marginBottom: '8px', background: 'rgba(30,41,59,0.55)', padding: '8px 11px', borderRadius: '8px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13.5px', marginBottom: '4px' }}>
+                <span style={{ color: '#CBD5E1', fontWeight: 800 }}>{mod.amountLabel}</span>
+                <span style={{ color: '#38BDF8', fontWeight: 900, fontSize: '16px' }}>{fmtINR(amount)}</span>
               </div>
               <input
                 type="range"
@@ -649,24 +649,24 @@ export function Computer1SimulatorScreen({
                 step={mod.stepAmount}
                 value={amount}
                 onChange={(e) => setAmount(Number(e.target.value))}
-                style={{ width: '100%', accentColor: mod.color, cursor: 'pointer', height: '5px' }}
+                style={{ width: '100%', accentColor: mod.color, cursor: 'pointer', height: '6px' }}
               />
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9.5px', color: '#64748B', marginTop: '2px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11.5px', color: '#94A3B8', fontWeight: 700, marginTop: '3px' }}>
                 <span>Min: {fmtINR(mod.minAmount)}</span>
                 <span>Max: {fmtINR(mod.maxAmount)}</span>
               </div>
             </div>
 
             {/* Duration Slider */}
-            <div style={{ background: 'rgba(30,41,59,0.55)', padding: '7px 9px', borderRadius: '8px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11.5px', marginBottom: '3px' }}>
-                <span style={{ color: '#94A3B8', fontWeight: 700 }}>Duration ({mod.durationUnit})</span>
-                <span style={{ color: '#FBBF24', fontWeight: 900, fontSize: '12.5px' }}>
+            <div style={{ background: 'rgba(30,41,59,0.55)', padding: '8px 11px', borderRadius: '8px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13.5px', marginBottom: '4px' }}>
+                <span style={{ color: '#CBD5E1', fontWeight: 800 }}>Duration ({mod.durationUnit})</span>
+                <span style={{ color: '#FBBF24', fontWeight: 900, fontSize: '16px' }}>
                   {duration} {mod.durationUnit}
                 </span>
               </div>
               {mod.durationFixed ? (
-                <div style={{ fontSize: '10.5px', color: '#FBBF24', fontWeight: 700, padding: '2px 0' }}>
+                <div style={{ fontSize: '13px', color: '#FBBF24', fontWeight: 800, padding: '2px 0' }}>
                   🔒 Fixed Statutory Tenure: {mod.defaultDuration} Years
                 </div>
               ) : (
@@ -677,53 +677,54 @@ export function Computer1SimulatorScreen({
                   step={1}
                   value={duration}
                   onChange={(e) => setDuration(Number(e.target.value))}
-                  style={{ width: '100%', accentColor: '#F59E0B', cursor: 'pointer', height: '5px' }}
+                  style={{ width: '100%', accentColor: '#F59E0B', cursor: 'pointer', height: '6px' }}
                 />
               )}
             </div>
           </div>
 
           {/* Calculated Output Boxes */}
-          <div style={{ display: 'grid', gridTemplateColumns: stats.extraLabel ? 'repeat(4, 1fr)' : 'repeat(3, 1fr)', gap: '6px', marginTop: '6px' }}>
-            <div style={{ background: 'rgba(15,23,42,0.9)', border: '1px solid rgba(148,163,184,0.2)', borderRadius: '7px', padding: '6px' }}>
-              <div style={{ fontSize: '9.5px', color: '#94A3B8', fontWeight: 700 }}>Total Invested</div>
-              <div style={{ fontSize: '12.5px', fontWeight: 900, color: '#E2E8F0', marginTop: '2px' }}>{fmtINR(stats.totalInvested)}</div>
+          <div style={{ display: 'grid', gridTemplateColumns: stats.extraLabel ? 'repeat(4, 1fr)' : 'repeat(3, 1fr)', gap: '7px', marginTop: '7px' }}>
+            <div style={{ background: 'rgba(15,23,42,0.9)', border: '1px solid rgba(148,163,184,0.25)', borderRadius: '8px', padding: '7px 9px' }}>
+              <div style={{ fontSize: '11.5px', color: '#CBD5E1', fontWeight: 800 }}>Total Invested</div>
+              <div style={{ fontSize: '16px', fontWeight: 900, color: '#F8FAFC', marginTop: '2px' }}>{fmtINR(stats.totalInvested)}</div>
             </div>
-            <div style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.35)', borderRadius: '7px', padding: '6px' }}>
-              <div style={{ fontSize: '9.5px', color: '#6EE7B7', fontWeight: 700 }}>Interest Earned</div>
-              <div style={{ fontSize: '12.5px', fontWeight: 900, color: '#34D399', marginTop: '2px' }}>+{fmtINR(stats.totalInterest)}</div>
+            <div style={{ background: 'rgba(16,185,129,0.14)', border: '1px solid rgba(16,185,129,0.4)', borderRadius: '8px', padding: '7px 9px' }}>
+              <div style={{ fontSize: '11.5px', color: '#6EE7B7', fontWeight: 800 }}>Interest Earned</div>
+              <div style={{ fontSize: '16px', fontWeight: 900, color: '#34D399', marginTop: '2px' }}>+{fmtINR(stats.totalInterest)}</div>
             </div>
-            <div style={{ background: 'rgba(99,102,241,0.16)', border: '1px solid rgba(99,102,241,0.45)', borderRadius: '7px', padding: '6px' }}>
-              <div style={{ fontSize: '9.5px', color: '#A5B4FC', fontWeight: 700 }}>Maturity Value</div>
-              <div style={{ fontSize: '13px', fontWeight: 900, color: '#818CF8', marginTop: '2px' }}>{fmtINR(stats.maturityValue)}</div>
+            <div style={{ background: 'rgba(99,102,241,0.18)', border: '1px solid rgba(99,102,241,0.5)', borderRadius: '8px', padding: '7px 9px' }}>
+              <div style={{ fontSize: '11.5px', color: '#A5B4FC', fontWeight: 800 }}>Maturity Value</div>
+              <div style={{ fontSize: '16.5px', fontWeight: 900, color: '#818CF8', marginTop: '2px' }}>{fmtINR(stats.maturityValue)}</div>
             </div>
             {stats.extraLabel && (
-              <div style={{ background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.4)', borderRadius: '7px', padding: '6px' }}>
-                <div style={{ fontSize: '9.5px', color: '#FDE68A', fontWeight: 700 }}>{stats.extraLabel}</div>
-                <div style={{ fontSize: '12.5px', fontWeight: 900, color: '#FBBF24', marginTop: '2px' }}>{stats.extraVal}</div>
+              <div style={{ background: 'rgba(245,158,11,0.16)', border: '1px solid rgba(245,158,11,0.45)', borderRadius: '8px', padding: '7px 9px' }}>
+                <div style={{ fontSize: '11.5px', color: '#FDE68A', fontWeight: 800 }}>{stats.extraLabel}</div>
+                <div style={{ fontSize: '16px', fontWeight: 900, color: '#FBBF24', marginTop: '2px' }}>{stats.extraVal}</div>
               </div>
             )}
           </div>
         </div>
 
         {/* Right Column: Key Facts & Action */}
-        <div style={{ background: 'rgba(15,23,42,0.85)', border: '1px solid rgba(148,163,184,0.18)', borderRadius: '11px', padding: '10px 12px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+        <div style={{ background: 'rgba(15,23,42,0.85)', border: '1px solid rgba(148,163,184,0.18)', borderRadius: '11px', padding: '12px 14px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
           <div>
-            <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#38BDF8', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: '7px' }}>
+            <div style={{ fontSize: '13.5px', fontWeight: 900, color: '#38BDF8', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: '8px' }}>
               📋 Scheme Key Takeaways & Rules
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
               {(mod.keyFacts || []).map((fact, idx) => (
                 <div
                   key={idx}
                   style={{
-                    background: 'rgba(30,41,59,0.65)',
-                    borderLeft: `3px solid ${mod.color}`,
-                    borderRadius: '6px',
-                    padding: '5px 8px',
-                    fontSize: '10.5px',
-                    color: '#E2E8F0',
-                    lineHeight: 1.32,
+                    background: 'rgba(30,41,59,0.75)',
+                    borderLeft: `4px solid ${mod.color}`,
+                    borderRadius: '7px',
+                    padding: '7px 10px',
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    color: '#F1F5F9',
+                    lineHeight: 1.38,
                   }}
                 >
                   {fact}
@@ -733,17 +734,17 @@ export function Computer1SimulatorScreen({
           </div>
 
           {/* Visual Principal vs Interest Bar */}
-          <div style={{ marginTop: '6px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9.5px', color: '#94A3B8', marginBottom: '3px', fontWeight: 700 }}>
+          <div style={{ marginTop: '8px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#CBD5E1', marginBottom: '4px', fontWeight: 800 }}>
               <span>Principal ({Math.round((stats.totalInvested / Math.max(1, stats.maturityValue)) * 100)}%)</span>
               <span>Interest ({Math.round((stats.totalInterest / Math.max(1, stats.maturityValue)) * 100)}%)</span>
             </div>
-            <div style={{ height: '8px', borderRadius: '999px', background: '#1E293B', overflow: 'hidden', display: 'flex' }}>
+            <div style={{ height: '10px', borderRadius: '999px', background: '#1E293B', overflow: 'hidden', display: 'flex' }}>
               <div style={{ width: `${(stats.totalInvested / Math.max(1, stats.maturityValue)) * 100}%`, background: '#38BDF8' }} />
               <div style={{ flex: 1, background: '#10B981' }} />
             </div>
 
-            <div style={{ display: 'flex', gap: '7px', marginTop: '8px' }}>
+            <div style={{ display: 'flex', gap: '8px', marginTop: '9px' }}>
               <button
                 onClick={handleMarkComplete}
                 style={{
@@ -753,10 +754,10 @@ export function Computer1SimulatorScreen({
                     : `linear-gradient(135deg, ${mod.color}, #4F46E5)`,
                   color: '#fff',
                   border: 'none',
-                  borderRadius: '7px',
-                  padding: '7px 9px',
-                  fontSize: '11px',
-                  fontWeight: 800,
+                  borderRadius: '8px',
+                  padding: '9px 12px',
+                  fontSize: '13.5px',
+                  fontWeight: 900,
                   cursor: 'pointer',
                 }}
               >
@@ -1055,7 +1056,7 @@ export function Computer2SavingsMixerScreen({
         fontFamily: "'Inter', 'Segoe UI', sans-serif",
         display: 'flex',
         flexDirection: 'column',
-        padding: isFullscreen ? '18px 26px' : '10px 14px',
+        padding: isFullscreen ? '14px 20px' : '10px 14px',
         boxSizing: 'border-box',
         overflow: 'hidden',
         userSelect: 'none',
@@ -1064,15 +1065,15 @@ export function Computer2SavingsMixerScreen({
       {/* Top Neon Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(16,185,129,0.28)', paddingBottom: '6px', marginBottom: '6px', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ background: 'linear-gradient(135deg, #10B981, #059669)', color: '#042F2E', fontWeight: 900, fontSize: '10px', padding: '3px 8px', borderRadius: '6px', letterSpacing: '0.7px' }}>
+          <span style={{ background: 'linear-gradient(135deg, #10B981, #059669)', color: '#042F2E', fontWeight: 900, fontSize: '12px', padding: '4px 10px', borderRadius: '6px', letterSpacing: '0.6px' }}>
             🎛️ COMPUTER 2 • SAVINGS MIXER STUDIO
           </span>
-          <span style={{ fontSize: '11.5px', fontWeight: 800, color: '#ECFDF5' }}>
+          <span style={{ fontSize: '13.5px', fontWeight: 800, color: '#ECFDF5' }}>
             Explore all 7 Mixer tabs below to complete Computer 2
           </span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span style={{ fontSize: '10px', color: allTabsExplored ? '#4ADE80' : '#38BDF8', fontWeight: 800, background: 'rgba(56,189,248,0.12)', padding: '3px 9px', borderRadius: '999px', border: '1px solid rgba(56,189,248,0.3)' }}>
+          <span style={{ fontSize: '12px', color: allTabsExplored ? '#4ADE80' : '#38BDF8', fontWeight: 800, background: 'rgba(56,189,248,0.12)', padding: '4px 10px', borderRadius: '999px', border: '1px solid rgba(56,189,248,0.3)' }}>
             ✓ {exploredTabs.length}/7 Sections Explored
           </span>
           <button
@@ -1084,8 +1085,8 @@ export function Computer2SavingsMixerScreen({
               color: '#fff',
               border: allTabsExplored ? 'none' : '1px solid #38BDF8',
               borderRadius: '7px',
-              padding: '4px 10px',
-              fontSize: '10.5px',
+              padding: '5px 11px',
+              fontSize: '12px',
               fontWeight: 800,
               cursor: 'pointer',
             }}
@@ -1100,8 +1101,8 @@ export function Computer2SavingsMixerScreen({
                 color: '#fff',
                 border: isFullscreen ? 'none' : '1.5px solid #38BDF8',
                 borderRadius: '7px',
-                padding: '4px 10px',
-                fontSize: '10.5px',
+                padding: '5px 11px',
+                fontSize: '12px',
                 fontWeight: 900,
                 cursor: 'pointer',
               }}
@@ -1113,7 +1114,7 @@ export function Computer2SavingsMixerScreen({
       </div>
 
       {/* 7 Required Feature Navigation Pills */}
-      <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginBottom: '6px', flexShrink: 0 }}>
+      <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap', marginBottom: '6px', flexShrink: 0 }}>
         {SECTION_TABS.map((tab) => {
           const active = activeSection === tab.id
           const visited = exploredTabs.includes(tab.id)
@@ -1124,11 +1125,11 @@ export function Computer2SavingsMixerScreen({
               style={{
                 background: active ? 'linear-gradient(135deg, #0EA5E9, #6366F1)' : 'rgba(30,41,59,0.8)',
                 color: active ? '#FFFFFF' : '#CBD5E1',
-                border: active ? '1px solid #38BDF8' : visited ? '1px solid rgba(16,185,129,0.45)' : '1px solid rgba(148,163,184,0.2)',
+                border: active ? '1.5px solid #38BDF8' : visited ? '1px solid rgba(16,185,129,0.45)' : '1px solid rgba(148,163,184,0.2)',
                 borderRadius: '999px',
-                padding: '4px 9px',
-                fontSize: '10px',
-                fontWeight: active ? 900 : 700,
+                padding: '5px 11px',
+                fontSize: '12px',
+                fontWeight: active ? 900 : 800,
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
@@ -1136,9 +1137,9 @@ export function Computer2SavingsMixerScreen({
               }}
             >
               <span>{tab.label}</span>
-              {visited && <span style={{ color: '#4ADE80', fontSize: '9px' }}>✓</span>}
+              {visited && <span style={{ color: '#4ADE80', fontSize: '11px' }}>✓</span>}
               {tab.badge && (
-                <span style={{ background: 'rgba(15,23,42,0.6)', padding: '1px 5px', borderRadius: '999px', fontSize: '9px', color: '#38BDF8' }}>
+                <span style={{ background: 'rgba(15,23,42,0.6)', padding: '1px 6px', borderRadius: '999px', fontSize: '11px', color: '#38BDF8' }}>
                   {tab.badge}
                 </span>
               )}
@@ -1148,9 +1149,9 @@ export function Computer2SavingsMixerScreen({
       </div>
 
       {/* Always-Accessible Scheme Add/Remove Strip */}
-      <div style={{ background: 'rgba(15,23,42,0.9)', border: '1px solid rgba(56,189,248,0.22)', borderRadius: '9px', padding: '5px 9px', marginBottom: '6px', flexShrink: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
-          <span style={{ fontSize: '10px', fontWeight: 800, color: '#38BDF8' }}>
+      <div style={{ background: 'rgba(15,23,42,0.9)', border: '1px solid rgba(56,189,248,0.22)', borderRadius: '9px', padding: '6px 10px', marginBottom: '6px', flexShrink: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '5px' }}>
+          <span style={{ fontSize: '12px', fontWeight: 800, color: '#38BDF8' }}>
             ⚡ CHECK SIMULTANEOUSLY — Click [+ Add] or [✕ Remove] on any scheme below:
           </span>
           <button
@@ -1160,8 +1161,8 @@ export function Computer2SavingsMixerScreen({
               border: '1px solid rgba(16,185,129,0.45)',
               color: '#34D399',
               borderRadius: '5px',
-              padding: '2px 7px',
-              fontSize: '9.5px',
+              padding: '3px 9px',
+              fontSize: '11.5px',
               fontWeight: 800,
               cursor: 'pointer',
             }}
@@ -1180,27 +1181,27 @@ export function Computer2SavingsMixerScreen({
                   background: isAdded ? `${s.color}24` : 'rgba(30,41,59,0.5)',
                   border: isAdded ? `1.5px solid ${s.color}` : '1px dashed rgba(148,163,184,0.3)',
                   borderRadius: '6px',
-                  padding: '3px 6px',
+                  padding: '4px 7px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   cursor: 'pointer',
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '3px', minWidth: 0 }}>
-                  <span style={{ fontSize: '11px' }}>{s.icon}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', minWidth: 0 }}>
+                  <span style={{ fontSize: '13px' }}>{s.icon}</span>
                   <div style={{ overflow: 'hidden' }}>
-                    <div style={{ fontSize: '9.5px', fontWeight: 800, color: isAdded ? '#FFF' : '#94A3B8', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    <div style={{ fontSize: '11.5px', fontWeight: 800, color: isAdded ? '#FFF' : '#94A3B8', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {s.name}
                     </div>
-                    <div style={{ fontSize: '8.5px', color: s.color, fontWeight: 800 }}>{s.rate}% p.a.</div>
+                    <div style={{ fontSize: '10.5px', color: s.color, fontWeight: 800 }}>{s.rate}% p.a.</div>
                   </div>
                 </div>
                 <span
                   style={{
-                    fontSize: '9px',
+                    fontSize: '10.5px',
                     fontWeight: 900,
-                    padding: '1px 4px',
+                    padding: '2px 5px',
                     borderRadius: '4px',
                     background: isAdded ? 'rgba(239,68,68,0.22)' : 'rgba(16,185,129,0.22)',
                     color: isAdded ? '#FCA5A5' : '#6EE7B7',
@@ -1219,11 +1220,11 @@ export function Computer2SavingsMixerScreen({
       <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', paddingRight: '4px' }}>
         {activeSection === 'mixer' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(148,163,184,0.18)', borderRadius: '9px', padding: '6px 10px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(148,163,184,0.18)', borderRadius: '9px', padding: '7px 11px' }}>
               <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10.5px', marginBottom: '2px' }}>
-                  <span style={{ color: '#94A3B8', fontWeight: 700 }}>Simultaneous Investment Base</span>
-                  <span style={{ color: '#38BDF8', fontWeight: 900 }}>{fmtINR(mixerAmount)}</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12.5px', marginBottom: '3px' }}>
+                  <span style={{ color: '#CBD5E1', fontWeight: 800 }}>Simultaneous Investment Base</span>
+                  <span style={{ color: '#38BDF8', fontWeight: 900, fontSize: '14px' }}>{fmtINR(mixerAmount)}</span>
                 </div>
                 <input
                   type="range"
@@ -1232,13 +1233,13 @@ export function Computer2SavingsMixerScreen({
                   step={5000}
                   value={mixerAmount}
                   onChange={(e) => setMixerAmount(Number(e.target.value))}
-                  style={{ width: '100%', accentColor: '#38BDF8', cursor: 'pointer', height: '5px' }}
+                  style={{ width: '100%', accentColor: '#38BDF8', cursor: 'pointer', height: '6px' }}
                 />
               </div>
               <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10.5px', marginBottom: '2px' }}>
-                  <span style={{ color: '#94A3B8', fontWeight: 700 }}>Comparison Horizon (Years)</span>
-                  <span style={{ color: '#FBBF24', fontWeight: 900 }}>{mixerYears} Years</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12.5px', marginBottom: '3px' }}>
+                  <span style={{ color: '#CBD5E1', fontWeight: 800 }}>Comparison Horizon (Years)</span>
+                  <span style={{ color: '#FBBF24', fontWeight: 900, fontSize: '14px' }}>{mixerYears} Years</span>
                 </div>
                 <input
                   type="range"
@@ -1247,7 +1248,7 @@ export function Computer2SavingsMixerScreen({
                   step={1}
                   value={mixerYears}
                   onChange={(e) => setMixerYears(Number(e.target.value))}
-                  style={{ width: '100%', accentColor: '#F59E0B', cursor: 'pointer', height: '5px' }}
+                  style={{ width: '100%', accentColor: '#F59E0B', cursor: 'pointer', height: '6px' }}
                 />
               </div>
             </div>
@@ -1262,44 +1263,44 @@ export function Computer2SavingsMixerScreen({
                       background: 'linear-gradient(145deg, rgba(15,23,42,0.95), rgba(30,41,59,0.8))',
                       border: `1.5px solid ${scheme.color}66`,
                       borderRadius: '9px',
-                      padding: '8px 10px',
+                      padding: '9px 11px',
                       display: 'flex',
                       flexDirection: 'column',
                       justifyContent: 'space-between',
                     }}
                   >
                     <div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3px' }}>
-                        <span style={{ fontSize: '11.5px', fontWeight: 900, color: '#FFF' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                        <span style={{ fontSize: '13.5px', fontWeight: 900, color: '#FFF' }}>
                           {scheme.icon} {scheme.name}
                         </span>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <span style={{ fontSize: '10px', fontWeight: 900, color: scheme.color, background: `${scheme.color}20`, padding: '1px 5px', borderRadius: '999px' }}>
+                          <span style={{ fontSize: '11.5px', fontWeight: 900, color: scheme.color, background: `${scheme.color}20`, padding: '2px 6px', borderRadius: '999px' }}>
                             {scheme.rate}%
                           </span>
                           <button
                             onClick={() => toggleSchemeInMixer(scheme.id)}
                             title="Remove from Mixer"
-                            style={{ background: 'rgba(239,68,68,0.2)', border: 'none', color: '#FCA5A5', borderRadius: '4px', fontSize: '9.5px', cursor: 'pointer', padding: '1px 4px', fontWeight: 800 }}
+                            style={{ background: 'rgba(239,68,68,0.2)', border: 'none', color: '#FCA5A5', borderRadius: '4px', fontSize: '11px', cursor: 'pointer', padding: '1px 5px', fontWeight: 800 }}
                           >
                             ✕
                           </button>
                         </div>
                       </div>
-                      <div style={{ fontSize: '9.5px', color: '#94A3B8', marginBottom: '5px' }}>
-                        Mode: <strong style={{ color: '#CBD5E1' }}>{modeLabel}</strong> • Lock-in: {scheme.lockIn}
+                      <div style={{ fontSize: '11.5px', color: '#CBD5E1', marginBottom: '5px' }}>
+                        Mode: <strong style={{ color: '#F8FAFC' }}>{modeLabel}</strong> • Lock-in: {scheme.lockIn}
                       </div>
                     </div>
 
                     <div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', marginBottom: '2px' }}>
-                        <span style={{ color: '#94A3B8' }}>Invested: {fmtINR(invested)}</span>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '3px' }}>
+                        <span style={{ color: '#CBD5E1', fontWeight: 700 }}>Invested: {fmtINR(invested)}</span>
                         <span style={{ color: '#34D399', fontWeight: 800 }}>+{fmtINR(interest)} Int.</span>
                       </div>
-                      <div style={{ fontSize: '13px', fontWeight: 900, color: '#F8FAFC', marginBottom: '4px' }}>
+                      <div style={{ fontSize: '15px', fontWeight: 900, color: '#F8FAFC', marginBottom: '5px' }}>
                         Maturity: <span style={{ color: '#38BDF8' }}>{fmtINR(maturity)}</span>
                       </div>
-                      <div style={{ height: '6px', background: '#0F172A', borderRadius: '999px', overflow: 'hidden' }}>
+                      <div style={{ height: '7px', background: '#0F172A', borderRadius: '999px', overflow: 'hidden' }}>
                         <div style={{ width: `${barPct}%`, height: '100%', background: `linear-gradient(90deg, ${scheme.color}, #38BDF8)`, borderRadius: '999px' }} />
                       </div>
                     </div>
@@ -1311,7 +1312,7 @@ export function Computer2SavingsMixerScreen({
         )}
 
         {activeSection === 'notes' && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '7px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
             {SIX_CORE_SCHEMES.map((s) => (
               <div
                 key={s.id}
@@ -1320,20 +1321,20 @@ export function Computer2SavingsMixerScreen({
                   border: `1px solid ${s.color}55`,
                   borderLeft: `4px solid ${s.color}`,
                   borderRadius: '8px',
-                  padding: '8px 10px',
+                  padding: '9px 11px',
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3px' }}>
-                  <span style={{ fontSize: '11.5px', fontWeight: 900, color: '#F8FAFC' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                  <span style={{ fontSize: '13.5px', fontWeight: 900, color: '#F8FAFC' }}>
                     {s.icon} {s.name} ({s.rate}% p.a.)
                   </span>
-                  <span style={{ fontSize: '9px', color: '#34D399', fontWeight: 800 }}>{s.compounding}</span>
+                  <span style={{ fontSize: '11px', color: '#34D399', fontWeight: 800 }}>{s.compounding}</span>
                 </div>
-                <p style={{ fontSize: '10px', color: '#CBD5E1', lineHeight: 1.38, margin: '0 0 4px 0' }}>
+                <p style={{ fontSize: '12px', color: '#E2E8F0', lineHeight: 1.4, margin: '0 0 5px 0' }}>
                   {s.educationalNote}
                 </p>
-                <div style={{ fontSize: '9.5px', color: '#FBBF24', fontWeight: 700 }}>
-                  ★ Best For: <span style={{ color: '#E2E8F0', fontWeight: 600 }}>{s.bestFor}</span>
+                <div style={{ fontSize: '11.5px', color: '#FBBF24', fontWeight: 800 }}>
+                  ★ Best For: <span style={{ color: '#F1F5F9', fontWeight: 600 }}>{s.bestFor}</span>
                 </div>
               </div>
             ))}
@@ -1342,15 +1343,15 @@ export function Computer2SavingsMixerScreen({
 
         {activeSection === 'comparison' && (
           <div style={{ background: 'rgba(15,23,42,0.92)', border: '1px solid rgba(148,163,184,0.22)', borderRadius: '9px', overflow: 'hidden' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '10px', textAlign: 'left' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', textAlign: 'left' }}>
               <thead>
                 <tr style={{ background: 'rgba(30,41,59,0.95)', color: '#38BDF8', borderBottom: '1px solid rgba(148,163,184,0.25)' }}>
-                  <th style={{ padding: '6px 8px' }}>Scheme</th>
-                  <th style={{ padding: '6px 8px' }}>Interest Rate</th>
-                  <th style={{ padding: '6px 8px' }}>Lock-In Period</th>
-                  <th style={{ padding: '6px 8px' }}>Tax Benefit (80C)</th>
-                  <th style={{ padding: '6px 8px' }}>Min / Max Limit</th>
-                  <th style={{ padding: '6px 8px' }}>Risk Profile</th>
+                  <th style={{ padding: '7px 9px' }}>Scheme</th>
+                  <th style={{ padding: '7px 9px' }}>Interest Rate</th>
+                  <th style={{ padding: '7px 9px' }}>Lock-In Period</th>
+                  <th style={{ padding: '7px 9px' }}>Tax Benefit (80C)</th>
+                  <th style={{ padding: '7px 9px' }}>Min / Max Limit</th>
+                  <th style={{ padding: '7px 9px' }}>Risk Profile</th>
                 </tr>
               </thead>
               <tbody>
@@ -1362,16 +1363,16 @@ export function Computer2SavingsMixerScreen({
                       borderBottom: '1px solid rgba(148,163,184,0.12)',
                     }}
                   >
-                    <td style={{ padding: '5px 8px', fontWeight: 800, color: '#FFF' }}>
+                    <td style={{ padding: '6px 9px', fontWeight: 800, color: '#FFF' }}>
                       {s.icon} {s.name}
                     </td>
-                    <td style={{ padding: '5px 8px', fontWeight: 900, color: '#34D399' }}>{s.rate}% p.a.</td>
-                    <td style={{ padding: '5px 8px', color: '#E2E8F0' }}>{s.lockIn}</td>
-                    <td style={{ padding: '5px 8px', color: '#FBBF24' }}>{s.taxBenefit}</td>
-                    <td style={{ padding: '5px 8px', color: '#CBD5E1' }}>
+                    <td style={{ padding: '6px 9px', fontWeight: 900, color: '#34D399' }}>{s.rate}% p.a.</td>
+                    <td style={{ padding: '6px 9px', color: '#E2E8F0', fontWeight: 600 }}>{s.lockIn}</td>
+                    <td style={{ padding: '6px 9px', color: '#FBBF24', fontWeight: 700 }}>{s.taxBenefit}</td>
+                    <td style={{ padding: '6px 9px', color: '#CBD5E1' }}>
                       {s.minInvest} – {s.maxInvest}
                     </td>
-                    <td style={{ padding: '5px 8px', color: '#38BDF8', fontWeight: 700 }}>{s.risk}</td>
+                    <td style={{ padding: '6px 9px', color: '#38BDF8', fontWeight: 800 }}>{s.risk}</td>
                   </tr>
                 ))}
               </tbody>
@@ -1386,27 +1387,27 @@ export function Computer2SavingsMixerScreen({
                 key={i}
                 style={{
                   background: 'rgba(15,23,42,0.9)',
-                  border: `1px solid ${card.color}55`,
+                  border: `1.5px solid ${card.color}55`,
                   borderRadius: '9px',
-                  padding: '9px 11px',
+                  padding: '10px 12px',
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                  <span style={{ fontSize: '12px', fontWeight: 900, color: '#FFF' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '5px' }}>
+                  <span style={{ fontSize: '14px', fontWeight: 900, color: '#FFF' }}>
                     {card.icon} {card.title}
                   </span>
-                  <span style={{ fontSize: '9px', fontWeight: 800, background: `${card.color}25`, color: card.color, padding: '2px 6px', borderRadius: '999px' }}>
+                  <span style={{ fontSize: '11px', fontWeight: 800, background: `${card.color}25`, color: card.color, padding: '2px 7px', borderRadius: '999px' }}>
                     {card.badge}
                   </span>
                 </div>
-                <p style={{ fontSize: '10.5px', color: '#CBD5E1', lineHeight: 1.4, margin: 0 }}>{card.desc}</p>
+                <p style={{ fontSize: '12.5px', color: '#E2E8F0', lineHeight: 1.42, margin: 0 }}>{card.desc}</p>
               </div>
             ))}
           </div>
         )}
 
         {activeSection === 'challenges' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {MIXER_CHALLENGES.map((ch) => {
               const picked = challengeAnswers[ch.id]
               const isCorrect = picked === ch.correct
@@ -1417,12 +1418,12 @@ export function Computer2SavingsMixerScreen({
                     background: 'rgba(15,23,42,0.9)',
                     border: '1px solid rgba(148,163,184,0.22)',
                     borderRadius: '9px',
-                    padding: '8px 11px',
+                    padding: '9px 12px',
                   }}
                 >
-                  <div style={{ fontSize: '11.5px', fontWeight: 900, color: '#38BDF8', marginBottom: '2px' }}>{ch.title}</div>
-                  <div style={{ fontSize: '10.5px', color: '#E2E8F0', marginBottom: '6px' }}>{ch.question}</div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '5px' }}>
+                  <div style={{ fontSize: '13.5px', fontWeight: 900, color: '#38BDF8', marginBottom: '3px' }}>{ch.title}</div>
+                  <div style={{ fontSize: '12.5px', color: '#F1F5F9', marginBottom: '6px', fontWeight: 600 }}>{ch.question}</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px' }}>
                     {ch.options.map((opt) => {
                       const selected = picked === opt
                       const right = opt === ch.correct
@@ -1448,8 +1449,8 @@ export function Computer2SavingsMixerScreen({
                               : '1px solid rgba(148,163,184,0.25)',
                             color: '#F8FAFC',
                             borderRadius: '6px',
-                            padding: '4px 7px',
-                            fontSize: '10px',
+                            padding: '5px 8px',
+                            fontSize: '12px',
                             fontWeight: 800,
                             cursor: 'pointer',
                           }}
@@ -1460,7 +1461,7 @@ export function Computer2SavingsMixerScreen({
                     })}
                   </div>
                   {picked && (
-                    <div style={{ marginTop: '4px', fontSize: '10px', color: isCorrect ? '#4ADE80' : '#FCA5A5', fontWeight: 700 }}>
+                    <div style={{ marginTop: '5px', fontSize: '12px', color: isCorrect ? '#4ADE80' : '#FCA5A5', fontWeight: 800 }}>
                       {isCorrect ? `✅ Correct! (+20 XP) ${ch.explanation}` : `❌ Try again! Hint: ${ch.explanation}`}
                     </div>
                   )}
@@ -1471,36 +1472,36 @@ export function Computer2SavingsMixerScreen({
         )}
 
         {activeSection === 'projector' && (
-          <div style={{ background: 'rgba(15,23,42,0.92)', border: '1px solid rgba(148,163,184,0.22)', borderRadius: '9px', padding: '9px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-              <span style={{ fontSize: '11.5px', fontWeight: 900, color: '#38BDF8' }}>
+          <div style={{ background: 'rgba(15,23,42,0.92)', border: '1px solid rgba(148,163,184,0.22)', borderRadius: '9px', padding: '10px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '7px' }}>
+              <span style={{ fontSize: '13.5px', fontWeight: 900, color: '#38BDF8' }}>
                 🔮 Multi-Year Wealth Growth Projector (Base: {fmtINR(mixerAmount)})
               </span>
-              <span style={{ fontSize: '10px', color: '#94A3B8' }}>
+              <span style={{ fontSize: '11.5px', color: '#CBD5E1', fontWeight: 700 }}>
                 Showing active mixer schemes across 3Y, 5Y, 10Y, 15Y & 20Y milestones
               </span>
             </div>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '10px', textAlign: 'left' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', textAlign: 'left' }}>
               <thead>
                 <tr style={{ background: 'rgba(30,41,59,0.95)', color: '#FBBF24' }}>
-                  <th style={{ padding: '5px 7px' }}>Active Scheme</th>
-                  <th style={{ padding: '5px 7px' }}>Rate</th>
-                  <th style={{ padding: '5px 7px' }}>3 Years</th>
-                  <th style={{ padding: '5px 7px' }}>5 Years</th>
-                  <th style={{ padding: '5px 7px' }}>10 Years</th>
-                  <th style={{ padding: '5px 7px' }}>15 Years</th>
-                  <th style={{ padding: '5px 7px' }}>20 Years</th>
+                  <th style={{ padding: '6px 8px' }}>Active Scheme</th>
+                  <th style={{ padding: '6px 8px' }}>Rate</th>
+                  <th style={{ padding: '6px 8px' }}>3 Years</th>
+                  <th style={{ padding: '6px 8px' }}>5 Years</th>
+                  <th style={{ padding: '6px 8px' }}>10 Years</th>
+                  <th style={{ padding: '6px 8px' }}>15 Years</th>
+                  <th style={{ padding: '6px 8px' }}>20 Years</th>
                 </tr>
               </thead>
               <tbody>
                 {activeSchemes.map((s) => (
                   <tr key={s.id} style={{ borderBottom: '1px solid rgba(148,163,184,0.12)' }}>
-                    <td style={{ padding: '5px 7px', fontWeight: 800, color: '#FFF' }}>
+                    <td style={{ padding: '6px 8px', fontWeight: 800, color: '#FFF' }}>
                       {s.icon} {s.name}
                     </td>
-                    <td style={{ padding: '5px 7px', color: s.color, fontWeight: 800 }}>{s.rate}%</td>
+                    <td style={{ padding: '6px 8px', color: s.color, fontWeight: 800 }}>{s.rate}%</td>
                     {[3, 5, 10, 15, 20].map((yr) => (
-                      <td key={yr} style={{ padding: '5px 7px', color: '#34D399', fontWeight: 700 }}>
+                      <td key={yr} style={{ padding: '6px 8px', color: '#34D399', fontWeight: 800 }}>
                         {fmtINR(computeSchemeMixerProjection(s, mixerAmount, yr).maturity)}
                       </td>
                     ))}
@@ -1512,44 +1513,44 @@ export function Computer2SavingsMixerScreen({
         )}
 
         {activeSection === 'planner' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
-            <div style={{ background: 'rgba(15,23,42,0.9)', border: '1px solid rgba(56,189,248,0.25)', borderRadius: '9px', padding: '7px 9px', display: 'grid', gridTemplateColumns: '1.3fr 1fr 0.8fr 1.1fr auto', gap: '6px', alignItems: 'end' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div style={{ background: 'rgba(15,23,42,0.9)', border: '1px solid rgba(56,189,248,0.25)', borderRadius: '9px', padding: '8px 10px', display: 'grid', gridTemplateColumns: '1.3fr 1fr 0.8fr 1.1fr auto', gap: '7px', alignItems: 'end' }}>
               <div>
-                <div style={{ fontSize: '9px', color: '#94A3B8', marginBottom: '2px' }}>Goal Name</div>
+                <div style={{ fontSize: '11px', color: '#CBD5E1', fontWeight: 700, marginBottom: '2px' }}>Goal Name</div>
                 <input
                   type="text"
                   value={newGoalName}
                   onChange={(e) => setNewGoalName(e.target.value)}
                   placeholder="e.g. Electric Bike / College"
-                  style={{ width: '100%', background: '#1E293B', border: '1px solid #334155', borderRadius: '5px', padding: '4px 6px', color: '#FFF', fontSize: '10.5px', boxSizing: 'border-box' }}
+                  style={{ width: '100%', background: '#1E293B', border: '1px solid #334155', borderRadius: '5px', padding: '5px 7px', color: '#FFF', fontSize: '12px', fontWeight: 700, boxSizing: 'border-box' }}
                 />
               </div>
               <div>
-                <div style={{ fontSize: '9px', color: '#94A3B8', marginBottom: '2px' }}>Target Cost (₹)</div>
+                <div style={{ fontSize: '11px', color: '#CBD5E1', fontWeight: 700, marginBottom: '2px' }}>Target Cost (₹)</div>
                 <input
                   type="number"
                   value={newGoalCost}
                   onChange={(e) => setNewGoalCost(Number(e.target.value))}
-                  style={{ width: '100%', background: '#1E293B', border: '1px solid #334155', borderRadius: '5px', padding: '4px 6px', color: '#38BDF8', fontSize: '10.5px', fontWeight: 800, boxSizing: 'border-box' }}
+                  style={{ width: '100%', background: '#1E293B', border: '1px solid #334155', borderRadius: '5px', padding: '5px 7px', color: '#38BDF8', fontSize: '12px', fontWeight: 800, boxSizing: 'border-box' }}
                 />
               </div>
               <div>
-                <div style={{ fontSize: '9px', color: '#94A3B8', marginBottom: '2px' }}>Timeline (Yrs)</div>
+                <div style={{ fontSize: '11px', color: '#CBD5E1', fontWeight: 700, marginBottom: '2px' }}>Timeline (Yrs)</div>
                 <input
                   type="number"
                   min={1}
                   max={30}
                   value={newGoalYears}
                   onChange={(e) => setNewGoalYears(Number(e.target.value))}
-                  style={{ width: '100%', background: '#1E293B', border: '1px solid #334155', borderRadius: '5px', padding: '4px 6px', color: '#FBBF24', fontSize: '10.5px', fontWeight: 800, boxSizing: 'border-box' }}
+                  style={{ width: '100%', background: '#1E293B', border: '1px solid #334155', borderRadius: '5px', padding: '5px 7px', color: '#FBBF24', fontSize: '12px', fontWeight: 800, boxSizing: 'border-box' }}
                 />
               </div>
               <div>
-                <div style={{ fontSize: '9px', color: '#94A3B8', marginBottom: '2px' }}>Matched Scheme</div>
+                <div style={{ fontSize: '11px', color: '#CBD5E1', fontWeight: 700, marginBottom: '2px' }}>Matched Scheme</div>
                 <select
                   value={newGoalScheme}
                   onChange={(e) => setNewGoalScheme(e.target.value)}
-                  style={{ width: '100%', background: '#1E293B', border: '1px solid #334155', borderRadius: '5px', padding: '4px 6px', color: '#FFF', fontSize: '10.5px' }}
+                  style={{ width: '100%', background: '#1E293B', border: '1px solid #334155', borderRadius: '5px', padding: '5px 7px', color: '#FFF', fontSize: '12px', fontWeight: 700 }}
                 >
                   {SIX_CORE_SCHEMES.map((s) => (
                     <option key={s.id} value={s.id}>
@@ -1564,10 +1565,10 @@ export function Computer2SavingsMixerScreen({
                   background: 'linear-gradient(135deg, #10B981, #059669)',
                   color: '#FFF',
                   border: 'none',
-                  borderRadius: '5px',
-                  padding: '5px 10px',
-                  fontSize: '10.5px',
-                  fontWeight: 800,
+                  borderRadius: '6px',
+                  padding: '6px 12px',
+                  fontSize: '12px',
+                  fontWeight: 900,
                   cursor: 'pointer',
                 }}
               >
@@ -1586,27 +1587,27 @@ export function Computer2SavingsMixerScreen({
                     key={g.id}
                     style={{
                       background: 'rgba(15,23,42,0.92)',
-                      border: `1px solid ${sch.color}66`,
+                      border: `1.5px solid ${sch.color}66`,
                       borderRadius: '8px',
-                      padding: '8px 10px',
+                      padding: '9px 11px',
                     }}
                   >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3px' }}>
-                      <span style={{ fontSize: '11.5px', fontWeight: 900, color: '#FFF' }}>{g.name}</span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                      <span style={{ fontSize: '13px', fontWeight: 900, color: '#FFF' }}>{g.name}</span>
                       <button
                         onClick={() => handleRemoveGoal(g.id)}
-                        style={{ background: 'rgba(239,68,68,0.2)', border: 'none', color: '#FCA5A5', borderRadius: '4px', fontSize: '9.5px', cursor: 'pointer', padding: '1px 4px' }}
+                        style={{ background: 'rgba(239,68,68,0.2)', border: 'none', color: '#FCA5A5', borderRadius: '4px', fontSize: '11px', cursor: 'pointer', padding: '1px 5px' }}
                       >
                         ✕
                       </button>
                     </div>
-                    <div style={{ fontSize: '10px', color: '#94A3B8', marginBottom: '3px' }}>
+                    <div style={{ fontSize: '11.5px', color: '#CBD5E1', marginBottom: '4px' }}>
                       Target: <strong style={{ color: '#F8FAFC' }}>{fmtINR(g.targetCost)}</strong> in <strong>{g.years} yrs</strong>
                     </div>
-                    <div style={{ fontSize: '9.5px', color: sch.color, fontWeight: 800, marginBottom: '4px' }}>
+                    <div style={{ fontSize: '11.5px', color: sch.color, fontWeight: 800, marginBottom: '5px' }}>
                       Scheme: {sch.icon} {sch.name} ({sch.rate}%)
                     </div>
-                    <div style={{ background: 'rgba(16,185,129,0.14)', border: '1px solid rgba(16,185,129,0.35)', borderRadius: '5px', padding: '4px 7px', fontSize: '10.5px', color: '#34D399', fontWeight: 900 }}>
+                    <div style={{ background: 'rgba(16,185,129,0.16)', border: '1px solid rgba(16,185,129,0.4)', borderRadius: '6px', padding: '5px 8px', fontSize: '12.5px', color: '#34D399', fontWeight: 900 }}>
                       Save {fmtINR(monthlyRequired)} / month
                     </div>
                   </div>
@@ -1880,7 +1881,7 @@ export function Computer3PortfolioSimulatorScreen({
         fontFamily: "'Inter', 'Segoe UI', sans-serif",
         display: 'flex',
         flexDirection: 'column',
-        padding: isFullscreen ? '18px 26px' : '10px 14px',
+        padding: isFullscreen ? '14px 20px' : '10px 14px',
         boxSizing: 'border-box',
         overflow: 'hidden',
         userSelect: 'none',
@@ -1889,15 +1890,15 @@ export function Computer3PortfolioSimulatorScreen({
       {/* Top Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(245,158,11,0.28)', paddingBottom: '6px', marginBottom: '6px', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ background: 'linear-gradient(135deg, #F59E0B, #D97706)', color: '#fff', fontWeight: 900, fontSize: '10px', padding: '3px 8px', borderRadius: '6px' }}>
+          <span style={{ background: 'linear-gradient(135deg, #F59E0B, #D97706)', color: '#fff', fontWeight: 900, fontSize: '12px', padding: '4px 10px', borderRadius: '6px' }}>
             📊 COMPUTER 3 • PORTFOLIO SIMULATION & INVESTMENT PLAN
           </span>
-          <span style={{ fontSize: '11.5px', fontWeight: 800, color: '#FEF3C7' }}>
+          <span style={{ fontSize: '13.5px', fontWeight: 800, color: '#FEF3C7' }}>
             Customize your schemes, test &ldquo;When Can I Buy?&rdquo;, and save to History to finish Level 2
           </span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span style={{ fontSize: '10px', color: hasManuallyExplored ? '#4ADE80' : '#FBBF24', fontWeight: 800, background: 'rgba(245,158,11,0.14)', padding: '3px 9px', borderRadius: '999px', border: '1px solid rgba(245,158,11,0.35)' }}>
+          <span style={{ fontSize: '12px', color: hasManuallyExplored ? '#4ADE80' : '#FBBF24', fontWeight: 800, background: 'rgba(245,158,11,0.14)', padding: '4px 10px', borderRadius: '999px', border: '1px solid rgba(245,158,11,0.35)' }}>
             {hasManuallyExplored ? '✓ Portfolio Explored' : '👆 Adjust Sliders or Save History'}
           </span>
           {onToggleFullscreen && (
@@ -1908,8 +1909,8 @@ export function Computer3PortfolioSimulatorScreen({
                 color: '#fff',
                 border: isFullscreen ? 'none' : '1.5px solid #38BDF8',
                 borderRadius: '7px',
-                padding: '4px 10px',
-                fontSize: '10.5px',
+                padding: '5px 11px',
+                fontSize: '12px',
                 fontWeight: 900,
                 cursor: 'pointer',
               }}
@@ -1921,12 +1922,12 @@ export function Computer3PortfolioSimulatorScreen({
       </div>
 
       {/* Add / Remove Scheme Strip (At least 1 active enforced) */}
-      <div style={{ background: 'rgba(15,23,42,0.9)', border: '1px solid rgba(148,163,184,0.2)', borderRadius: '8px', padding: '5px 9px', marginBottom: '6px', flexShrink: 0 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-          <span style={{ fontSize: '10px', fontWeight: 800, color: '#FBBF24' }}>
+      <div style={{ background: 'rgba(15,23,42,0.9)', border: '1px solid rgba(148,163,184,0.2)', borderRadius: '8px', padding: '6px 10px', marginBottom: '6px', flexShrink: 0 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '5px' }}>
+          <span style={{ fontSize: '12px', fontWeight: 800, color: '#FBBF24' }}>
             ➕ ADD OR REMOVE ANY SCHEME (At least 1 scheme stays active by default):
           </span>
-          <span style={{ fontSize: '10px', color: '#34D399', fontWeight: 800 }}>
+          <span style={{ fontSize: '12px', color: '#34D399', fontWeight: 800 }}>
             Active Schemes: {portfolioItems.length} • Blended Return: {portfolioSummary.avgRate}% p.a.
           </span>
         </div>
@@ -1942,9 +1943,9 @@ export function Computer3PortfolioSimulatorScreen({
                   background: isActive ? `${s.color}25` : 'rgba(30,41,59,0.55)',
                   border: isActive ? `1.5px solid ${s.color}` : '1px dashed rgba(148,163,184,0.3)',
                   borderRadius: '6px',
-                  padding: '3px 6px',
+                  padding: '4px 7px',
                   color: isActive ? '#FFF' : '#94A3B8',
-                  fontSize: '9.5px',
+                  fontSize: '11.5px',
                   fontWeight: 800,
                   cursor: isLastOne ? 'not-allowed' : 'pointer',
                   display: 'flex',
@@ -1968,12 +1969,12 @@ export function Computer3PortfolioSimulatorScreen({
       {/* Main 3-Column Layout */}
       <div style={{ display: 'grid', gridTemplateColumns: '1.15fr 1.1fr 0.9fr', gap: '8px', flex: 1, minHeight: 0 }}>
         {/* Column 1: Portfolio Simulation */}
-        <div style={{ background: 'rgba(15,23,42,0.88)', border: '1px solid rgba(148,163,184,0.2)', borderRadius: '9px', padding: '8px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', overflowY: 'auto' }}>
+        <div style={{ background: 'rgba(15,23,42,0.88)', border: '1px solid rgba(148,163,184,0.2)', borderRadius: '9px', padding: '9px 10px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', overflowY: 'auto' }}>
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '5px' }}>
-              <span style={{ fontSize: '11px', fontWeight: 900, color: '#38BDF8' }}>💼 Active Portfolio Allocations</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+              <span style={{ fontSize: '13px', fontWeight: 900, color: '#38BDF8' }}>💼 Active Portfolio Allocations</span>
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <span style={{ fontSize: '9.5px', color: '#94A3B8' }}>Years:</span>
+                <span style={{ fontSize: '11.5px', color: '#CBD5E1', fontWeight: 700 }}>Years:</span>
                 <input
                   type="number"
                   min={1}
@@ -1983,12 +1984,12 @@ export function Computer3PortfolioSimulatorScreen({
                     setHasManuallyExplored(true)
                     setSimYears(Math.max(1, Number(e.target.value) || 1))
                   }}
-                  style={{ width: '42px', background: '#1E293B', border: '1px solid #38BDF8', borderRadius: '5px', color: '#FFF', fontSize: '10px', fontWeight: 800, padding: '2px 4px', textAlign: 'center' }}
+                  style={{ width: '46px', background: '#1E293B', border: '1px solid #38BDF8', borderRadius: '5px', color: '#FFF', fontSize: '12px', fontWeight: 800, padding: '2px 4px', textAlign: 'center' }}
                 />
               </div>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
               {portfolioSummary.breakdown.map((b) => (
                 <div
                   key={b.id}
@@ -1996,10 +1997,10 @@ export function Computer3PortfolioSimulatorScreen({
                     background: 'rgba(30,41,59,0.65)',
                     borderLeft: `3px solid ${b.scheme.color}`,
                     borderRadius: '6px',
-                    padding: '4px 7px',
+                    padding: '5px 8px',
                   }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '10px', marginBottom: '2px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px', marginBottom: '3px' }}>
                     <span style={{ fontWeight: 800, color: '#FFF' }}>
                       {b.scheme.icon} {b.scheme.name} ({b.scheme.rate}%)
                     </span>
@@ -2008,7 +2009,7 @@ export function Computer3PortfolioSimulatorScreen({
                       {portfolioItems.length > 1 && (
                         <button
                           onClick={() => handleRemoveScheme(b.id)}
-                          style={{ background: 'rgba(239,68,68,0.2)', border: 'none', color: '#FCA5A5', borderRadius: '4px', fontSize: '9px', cursor: 'pointer', padding: '1px 4px' }}
+                          style={{ background: 'rgba(239,68,68,0.2)', border: 'none', color: '#FCA5A5', borderRadius: '4px', fontSize: '10.5px', cursor: 'pointer', padding: '1px 5px' }}
                         >
                           ✕
                         </button>
@@ -2022,9 +2023,9 @@ export function Computer3PortfolioSimulatorScreen({
                     step={5000}
                     value={b.amount}
                     onChange={(e) => handleAmountChange(b.id, e.target.value)}
-                    style={{ width: '100%', accentColor: b.scheme.color, height: '4px', cursor: 'pointer' }}
+                    style={{ width: '100%', accentColor: b.scheme.color, height: '5px', cursor: 'pointer' }}
                   />
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9px', color: '#94A3B8' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#CBD5E1', fontWeight: 700 }}>
                     <span>Invested: {fmtINR(b.amount)}</span>
                     <span>Interest: +{fmtINR(b.interest)}</span>
                   </div>
@@ -2033,15 +2034,15 @@ export function Computer3PortfolioSimulatorScreen({
             </div>
           </div>
 
-          <div style={{ borderTop: '1px solid rgba(148,163,184,0.2)', paddingTop: '5px', marginTop: '5px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '5px', marginBottom: '5px' }}>
-              <div style={{ background: 'rgba(15,23,42,0.9)', padding: '4px 6px', borderRadius: '5px' }}>
-                <div style={{ fontSize: '8.5px', color: '#94A3B8' }}>Total Invested</div>
-                <div style={{ fontSize: '11.5px', fontWeight: 900, color: '#FFF' }}>{fmtINR(portfolioSummary.totalPrincipal)}</div>
+          <div style={{ borderTop: '1px solid rgba(148,163,184,0.2)', paddingTop: '6px', marginTop: '6px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginBottom: '6px' }}>
+              <div style={{ background: 'rgba(15,23,42,0.9)', padding: '5px 8px', borderRadius: '6px' }}>
+                <div style={{ fontSize: '10.5px', color: '#CBD5E1', fontWeight: 700 }}>Total Invested</div>
+                <div style={{ fontSize: '14px', fontWeight: 900, color: '#FFF' }}>{fmtINR(portfolioSummary.totalPrincipal)}</div>
               </div>
-              <div style={{ background: 'rgba(16,185,129,0.14)', padding: '4px 6px', borderRadius: '5px' }}>
-                <div style={{ fontSize: '8.5px', color: '#6EE7B7' }}>Projected Maturity ({simYears}Y)</div>
-                <div style={{ fontSize: '11.5px', fontWeight: 900, color: '#34D399' }}>{fmtINR(portfolioSummary.totalMaturity)}</div>
+              <div style={{ background: 'rgba(16,185,129,0.14)', padding: '5px 8px', borderRadius: '6px' }}>
+                <div style={{ fontSize: '10.5px', color: '#6EE7B7', fontWeight: 700 }}>Projected Maturity ({simYears}Y)</div>
+                <div style={{ fontSize: '14px', fontWeight: 900, color: '#34D399' }}>{fmtINR(portfolioSummary.totalMaturity)}</div>
               </div>
             </div>
             <button
@@ -2052,9 +2053,9 @@ export function Computer3PortfolioSimulatorScreen({
                 color: '#FFF',
                 border: 'none',
                 borderRadius: '6px',
-                padding: '5px',
-                fontSize: '10.5px',
-                fontWeight: 800,
+                padding: '7px',
+                fontSize: '12.5px',
+                fontWeight: 900,
                 cursor: 'pointer',
               }}
             >
@@ -2064,17 +2065,17 @@ export function Computer3PortfolioSimulatorScreen({
         </div>
 
         {/* Column 2: Investment Plan ("When Can I Buy?" Calculator) */}
-        <div style={{ background: 'rgba(15,23,42,0.88)', border: '1px solid rgba(245,158,11,0.35)', borderRadius: '9px', padding: '8px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+        <div style={{ background: 'rgba(15,23,42,0.88)', border: '1px solid rgba(245,158,11,0.35)', borderRadius: '9px', padding: '9px 10px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
           <div>
-            <div style={{ fontSize: '11px', fontWeight: 900, color: '#FBBF24', marginBottom: '2px' }}>
+            <div style={{ fontSize: '13px', fontWeight: 900, color: '#FBBF24', marginBottom: '3px' }}>
               🛍️ Investment Plan: &ldquo;When Can I Buy?&rdquo;
             </div>
-            <div style={{ fontSize: '9.5px', color: '#94A3B8', marginBottom: '5px' }}>
+            <div style={{ fontSize: '11.5px', color: '#CBD5E1', marginBottom: '6px' }}>
               See how many years & months it takes to buy your goal if you save this much monthly!
             </div>
 
-            <div style={{ marginBottom: '5px' }}>
-              <div style={{ fontSize: '9px', color: '#CBD5E1', marginBottom: '2px', fontWeight: 700 }}>What do you want to buy?</div>
+            <div style={{ marginBottom: '6px' }}>
+              <div style={{ fontSize: '11px', color: '#E2E8F0', marginBottom: '2px', fontWeight: 800 }}>What do you want to buy?</div>
               <input
                 type="text"
                 value={buyItemName}
@@ -2082,14 +2083,14 @@ export function Computer3PortfolioSimulatorScreen({
                   setHasManuallyExplored(true)
                   setBuyItemName(e.target.value)
                 }}
-                style={{ width: '100%', background: '#1E293B', border: '1px solid #475569', borderRadius: '5px', padding: '4px 6px', color: '#FFF', fontSize: '10.5px', fontWeight: 700, boxSizing: 'border-box' }}
+                style={{ width: '100%', background: '#1E293B', border: '1px solid #475569', borderRadius: '5px', padding: '5px 7px', color: '#FFF', fontSize: '12px', fontWeight: 800, boxSizing: 'border-box' }}
               />
             </div>
 
-            <div style={{ marginBottom: '5px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9.5px', marginBottom: '2px' }}>
-                <span style={{ color: '#94A3B8' }}>Target Purchase Price</span>
-                <span style={{ color: '#FBBF24', fontWeight: 900 }}>{fmtINR(buyTargetCost)}</span>
+            <div style={{ marginBottom: '6px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11.5px', marginBottom: '2px' }}>
+                <span style={{ color: '#CBD5E1', fontWeight: 700 }}>Target Purchase Price</span>
+                <span style={{ color: '#FBBF24', fontWeight: 900, fontSize: '13px' }}>{fmtINR(buyTargetCost)}</span>
               </div>
               <input
                 type="range"
@@ -2101,14 +2102,14 @@ export function Computer3PortfolioSimulatorScreen({
                   setHasManuallyExplored(true)
                   setBuyTargetCost(Number(e.target.value))
                 }}
-                style={{ width: '100%', accentColor: '#F59E0B', cursor: 'pointer', height: '4px' }}
+                style={{ width: '100%', accentColor: '#F59E0B', cursor: 'pointer', height: '5px' }}
               />
             </div>
 
-            <div style={{ marginBottom: '5px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9.5px', marginBottom: '2px' }}>
-                <span style={{ color: '#94A3B8' }}>If I Save Every Month</span>
-                <span style={{ color: '#38BDF8', fontWeight: 900 }}>{fmtINR(monthlySaveAmt)} / mo</span>
+            <div style={{ marginBottom: '6px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11.5px', marginBottom: '2px' }}>
+                <span style={{ color: '#CBD5E1', fontWeight: 700 }}>If I Save Every Month</span>
+                <span style={{ color: '#38BDF8', fontWeight: 900, fontSize: '13px' }}>{fmtINR(monthlySaveAmt)} / mo</span>
               </div>
               <input
                 type="range"
@@ -2120,19 +2121,19 @@ export function Computer3PortfolioSimulatorScreen({
                   setHasManuallyExplored(true)
                   setMonthlySaveAmt(Number(e.target.value))
                 }}
-                style={{ width: '100%', accentColor: '#38BDF8', cursor: 'pointer', height: '4px' }}
+                style={{ width: '100%', accentColor: '#38BDF8', cursor: 'pointer', height: '5px' }}
               />
             </div>
 
             <div>
-              <div style={{ fontSize: '9px', color: '#CBD5E1', marginBottom: '2px', fontWeight: 700 }}>Invest Monthly Savings In:</div>
+              <div style={{ fontSize: '11px', color: '#E2E8F0', marginBottom: '2px', fontWeight: 800 }}>Invest Monthly Savings In:</div>
               <select
                 value={buySchemeId}
                 onChange={(e) => {
                   setHasManuallyExplored(true)
                   setBuySchemeId(e.target.value)
                 }}
-                style={{ width: '100%', background: '#1E293B', border: '1px solid #475569', borderRadius: '5px', padding: '3px 6px', color: '#FFF', fontSize: '10px', fontWeight: 700 }}
+                style={{ width: '100%', background: '#1E293B', border: '1px solid #475569', borderRadius: '5px', padding: '4px 7px', color: '#FFF', fontSize: '12px', fontWeight: 800 }}
               >
                 {SIX_CORE_SCHEMES.map((s) => (
                   <option key={s.id} value={s.id}>
@@ -2143,13 +2144,13 @@ export function Computer3PortfolioSimulatorScreen({
             </div>
           </div>
 
-          <div style={{ background: 'linear-gradient(135deg, rgba(245,158,11,0.16), rgba(16,185,129,0.16))', border: '1px solid rgba(245,158,11,0.45)', borderRadius: '7px', padding: '6px 9px', marginTop: '5px' }}>
-            <div style={{ fontSize: '9.5px', color: '#FDE68A', fontWeight: 800 }}>⏱️ YOU CAN BUY IT IN:</div>
-            <div style={{ fontSize: '14px', fontWeight: 900, color: '#4ADE80', margin: '1px 0' }}>
+          <div style={{ background: 'linear-gradient(135deg, rgba(245,158,11,0.16), rgba(16,185,129,0.16))', border: '1px solid rgba(245,158,11,0.45)', borderRadius: '7px', padding: '7px 10px', marginTop: '6px' }}>
+            <div style={{ fontSize: '11px', color: '#FDE68A', fontWeight: 900 }}>⏱️ YOU CAN BUY IT IN:</div>
+            <div style={{ fontSize: '16px', fontWeight: 900, color: '#4ADE80', margin: '2px 0' }}>
               {whenCanIBuyResult.years > 0 ? `${whenCanIBuyResult.years} Yr${whenCanIBuyResult.years > 1 ? 's' : ''} ` : ''}
               {whenCanIBuyResult.remMonths} Mo ({whenCanIBuyResult.months} months)
             </div>
-            <div style={{ fontSize: '9px', color: '#E2E8F0', lineHeight: 1.3 }}>
+            <div style={{ fontSize: '11px', color: '#F1F5F9', lineHeight: 1.35 }}>
               • Target Year: <strong>{whenCanIBuyResult.targetYear}</strong>
               <br />• Saved: <strong>{fmtINR(whenCanIBuyResult.totalPrincipalSaved)}</strong> + Interest: <strong style={{ color: '#34D399' }}>+{fmtINR(whenCanIBuyResult.interestHelp)}</strong>
             </div>
@@ -2157,10 +2158,10 @@ export function Computer3PortfolioSimulatorScreen({
         </div>
 
         {/* Column 3: Simulation History (Add or Remove) */}
-        <div style={{ background: 'rgba(15,23,42,0.88)', border: '1px solid rgba(148,163,184,0.2)', borderRadius: '9px', padding: '8px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', overflowY: 'auto' }}>
+        <div style={{ background: 'rgba(15,23,42,0.88)', border: '1px solid rgba(148,163,184,0.2)', borderRadius: '9px', padding: '9px 10px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', overflowY: 'auto' }}>
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '5px' }}>
-              <span style={{ fontSize: '11px', fontWeight: 900, color: '#A5B4FC' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+              <span style={{ fontSize: '13px', fontWeight: 900, color: '#A5B4FC' }}>
                 🕒 Simulation History ({historyList.length})
               </span>
               {historyList.length > 0 && (
@@ -2171,8 +2172,8 @@ export function Computer3PortfolioSimulatorScreen({
                     border: '1px solid rgba(239,68,68,0.4)',
                     color: '#FCA5A5',
                     borderRadius: '4px',
-                    padding: '2px 5px',
-                    fontSize: '9px',
+                    padding: '2px 6px',
+                    fontSize: '10.5px',
                     fontWeight: 800,
                     cursor: 'pointer',
                   }}
@@ -2183,11 +2184,11 @@ export function Computer3PortfolioSimulatorScreen({
             </div>
 
             {historyList.length === 0 ? (
-              <div style={{ fontSize: '10px', color: '#64748B', textAlign: 'center', padding: '20px 6px' }}>
+              <div style={{ fontSize: '12px', color: '#94A3B8', textAlign: 'center', padding: '20px 6px', fontWeight: 600 }}>
                 No saved history items. Click &ldquo;Save Simulation to History&rdquo; to add snapshots!
               </div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 {historyList.map((item) => (
                   <div
                     key={item.id}
@@ -2195,11 +2196,11 @@ export function Computer3PortfolioSimulatorScreen({
                       background: 'rgba(30,41,59,0.75)',
                       border: '1px solid rgba(148,163,184,0.2)',
                       borderRadius: '6px',
-                      padding: '5px 7px',
+                      padding: '6px 8px',
                     }}
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2px' }}>
-                      <span style={{ fontSize: '10px', fontWeight: 800, color: '#F8FAFC' }}>{item.label}</span>
+                      <span style={{ fontSize: '11.5px', fontWeight: 800, color: '#F8FAFC' }}>{item.label}</span>
                       <button
                         onClick={() => handleDeleteHistoryItem(item.id)}
                         title="Remove from history"
@@ -2208,17 +2209,17 @@ export function Computer3PortfolioSimulatorScreen({
                           border: 'none',
                           color: '#FCA5A5',
                           borderRadius: '4px',
-                          fontSize: '9px',
+                          fontSize: '10.5px',
                           fontWeight: 800,
-                          padding: '1px 5px',
+                          padding: '2px 6px',
                           cursor: 'pointer',
                         }}
                       >
                         ✕ Remove
                       </button>
                     </div>
-                    <div style={{ fontSize: '9px', color: '#94A3B8' }}>
-                      Invested: <strong style={{ color: '#E2E8F0' }}>{fmtINR(item.invested)}</strong> → Maturity:{' '}
+                    <div style={{ fontSize: '11px', color: '#CBD5E1' }}>
+                      Invested: <strong style={{ color: '#F8FAFC' }}>{fmtINR(item.invested)}</strong> → Maturity:{' '}
                       <strong style={{ color: '#34D399' }}>{fmtINR(item.maturity)}</strong>
                     </div>
                   </div>
@@ -2238,11 +2239,11 @@ export function Computer3PortfolioSimulatorScreen({
               color: hasManuallyExplored ? '#FFF' : '#94A3B8',
               border: 'none',
               borderRadius: '6px',
-              padding: '6px',
-              fontSize: '10.5px',
+              padding: '7px',
+              fontSize: '12.5px',
               fontWeight: 900,
               cursor: hasManuallyExplored ? 'pointer' : 'not-allowed',
-              marginTop: '5px',
+              marginTop: '6px',
             }}
           >
             {hasManuallyExplored
