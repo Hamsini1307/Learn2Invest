@@ -1219,24 +1219,6 @@ function AnimatedCampusStudents3D() {
 
       {/* 2. Students Sitting & Talking on the School Yard Wooden Benches */}
       <SeatedStudentFigure3D
-        position={[-5.95, 0.02, 14.1]}
-        rotationY={Math.PI / 2 - 0.15}
-        shirtColor="#ec4899"
-        pantsColor="#1e293b"
-        hairColor="#3b2219"
-        isFemale={true}
-        phase={0.5}
-      />
-      <SeatedStudentFigure3D
-        position={[-5.85, 0.02, 14.9]}
-        rotationY={Math.PI / 2 + 0.25}
-        shirtColor="#38bdf8"
-        pantsColor="#334155"
-        hairColor="#1c1917"
-        isFemale={false}
-        phase={2.1}
-      />
-      <SeatedStudentFigure3D
         position={[5.95, 0.02, 14.2]}
         rotationY={-Math.PI / 2 + 0.2}
         shirtColor="#a855f7"
@@ -1774,15 +1756,20 @@ function SchoolYardAndFacade3D({ frontDoorOpenRef, isNightMode = false }) {
         </mesh>
       ))}
 
-      {/* Manicured Dark-Green Boxwood Hedges & Flowerbeds Lining Left & Right of Walkway (Image 3) */}
+      {/* Manicured Dark-Green Boxwood Hedges & Flowerbeds Lining Left & Right of Walkway (Clear of Road on Left) */}
       {[-5.3, 5.3].map((hx, side) => (
         <group key={side}>
-          {/* Stone Curb Border */}
-          <RoundedBox args={[1.35, 0.24, 20.5]} position={[hx, 0.12, 16.2]} radius={0.03} receiveShadow>
+          {/* Stone Curb Border (Left side stops before road and resumes after road to leave boulevard 100% clear) */}
+          <RoundedBox
+            args={[1.35, 0.24, side === 0 ? 10.5 : 20.5]}
+            position={[hx, 0.12, side === 0 ? 21.2 : 16.2]}
+            radius={0.03}
+            receiveShadow
+          >
             <meshStandardMaterial color="#e2d5c6" roughness={0.65} />
           </RoundedBox>
-          {/* Trimmed Boxwood Hedge Segments */}
-          {[8.2, 11.4, 18.2, 22.0, 25.2].map((hz, idx) => (
+          {/* Trimmed Boxwood Hedge Segments (Left side hedges blocking road at z=8.2, 11.4 removed) */}
+          {(side === 0 ? [18.2, 22.0, 25.2] : [8.2, 11.4, 18.2, 22.0, 25.2]).map((hz, idx) => (
             <RoundedBox
               key={idx}
               args={[1.15, 0.72, 2.5]}
@@ -1794,8 +1781,8 @@ function SchoolYardAndFacade3D({ frontDoorOpenRef, isNightMode = false }) {
               <meshStandardMaterial color="#15803d" roughness={0.78} />
             </RoundedBox>
           ))}
-          {/* Colorful Flower Clusters Behind Hedges (Image 3) */}
-          {[9.5, 13.0, 16.5, 20.0, 23.5].map((fz, f) => (
+          {/* Colorful Flower Clusters Behind Hedges (Left side flowers blocking road at z=9.5, 13.0 removed) */}
+          {(side === 0 ? [16.5, 20.0, 23.5] : [9.5, 13.0, 16.5, 20.0, 23.5]).map((fz, f) => (
             <group key={f} position={[hx + (side === 0 ? -1.15 : 1.15), 0.35, fz]}>
               <mesh castShadow>
                 <sphereGeometry args={[0.48, 12, 12]} />
@@ -1810,28 +1797,24 @@ function SchoolYardAndFacade3D({ frontDoorOpenRef, isNightMode = false }) {
         </group>
       ))}
 
-      {/* Wooden Park Benches Facing the Open Walkway (Image 3) */}
-      <ParkBench3D position={[-6.0, 0, 14.5]} rotation={[0, Math.PI / 2, 0]} />
+      {/* Wooden Park Bench Facing Walkway (Left bench blocking road removed) */}
       <ParkBench3D position={[6.0, 0, 14.5]} rotation={[0, -Math.PI / 2, 0]} />
 
-      {/* Black Vintage Lantern Street Lamps Flanking Benches & Walkway (Image 3) */}
-      <StreetLamp3D position={[-5.2, 0, 11.8]} isNightMode={isNightMode} />
+      {/* Black Vintage Lantern Street Lamps Flanking Benches & Walkway (Street lamp blocking road removed) */}
       <StreetLamp3D position={[5.2, 0, 11.8]} isNightMode={isNightMode} />
       <StreetLamp3D position={[-6.4, 0, 19.2]} isNightMode={isNightMode} />
       <StreetLamp3D position={[6.4, 0, 19.2]} isNightMode={isNightMode} />
       <StreetLamp3D position={[-5.2, 0, 24.5]} isNightMode={isNightMode} />
       <StreetLamp3D position={[5.2, 0, 24.5]} isNightMode={isNightMode} />
 
-      {/* Decorative White Square Planters Along Courtyard & Entrance (Image 3) */}
-      <WhiteSquarePlanterWithPlant3D position={[-4.35, 0, 10.2]} scale={0.95} />
+      {/* Decorative White Square Planters Along Courtyard (Planter blocking road removed) */}
       <WhiteSquarePlanterWithPlant3D position={[4.35, 0, 10.2]} scale={0.95} />
       <WhiteSquarePlanterWithPlant3D position={[-4.35, 0, 17.2]} scale={0.95} />
       <WhiteSquarePlanterWithPlant3D position={[4.35, 0, 17.2]} scale={0.95} />
 
-      {/* Lush Green Courtyard Trees Framing the Facade & Foreground (Image 3) */}
+      {/* Lush Green Courtyard Trees Framing Facade (Tree at [-9.2, 0, 12.5] blocking road removed) */}
       <CourtyardTree3D position={[-5.2, 0, 4.8]} scale={1.15} pink={false} />
       <CourtyardTree3D position={[5.2, 0, 4.8]} scale={1.15} pink={false} />
-      <CourtyardTree3D position={[-9.2, 0, 12.5]} scale={1.4} pink={false} />
       <CourtyardTree3D position={[9.2, 0, 12.5]} scale={1.4} pink={false} />
       <CourtyardTree3D position={[-8.8, 0, 22.8]} scale={1.5} pink={false} />
       <CourtyardTree3D position={[8.8, 0, 22.8]} scale={1.5} pink={false} />
