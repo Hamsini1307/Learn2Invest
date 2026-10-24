@@ -3659,6 +3659,7 @@ export default function Level1SchoolWorld({
   const [usernameInput, setUsernameInput] = useState('')
   const [emailInput, setEmailInput] = useState('')
   const [passwordInput, setPasswordInput] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [loginBtnPressed, setLoginBtnPressed] = useState(false)
   const loginPanelRef = useRef(null)
 
@@ -7498,128 +7499,144 @@ export default function Level1SchoolWorld({
         )}
 
       {/* ═══════════════════════════════════════════════════════════════════
-          LOGIN & SIGN IN UI (2000px wide x 1990px tall)
-          Writings enlarged proportionally according to the box width and fitted cleanly inside!
+          LOGIN & SIGN IN UI (EXACT MATCH TO REFERENCE DESIGN - REAL INTERACTIVE UI)
+          - No image background behind login!
+          - Logo centered inside the white card at the top: LEARN2INV₹ST (with green arrow up-right) + LEARN TODAY • INVEST TOMORROW
+          - Top light-blue info alert pill
+          - 1. Choose Your 3D Avatar (Luna: Sweater & Jeans with 3D avatar crop, Leo: Jacket & Cargo with 3D avatar crop)
+          - 2. Select Starting Level (Beginner with seedling, Intermediate with lightning, Advanced with lock & LOCKED pill)
+          - 3. Form: Username or Learner ID with user icon, Email Address with email icon, Password with lock & eye toggle
+          - 4. Action Buttons: "Sign In & Create Account →" (cyan gradient) & "Log In (Existing Account) →" (emerald gradient)
       ═══════════════════════════════════════════════════════════════════ */}
       {!showLoadingSplash && journeyStage === 'login' && !hasLoggedIn && (
-        <div className="absolute inset-0 z-20 flex items-start justify-center p-8 overflow-auto pointer-events-auto">
+        <div className="absolute inset-0 z-20 flex items-center justify-center p-4 sm:p-6 overflow-y-auto pointer-events-auto bg-slate-950/35 backdrop-blur-[2px]">
           <div
             ref={loginPanelRef}
             data-login-card="true"
-            style={{
-              width: '2000px',
-              minWidth: '2000px',
-              height: '1990px',
-              minHeight: '1990px',
-            }}
-            className="w-[2000px] min-w-[2000px] h-[1990px] min-h-[1990px] rounded-[48px] bg-white/95 backdrop-blur-2xl border-8 border-emerald-600 shadow-[0_30px_100px_rgba(0,0,0,0.7)] p-16 text-black transition-all flex flex-col justify-between overflow-y-auto"
+            className="w-full max-w-[860px] rounded-[32px] bg-white border border-slate-200/90 shadow-[0_25px_60px_-12px_rgba(0,0,0,0.35)] p-6 sm:p-8 text-black transition-all my-auto"
           >
-            {/* Header + Sign In / Log In Mode Switcher */}
-            <div className="flex items-center justify-between gap-8 pb-6 border-b-4 border-slate-200">
-              <div className="flex items-center gap-8">
-                <div className="w-32 h-32 rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center text-6xl shadow-xl border-4 border-black/20 shrink-0 text-white">
-                  🌱
-                </div>
-                <div>
-                  <h1 className="text-6xl font-black tracking-tight text-black leading-none">
-                    Learn<span className="text-emerald-700">2</span>Invest School
-                  </h1>
-                  <p className="text-3xl font-extrabold text-black mt-3">
-                    {authMode === 'signin'
-                      ? 'Step 1: Sign In First to Create Your Account'
-                      : 'Returning User: Log In with Your Registered Account'}
-                  </p>
-                </div>
+            {/* Top Logo & Motto inside card */}
+            <div className="flex flex-col items-center justify-center mb-4 select-none text-center">
+              <div className="inline-flex items-center gap-1 font-black text-3xl sm:text-4xl tracking-tight text-[#0B2545]">
+                <span>LEARN</span>
+                <span>2</span>
+                <span>INVE</span>
+                <span className="relative inline-flex items-center">
+                  ₹
+                  <svg
+                    className="absolute -top-3.5 -right-2.5 w-5 h-5 text-emerald-500 fill-current"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M5 19L17.59 6.41L15 3.82H21V9.82L18.41 7.23L5.82 19.82L5 19Z" />
+                  </svg>
+                </span>
+                <span>ST</span>
               </div>
-
-              {/* Sign In / Log In Toggle Pills */}
-              <div className="flex items-center bg-slate-200 p-3 rounded-3xl border-4 border-slate-400 gap-4">
-                <button
-                  type="button"
-                  onClick={() => {
-                    soundEngine.playClick()
-                    setAuthMode('signin')
-                    setAuthError('')
-                  }}
-                  className={`px-12 py-6 rounded-2xl text-3xl font-black transition-all cursor-pointer ${
-                    authMode === 'signin'
-                      ? 'bg-cyan-400 text-black shadow-lg scale-105'
-                      : 'text-black hover:bg-white/70'
-                  }`}
-                >
-                  🔑 Sign In (New)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    soundEngine.playClick()
-                    setAuthMode('login')
-                    setAuthError('')
-                  }}
-                  className={`px-12 py-6 rounded-2xl text-3xl font-black transition-all cursor-pointer ${
-                    authMode === 'login'
-                      ? 'bg-emerald-500 text-black shadow-lg scale-105'
-                      : 'text-black hover:bg-white/70'
-                  }`}
-                >
-                  🚀 Log In (Existing)
-                </button>
+              <div className="text-[10px] sm:text-[11px] font-black tracking-[0.25em] text-[#0B2545] mt-1 uppercase">
+                LEARN TODAY &bull; INVEST TOMORROW
               </div>
             </div>
 
-            {/* Account Rule Helper Banner */}
-            <div className="my-6 px-10 py-6 rounded-3xl bg-emerald-100 border-4 border-emerald-500 text-2xl font-bold text-black flex items-center gap-6">
-              <span className="text-5xl">ℹ️</span>
-              <span className="leading-relaxed">
-                <strong>First time here?</strong> Please <strong>Sign In</strong> first to register your account. Only learners who already have an account can <strong>Log In</strong> directly!
+            {/* Top Light-Blue Notice Banner */}
+            <div className="mb-4 px-4 py-2.5 rounded-2xl bg-[#E8F3FF] border border-[#BFDBFE] text-[#1E3A8A] text-xs font-medium flex items-center gap-2.5 shadow-sm">
+              <div className="w-5 h-5 rounded-full bg-[#2563EB] text-white flex items-center justify-center text-[11px] font-black shrink-0">
+                i
+              </div>
+              <span className="leading-snug">
+                First time here? Please <strong className="font-extrabold text-[#0F172A]">Sign In</strong> first to register your account. Only learners who already have an account can <strong className="font-extrabold text-[#0F172A]">Log In</strong> directly!
               </span>
             </div>
 
-            {/* 1. Choose Your 3D Character Avatar (Only Luna & Leo) */}
-            <div className="my-6">
-              <label className="block text-3xl font-black uppercase tracking-wider text-black mb-4">
-                1. Choose Your 3D Avatar
-              </label>
-              <div className="grid grid-cols-2 gap-8">
-                {[
-                  { id: 'luna', name: 'Luna', desc: 'Sweater & Jeans', gender: 'female' },
-                  { id: 'leo', name: 'Leo', desc: 'Jacket & Cargo', gender: 'male' },
-                ].map((ch) => {
-                  const active =
-                    (ch.id === 'luna' && characterChoice !== 'leo') ||
-                    (ch.id === 'leo' && characterChoice === 'leo')
-                  return (
-                    <button
-                      type="button"
-                      key={ch.id}
-                      onClick={() => {
-                        soundEngine.playClick()
-                        setCharacterChoice(ch.id)
-                        if (setAiGuideAvatar) setAiGuideAvatar(ch.gender, ch.name)
-                      }}
-                      className={`p-8 rounded-3xl border-4 text-left flex items-center gap-8 transition-all cursor-pointer ${
-                        active
-                          ? 'bg-emerald-200 border-emerald-700 shadow-xl scale-[1.01]'
-                          : 'bg-white/80 border-slate-300 hover:bg-white'
-                      }`}
-                    >
-                      <CuteChibiAvatarSVG type={ch.gender} size={110} />
-                      <div className="min-w-0">
-                        <div className="text-4xl font-black text-black truncate">{ch.name}</div>
-                        <div className="text-2xl text-black font-bold truncate mt-1">{ch.desc}</div>
+            {/* 1. CHOOSE YOUR 3D AVATAR */}
+            <div className="mb-4">
+              <div className="text-[11px] sm:text-xs font-black uppercase tracking-wider text-[#0F172A] mb-2">
+                1. CHOOSE YOUR 3D AVATAR
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                {/* Luna Card */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    soundEngine.playClick()
+                    setCharacterChoice('luna')
+                    if (setAiGuideAvatar) setAiGuideAvatar('female', 'Luna')
+                  }}
+                  className={`p-3 rounded-2xl border-2 text-left flex items-center justify-between transition-all cursor-pointer relative ${
+                    characterChoice !== 'leo'
+                      ? 'bg-[#E8FAF4] border-[#10B981] shadow-sm'
+                      : 'bg-white border-slate-200 hover:border-slate-300'
+                  }`}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="relative w-14 h-14 shrink-0 rounded-2xl overflow-hidden flex items-center justify-center">
+                      <img
+                        src="/images/avatar_luna_3d.png"
+                        alt="Luna"
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-base font-black text-[#0F172A] leading-tight">Luna</div>
+                      <div className="text-xs font-medium text-slate-500 mt-0.5">Sweater & Jeans</div>
+                    </div>
+                  </div>
+                  <div className="shrink-0 ml-2">
+                    {characterChoice !== 'leo' ? (
+                      <div className="w-6 h-6 rounded-full bg-[#059669] text-white flex items-center justify-center text-xs font-black shadow-sm">
+                        ✓
                       </div>
-                    </button>
-                  )
-                })}
+                    ) : (
+                      <div className="w-6 h-6 rounded-full border-2 border-slate-300" />
+                    )}
+                  </div>
+                </button>
+
+                {/* Leo Card */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    soundEngine.playClick()
+                    setCharacterChoice('leo')
+                    if (setAiGuideAvatar) setAiGuideAvatar('male', 'Leo')
+                  }}
+                  className={`p-3 rounded-2xl border-2 text-left flex items-center justify-between transition-all cursor-pointer relative ${
+                    characterChoice === 'leo'
+                      ? 'bg-[#E8FAF4] border-[#10B981] shadow-sm'
+                      : 'bg-white border-slate-200 hover:border-slate-300'
+                  }`}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="relative w-14 h-14 shrink-0 rounded-2xl overflow-hidden flex items-center justify-center">
+                      <img
+                        src="/images/avatar_leo_3d.png"
+                        alt="Leo"
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-base font-black text-[#0F172A] leading-tight">Leo</div>
+                      <div className="text-xs font-medium text-slate-500 mt-0.5">Jacket & Cargo</div>
+                    </div>
+                  </div>
+                  <div className="shrink-0 ml-2">
+                    {characterChoice === 'leo' ? (
+                      <div className="w-6 h-6 rounded-full bg-[#059669] text-white flex items-center justify-center text-xs font-black shadow-sm">
+                        ✓
+                      </div>
+                    ) : (
+                      <div className="w-6 h-6 rounded-full border-2 border-slate-300" />
+                    )}
+                  </div>
+                </button>
               </div>
             </div>
 
-            {/* 2. Choose Starting Level (Beginner, Intermediate -> Starts at Quiz, Advanced -> Locked) */}
-            <div className="my-6">
-              <label className="block text-3xl font-black uppercase tracking-wider text-black mb-4">
-                2. Select Starting Level (Advanced Level Locked 🔒)
-              </label>
-              <div className="grid grid-cols-3 gap-6">
+            {/* 2. SELECT STARTING LEVEL (ADVANCED LEVEL LOCKED 🔒 ) */}
+            <div className="mb-4">
+              <div className="text-[11px] sm:text-xs font-black uppercase tracking-wider text-[#0F172A] mb-2">
+                2. SELECT STARTING LEVEL (ADVANCED LEVEL LOCKED 🔒 )
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {/* Beginner Option */}
                 <button
                   type="button"
@@ -7627,21 +7644,40 @@ export default function Level1SchoolWorld({
                     soundEngine.playClick()
                     setLoginLevelChoice('beginner')
                   }}
-                  className={`p-8 rounded-3xl border-4 text-left transition-all cursor-pointer ${
+                  className={`p-3 rounded-2xl border-2 text-left flex items-center justify-between transition-all cursor-pointer relative ${
                     loginLevelChoice === 'beginner'
-                      ? 'bg-emerald-200 border-emerald-700 shadow-xl'
-                      : 'bg-white/80 border-slate-300 hover:bg-white'
+                      ? 'bg-[#E8FAF4] border-[#10B981] shadow-sm'
+                      : 'bg-white border-slate-200 hover:border-slate-300'
                   }`}
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="text-6xl">🌱</span>
-                    <span className="text-xl font-black uppercase px-4 py-1.5 rounded-xl bg-emerald-600 text-white">
-                      Level 1
-                    </span>
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="w-8 h-8 shrink-0 flex items-center justify-center">
+                      <img
+                        src="/images/icon_seedling_3d.png"
+                        alt="Beginner"
+                        className="w-8 h-8 object-contain"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          if (e.currentTarget.nextSibling) e.currentTarget.nextSibling.style.display = 'block';
+                        }}
+                      />
+                      <span style={{ display: 'none' }} className="text-xl">🌱</span>
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-xs sm:text-sm font-black text-[#0F172A] leading-tight">Beginner</div>
+                      <div className="text-[10px] font-medium text-slate-500 leading-tight mt-0.5 truncate">
+                        Starts at Classroom 101 Videos
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-3xl font-black text-black mt-4">Beginner</div>
-                  <div className="text-xl text-black font-bold leading-normal mt-2">
-                    Starts at Classroom 101 Videos
+                  <div className="shrink-0 ml-1.5">
+                    {loginLevelChoice === 'beginner' ? (
+                      <div className="w-5 h-5 rounded-full bg-[#059669] text-white flex items-center justify-center text-[10px] font-black shadow-sm">
+                        ✓
+                      </div>
+                    ) : (
+                      <div className="w-5 h-5 rounded-full border-2 border-slate-300" />
+                    )}
                   </div>
                 </button>
 
@@ -7652,21 +7688,29 @@ export default function Level1SchoolWorld({
                     soundEngine.playClick()
                     setLoginLevelChoice('intermediate')
                   }}
-                  className={`p-8 rounded-3xl border-4 text-left transition-all cursor-pointer ${
+                  className={`p-3 rounded-2xl border-2 text-left flex items-center justify-between transition-all cursor-pointer relative ${
                     loginLevelChoice === 'intermediate'
-                      ? 'bg-cyan-200 border-cyan-700 shadow-xl'
-                      : 'bg-white/80 border-slate-300 hover:bg-white'
+                      ? 'bg-[#E8FAF4] border-[#10B981] shadow-sm'
+                      : 'bg-white border-slate-200 hover:border-slate-300'
                   }`}
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="text-6xl">⚡</span>
-                    <span className="text-xl font-black uppercase px-4 py-1.5 rounded-xl bg-cyan-700 text-white">
-                      Quiz Start
-                    </span>
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <span className="text-2xl text-amber-500 shrink-0 select-none">⚡</span>
+                    <div className="min-w-0">
+                      <div className="text-xs sm:text-sm font-black text-[#0F172A] leading-tight">Intermediate</div>
+                      <div className="text-[10px] font-medium text-slate-500 leading-tight mt-0.5 truncate">
+                        Starts directly from the Quiz!
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-3xl font-black text-black mt-4">Intermediate</div>
-                  <div className="text-xl text-black font-bold leading-normal mt-2">
-                    Starts directly from the Quiz!
+                  <div className="shrink-0 ml-1.5">
+                    {loginLevelChoice === 'intermediate' ? (
+                      <div className="w-5 h-5 rounded-full bg-[#059669] text-white flex items-center justify-center text-[10px] font-black shadow-sm">
+                        ✓
+                      </div>
+                    ) : (
+                      <div className="w-5 h-5 rounded-full border-2 border-slate-300" />
+                    )}
                   </div>
                 </button>
 
@@ -7674,108 +7718,129 @@ export default function Level1SchoolWorld({
                 <button
                   type="button"
                   disabled
-                  className="p-8 rounded-3xl border-4 border-slate-400 bg-slate-200/90 text-left opacity-75 cursor-not-allowed"
+                  className="p-3 rounded-2xl border-2 border-slate-200 bg-[#F1F5F9] text-left opacity-90 cursor-not-allowed flex items-center justify-between relative"
                   title="Complete Beginner & Intermediate levels to unlock Advanced Banking!"
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="text-6xl">🔒</span>
-                    <span className="text-xl font-black uppercase px-4 py-1.5 rounded-xl bg-rose-600 text-white">
-                      Locked
-                    </span>
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <span className="text-xl shrink-0 select-none">🔒</span>
+                    <div className="min-w-0">
+                      <div className="text-xs sm:text-sm font-black text-slate-700 leading-tight">Advanced</div>
+                      <div className="text-[10px] font-medium text-slate-400 leading-tight mt-0.5 truncate">
+                        Locked - Unlock via Level 2
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-3xl font-black text-black mt-4">Advanced</div>
-                  <div className="text-xl text-black font-bold leading-normal mt-2">
-                    Locked • Unlock via Level 2
-                  </div>
+                  <span className="shrink-0 ml-1.5 text-[8.5px] font-black uppercase px-1.5 py-0.5 rounded bg-[#94A3B8] text-white">
+                    LOCKED
+                  </span>
                 </button>
               </div>
             </div>
 
-            {/* 3. Sign In / Log In Form with Black Text */}
-            <form onSubmit={handleLoginSubmit} noValidate className="my-6 space-y-8">
-              <div className="grid grid-cols-2 gap-8">
+            {/* 3. INPUT DETAILS & FORM */}
+            <form onSubmit={handleLoginSubmit} noValidate className="space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div>
-                  <label className="block text-2xl font-black uppercase tracking-wider text-black mb-3">
-                    Username or Learner ID
+                  <label className="flex items-center gap-1.5 text-[10.5px] font-black uppercase tracking-wider text-[#0F172A] mb-1">
+                    <span className="text-xs">👤</span>
+                    <span>USERNAME OR LEARNER ID</span>
                   </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Luna Scholar"
-                    value={usernameInput}
-                    onChange={(e) => {
-                      setUsernameInput(e.target.value)
-                      if (authError) setAuthError('')
-                    }}
-                    className="w-full h-[90px] px-8 rounded-2xl bg-white border-4 border-slate-400 text-black placeholder-slate-500 text-2xl font-bold focus:outline-none focus:border-emerald-600 transition-colors"
-                  />
+                  <div className="relative flex items-center">
+                    <span className="absolute left-3.5 text-slate-400 text-sm select-none">👤</span>
+                    <input
+                      type="text"
+                      placeholder="e.g. rincy123"
+                      value={usernameInput}
+                      onChange={(e) => {
+                        setUsernameInput(e.target.value);
+                        if (authError) setAuthError('');
+                      }}
+                      className="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-xs sm:text-sm font-semibold focus:outline-none focus:border-[#10B981] transition-all"
+                    />
+                  </div>
                 </div>
 
                 <div>
-                  <label className="block text-2xl font-black uppercase tracking-wider text-black mb-3">
-                    Email Address
+                  <label className="flex items-center gap-1.5 text-[10.5px] font-black uppercase tracking-wider text-[#0F172A] mb-1">
+                    <span className="text-xs">✉️</span>
+                    <span>EMAIL ADDRESS</span>
                   </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. luna@learn2invest.edu"
-                    value={emailInput}
-                    onChange={(e) => {
-                      setEmailInput(e.target.value)
-                      if (authError) setAuthError('')
-                    }}
-                    className="w-full h-[90px] px-8 rounded-2xl bg-white border-4 border-slate-400 text-black placeholder-slate-500 text-2xl font-bold focus:outline-none focus:border-emerald-600 transition-colors"
-                  />
+                  <div className="relative flex items-center">
+                    <span className="absolute left-3.5 text-slate-400 text-sm select-none">✉️</span>
+                    <input
+                      type="text"
+                      placeholder="e.g. rincy@example.com"
+                      value={emailInput}
+                      onChange={(e) => {
+                        setEmailInput(e.target.value);
+                        if (authError) setAuthError('');
+                      }}
+                      className="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-xs sm:text-sm font-semibold focus:outline-none focus:border-[#10B981] transition-all"
+                    />
+                  </div>
                 </div>
               </div>
 
               <div>
-                <label className="block text-2xl font-black uppercase tracking-wider text-black mb-3">
-                  Password
+                <label className="flex items-center gap-1.5 text-[10.5px] font-black uppercase tracking-wider text-[#0F172A] mb-1">
+                  <span className="text-xs">🔒</span>
+                  <span>PASSWORD</span>
                 </label>
-                <input
-                  type="password"
-                  placeholder="••••••••"
-                  value={passwordInput}
-                  onChange={(e) => {
-                    setPasswordInput(e.target.value)
-                    if (authError) setAuthError('')
-                  }}
-                  className="w-full h-[90px] px-8 rounded-2xl bg-white border-4 border-slate-400 text-black placeholder-slate-500 text-2xl font-bold focus:outline-none focus:border-emerald-600 transition-colors"
-                />
+                <div className="relative flex items-center">
+                  <span className="absolute left-3.5 text-slate-400 text-sm select-none">🔒</span>
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="Enter your password"
+                    value={passwordInput}
+                    onChange={(e) => {
+                      setPasswordInput(e.target.value);
+                      if (authError) setAuthError('');
+                    }}
+                    className="w-full pl-9 pr-10 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-xs sm:text-sm font-semibold focus:outline-none focus:border-[#10B981] transition-all"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((s) => !s)}
+                    className="absolute right-3 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer select-none text-sm"
+                    title={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? '👁️' : '👁️‍🗨️'}
+                  </button>
+                </div>
               </div>
 
               {/* Validation Alert Box */}
               {authError && (
-                <div className="p-8 rounded-3xl bg-rose-100 border-4 border-rose-600 text-rose-950 text-2xl font-black flex items-center gap-6 shadow-xl">
-                  <span className="text-4xl">⚠️</span>
-                  <div className="flex-1">{authError}</div>
+                <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-300 text-rose-900 text-xs font-bold flex items-center gap-2 shadow-sm">
+                  <span className="text-sm">⚠️</span>
+                  <div>{authError}</div>
                 </div>
               )}
 
-              <div className="grid grid-cols-2 gap-8 pt-4">
+              {/* 4. Action Buttons */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1.5">
                 <button
                   type="button"
                   onClick={() => executeSignInOrLogIn('signin')}
                   onMouseEnter={() => soundEngine.playHover()}
-                  className={`w-full h-[110px] py-6 px-10 rounded-3xl bg-gradient-to-r from-cyan-400 to-blue-400 text-black border-4 border-black/30 font-black text-3xl tracking-wide shadow-2xl hover:scale-[1.01] active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-4 ${
+                  className={`w-full py-3 px-5 rounded-2xl bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#06B6D4] text-white font-black text-xs sm:text-sm tracking-wide flex items-center justify-center gap-2 shadow-md shadow-cyan-500/25 hover:shadow-cyan-500/40 hover:scale-[1.01] active:scale-95 transition-all cursor-pointer ${
                     loginBtnPressed && authMode === 'signin' ? 'scale-95 opacity-80' : ''
                   }`}
                 >
-                  {loginLevelChoice === 'intermediate'
-                    ? '⚡ Sign In & Start at Quiz →'
-                    : '🔑 Sign In & Create Account →'}
+                  <span className="text-lg">🔑</span>
+                  <span>Sign In & Create Account →</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => executeSignInOrLogIn('login')}
                   onMouseEnter={() => soundEngine.playHover()}
-                  className={`w-full h-[110px] py-6 px-10 rounded-3xl bg-gradient-to-r from-emerald-400 via-teal-400 to-lime-400 text-black border-4 border-black/30 font-black text-3xl tracking-wide shadow-2xl hover:scale-[1.01] active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-4 ${
+                  className={`w-full py-3 px-5 rounded-2xl bg-gradient-to-r from-[#059669] via-[#10B981] to-[#22C55E] text-white font-black text-xs sm:text-sm tracking-wide flex items-center justify-center gap-2 shadow-md shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:scale-[1.01] active:scale-95 transition-all cursor-pointer ${
                     loginBtnPressed && authMode === 'login' ? 'scale-95 opacity-80' : ''
                   }`}
                 >
-                  {loginLevelChoice === 'intermediate'
-                    ? '⚡ Log In & Start at Quiz →'
-                    : '🚀 Log In (Existing Account) →'}
+                  <span className="text-lg">🚀</span>
+                  <span>Log In (Existing Account) →</span>
                 </button>
               </div>
             </form>
