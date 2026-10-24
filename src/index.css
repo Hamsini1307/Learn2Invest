@@ -937,8 +937,33 @@ select::placeholder,
 }
 
 
+/* ─── LOGIN PANEL INPUT FIELDS OVERRIDE (FORCE LARGE TEXT & PLACEHOLDER IN BOXES) ─── */
+[data-login-card] input[type="text"],
+[data-login-card] input[type="password"],
+.login-huge-input {
+  font-size: 28px !important;
+  line-height: 1.3 !important;
+  font-weight: 800 !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  letter-spacing: 0.02em !important;
+  height: 80px !important;
+  min-height: 80px !important;
+  padding-left: 28px !important;
+  padding-right: 28px !important;
+  border-radius: 20px !important;
+}
 
+[data-login-card] input[type="password"] {
+  padding-right: 80px !important;
+}
 
-
-
-
+[data-login-card] input[type="text"]::placeholder,
+[data-login-card] input[type="password"]::placeholder,
+.login-huge-input::placeholder {
+  font-size: 26px !important;
+  font-weight: 700 !important;
+  color: #94a3b8 !important;
+  -webkit-text-fill-color: #94a3b8 !important;
+  opacity: 0.85 !important;
+}

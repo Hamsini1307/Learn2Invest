@@ -7748,7 +7748,7 @@ export default function Level1SchoolWorld({
                         setUsernameInput(e.target.value);
                         if (authError) setAuthError('');
                       }}
-                      className="w-full h-20 sm:h-22 px-7 py-4 rounded-2xl sm:rounded-3xl border-2 border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-2xl sm:text-3xl font-extrabold focus:outline-none focus:border-[#10B981] focus:ring-4 focus:ring-[#10B981]/20 transition-all shadow-sm"
+                      className="login-huge-input w-full h-20 sm:h-22 px-7 py-4 rounded-2xl sm:rounded-3xl border-2 border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-2xl sm:text-3xl font-extrabold focus:outline-none focus:border-[#10B981] focus:ring-4 focus:ring-[#10B981]/20 transition-all shadow-sm"
                     />
                   </div>
                 </div>
@@ -7766,7 +7766,7 @@ export default function Level1SchoolWorld({
                         setEmailInput(e.target.value);
                         if (authError) setAuthError('');
                       }}
-                      className="w-full h-20 sm:h-22 px-7 py-4 rounded-2xl sm:rounded-3xl border-2 border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-2xl sm:text-3xl font-extrabold focus:outline-none focus:border-[#10B981] focus:ring-4 focus:ring-[#10B981]/20 transition-all shadow-sm"
+                      className="login-huge-input w-full h-20 sm:h-22 px-7 py-4 rounded-2xl sm:rounded-3xl border-2 border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-2xl sm:text-3xl font-extrabold focus:outline-none focus:border-[#10B981] focus:ring-4 focus:ring-[#10B981]/20 transition-all shadow-sm"
                     />
                   </div>
                 </div>
@@ -7785,7 +7785,7 @@ export default function Level1SchoolWorld({
                       setPasswordInput(e.target.value);
                       if (authError) setAuthError('');
                     }}
-                    className="w-full h-20 sm:h-22 pl-7 pr-20 py-4 rounded-2xl sm:rounded-3xl border-2 border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-2xl sm:text-3xl font-extrabold focus:outline-none focus:border-[#10B981] focus:ring-4 focus:ring-[#10B981]/20 transition-all shadow-sm"
+                    className="login-huge-input w-full h-20 sm:h-22 pl-7 pr-20 py-4 rounded-2xl sm:rounded-3xl border-2 border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-2xl sm:text-3xl font-extrabold focus:outline-none focus:border-[#10B981] focus:ring-4 focus:ring-[#10B981]/20 transition-all shadow-sm"
                   />
                   <button
                     type="button"
