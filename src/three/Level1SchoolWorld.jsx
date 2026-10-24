@@ -2135,7 +2135,53 @@ function SchoolYardAndFacade3D({ frontDoorOpenRef, isNightMode = false }) {
 // 3. ZONE 2: 3D SUNLIT SCHOOL VERANDA / ATRIUM (Matching Image 4: media_1790443807125.jpg)
 //    Runs from z = 2.0 to z = -30.0 along x = 0
 // ═══════════════════════════════════════════════════════════════════════════════
-function SchoolVeranda3D() {
+function SchoolVeranda3D({ charStateRef }) {
+  // References for automatic sliding double doors: [101, 102, 103]
+  const leftDoorRefs = useRef([])
+  const rightDoorRefs = useRef([])
+  const doorOpenStates = useRef([0, 0, 0])
+  const lastSoundTimes = useRef([0, 0, 0])
+
+  const doors = [
+    { z: -7.5, num: '101', label: 'CLASSROOM 101' },
+    { z: -15.5, num: '102', label: 'CLASSROOM 102' },
+    { z: -23.5, num: '103', label: 'EXAM CENTER 103' },
+  ]
+
+  useFrame(({ clock }) => {
+    const charX = charStateRef?.current?.x ?? 0
+    const charZ = charStateRef?.current?.z ?? 0
+    const now = clock.getElapsedTime()
+
+    doors.forEach((door, idx) => {
+      // Proximity detection: open when character approaches the door
+      const dx = charX - (-5.1)
+      const dz = charZ - door.z
+      const dist = Math.hypot(dx, dz)
+      const isNear = dist < 4.5 || (Math.abs(dz) < 2.6 && charX > -7.0 && charX < -1.2)
+      const target = isNear ? 1.0 : 0.0
+
+      if (target === 1.0 && doorOpenStates.current[idx] < 0.05 && now - lastSoundTimes.current[idx] > 2.0) {
+        lastSoundTimes.current[idx] = now
+        try {
+          soundEngine.playDoorOpen()
+        } catch {}
+      }
+
+      doorOpenStates.current[idx] = THREE.MathUtils.lerp(doorOpenStates.current[idx], target, 0.1)
+      const open = doorOpenStates.current[idx]
+
+      if (leftDoorRefs.current[idx]) {
+        // Slides toward positive Z along wall
+        leftDoorRefs.current[idx].position.z = 0.78 + open * 1.38
+      }
+      if (rightDoorRefs.current[idx]) {
+        // Slides toward negative Z along wall
+        rightDoorRefs.current[idx].position.z = -0.78 - open * 1.38
+      }
+    })
+  })
+
   return (
     <group position={[0, 0, 0]}>
       {/* Polished Warm Cream Tile Floor of Veranda */}
@@ -2191,18 +2237,63 @@ function SchoolVeranda3D() {
         ))}
       </group>
 
-      {/* ─── LEFT VERANDA WALL WITH WOODEN DOORWAYS "101" (CLASSROOM), "102", AND "103" (EXAM CENTER) ─── */}
-      {[
-        { z: -7.5, num: '101', label: 'CLASSROOM 101' },
-        { z: -15.5, num: '102', label: 'CLASSROOM 102' },
-        { z: -23.5, num: '103', label: 'EXAM CENTER 103' },
-      ].map((door, idx) => (
+      {/* ─── CONTINUOUS SOLID LEFT VERANDA WALL (SEAMLESSLY FILLS ALL VOIDS ABOVE & BETWEEN DOORS) ─── */}
+      <group position={[-5.1, 0, 0]}>
+        {/* 1. Full-Length Continuous Upper Header Wall (y = 3.8 to y = 8.2 — Fills all gaps above Doorways 101, 102, 103) */}
+        <RoundedBox args={[0.45, 4.4, 32]} position={[0, 6.0, -14]} radius={0.02} receiveShadow castShadow>
+          <meshStandardMaterial color="#f8efe2" roughness={0.7} />
+        </RoundedBox>
+
+        {/* 2. Lower Wall Segments Between & Around the Doorways (y = 0 to y = 3.8) */}
+        {/* Segment A: Front wall before Door 101 (z = 2.0 to z = -5.9) */}
+        <RoundedBox args={[0.45, 3.8, 7.9]} position={[0, 1.9, -1.95]} radius={0.02} receiveShadow castShadow>
+          <meshStandardMaterial color="#f8efe2" roughness={0.7} />
+        </RoundedBox>
+
+        {/* Segment B: Wall between Door 101 and Door 102 (z = -9.1 to z = -13.9) */}
+        <RoundedBox args={[0.45, 3.8, 4.8]} position={[0, 1.9, -11.5]} radius={0.02} receiveShadow castShadow>
+          <meshStandardMaterial color="#f8efe2" roughness={0.7} />
+        </RoundedBox>
+
+        {/* Segment C: Wall between Door 102 and Door 103 (z = -17.1 to z = -21.9) */}
+        <RoundedBox args={[0.45, 3.8, 4.8]} position={[0, 1.9, -19.5]} radius={0.02} receiveShadow castShadow>
+          <meshStandardMaterial color="#f8efe2" roughness={0.7} />
+        </RoundedBox>
+
+        {/* Segment D: Rear wall past Door 103 (z = -25.1 to z = -30.0) */}
+        <RoundedBox args={[0.45, 3.8, 4.9]} position={[0, 1.9, -27.55]} radius={0.02} receiveShadow castShadow>
+          <meshStandardMaterial color="#f8efe2" roughness={0.7} />
+        </RoundedBox>
+      </group>
+
+      {/* ─── ROOM 102 INTERIOR ENCLOSURE (Encloses Room 102 so no outdoor void is visible) ─── */}
+      <group position={[-14, 0, -15.5]}>
+        <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+          <planeGeometry args={[16.5, 7.8]} />
+          <meshStandardMaterial color="#e8c8a7" roughness={0.32} metalness={0.08} />
+        </mesh>
+        <mesh position={[-8.1, 3.8, 0]} receiveShadow>
+          <boxGeometry args={[0.35, 7.6, 7.8]} />
+          <meshStandardMaterial color="#f5ebe0" roughness={0.75} />
+        </mesh>
+        <mesh position={[-7.9, 3.8, 0]} rotation={[0, Math.PI / 2, 0]}>
+          <planeGeometry args={[4.2, 2.8]} />
+          <meshStandardMaterial color="#bae6fd" roughness={0.2} metalness={0.3} />
+        </mesh>
+      </group>
+
+      {/* ─── LEFT VERANDA DOORWAYS "101", "102", "103" WITH AUTOMATIC SLIDING DOUBLE DOORS ─── */}
+      {doors.map((door, idx) => (
         <group key={idx} position={[-5.1, 0, door.z]}>
-          {/* Cream Wall Pillar Between Doors */}
-          <RoundedBox args={[0.45, 4.5, 2.6]} position={[0, 2.25, 3.2]} radius={0.03} castShadow receiveShadow>
-            <meshStandardMaterial color="#f8efe2" roughness={0.7} />
+          {/* Classical Architectural Wall Pilasters Framing the Doorway */}
+          <RoundedBox args={[0.55, 4.2, 0.32]} position={[0.06, 2.1, -1.72]} radius={0.03} castShadow receiveShadow>
+            <meshStandardMaterial color="#f5ebe0" roughness={0.65} />
           </RoundedBox>
-          {/* Warm Oak Door Frame */}
+          <RoundedBox args={[0.55, 4.2, 0.32]} position={[0.06, 2.1, 1.72]} radius={0.03} castShadow receiveShadow>
+            <meshStandardMaterial color="#f5ebe0" roughness={0.65} />
+          </RoundedBox>
+
+          {/* Warm Oak Door Frame (Header & Side Jambs) */}
           <RoundedBox args={[0.48, 3.8, 0.18]} position={[0, 1.9, -1.6]} radius={0.02}>
             <meshStandardMaterial color="#c08248" />
           </RoundedBox>
@@ -2212,6 +2303,61 @@ function SchoolVeranda3D() {
           <RoundedBox args={[0.5, 0.35, 3.4]} position={[0, 3.75, 0]} radius={0.02}>
             <meshStandardMaterial color="#c08248" />
           </RoundedBox>
+
+          {/* ─── AUTOMATIC SLIDING DOUBLE DOORS (OPENS AUTOMATICALLY WHEN WALKING NEAR) ─── */}
+          {/* Left Sliding Door Leaf */}
+          <group
+            ref={(el) => (leftDoorRefs.current[idx] = el)}
+            position={[0, 1.82, 0.78]}
+          >
+            {/* Warm Oak Door Leaf */}
+            <RoundedBox args={[0.1, 3.62, 1.54]} position={[0, 0, 0]} radius={0.03} castShadow>
+              <meshStandardMaterial color="#b45309" roughness={0.4} />
+            </RoundedBox>
+            {/* Vertical Frosted Glass Vision Panel */}
+            <mesh position={[0, 0, 0]}>
+              <boxGeometry args={[0.12, 2.7, 0.92]} />
+              <meshStandardMaterial
+                color="#e0f2fe"
+                transparent
+                opacity={0.45}
+                roughness={0.1}
+                metalness={0.2}
+              />
+            </mesh>
+            {/* Vertical Silver Door Pull Handle */}
+            <mesh position={[0.08, 0, -0.62]}>
+              <cylinderGeometry args={[0.02, 0.02, 0.75, 10]} />
+              <meshStandardMaterial color="#f8fafc" metalness={0.8} roughness={0.2} />
+            </mesh>
+          </group>
+
+          {/* Right Sliding Door Leaf */}
+          <group
+            ref={(el) => (rightDoorRefs.current[idx] = el)}
+            position={[0, 1.82, -0.78]}
+          >
+            {/* Warm Oak Door Leaf */}
+            <RoundedBox args={[0.1, 3.62, 1.54]} position={[0, 0, 0]} radius={0.03} castShadow>
+              <meshStandardMaterial color="#b45309" roughness={0.4} />
+            </RoundedBox>
+            {/* Vertical Frosted Glass Vision Panel */}
+            <mesh position={[0, 0, 0]}>
+              <boxGeometry args={[0.12, 2.7, 0.92]} />
+              <meshStandardMaterial
+                color="#e0f2fe"
+                transparent
+                opacity={0.45}
+                roughness={0.1}
+                metalness={0.2}
+              />
+            </mesh>
+            {/* Vertical Silver Door Pull Handle */}
+            <mesh position={[0.08, 0, 0.62]}>
+              <cylinderGeometry args={[0.02, 0.02, 0.75, 10]} />
+              <meshStandardMaterial color="#f8fafc" metalness={0.8} roughness={0.2} />
+            </mesh>
+          </group>
 
           {/* Dark Slate Room Number Sign ("101", "102", "103") Above Door Frame (Image 4) */}
           <RoundedBox args={[0.12, 0.46, 0.92]} position={[0.26, 4.12, 0]} radius={0.04}>
@@ -6366,7 +6512,7 @@ export default function Level1SchoolWorld({
           <SchoolToBankRoadWithStreetLights3D isNightMode={isNightMode} />
 
           {/* 2. 3D Ground-Floor Veranda */}
-          <SchoolVeranda3D />
+          <SchoolVeranda3D charStateRef={charStateRef} />
 
           {/* 3. 3D Classroom 101 with Seated Students, Teacher & Physical Video Projector Screen */}
           <Classroom101Scene3D projectorContent={classroomProjectorUI} />
