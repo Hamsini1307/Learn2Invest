@@ -2404,13 +2404,12 @@ function Classroom101Scene3D({ projectorContent }) {
           {/* ─── INTERACTIVE VIDEO LESSON PLAYER EMBEDDED INSIDE THE PHYSICAL PROJECTOR SCREEN ─── */}
           {projectorContent && (
             <Html
-              transform
+              center
               zIndexRange={[15, 0]}
-              distanceFactor={2.82}
               position={[0, 0, 0.05]}
               style={{
-                width: '880px',
-                height: '500px',
+                width: 'min(106.5vh, 92vw)',
+                height: 'min(60.7vh, 52.4vw)',
                 pointerEvents: 'auto',
                 userSelect: 'none',
               }}
@@ -2577,6 +2576,8 @@ function Classroom101Scene3D({ projectorContent }) {
 //    Centered at x = -14, y = 0, z = -26, facing -Z (Projector Screen at z = -32.85)
 // ═══════════════════════════════════════════════════════════════════════════════
 function ExaminationCenter103Scene3D({ examProjectorContent }) {
+  const { size } = useThree()
+  const projZoom = Math.min((size.height * 0.607) / 500, (size.width * 0.92) / 880)
   return (
     <group position={[-14, 0, -26]}>
       {/* Warm Polished Cream-Beige Tile Floor with Sunbeam Reflections */}
@@ -2672,13 +2673,13 @@ function ExaminationCenter103Scene3D({ examProjectorContent }) {
           {/* ─── INTERACTIVE QUIZ EMBEDDED INSIDE THE PHYSICAL PROJECTOR SCREEN ─── */}
           {examProjectorContent && (
             <Html
-              transform
+              center
               zIndexRange={[15, 0]}
-              distanceFactor={2.82}
               position={[0, 0, 0.05]}
               style={{
                 width: '880px',
                 height: '500px',
+                zoom: projZoom,
                 pointerEvents: 'auto',
                 userSelect: 'none',
               }}
@@ -2957,6 +2958,8 @@ function Floor2ComputerLabScene3D({
   computer2Content,
   computer3Content,
 }) {
+  const { size } = useThree()
+  const compZoom = Math.min((size.height * 0.715) / 462, (size.width * 0.94) / 820)
   const workstations = [
     { idx: 1, x: -3.4, label: 'Computer 1 • Simulation Module', content: computer1Content },
     { idx: 2, x: 0.0, label: 'Computer 2 • Savings Mixer', content: computer2Content },
@@ -3103,13 +3106,13 @@ function Floor2ComputerLabScene3D({
               {/* ─── EMBEDDED INTERACTIVE MODULE PERFECTLY FITTED INSIDE COMPUTER SCREEN ─── */}
               {ws.content && (
                 <Html
-                  transform
+                  center
                   zIndexRange={[15, 0]}
-                  distanceFactor={1.04}
                   position={[0, 0, 0.045]}
                   style={{
                     width: '820px',
                     height: '462px',
+                    zoom: compZoom,
                     pointerEvents: 'auto',
                     userSelect: 'none',
                     overflow: 'hidden',
@@ -5758,20 +5761,31 @@ export default function Level1SchoolWorld({
   // ───────────────────────────────────────────────────────────────────────────
   const classroomProjectorUI =
     journeyStage === 'classroom_projector' && !isVideoFullscreen ? (
-      <div className="w-full h-full bg-slate-950 text-white flex flex-col justify-between overflow-hidden relative font-sans select-none">
-        {/* Top Integrated Projector Header Bar */}
-        <div className="flex items-center justify-between px-5 py-2.5 bg-slate-900/95 border-b border-slate-800 shrink-0">
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">{currentVideo.icon}</span>
+      <div
+        style={{ WebkitFontSmoothing: 'antialiased', textRendering: 'optimizeLegibility' }}
+        className="w-full h-full bg-slate-950 text-white flex flex-col justify-between overflow-hidden relative font-sans select-none"
+      >
+        {/* Top Integrated Projector Header Bar (Scaled in vh so it is always crisp & full-sized) */}
+        <div
+          style={{ padding: '1.1vh 2.0vh' }}
+          className="flex items-center justify-between bg-slate-900 border-b border-slate-700 shrink-0"
+        >
+          <div style={{ gap: '1.2vh' }} className="flex items-center">
+            <span style={{ fontSize: '3.0vh', lineHeight: 1 }}>{currentVideo.icon}</span>
             <div>
-              <div className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-400">
+              <div
+                style={{ fontSize: '1.25vh', lineHeight: 1.2 }}
+                className="font-extrabold uppercase tracking-wider text-emerald-400"
+              >
                 Learn2Invest Classroom 101 • Video {currentVideoIdx + 1} of {LEVEL1_VIDEOS.length}
               </div>
-              <div className="text-base font-black text-white leading-tight">{currentVideo.title}</div>
+              <div style={{ fontSize: '2.05vh', lineHeight: 1.2 }} className="font-black text-white">
+                {currentVideo.title}
+              </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div style={{ gap: '1.0vh' }} className="flex items-center">
             <button
               onClick={() => {
                 soundEngine.playClick()
@@ -5781,26 +5795,32 @@ export default function Level1SchoolWorld({
                 }
                 setShowLessonCompletedBanner(true)
               }}
-              className="px-3 py-1.5 rounded-full bg-amber-400/20 hover:bg-amber-400/30 border border-amber-400 text-amber-300 text-xs font-black cursor-pointer transition-all"
+              style={{ fontSize: '1.35vh', padding: '0.65vh 1.6vh' }}
+              className="rounded-full bg-amber-400/25 hover:bg-amber-400/35 border-2 border-amber-400 text-amber-200 font-black cursor-pointer transition-all"
             >
               🌟 Key Takeaways
             </button>
             <button
               onClick={openVideoFullscreen}
-              className="px-3 py-1.5 rounded-full bg-cyan-500/20 hover:bg-cyan-500/35 border border-cyan-400 text-cyan-200 text-xs font-black cursor-pointer transition-all flex items-center gap-1"
+              style={{ fontSize: '1.35vh', padding: '0.65vh 1.6vh', gap: '0.5vh' }}
+              className="rounded-full bg-cyan-500/25 hover:bg-cyan-500/35 border-2 border-cyan-400 text-cyan-100 font-black cursor-pointer transition-all flex items-center"
               title="Open Video in Full Screen"
             >
               <span>⛶</span>
               <span>Full Screen</span>
             </button>
-            <div className="px-3 py-1.5 rounded-full bg-slate-800 border border-slate-700 text-xs font-bold text-slate-200">
+            <div
+              style={{ fontSize: '1.35vh', padding: '0.65vh 1.5vh' }}
+              className="rounded-full bg-slate-800 border border-slate-600 font-extrabold text-white"
+            >
               Completed: {completedVideoIds.length} / {LEVEL1_VIDEOS.length}
             </div>
             <div
-              className={`px-3 py-1.5 rounded-full text-xs font-black border ${
+              style={{ fontSize: '1.35vh', padding: '0.65vh 1.6vh' }}
+              className={`rounded-full font-black border-2 ${
                 is85PercentReached
-                  ? 'bg-emerald-500/20 border-emerald-400 text-emerald-300'
-                  : 'bg-amber-500/20 border-amber-400 text-amber-300'
+                  ? 'bg-emerald-500/25 border-emerald-400 text-emerald-200'
+                  : 'bg-amber-500/25 border-amber-400 text-amber-200'
               }`}
             >
               Watched: {watchPct}% {is85PercentReached ? '✓ (85%+)' : '/ 85% Req'}
@@ -5809,7 +5829,7 @@ export default function Level1SchoolWorld({
         </div>
 
         {/* Center Video Surface Fitted Cleanly Inside the Physical Projector Screen */}
-        <div className="relative flex-1 min-h-0 bg-black flex items-center justify-center overflow-hidden p-1.5">
+        <div className="relative flex-1 min-h-0 bg-black flex items-center justify-center overflow-hidden p-[0.6vh]">
           {!videoLoadError ? (
             <video
               ref={videoElemRef}
@@ -5846,16 +5866,19 @@ export default function Level1SchoolWorld({
             />
           ) : (
             /* Styled Lesson Summary Fallback Card if Video Stream is Slow/Unavailable */
-            <div className="w-full h-full bg-gradient-to-br from-slate-900 via-emerald-950/60 to-slate-950 flex flex-col items-center justify-center p-8 text-center">
-              <div className="text-5xl mb-3">{currentVideo.icon}</div>
-              <div className="px-4 py-1 rounded-full bg-emerald-500/20 border border-emerald-400 text-emerald-300 text-xs font-black uppercase tracking-widest mb-2">
+            <div className="w-full h-full bg-gradient-to-br from-slate-900 via-emerald-950/60 to-slate-950 flex flex-col items-center justify-center p-[3vh] text-center">
+              <div style={{ fontSize: '6vh' }} className="mb-[1.2vh]">{currentVideo.icon}</div>
+              <div
+                style={{ fontSize: '1.4vh', padding: '0.5vh 1.8vh' }}
+                className="rounded-full bg-emerald-500/20 border border-emerald-400 text-emerald-300 font-black uppercase tracking-widest mb-[1vh]"
+              >
                 Interactive Lesson Summary Mode • {watchPct}% Progress
               </div>
-              <h3 className="text-2xl font-black text-white mb-2">{currentVideo.title}</h3>
-              <p className="text-base font-bold text-slate-300 max-w-xl leading-relaxed">
+              <h3 style={{ fontSize: '2.8vh' }} className="font-black text-white mb-[1vh]">{currentVideo.title}</h3>
+              <p style={{ fontSize: '1.8vh' }} className="font-bold text-slate-300 max-w-xl leading-relaxed">
                 {currentVideo.subtitle}
               </p>
-              <div className="mt-4 w-72 h-3 bg-slate-800 rounded-full overflow-hidden border border-white/15">
+              <div style={{ width: '32vh', height: '1.4vh' }} className="mt-[1.8vh] bg-slate-800 rounded-full overflow-hidden border border-white/15">
                 <div
                   className="h-full bg-gradient-to-r from-emerald-400 to-amber-400 transition-all"
                   style={{ width: `${watchPct}%` }}
@@ -5867,43 +5890,59 @@ export default function Level1SchoolWorld({
           {!isPlaying && !videoLoadError && !showLessonCompletedBanner && (
             <button
               onClick={togglePlayPause}
-              className="absolute inset-0 flex flex-col items-center justify-center bg-black/45 hover:bg-black/30 transition-all group"
+              className="absolute inset-0 flex flex-col items-center justify-center bg-black/45 hover:bg-black/30 transition-all group cursor-pointer"
             >
-              <div className="w-18 h-18 rounded-full bg-emerald-500 text-slate-950 flex items-center justify-center text-3xl font-black shadow-[0_0_35px_rgba(16,185,129,0.85)] group-hover:scale-110 transition-transform">
+              <div
+                style={{ width: '8.5vh', height: '8.5vh', fontSize: '3.6vh' }}
+                className="rounded-full bg-emerald-500 text-slate-950 flex items-center justify-center font-black shadow-[0_0_35px_rgba(16,185,129,0.85)] group-hover:scale-110 transition-transform"
+              >
                 ▶
               </div>
-              <span className="mt-3 text-xs font-extrabold tracking-wider uppercase text-white bg-slate-900/90 px-5 py-2 rounded-full border border-white/20">
+              <span
+                style={{ fontSize: '1.45vh', padding: '0.9vh 2.4vh', marginTop: '1.4vh' }}
+                className="font-extrabold tracking-wider uppercase text-white bg-slate-900/95 rounded-full border border-white/25"
+              >
                 Click Projector to Play Video {currentVideoIdx + 1}
               </span>
             </button>
           )}
 
-          {/* 🌟 KEY TAKEAWAYS SCREEN SHOWN AFTER EACH VIDEO IS COMPLETED */}
+          {/* 🌟 KEY TAKEAWAYS SCREEN SHOWN AFTER EACH VIDEO IS COMPLETED — FULL PROJECTOR FIT */}
           {showLessonCompletedBanner && (
             <div
               onWheel={(e) => e.stopPropagation()}
-              className="absolute inset-0 bg-slate-950/95 backdrop-blur-md flex items-center justify-center z-30 p-3"
+              style={{ padding: '1.2vh 1.6vh' }}
+              className="absolute inset-0 bg-slate-950 flex items-center justify-center z-30"
             >
               <div
                 ref={xpBannerRef}
-                className="w-full max-w-4xl rounded-3xl bg-slate-900 border-2 border-amber-400 shadow-[0_0_55px_rgba(251,191,36,0.55)] overflow-hidden flex flex-col max-h-full"
+                style={{ borderRadius: '2.0vh' }}
+                className="w-full h-full bg-slate-900 border-2 border-amber-400 shadow-[0_0_40px_rgba(251,191,36,0.45)] overflow-hidden flex flex-col justify-between"
               >
                 {/* Golden Header Matching BeginnerLevel.jsx TakeawayModal */}
-                <div className="px-5 py-2.5 bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-500 text-slate-950 flex items-center justify-between shrink-0">
-                  <div className="flex items-center gap-2 font-black text-sm uppercase tracking-wide">
-                    <span className="text-lg">🌟</span>
+                <div
+                  style={{ padding: '1.2vh 2.2vh' }}
+                  className="bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 text-slate-950 flex items-center justify-between shrink-0"
+                >
+                  <div
+                    style={{ fontSize: '1.95vh', gap: '1.0vh' }}
+                    className="flex items-center font-black uppercase tracking-wide"
+                  >
+                    <span style={{ fontSize: '2.4vh' }}>🌟</span>
                     <span>INVEST CLUB: KEY TAKEAWAYS! — VIDEO {currentVideoIdx + 1} OF {LEVEL1_VIDEOS.length}</span>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div style={{ gap: '1.0vh' }} className="flex items-center">
                     <span
                       ref={floatingXpTextRef}
-                      className="px-3 py-1 rounded-full bg-slate-950 text-amber-300 font-black text-xs shadow"
+                      style={{ fontSize: '1.45vh', padding: '0.5vh 1.6vh' }}
+                      className="rounded-full bg-slate-950 text-amber-300 font-black shadow"
                     >
                       ⭐ +30 XP EARNED!
                     </span>
                     <button
                       onClick={() => setShowLessonCompletedBanner(false)}
-                      className="w-7 h-7 rounded-lg bg-slate-950 text-amber-400 font-black text-xs flex items-center justify-center cursor-pointer"
+                      style={{ width: '3.2vh', height: '3.2vh', fontSize: '1.6vh', borderRadius: '0.8vh' }}
+                      className="bg-slate-950 text-amber-400 font-black flex items-center justify-center cursor-pointer"
                       title="Return to video"
                     >
                       ✕
@@ -5911,38 +5950,62 @@ export default function Level1SchoolWorld({
                   </div>
                 </div>
 
-                {/* 4 Key Lesson Terms Grid */}
-                <div className="p-4 overflow-y-auto space-y-2.5">
-                  <div className="text-center text-xs font-black text-amber-300 uppercase tracking-wider">
+                {/* 4 Key Lesson Terms Grid — Fills Full Projector Height & Width */}
+                <div
+                  style={{ padding: '1.4vh 2.0vh', gap: '1.2vh' }}
+                  className="flex-1 min-h-0 flex flex-col justify-between overflow-y-auto"
+                >
+                  <div
+                    style={{ fontSize: '1.65vh' }}
+                    className="text-center font-black text-amber-300 uppercase tracking-wider shrink-0"
+                  >
                     🎉 MASTER THESE KEY LESSON TERMS ({currentVideo.title}):
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2.5">
+                  <div
+                    style={{ gap: '1.4vh' }}
+                    className="grid grid-cols-2 flex-1 min-h-0"
+                  >
                     {(currentVideo.takeaways || []).map((t, idx) => (
                       <div
                         key={idx}
-                        className="p-3 rounded-2xl bg-slate-950/90 border border-amber-500/35 flex items-start gap-2.5"
+                        style={{ padding: '1.5vh 1.8vh', borderRadius: '1.6vh', gap: '1.4vh' }}
+                        className="bg-slate-950 border-2 border-amber-500/55 flex items-center"
                       >
-                        <div className="text-xl mt-0.5 shrink-0">{t.emoji || '⭐'}</div>
-                        <div>
-                          <div className="text-xs font-black text-white mb-0.5">{t.term}</div>
-                          <div className="text-[11px] text-slate-300 font-semibold leading-snug">{t.def}</div>
+                        <div style={{ fontSize: '3.6vh', lineHeight: 1 }} className="shrink-0">
+                          {t.emoji || '⭐'}
+                        </div>
+                        <div className="min-w-0">
+                          <div
+                            style={{ fontSize: '2.05vh', lineHeight: 1.2, marginBottom: '0.4vh' }}
+                            className="font-black text-white"
+                          >
+                            {t.term}
+                          </div>
+                          <div
+                            style={{ fontSize: '1.58vh', lineHeight: 1.35 }}
+                            className="text-slate-100 font-semibold"
+                          >
+                            {t.def}
+                          </div>
                         </div>
                       </div>
                     ))}
                   </div>
 
-                  <div className="pt-1.5 flex items-center justify-between gap-3">
+                  <div style={{ gap: '1.4vh', paddingTop: '0.4vh' }} className="flex items-center justify-between shrink-0">
                     <button
                       onClick={() => setShowLessonCompletedBanner(false)}
-                      className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-white/20 text-slate-200 font-black text-xs cursor-pointer"
+                      style={{ fontSize: '1.55vh', padding: '1.1vh 2.2vh', borderRadius: '1.2vh' }}
+                      className="bg-slate-800 hover:bg-slate-700 border-2 border-white/30 text-white font-black cursor-pointer"
                     >
                       ↺ Back to Video
                     </button>
 
                     <button
                       onClick={handleProceedAfterTakeaways}
-                      className="flex-1 py-2.5 px-5 rounded-xl bg-gradient-to-r from-amber-500 via-yellow-400 to-emerald-400 text-slate-950 font-black text-xs sm:text-sm shadow-[0_0_25px_rgba(251,191,36,0.65)] hover:scale-[1.01] active:scale-95 transition-all cursor-pointer"
+                      style={{ fontSize: '1.7vh', padding: '1.1vh 2.6vh', borderRadius: '1.2vh' }}
+                      className="flex-1 bg-gradient-to-r from-amber-400 via-yellow-400 to-emerald-400 text-slate-950 font-black shadow-[0_0_25px_rgba(251,191,36,0.65)] hover:scale-[1.01] active:scale-95 transition-all cursor-pointer"
                     >
                       {currentVideoIdx < LEVEL1_VIDEOS.length - 1
                         ? `GOT IT! NEXT VIDEO (VIDEO ${currentVideoIdx + 2}: ${LEVEL1_VIDEOS[currentVideoIdx + 1].title}) 🚀`
@@ -5956,27 +6019,33 @@ export default function Level1SchoolWorld({
         </div>
 
         {/* Bottom Custom Projector Controls + Full Screen + GSAP Animated "Next Video" Button */}
-        <div className="px-5 py-2.5 bg-slate-900/95 border-t border-slate-800 flex items-center justify-between gap-4 shrink-0">
-          <div className="flex items-center gap-2">
+        <div
+          style={{ padding: '1.1vh 2.0vh', gap: '1.8vh' }}
+          className="bg-slate-900 border-t border-slate-700 flex items-center justify-between shrink-0"
+        >
+          <div style={{ gap: '1.0vh' }} className="flex items-center">
             <button
               onClick={togglePlayPause}
-              className="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs transition-transform active:scale-95 shadow-md cursor-pointer"
+              style={{ fontSize: '1.45vh', padding: '0.8vh 1.8vh', borderRadius: '1.0vh' }}
+              className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black transition-transform active:scale-95 shadow-md cursor-pointer"
             >
               {isPlaying ? '⏸ Pause' : '▶ Play'}
             </button>
             <button
               onClick={openVideoFullscreen}
-              className="px-3.5 py-2 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/35 border border-cyan-400 text-cyan-200 font-black text-xs transition-transform active:scale-95 cursor-pointer"
+              style={{ fontSize: '1.45vh', padding: '0.8vh 1.6vh', borderRadius: '1.0vh' }}
+              className="bg-cyan-500/25 hover:bg-cyan-500/35 border-2 border-cyan-400 text-cyan-100 font-black transition-transform active:scale-95 cursor-pointer"
               title="Watch in Full Screen"
             >
               ⛶ Full Screen
             </button>
           </div>
 
-          <div className="flex-1 flex flex-col gap-1">
+          <div style={{ gap: '0.5vh' }} className="flex-1 flex flex-col">
             <div
               onClick={handleSeekBarClick}
-              className="relative w-full h-3 bg-slate-700 rounded-full cursor-pointer overflow-hidden"
+              style={{ height: '1.3vh' }}
+              className="relative w-full bg-slate-700 rounded-full cursor-pointer overflow-hidden"
             >
               <div
                 className="h-full bg-gradient-to-r from-emerald-400 to-amber-400 rounded-full transition-all"
@@ -5984,20 +6053,21 @@ export default function Level1SchoolWorld({
               />
               <div className="absolute top-0 bottom-0 left-[85%] w-1 bg-white/90" />
             </div>
-            <div className="flex justify-between text-[11px] font-bold text-slate-300">
+            <div style={{ fontSize: '1.3vh' }} className="flex justify-between font-bold text-slate-200">
               <span>
                 {formatSeconds(currentTime)} / {duration ? formatSeconds(duration) : currentVideo.durationLabel}
               </span>
               <button
                 onClick={() => setWatchPct(85)}
-                className="text-amber-300 hover:underline font-extrabold text-[11px] cursor-pointer"
+                style={{ fontSize: '1.3vh' }}
+                className="text-amber-300 hover:underline font-extrabold cursor-pointer"
               >
                 ⚡ Reach 85% Watch Mark
               </button>
             </div>
           </div>
 
-          <div className="min-w-[190px] flex justify-end">
+          <div className="flex justify-end shrink-0">
             {is85PercentReached && (
               <button
                 ref={nextVideoBtnRef}
@@ -6008,7 +6078,8 @@ export default function Level1SchoolWorld({
                     handleNextVideoClick()
                   }
                 }}
-                className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-emerald-400 text-slate-950 font-black text-xs shadow-[0_0_24px_rgba(251,191,36,0.75)] hover:scale-105 active:scale-95 transition-transform cursor-pointer"
+                style={{ fontSize: '1.45vh', padding: '0.8vh 1.8vh', borderRadius: '1.0vh' }}
+                className="bg-gradient-to-r from-amber-400 to-emerald-400 text-slate-950 font-black shadow-[0_0_24px_rgba(251,191,36,0.75)] hover:scale-105 active:scale-95 transition-transform cursor-pointer"
               >
                 {showLessonCompletedBanner ? 'Next Video →' : '🌟 Key Takeaways & Next →'}
               </button>
@@ -6239,10 +6310,12 @@ export default function Level1SchoolWorld({
           CONTINUOUS 3D WORLD CANVAS (ALL ZONES IN ONE UNIFIED 3D CAMPUS)
       ═══════════════════════════════════════════════════════════════════ */}
       <Canvas
+        dpr={[1, 2]}
         shadows
         camera={{ position: [0, 3.3, 27.2], fov: 46, near: 0.1, far: 290 }}
         gl={{
           antialias: true,
+          powerPreference: 'high-performance',
           toneMapping: THREE.ACESFilmicToneMapping,
           toneMappingExposure: isNightMode ? 0.96 : 1.08,
         }}
@@ -6388,72 +6461,81 @@ export default function Level1SchoolWorld({
           GLOBAL RESPONSIVE TOP BAR HUD
           (BACK, HOME, 🏆 RANK LIST, 🗺️ MAP, STAGE PILL,
            ☀️ DAYLIGHT / 🌙 NIGHT MODE THEME CHANGER, ⭐ XP, 🎵 VOLUME, 🚪 LOGOUT)
-          All buttons exactly 200px tall x 200px wide with enlarged text!
       ═══════════════════════════════════════════════════════════════════ */}
-      <div className="absolute top-4 left-4 right-4 z-30 flex items-start justify-between pointer-events-none flex-wrap gap-4 overflow-x-auto max-w-full pb-4">
+      <div
+        style={{
+          WebkitFontSmoothing: 'antialiased',
+          textRendering: 'optimizeLegibility',
+          top: '1.2vh',
+          left: '1.4vh',
+          right: '1.4vh',
+          gap: '1.0vh',
+        }}
+        className="absolute z-30 flex items-start justify-between pointer-events-none flex-wrap max-w-full"
+      >
         {/* Left: BACK, HOME, Rank List, MAP & Stage Pill */}
-        <div className="flex items-center gap-4 pointer-events-auto flex-wrap">
+        <div style={{ gap: '1.0vh' }} className="flex items-center pointer-events-auto flex-wrap">
           {journeyStage !== 'login' && journeyStage !== 'school_yard' && (
             <button
               onClick={handleGlobalBackOneStep}
-              style={{ width: '200px', minWidth: '200px', height: '200px', minHeight: '200px' }}
-              className="w-[200px] min-w-[200px] h-[200px] min-h-[200px] p-4 rounded-3xl bg-slate-900/95 hover:bg-slate-800 text-amber-300 border-4 border-amber-400/80 shadow-2xl backdrop-blur-md flex flex-col items-center justify-center gap-2 transition-transform hover:scale-105 active:scale-95 cursor-pointer text-center"
+              style={{ width: '10.6vh', minWidth: '10.6vh', height: '9.4vh', minHeight: '9.4vh', padding: '0.8vh', borderRadius: '1.8vh', gap: '0.35vh' }}
+              className="bg-slate-900 hover:bg-slate-800 text-amber-300 border-2 border-amber-400 shadow-xl flex flex-col items-center justify-center transition-transform hover:scale-105 active:scale-95 cursor-pointer text-center"
               title="Move back one logical step"
             >
-              <span className="text-5xl leading-none">⬅</span>
-              <span className="text-2xl font-black tracking-wide">BACK</span>
-              <span className="text-xs text-amber-200 font-bold">Previous Step</span>
+              <span style={{ fontSize: '2.7vh', lineHeight: 1 }}>⬅</span>
+              <span style={{ fontSize: '1.5vh', lineHeight: 1.1 }} className="font-black tracking-wide">BACK</span>
+              <span style={{ fontSize: '1.05vh', lineHeight: 1.1 }} className="text-amber-200 font-bold">Prev Step</span>
             </button>
           )}
 
-          {/* HOME Button (200px tall x 200px wide) */}
+          {/* HOME Button */}
           <button
             onClick={handleGlobalHome}
-            style={{ width: '200px', minWidth: '200px', height: '200px', minHeight: '200px' }}
-            className="w-[200px] min-w-[200px] h-[200px] min-h-[200px] p-4 rounded-3xl bg-slate-900/95 hover:bg-slate-800 text-white border-4 border-white/60 shadow-2xl backdrop-blur-md flex flex-col items-center justify-center gap-2 transition-transform hover:scale-105 active:scale-95 cursor-pointer text-center"
+            style={{ width: '10.6vh', minWidth: '10.6vh', height: '9.4vh', minHeight: '9.4vh', padding: '0.8vh', borderRadius: '1.8vh', gap: '0.35vh' }}
+            className="bg-slate-900 hover:bg-slate-800 text-white border-2 border-white/70 shadow-xl flex flex-col items-center justify-center transition-transform hover:scale-105 active:scale-95 cursor-pointer text-center"
             title="Return to Learn2Invest School Yard Home"
           >
-            <span className="text-5xl leading-none">🏠</span>
-            <span className="text-2xl font-black tracking-wide">HOME</span>
-            <span className="text-xs text-slate-300 font-bold">School Yard</span>
+            <span style={{ fontSize: '2.7vh', lineHeight: 1 }}>🏠</span>
+            <span style={{ fontSize: '1.5vh', lineHeight: 1.1 }} className="font-black tracking-wide">HOME</span>
+            <span style={{ fontSize: '1.05vh', lineHeight: 1.1 }} className="text-slate-200 font-bold">School Yard</span>
           </button>
 
-          {/* 🏆 Rank List Button (200px tall x 200px wide) */}
+          {/* 🏆 Rank List Button */}
           <button
             onClick={() => {
               soundEngine.playClick()
               setShowRankModal((m) => !m)
             }}
-            style={{ width: '200px', minWidth: '200px', height: '200px', minHeight: '200px' }}
-            className="w-[200px] min-w-[200px] h-[200px] min-h-[200px] p-4 rounded-3xl bg-gradient-to-br from-amber-500 via-yellow-400 to-amber-500 hover:from-amber-400 hover:to-yellow-300 text-slate-950 border-4 border-amber-200 shadow-[0_0_30px_rgba(251,191,36,0.6)] flex flex-col items-center justify-center gap-2 transition-transform hover:scale-105 active:scale-95 cursor-pointer text-center"
+            style={{ width: '10.6vh', minWidth: '10.6vh', height: '9.4vh', minHeight: '9.4vh', padding: '0.8vh', borderRadius: '1.8vh', gap: '0.35vh' }}
+            className="bg-gradient-to-br from-amber-500 via-yellow-400 to-amber-500 hover:from-amber-400 hover:to-yellow-300 text-slate-950 border-2 border-amber-200 shadow-xl flex flex-col items-center justify-center transition-transform hover:scale-105 active:scale-95 cursor-pointer text-center"
             title="View Top Learners Rank List"
           >
-            <span className="text-5xl leading-none">🏆</span>
-            <span className="text-2xl font-black tracking-wide">Rank List</span>
-            <span className="text-xs text-amber-950 font-bold">Leaderboard</span>
+            <span style={{ fontSize: '2.7vh', lineHeight: 1 }}>🏆</span>
+            <span style={{ fontSize: '1.5vh', lineHeight: 1.1 }} className="font-black tracking-wide">Rank List</span>
+            <span style={{ fontSize: '1.05vh', lineHeight: 1.1 }} className="text-amber-950 font-extrabold">Leaderboard</span>
           </button>
 
-          {/* 🗺️ MAP Button (200px tall x 200px wide) */}
+          {/* 🗺️ MAP Button */}
           <button
             onClick={() => {
               soundEngine.playClick()
               setShowCampusMapModal((m) => !m)
             }}
-            style={{ width: '200px', minWidth: '200px', height: '200px', minHeight: '200px' }}
-            className="w-[200px] min-w-[200px] h-[200px] min-h-[200px] p-4 rounded-3xl bg-slate-900/95 hover:bg-slate-800 text-cyan-200 border-4 border-cyan-400/90 shadow-2xl backdrop-blur-md flex flex-col items-center justify-center gap-2 transition-transform hover:scale-105 active:scale-95 cursor-pointer text-center"
+            style={{ width: '10.6vh', minWidth: '10.6vh', height: '9.4vh', minHeight: '9.4vh', padding: '0.8vh', borderRadius: '1.8vh', gap: '0.35vh' }}
+            className="bg-slate-900 hover:bg-slate-800 text-cyan-200 border-2 border-cyan-400 shadow-xl flex flex-col items-center justify-center transition-transform hover:scale-105 active:scale-95 cursor-pointer text-center"
             title="Open Campus Map"
           >
-            <span className="text-5xl leading-none">🗺️</span>
-            <span className="text-2xl font-black tracking-wide">MAP</span>
-            <span className="text-xs text-cyan-300 font-bold">School & Bank</span>
+            <span style={{ fontSize: '2.7vh', lineHeight: 1 }}>🗺️</span>
+            <span style={{ fontSize: '1.5vh', lineHeight: 1.1 }} className="font-black tracking-wide">MAP</span>
+            <span style={{ fontSize: '1.05vh', lineHeight: 1.1 }} className="text-cyan-200 font-bold">School & Bank</span>
           </button>
 
-          {/* Current Level & Journey Stage Pill (200px tall x 200px wide) */}
+          {/* Current Level & Journey Stage Pill */}
           <div
-            style={{ width: '200px', minWidth: '200px', height: '200px', minHeight: '200px' }}
-            className="w-[200px] min-w-[200px] h-[200px] min-h-[200px] p-4 rounded-3xl bg-slate-900/95 border-4 border-emerald-400/80 text-white shadow-2xl backdrop-blur-md flex flex-col items-center justify-center gap-2 text-center"
+            style={{ width: '12.6vh', minWidth: '12.6vh', height: '9.4vh', minHeight: '9.4vh', padding: '0.8vh', borderRadius: '1.8vh', gap: '0.35vh' }}
+            className="bg-slate-900 border-2 border-emerald-400 text-white shadow-xl flex flex-col items-center justify-center text-center"
           >
-            <span className="text-sm text-emerald-400 font-black tracking-wider uppercase">
+            <span style={{ fontSize: '1.15vh', lineHeight: 1.1 }} className="text-emerald-400 font-black tracking-wider uppercase">
               {[
                 'walking_to_bank',
                 'bank_employee',
@@ -6467,14 +6549,14 @@ export default function Level1SchoolWorld({
                   ? '💻 LEVEL 2'
                   : '🌱 LEVEL 1'}
             </span>
-            <span className="text-xl font-black text-white">
+            <span style={{ fontSize: '1.5vh', lineHeight: 1.1 }} className="font-black text-white">
               {characterChoice === 'leo' || characterChoice === 'max' ? '👦 Leo' : '👧 Luna'}
             </span>
-            <span className="text-xs text-amber-300 font-extrabold line-clamp-2">
-              {journeyStage === 'login' && !hasLoggedIn && 'School Yard (Login)'}
-              {(journeyStage === 'school_yard' || (journeyStage === 'login' && hasLoggedIn)) && 'School Yard Home'}
+            <span style={{ fontSize: '1.05vh', lineHeight: 1.1 }} className="text-amber-300 font-extrabold line-clamp-1">
+              {journeyStage === 'login' && !hasLoggedIn && 'School Yard'}
+              {(journeyStage === 'school_yard' || (journeyStage === 'login' && hasLoggedIn)) && 'School Yard'}
               {journeyStage === 'walking_to_classroom' && 'Classroom Entry'}
-              {journeyStage === 'classroom_projector' && `Classroom (Video ${currentVideoIdx + 1})`}
+              {journeyStage === 'classroom_projector' && `Video ${currentVideoIdx + 1}`}
               {journeyStage === 'walking_to_exam' && 'Exam Entry'}
               {journeyStage === 'exam_projector' && 'Exam Center'}
               {journeyStage === 'walking_to_floor2_lab' && 'Lab Entry'}
@@ -6483,7 +6565,7 @@ export default function Level1SchoolWorld({
               {journeyStage === 'reached_exit' && 'Road to Bank'}
               {journeyStage === 'walking_to_bank' && 'Bank Entry'}
               {journeyStage === 'bank_employee' && 'Bank Lobby'}
-              {(journeyStage === 'bank_section' || journeyStage === 'walking_bank_section') && `Bank Cabin ${activeBankSection}`}
+              {(journeyStage === 'bank_section' || journeyStage === 'walking_bank_section') && `Cabin ${activeBankSection}`}
               {journeyStage === 'walking_bank_exit' && 'Bank Exit'}
               {journeyStage === 'journey_complete' && 'COMPLETED'}
             </span>
@@ -6491,28 +6573,28 @@ export default function Level1SchoolWorld({
         </div>
 
         {/* Right: Daylight / Night Mode, XP tab, music button, Logout */}
-        <div className="flex items-center gap-4 pointer-events-auto flex-wrap">
-          {/* ☀️ Daylight Button (200px tall x 200px wide) */}
+        <div style={{ gap: '1.0vh' }} className="flex items-center pointer-events-auto flex-wrap">
+          {/* ☀️ Daylight Button */}
           <button
             type="button"
             onClick={() => {
               soundEngine.playClick()
               setIsNightMode((prev) => !prev)
             }}
-            style={{ width: '200px', minWidth: '200px', height: '200px', minHeight: '200px' }}
-            className={`w-[200px] min-w-[200px] h-[200px] min-h-[200px] p-4 rounded-3xl border-4 shadow-2xl backdrop-blur-md flex flex-col items-center justify-center gap-2 transition-all hover:scale-105 active:scale-95 cursor-pointer text-center ${
+            style={{ width: '10.6vh', minWidth: '10.6vh', height: '9.4vh', minHeight: '9.4vh', padding: '0.8vh', borderRadius: '1.8vh', gap: '0.35vh' }}
+            className={`border-2 shadow-xl flex flex-col items-center justify-center transition-all hover:scale-105 active:scale-95 cursor-pointer text-center ${
               isNightMode
-                ? 'bg-indigo-950/95 border-amber-300 text-amber-200 shadow-[0_0_30px_rgba(251,191,36,0.5)]'
-                : 'bg-amber-400/95 border-white text-slate-950 shadow-[0_0_30px_rgba(251,191,36,0.5)]'
+                ? 'bg-indigo-950 border-amber-300 text-amber-200'
+                : 'bg-amber-400 border-white text-slate-950'
             }`}
             title="Switch between Daylight and Night Mode"
           >
-            <span className="text-5xl leading-none">{isNightMode ? '🌙' : '☀️'}</span>
-            <span className="text-2xl font-black tracking-wide">{isNightMode ? 'Night' : 'Daylight'}</span>
-            <span className="text-xs font-bold opacity-80">Toggle Light</span>
+            <span style={{ fontSize: '2.7vh', lineHeight: 1 }}>{isNightMode ? '🌙' : '☀️'}</span>
+            <span style={{ fontSize: '1.5vh', lineHeight: 1.1 }} className="font-black tracking-wide">{isNightMode ? 'Night' : 'Daylight'}</span>
+            <span style={{ fontSize: '1.05vh', lineHeight: 1.1 }} className="font-extrabold opacity-90">Toggle Light</span>
           </button>
 
-          {/* ⛶ Level 2 Computer Full Screen Toggle Button (200px tall x 200px wide) */}
+          {/* ⛶ Level 2 Computer Full Screen Toggle Button */}
           {journeyStage === 'computer_lab' && (
             <button
               type="button"
@@ -6520,44 +6602,44 @@ export default function Level1SchoolWorld({
                 soundEngine.playClick()
                 setIsComputerFullscreen((prev) => !prev)
               }}
-              style={{ width: '200px', minWidth: '200px', height: '200px', minHeight: '200px' }}
-              className="w-[200px] min-w-[200px] h-[200px] min-h-[200px] p-4 rounded-3xl bg-cyan-400 hover:bg-cyan-300 border-4 border-white text-slate-950 shadow-2xl flex flex-col items-center justify-center gap-2 transition-transform hover:scale-105 cursor-pointer text-center"
+              style={{ width: '10.6vh', minWidth: '10.6vh', height: '9.4vh', minHeight: '9.4vh', padding: '0.8vh', borderRadius: '1.8vh', gap: '0.35vh' }}
+              className="bg-cyan-400 hover:bg-cyan-300 border-2 border-white text-slate-950 shadow-xl flex flex-col items-center justify-center transition-transform hover:scale-105 cursor-pointer text-center"
               title="Toggle Full Screen view for active Level 2 Computer screen"
             >
-              <span className="text-5xl leading-none">{isComputerFullscreen ? '🗗' : '⛶'}</span>
-              <span className="text-2xl font-black tracking-wide">
+              <span style={{ fontSize: '2.7vh', lineHeight: 1 }}>{isComputerFullscreen ? '🗗' : '⛶'}</span>
+              <span style={{ fontSize: '1.5vh', lineHeight: 1.1 }} className="font-black tracking-wide">
                 {isComputerFullscreen ? 'Exit Full' : 'Full Screen'}
               </span>
-              <span className="text-xs font-bold text-slate-800">Maximize</span>
+              <span style={{ fontSize: '1.05vh', lineHeight: 1.1 }} className="font-bold text-slate-800">Maximize</span>
             </button>
           )}
 
-          {/* XP Tab (200px tall x 200px wide) */}
+          {/* XP Tab */}
           <button
             type="button"
             onClick={() => {
               soundEngine.playClick()
               setShowAtmModal(true)
             }}
-            style={{ width: '200px', minWidth: '200px', height: '200px', minHeight: '200px' }}
-            className="w-[200px] min-w-[200px] h-[200px] min-h-[200px] p-4 rounded-3xl bg-slate-900/95 hover:bg-slate-800 border-4 border-amber-400/90 text-amber-300 shadow-2xl backdrop-blur-md flex flex-col items-center justify-center gap-2 cursor-pointer transition-transform hover:scale-105 text-center"
+            style={{ width: '10.6vh', minWidth: '10.6vh', height: '9.4vh', minHeight: '9.4vh', padding: '0.8vh', borderRadius: '1.8vh', gap: '0.35vh' }}
+            className="bg-slate-900 hover:bg-slate-800 border-2 border-amber-400 text-amber-300 shadow-xl flex flex-col items-center justify-center cursor-pointer transition-transform hover:scale-105 text-center"
             title="Wallet XP & Banked XP Vault"
           >
-            <span className="text-5xl leading-none">⭐</span>
-            <span className="text-2xl font-black tracking-wide">{state?.xp || 0} XP</span>
+            <span style={{ fontSize: '2.7vh', lineHeight: 1 }}>⭐</span>
+            <span style={{ fontSize: '1.5vh', lineHeight: 1.1 }} className="font-black tracking-wide">{state?.xp || 0} XP</span>
             {bankedXp > 0 ? (
-              <span className="text-xs font-black px-2.5 py-1 rounded-xl bg-emerald-500/30 text-emerald-300 border border-emerald-400">
-                🏦 {bankedXp} Banked
+              <span style={{ fontSize: '1.05vh', lineHeight: 1.1, padding: '0.2vh 0.6vh' }} className="font-black rounded bg-emerald-500/30 text-emerald-300 border border-emerald-400">
+                🏦 {bankedXp}
               </span>
             ) : (
-              <span className="text-xs text-slate-300 font-bold">ATM & Vault</span>
+              <span style={{ fontSize: '1.05vh', lineHeight: 1.1 }} className="text-slate-200 font-bold">ATM & Vault</span>
             )}
           </button>
 
-          {/* Music Button & Volume Slider (200px tall x 200px wide) */}
+          {/* Music Button & Volume Slider */}
           <div
-            style={{ width: '200px', minWidth: '200px', height: '200px', minHeight: '200px' }}
-            className="w-[200px] min-w-[200px] h-[200px] min-h-[200px] p-4 rounded-3xl bg-slate-900/95 border-4 border-white/60 text-white shadow-2xl backdrop-blur-md flex flex-col items-center justify-center gap-2 text-center"
+            style={{ width: '11.8vh', minWidth: '11.8vh', height: '9.4vh', minHeight: '9.4vh', padding: '0.8vh', borderRadius: '1.8vh', gap: '0.35vh' }}
+            className="bg-slate-900 border-2 border-white/70 text-white shadow-xl flex flex-col items-center justify-center text-center"
           >
             <button
               type="button"
@@ -6566,11 +6648,12 @@ export default function Level1SchoolWorld({
                 setAudioVolume(next)
                 soundEngine.setVolume(next / 100)
               }}
-              className="cursor-pointer hover:scale-105 transition-transform flex flex-col items-center gap-1"
+              style={{ gap: '0.4vh' }}
+              className="cursor-pointer hover:scale-105 transition-transform flex items-center"
               title={audioVolume === 0 ? 'Unmute Music' : 'Mute Music'}
             >
-              <span className="text-5xl leading-none">{audioVolume === 0 ? '🔇' : '🎵'}</span>
-              <span className="text-xl font-black tracking-wide">
+              <span style={{ fontSize: '2.0vh', lineHeight: 1 }}>{audioVolume === 0 ? '🔇' : '🎵'}</span>
+              <span style={{ fontSize: '1.35vh', lineHeight: 1.1 }} className="font-black tracking-wide">
                 {audioVolume === 0 ? 'Muted' : 'Music ON'}
               </span>
             </button>
@@ -6584,23 +6667,24 @@ export default function Level1SchoolWorld({
                 setAudioVolume(v)
                 soundEngine.setVolume(v / 100)
               }}
-              className="w-32 h-4 accent-emerald-400 cursor-pointer mt-1"
+              style={{ width: '9.2vh', height: '1.1vh' }}
+              className="accent-emerald-400 cursor-pointer"
               title={`Volume: ${audioVolume}%`}
             />
-            <span className="text-[11px] font-bold text-slate-300">{audioVolume}% Volume</span>
+            <span style={{ fontSize: '1.05vh', lineHeight: 1.1 }} className="font-bold text-slate-200">{audioVolume}% Vol</span>
           </div>
 
-          {/* 🚪 Logout Button (200px tall x 200px wide) */}
+          {/* 🚪 Logout Button */}
           {hasLoggedIn && (
             <button
               onClick={handleLogout}
-              style={{ width: '200px', minWidth: '200px', height: '200px', minHeight: '200px' }}
-              className="w-[200px] min-w-[200px] h-[200px] min-h-[200px] p-4 rounded-3xl bg-rose-500/95 hover:bg-rose-500 text-white border-4 border-rose-300 shadow-2xl backdrop-blur-md flex flex-col items-center justify-center gap-2 transition-transform hover:scale-105 active:scale-95 cursor-pointer text-center"
+              style={{ width: '10.6vh', minWidth: '10.6vh', height: '9.4vh', minHeight: '9.4vh', padding: '0.8vh', borderRadius: '1.8vh', gap: '0.35vh' }}
+              className="bg-rose-500 hover:bg-rose-600 text-white border-2 border-rose-200 shadow-xl flex flex-col items-center justify-center transition-transform hover:scale-105 active:scale-95 cursor-pointer text-center"
               title="Logout and return to Login page"
             >
-              <span className="text-5xl leading-none">🚪</span>
-              <span className="text-2xl font-black tracking-wide">Logout</span>
-              <span className="text-xs text-rose-100 font-bold">Return to Login</span>
+              <span style={{ fontSize: '2.7vh', lineHeight: 1 }}>🚪</span>
+              <span style={{ fontSize: '1.5vh', lineHeight: 1.1 }} className="font-black tracking-wide">Logout</span>
+              <span style={{ fontSize: '1.05vh', lineHeight: 1.1 }} className="text-rose-100 font-bold">Exit</span>
             </button>
           )}
         </div>
