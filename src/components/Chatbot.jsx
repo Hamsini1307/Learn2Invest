@@ -147,42 +147,42 @@ function FormattedMessage({ text, onActionClick }) {
       return
     }
 
-    if (trimmed.startsWith('### ')) {
+        if (trimmed.startsWith('### ')) {
       elements.push(
-        <h4 key={`h3_${idx}`} style={{ fontSize: '20px', fontWeight: 900, color: '#38BDF8', margin: '14px 0 6px', letterSpacing: '-0.01em' }}>
+        <h4 key={`h3_${idx}`} style={{ fontSize: 'max(20px, 2.2vh)', fontWeight: 900, color: '#38BDF8', margin: '1.4vh 0 0.7vh', letterSpacing: '-0.01em' }}>
           {formatInline(trimmed.replace('### ', ''))}
         </h4>
       )
     } else if (trimmed.startsWith('## ')) {
       elements.push(
-        <h3 key={`h2_${idx}`} style={{ fontSize: '22px', fontWeight: 900, color: '#FBBF24', margin: '16px 0 8px', letterSpacing: '-0.01em' }}>
+        <h3 key={`h2_${idx}`} style={{ fontSize: 'max(22px, 2.4vh)', fontWeight: 900, color: '#FBBF24', margin: '1.6vh 0 0.8vh', letterSpacing: '-0.01em' }}>
           {formatInline(trimmed.replace('## ', ''))}
         </h3>
       )
     } else if (trimmed.startsWith('# ')) {
       elements.push(
-        <h2 key={`h1_${idx}`} style={{ fontSize: '24px', fontWeight: 900, color: '#34D399', margin: '18px 0 10px', letterSpacing: '-0.01em' }}>
+        <h2 key={`h1_${idx}`} style={{ fontSize: 'max(24px, 2.6vh)', fontWeight: 900, color: '#34D399', margin: '1.8vh 0 1vh', letterSpacing: '-0.01em' }}>
           {formatInline(trimmed.replace('# ', ''))}
         </h2>
       )
     } else if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
       elements.push(
-        <div key={`bullet_${idx}`} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', margin: '8px 0', paddingLeft: '4px' }}>
-          <span style={{ color: '#38BDF8', fontWeight: 900, fontSize: '20px', lineHeight: '1.3' }}>•</span>
-          <div style={{ flex: 1, fontSize: '18px', lineHeight: 1.6 }}>{formatInline(trimmed.slice(2))}</div>
+        <div key={`bullet_${idx}`} style={{ display: 'flex', gap: '1vh', alignItems: 'flex-start', margin: '0.8vh 0', paddingLeft: '0.4vh' }}>
+          <span style={{ color: '#38BDF8', fontWeight: 900, fontSize: 'max(20px, 2.1vh)', lineHeight: '1.3' }}>•</span>
+          <div style={{ flex: 1, fontSize: 'max(18px, 1.95vh)', lineHeight: 1.6 }}>{formatInline(trimmed.slice(2))}</div>
         </div>
       )
     } else if (/^\d+\.\s/.test(trimmed)) {
       const match = trimmed.match(/^(\d+)\.\s(.*)/)
       elements.push(
-        <div key={`num_${idx}`} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', margin: '8px 0', paddingLeft: '4px' }}>
-          <span style={{ color: '#FBBF24', fontWeight: 900, minWidth: '24px', fontSize: '18px' }}>{match[1]}.</span>
-          <div style={{ flex: 1, fontSize: '18px', lineHeight: 1.6 }}>{formatInline(match[2])}</div>
+        <div key={`num_${idx}`} style={{ display: 'flex', gap: '1vh', alignItems: 'flex-start', margin: '0.8vh 0', paddingLeft: '0.4vh' }}>
+          <span style={{ color: '#FBBF24', fontWeight: 900, minWidth: '2.5vh', fontSize: 'max(18px, 1.95vh)' }}>{match[1]}.</span>
+          <div style={{ flex: 1, fontSize: 'max(18px, 1.95vh)', lineHeight: 1.6 }}>{formatInline(match[2])}</div>
         </div>
       )
     } else {
       elements.push(
-        <p key={`p_${idx}`} style={{ margin: '8px 0', lineHeight: 1.6, fontSize: '18px', color: '#F8FAFC' }}>
+        <p key={`p_${idx}`} style={{ margin: '0.8vh 0', lineHeight: 1.6, fontSize: 'max(18px, 1.95vh)', color: '#F8FAFC' }}>
           {formatInline(trimmed)}
         </p>
       )
@@ -400,14 +400,18 @@ function StandingCompanionPersonSVG({
 
   return (
     <svg
-      width="135"
-      height="175"
+      width="100%"
+      height="100%"
       viewBox="-8 -4 126 154"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       style={{
+        width: '17vh',
+        height: '22vh',
+        minWidth: '160px',
+        minHeight: '210px',
         overflow: 'visible',
-        filter: 'drop-shadow(0 14px 28px rgba(0,0,0,0.65))',
+        filter: 'drop-shadow(0 16px 32px rgba(0,0,0,0.75))',
         transform: isExcited
           ? 'translateY(-8px) scale(1.06)'
           : isDisappointed
@@ -975,33 +979,33 @@ Ask me any real-time financial question, or tap one of the suggested topics belo
         /* Chat Launcher & Window Animations */
         .l2i-chat-launcher {
           position: fixed;
-          right: 24px;
-          bottom: 24px;
+          right: max(24px, 2.4vh);
+          bottom: max(24px, 2.4vh);
           z-index: 99998;
           display: flex;
           flex-direction: column;
           align-items: center;
           cursor: pointer;
           user-select: none;
-          filter: drop-shadow(0 14px 28px rgba(0,0,0,0.65));
+          filter: drop-shadow(0 16px 32px rgba(0,0,0,0.75));
           transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .l2i-chat-launcher:hover {
-          transform: scale(1.06) translateY(-4px);
+          transform: scale(1.06) translateY(-6px);
         }
 
         .l2i-chat-window {
           position: fixed;
-          bottom: 24px;
-          right: 24px;
-          width: 440px;
+          bottom: max(24px, 2.2vh);
+          right: max(24px, 2.2vh);
+          width: max(500px, 54vh);
           max-width: 95vw;
-          height: 640px;
-          max-height: 85vh;
+          height: max(680px, 76vh);
+          max-height: 90vh;
           background: linear-gradient(165deg, #070D19 0%, #0D172A 100%);
-          border: 2px solid rgba(56, 189, 248, 0.6);
-          border-radius: 24px;
-          box-shadow: 0 28px 85px rgba(0, 0, 0, 0.9);
+          border: max(2.5px, 0.3vh) solid rgba(56, 189, 248, 0.75);
+          border-radius: max(24px, 2.6vh);
+          box-shadow: 0 28px 85px rgba(0, 0, 0, 0.92), 0 0 40px rgba(56, 189, 248, 0.22);
           z-index: 99999;
           display: flex;
           flex-direction: column;
@@ -1012,10 +1016,10 @@ Ask me any real-time financial question, or tap one of the suggested topics belo
         }
 
         .l2i-chat-window.expanded {
-          width: 680px;
+          width: max(760px, 84vh);
           max-width: 96vw;
-          height: 800px;
-          max-height: 90vh;
+          height: max(840px, 88vh);
+          max-height: 93vh;
         }
 
         @keyframes l2iSlideUp {
@@ -1031,7 +1035,7 @@ Ask me any real-time financial question, or tap one of the suggested topics belo
 
         @keyframes companionHover {
           0% { transform: translateY(0px); }
-          100% { transform: translateY(-6px); }
+          100% { transform: translateY(-8px); }
         }
 
         @media (max-width: 640px) {
@@ -1054,7 +1058,7 @@ Ask me any real-time financial question, or tap one of the suggested topics belo
 
       {/* ═══════════════════════════════════════════════════════════════════════
           NORMAL CHATBOT LAUNCHER (VISIBLE WHEN CLOSED)
-          - Animated boy Leo in blue jacket (135px tall, fully inside viewport)
+          - Animated companion in jacket (22vh tall, fully inside viewport)
           - Speech bubble tooltip prompting user to ask questions
           - Clicking cleanly opens the chat window at this exact corner
       ═══════════════════════════════════════════════════════════════════════ */}
@@ -1068,9 +1072,9 @@ Ask me any real-time financial question, or tap one of the suggested topics belo
           {/* Dynamic Speech Bubble */}
           <div
             style={{
-              marginBottom: '8px',
-              padding: '8px 16px',
-              borderRadius: '20px',
+              marginBottom: 'max(10px, 1.2vh)',
+              padding: 'max(10px, 1.2vh) max(20px, 2.4vh)',
+              borderRadius: '999px',
               background: quizReaction
                 ? quizReaction.type === 'excited'
                   ? 'linear-gradient(135deg, #10B981, #F59E0B)'
@@ -1080,20 +1084,21 @@ Ask me any real-time financial question, or tap one of the suggested topics belo
                   : 'rgba(15, 23, 42, 0.96)',
               color: quizReaction || isExcitedByLogin ? '#020617' : '#F8FAFC',
               border: isCompanionExcited
-                ? '2px solid #FEF08A'
-                : '2px solid rgba(56,189,248,0.7)',
+                ? 'max(2.5px, 0.3vh) solid #FEF08A'
+                : 'max(2.5px, 0.3vh) solid rgba(56,189,248,0.85)',
               boxShadow: isCompanionExcited
-                ? '0 0 25px rgba(251,191,36,0.9)'
-                : '0 8px 24px rgba(0,0,0,0.5)',
-              fontSize: '14px',
-              fontWeight: 800,
+                ? '0 0 28px rgba(251,191,36,0.95)'
+                : '0 10px 28px rgba(0,0,0,0.65), 0 0 20px rgba(56,189,248,0.35)',
+              fontSize: 'max(16px, 1.85vh)',
+              fontWeight: 900,
+              letterSpacing: '0.01em',
               whiteSpace: 'nowrap',
               display: 'flex',
               alignItems: 'center',
-              gap: '6px',
+              gap: 'max(8px, 0.9vh)',
             }}
           >
-            <span style={{ fontSize: '16px' }}>💬</span>
+            <span style={{ fontSize: 'max(19px, 2.1vh)' }}>💬</span>
             <span>
               {quizReaction
                 ? quizReaction.text
@@ -1103,7 +1108,7 @@ Ask me any real-time financial question, or tap one of the suggested topics belo
             </span>
           </div>
 
-          {/* 135px Standing Person SVG */}
+          {/* 22vh Standing Person SVG */}
           <div
             style={{
               animation: isCompanionExcited
@@ -1138,8 +1143,8 @@ Ask me any real-time financial question, or tap one of the suggested topics belo
 
       {/* ═══════════════════════════════════════════════════════════════════════
           STANDARD MODERN CHATBOT WINDOW (DOCKED AT BOTTOM-RIGHT)
-          - Opens cleanly right at bottom: 24px, right: 24px
-          - Leo's avatar with live pulsing online badge in header
+          - Opens cleanly right at bottom-right
+          - Companion avatar with live pulsing online badge in header
           - Clear conversation stream with starter suggestions that scroll naturally
           - Direct navigation buttons for levels, bank slips, and map
           - Working speech recognition (Speech-to-Text) and text-to-speech
@@ -1149,27 +1154,27 @@ Ask me any real-time financial question, or tap one of the suggested topics belo
           {/* Header */}
           <div
             style={{
-              padding: '14px 18px',
+              padding: 'max(16px, 1.8vh) max(20px, 2.2vh)',
               background: 'linear-gradient(135deg, #0F172A 0%, #1E3A8A 50%, #0369A1 100%)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              borderBottom: '1.5px solid rgba(56, 189, 248, 0.3)',
+              borderBottom: 'max(1.5px, 0.2vh) solid rgba(56, 189, 248, 0.35)',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'max(12px, 1.4vh)' }}>
               <div style={{ position: 'relative' }}>
                 <div
                   style={{
-                    width: '42px',
-                    height: '42px',
+                    width: 'max(46px, 5.2vh)',
+                    height: 'max(46px, 5.2vh)',
                     borderRadius: '50%',
                     background: 'linear-gradient(135deg, #0284C7, #4F46E5)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: '22px',
-                    border: '2px solid #38BDF8',
+                    fontSize: 'max(24px, 2.7vh)',
+                    border: 'max(2px, 0.25vh) solid #38BDF8',
                     boxShadow: '0 4px 14px rgba(0,0,0,0.4)',
                   }}
                 >
@@ -1181,11 +1186,11 @@ Ask me any real-time financial question, or tap one of the suggested topics belo
                     position: 'absolute',
                     bottom: '0',
                     right: '0',
-                    width: '12px',
-                    height: '12px',
+                    width: 'max(13px, 1.5vh)',
+                    height: 'max(13px, 1.5vh)',
                     borderRadius: '50%',
                     background: '#10B981',
-                    border: '2px solid #0F172A',
+                    border: 'max(2px, 0.25vh) solid #0F172A',
                     boxShadow: '0 0 8px #10B981',
                   }}
                 />
@@ -1194,30 +1199,30 @@ Ask me any real-time financial question, or tap one of the suggested topics belo
               <div>
                 <div
                   style={{
-                    fontSize: '17px',
-                    fontWeight: 800,
+                    fontSize: 'max(19px, 2.15vh)',
+                    fontWeight: 900,
                     color: '#FFFFFF',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '6px',
+                    gap: 'max(8px, 0.9vh)',
                   }}
                 >
                   <span>{guideName}</span>
                   <span
                     style={{
-                      fontSize: '11px',
-                      background: 'rgba(56,189,248,0.2)',
+                      fontSize: 'max(12px, 1.35vh)',
+                      background: 'rgba(56,189,248,0.22)',
                       border: '1px solid #38BDF8',
                       color: '#7DD3FC',
-                      padding: '1px 7px',
+                      padding: 'max(2px, 0.25vh) max(8px, 0.9vh)',
                       borderRadius: '999px',
-                      fontWeight: 700,
+                      fontWeight: 800,
                     }}
                   >
                     AI Mentor
                   </span>
                 </div>
-                <div style={{ fontSize: '12.5px', color: '#93C5FD', fontWeight: 600 }}>
+                <div style={{ fontSize: 'max(13.5px, 1.5vh)', color: '#93C5FD', fontWeight: 700 }}>
                   {isListeningVoice
                     ? '🎙️ Listening to your voice now...'
                     : '⚡ Live Google Gemini AI'}
@@ -1226,7 +1231,7 @@ Ask me any real-time financial question, or tap one of the suggested topics belo
             </div>
 
             {/* Header Control Buttons */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'max(8px, 0.9vh)' }}>
               {/* Reset Chat */}
               <button
                 type="button"
@@ -1235,10 +1240,10 @@ Ask me any real-time financial question, or tap one of the suggested topics belo
                   background: 'rgba(255,255,255,0.1)',
                   border: '1px solid rgba(255,255,255,0.25)',
                   color: '#E2E8F0',
-                  borderRadius: '8px',
-                  width: '32px',
-                  height: '32px',
-                  fontSize: '14px',
+                  borderRadius: 'max(8px, 1vh)',
+                  width: 'max(36px, 4vh)',
+                  height: 'max(36px, 4vh)',
+                  fontSize: 'max(16px, 1.8vh)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -1257,10 +1262,10 @@ Ask me any real-time financial question, or tap one of the suggested topics belo
                   background: isVoiceMuted ? 'rgba(239,68,68,0.25)' : 'rgba(255,255,255,0.1)',
                   border: isVoiceMuted ? '1px solid #EF4444' : '1px solid rgba(255,255,255,0.25)',
                   color: '#E2E8F0',
-                  borderRadius: '8px',
-                  width: '32px',
-                  height: '32px',
-                  fontSize: '14px',
+                  borderRadius: 'max(8px, 1vh)',
+                  width: 'max(36px, 4vh)',
+                  height: 'max(36px, 4vh)',
+                  fontSize: 'max(16px, 1.8vh)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -1279,10 +1284,10 @@ Ask me any real-time financial question, or tap one of the suggested topics belo
                   background: isExpanded ? 'rgba(56,189,248,0.25)' : 'rgba(255,255,255,0.1)',
                   border: '1px solid rgba(255,255,255,0.25)',
                   color: '#E2E8F0',
-                  borderRadius: '8px',
-                  width: '32px',
-                  height: '32px',
-                  fontSize: '14px',
+                  borderRadius: 'max(8px, 1vh)',
+                  width: 'max(36px, 4vh)',
+                  height: 'max(36px, 4vh)',
+                  fontSize: 'max(16px, 1.8vh)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -1301,10 +1306,10 @@ Ask me any real-time financial question, or tap one of the suggested topics belo
                   background: 'rgba(255,255,255,0.1)',
                   border: '1px solid rgba(255,255,255,0.25)',
                   color: '#E2E8F0',
-                  borderRadius: '8px',
-                  width: '32px',
-                  height: '32px',
-                  fontSize: '16px',
+                  borderRadius: 'max(8px, 1vh)',
+                  width: 'max(36px, 4vh)',
+                  height: 'max(36px, 4vh)',
+                  fontSize: 'max(18px, 2vh)',
                   fontWeight: 700,
                   display: 'flex',
                   alignItems: 'center',
@@ -1324,38 +1329,38 @@ Ask me any real-time financial question, or tap one of the suggested topics belo
             style={{
               flex: 1,
               overflowY: 'auto',
-              padding: '16px',
+              padding: 'max(18px, 2vh)',
               display: 'flex',
               flexDirection: 'column',
-              gap: '14px',
+              gap: 'max(16px, 1.8vh)',
             }}
           >
             {msgs.map((m, idx) => {
               const isUser = m.from === 'user'
               const isReadingThis = speakingIdx === idx
               return (
-                <div key={m.id || idx} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div key={m.id || idx} style={{ display: 'flex', flexDirection: 'column', gap: 'max(10px, 1.1vh)' }}>
                   <div
                     style={{
                       alignSelf: isUser ? 'flex-end' : 'flex-start',
-                      maxWidth: '88%',
+                      maxWidth: '90%',
                       background: isUser
                         ? 'linear-gradient(135deg, #0284C7 0%, #2563EB 100%)'
-                        : 'rgba(15, 23, 42, 0.88)',
-                      border: isUser ? 'none' : '1px solid rgba(56, 189, 248, 0.25)',
-                      borderRadius: isUser ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
-                      padding: '14px 16px',
+                        : 'rgba(15, 23, 42, 0.92)',
+                      border: isUser ? 'none' : 'max(1.5px, 0.18vh) solid rgba(56, 189, 248, 0.32)',
+                      borderRadius: isUser ? 'max(18px, 2vh) max(18px, 2vh) 4px max(18px, 2vh)' : 'max(18px, 2vh) max(18px, 2vh) max(18px, 2vh) 4px',
+                      padding: 'max(16px, 1.8vh) max(18px, 2vh)',
                       color: '#F8FAFC',
-                      fontSize: '15.5px',
-                      lineHeight: 1.55,
-                      boxShadow: '0 4px 18px rgba(0,0,0,0.3)',
+                      fontSize: 'max(17px, 1.9vh)',
+                      lineHeight: 1.6,
+                      boxShadow: '0 6px 20px rgba(0,0,0,0.35)',
                     }}
                   >
                     <FormattedMessage text={m.text} onActionClick={handleActionClick} />
 
                     {/* Read Aloud Button on Bot Messages */}
                     {!isUser && (
-                      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '10px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 'max(10px, 1.1vh)' }}>
                         <button
                           type="button"
                           onClick={() => handleReadAloud(m.text, idx)}
@@ -1363,19 +1368,19 @@ Ask me any real-time financial question, or tap one of the suggested topics belo
                           style={{
                             background: isReadingThis
                               ? 'rgba(245, 158, 11, 0.25)'
-                              : 'rgba(56, 189, 248, 0.12)',
+                              : 'rgba(56, 189, 248, 0.14)',
                             border: isReadingThis
-                              ? '1px solid #F59E0B'
-                              : '1px solid rgba(56, 189, 248, 0.35)',
+                              ? '1.5px solid #F59E0B'
+                              : '1.5px solid rgba(56, 189, 248, 0.4)',
                             color: isVoiceMuted ? '#64748B' : isReadingThis ? '#FDE68A' : '#7DD3FC',
                             borderRadius: '999px',
-                            padding: '4px 12px',
-                            fontSize: '13px',
-                            fontWeight: 700,
+                            padding: 'max(5px, 0.6vh) max(14px, 1.5vh)',
+                            fontSize: 'max(14px, 1.55vh)',
+                            fontWeight: 800,
                             cursor: isVoiceMuted ? 'not-allowed' : 'pointer',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '5px',
+                            gap: 'max(6px, 0.6vh)',
                           }}
                         >
                           <span>{isReadingThis ? '⏹ Stop' : '🔊 Listen'}</span>
@@ -1390,9 +1395,9 @@ Ask me any real-time financial question, or tap one of the suggested topics belo
                       style={{
                         display: 'flex',
                         flexWrap: 'wrap',
-                        gap: '8px',
-                        marginTop: '4px',
-                        paddingLeft: '4px',
+                        gap: 'max(9px, 1vh)',
+                        marginTop: 'max(6px, 0.6vh)',
+                        paddingLeft: 'max(4px, 0.4vh)',
                       }}
                     >
                       {starterChips.map((prompt) => (
@@ -1401,24 +1406,24 @@ Ask me any real-time financial question, or tap one of the suggested topics belo
                           type="button"
                           onClick={() => handleSendMessage(prompt)}
                           style={{
-                            background: 'rgba(30, 41, 59, 0.85)',
-                            border: '1px solid rgba(56, 189, 248, 0.4)',
+                            background: 'rgba(30, 41, 59, 0.9)',
+                            border: 'max(1.5px, 0.18vh) solid rgba(56, 189, 248, 0.48)',
                             color: '#E0F2FE',
                             borderRadius: '999px',
-                            padding: '7px 14px',
-                            fontSize: '13.5px',
-                            fontWeight: 700,
+                            padding: 'max(8px, 0.9vh) max(16px, 1.8vh)',
+                            fontSize: 'max(15px, 1.65vh)',
+                            fontWeight: 800,
                             cursor: 'pointer',
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.25)',
+                            boxShadow: '0 3px 10px rgba(0,0,0,0.3)',
                             transition: 'all 0.15s ease',
                           }}
                           onMouseEnter={(e) => {
                             e.currentTarget.style.borderColor = '#38BDF8'
-                            e.currentTarget.style.background = 'rgba(56, 189, 248, 0.18)'
+                            e.currentTarget.style.background = 'rgba(56, 189, 248, 0.22)'
                           }}
                           onMouseLeave={(e) => {
-                            e.currentTarget.style.borderColor = 'rgba(56, 189, 248, 0.4)'
-                            e.currentTarget.style.background = 'rgba(30, 41, 59, 0.85)'
+                            e.currentTarget.style.borderColor = 'rgba(56, 189, 248, 0.48)'
+                            e.currentTarget.style.background = 'rgba(30, 41, 59, 0.9)'
                           }}
                         >
                           {prompt}
@@ -1436,17 +1441,17 @@ Ask me any real-time financial question, or tap one of the suggested topics belo
                   alignSelf: 'center',
                   background: 'rgba(236, 72, 153, 0.2)',
                   border: '1.5px solid #F472B6',
-                  borderRadius: '16px',
-                  padding: '10px 18px',
-                  fontSize: '14.5px',
+                  borderRadius: 'max(16px, 1.8vh)',
+                  padding: 'max(12px, 1.3vh) max(20px, 2.2vh)',
+                  fontSize: 'max(16px, 1.8vh)',
                   color: '#FBCFE8',
                   fontWeight: 800,
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '8px',
+                  gap: 'max(8px, 0.9vh)',
                 }}
               >
-                <span style={{ fontSize: '18px' }}>🎙️</span>
+                <span style={{ fontSize: 'max(20px, 2.2vh)' }}>🎙️</span>
                 <span>Listening to your voice... Speak now!</span>
               </div>
             )}
@@ -1457,21 +1462,21 @@ Ask me any real-time financial question, or tap one of the suggested topics belo
                   alignSelf: 'flex-start',
                   background: 'rgba(15, 23, 42, 0.85)',
                   border: '1px solid rgba(56, 189, 248, 0.25)',
-                  borderRadius: '16px',
-                  padding: '10px 16px',
-                  fontSize: '14.5px',
+                  borderRadius: 'max(16px, 1.8vh)',
+                  padding: 'max(12px, 1.3vh) max(18px, 2vh)',
+                  fontSize: 'max(16px, 1.8vh)',
                   color: '#38BDF8',
                   fontWeight: 700,
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '10px',
+                  gap: 'max(10px, 1.1vh)',
                 }}
               >
                 <span>✨ Gemini is thinking</span>
                 <span style={{ display: 'inline-flex', gap: '4px' }}>
-                  <span style={{ animation: 'blink 1.2s infinite', fontSize: '18px' }}>•</span>
-                  <span style={{ animation: 'blink 1.2s infinite 0.2s', fontSize: '18px' }}>•</span>
-                  <span style={{ animation: 'blink 1.2s infinite 0.4s', fontSize: '18px' }}>•</span>
+                  <span style={{ animation: 'blink 1.2s infinite', fontSize: 'max(20px, 2.2vh)' }}>•</span>
+                  <span style={{ animation: 'blink 1.2s infinite 0.2s', fontSize: 'max(20px, 2.2vh)' }}>•</span>
+                  <span style={{ animation: 'blink 1.2s infinite 0.4s', fontSize: 'max(20px, 2.2vh)' }}>•</span>
                 </span>
                 <style>{`
                   @keyframes blink {
@@ -1490,15 +1495,15 @@ Ask me any real-time financial question, or tap one of the suggested topics belo
               handleSendMessage()
             }}
             style={{
-              padding: '12px 16px 14px',
+              padding: 'max(14px, 1.5vh) max(18px, 2vh) max(16px, 1.7vh)',
               background: 'rgba(15, 23, 42, 0.98)',
               borderTop: '1px solid rgba(148, 163, 184, 0.2)',
               display: 'flex',
               flexDirection: 'column',
-              gap: '8px',
+              gap: 'max(10px, 1.1vh)',
             }}
           >
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: 'max(10px, 1.1vh)', alignItems: 'center' }}>
               {/* Voice Microphone Button */}
               <button
                 type="button"
@@ -1510,11 +1515,11 @@ Ask me any real-time financial question, or tap one of the suggested topics belo
                   color: '#FFFFFF',
                   border: isListeningVoice
                     ? '2px solid #FDE047'
-                    : '1px solid rgba(56, 189, 248, 0.4)',
-                  borderRadius: '12px',
-                  width: '44px',
-                  height: '44px',
-                  fontSize: '20px',
+                    : '1.5px solid rgba(56, 189, 248, 0.45)',
+                  borderRadius: 'max(12px, 1.4vh)',
+                  width: 'max(48px, 5.2vh)',
+                  height: 'max(48px, 5.2vh)',
+                  fontSize: 'max(22px, 2.4vh)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -1543,12 +1548,12 @@ Ask me any real-time financial question, or tap one of the suggested topics belo
                   background: '#1E293B',
                   border: isListeningVoice
                     ? '1.5px solid #EC4899'
-                    : '1px solid rgba(56, 189, 248, 0.35)',
-                  borderRadius: '12px',
-                  padding: '10px 14px',
+                    : '1.5px solid rgba(56, 189, 248, 0.4)',
+                  borderRadius: 'max(12px, 1.4vh)',
+                  padding: 'max(12px, 1.3vh) max(16px, 1.8vh)',
                   color: '#FFFFFF',
-                  fontSize: '15px',
-                  height: '44px',
+                  fontSize: 'max(16.5px, 1.85vh)',
+                  height: 'max(48px, 5.2vh)',
                   outline: 'none',
                 }}
               />
@@ -1561,21 +1566,21 @@ Ask me any real-time financial question, or tap one of the suggested topics belo
                   background: 'linear-gradient(135deg, #0284C7, #2563EB)',
                   color: '#FFFFFF',
                   border: 'none',
-                  borderRadius: '12px',
-                  padding: '0 18px',
-                  height: '44px',
-                  fontSize: '15px',
-                  fontWeight: 800,
+                  borderRadius: 'max(12px, 1.4vh)',
+                  padding: '0 max(22px, 2.4vh)',
+                  height: 'max(48px, 5.2vh)',
+                  fontSize: 'max(16.5px, 1.85vh)',
+                  fontWeight: 900,
                   cursor: loading || !input.trim() ? 'not-allowed' : 'pointer',
                   opacity: loading || !input.trim() ? 0.45 : 1,
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '6px',
-                  boxShadow: '0 4px 14px rgba(2,132,199,0.3)',
+                  gap: 'max(8px, 0.9vh)',
+                  boxShadow: '0 4px 14px rgba(2,132,199,0.35)',
                 }}
               >
                 <span>Send</span>
-                <span style={{ fontSize: '13px' }}>➤</span>
+                <span style={{ fontSize: 'max(14px, 1.6vh)' }}>➤</span>
               </button>
             </div>
 
@@ -1584,8 +1589,9 @@ Ask me any real-time financial question, or tap one of the suggested topics belo
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                fontSize: '11.5px',
-                color: '#64748B',
+                fontSize: 'max(13px, 1.45vh)',
+                color: '#94A3B8',
+                fontWeight: 600,
                 padding: '0 4px',
               }}
             >
