@@ -7736,12 +7736,10 @@ export default function Level1SchoolWorld({
             <form onSubmit={handleLoginSubmit} noValidate className="space-y-5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
-                  <label className="flex items-center gap-2 text-base sm:text-lg font-black uppercase tracking-wider text-[#0F172A] mb-2">
-                    <span className="text-xl">👤</span>
-                    <span>USERNAME OR LEARNER ID</span>
+                  <label className="block text-base sm:text-lg font-black uppercase tracking-wider text-[#0F172A] mb-2">
+                    USERNAME OR LEARNER ID
                   </label>
                   <div className="relative flex items-center">
-                    <span className="absolute left-5 text-slate-400 text-2xl select-none">👤</span>
                     <input
                       type="text"
                       placeholder="e.g. rincy123"
@@ -7750,18 +7748,16 @@ export default function Level1SchoolWorld({
                         setUsernameInput(e.target.value);
                         if (authError) setAuthError('');
                       }}
-                      className="w-full h-16 pl-14 pr-4 py-4 rounded-2xl border-2 border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-lg sm:text-xl font-bold focus:outline-none focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/20 transition-all shadow-sm"
+                      className="w-full h-16 px-6 py-4 rounded-2xl border-2 border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-lg sm:text-xl font-bold focus:outline-none focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/20 transition-all shadow-sm"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="flex items-center gap-2 text-base sm:text-lg font-black uppercase tracking-wider text-[#0F172A] mb-2">
-                    <span className="text-xl">✉️</span>
-                    <span>EMAIL ADDRESS</span>
+                  <label className="block text-base sm:text-lg font-black uppercase tracking-wider text-[#0F172A] mb-2">
+                    EMAIL ADDRESS
                   </label>
                   <div className="relative flex items-center">
-                    <span className="absolute left-5 text-slate-400 text-2xl select-none">✉️</span>
                     <input
                       type="text"
                       placeholder="e.g. rincy@example.com"
@@ -7770,19 +7766,17 @@ export default function Level1SchoolWorld({
                         setEmailInput(e.target.value);
                         if (authError) setAuthError('');
                       }}
-                      className="w-full h-16 pl-14 pr-4 py-4 rounded-2xl border-2 border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-lg sm:text-xl font-bold focus:outline-none focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/20 transition-all shadow-sm"
+                      className="w-full h-16 px-6 py-4 rounded-2xl border-2 border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-lg sm:text-xl font-bold focus:outline-none focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/20 transition-all shadow-sm"
                     />
                   </div>
                 </div>
               </div>
 
               <div>
-                <label className="flex items-center gap-2 text-base sm:text-lg font-black uppercase tracking-wider text-[#0F172A] mb-2">
-                  <span className="text-xl">🔒</span>
-                  <span>PASSWORD</span>
+                <label className="block text-base sm:text-lg font-black uppercase tracking-wider text-[#0F172A] mb-2">
+                  PASSWORD
                 </label>
                 <div className="relative flex items-center">
-                  <span className="absolute left-5 text-slate-400 text-2xl select-none">🔒</span>
                   <input
                     type={showPassword ? 'text' : 'password'}
                     placeholder="Enter your password"
@@ -7791,7 +7785,7 @@ export default function Level1SchoolWorld({
                       setPasswordInput(e.target.value);
                       if (authError) setAuthError('');
                     }}
-                    className="w-full h-16 pl-14 pr-14 py-4 rounded-2xl border-2 border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-lg sm:text-xl font-bold focus:outline-none focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/20 transition-all shadow-sm"
+                    className="w-full h-16 pl-6 pr-14 py-4 rounded-2xl border-2 border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-lg sm:text-xl font-bold focus:outline-none focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/20 transition-all shadow-sm"
                   />
                   <button
                     type="button"
