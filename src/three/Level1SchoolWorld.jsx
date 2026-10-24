@@ -7733,10 +7733,10 @@ export default function Level1SchoolWorld({
             </div>
 
             {/* 3. INPUT DETAILS & FORM (Large Username, Email, Password) */}
-            <form onSubmit={handleLoginSubmit} noValidate className="space-y-5">
+            <form onSubmit={handleLoginSubmit} noValidate className="space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-base sm:text-lg font-black uppercase tracking-wider text-[#0F172A] mb-2">
+                  <label className="block text-lg sm:text-xl font-black uppercase tracking-wider text-[#0F172A] mb-2.5">
                     USERNAME OR LEARNER ID
                   </label>
                   <div className="relative flex items-center">
@@ -7748,13 +7748,13 @@ export default function Level1SchoolWorld({
                         setUsernameInput(e.target.value);
                         if (authError) setAuthError('');
                       }}
-                      className="w-full h-16 px-6 py-4 rounded-2xl border-2 border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-lg sm:text-xl font-bold focus:outline-none focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/20 transition-all shadow-sm"
+                      className="w-full h-20 sm:h-22 px-7 py-4 rounded-2xl sm:rounded-3xl border-2 border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-2xl sm:text-3xl font-extrabold focus:outline-none focus:border-[#10B981] focus:ring-4 focus:ring-[#10B981]/20 transition-all shadow-sm"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-base sm:text-lg font-black uppercase tracking-wider text-[#0F172A] mb-2">
+                  <label className="block text-lg sm:text-xl font-black uppercase tracking-wider text-[#0F172A] mb-2.5">
                     EMAIL ADDRESS
                   </label>
                   <div className="relative flex items-center">
@@ -7766,14 +7766,14 @@ export default function Level1SchoolWorld({
                         setEmailInput(e.target.value);
                         if (authError) setAuthError('');
                       }}
-                      className="w-full h-16 px-6 py-4 rounded-2xl border-2 border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-lg sm:text-xl font-bold focus:outline-none focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/20 transition-all shadow-sm"
+                      className="w-full h-20 sm:h-22 px-7 py-4 rounded-2xl sm:rounded-3xl border-2 border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-2xl sm:text-3xl font-extrabold focus:outline-none focus:border-[#10B981] focus:ring-4 focus:ring-[#10B981]/20 transition-all shadow-sm"
                     />
                   </div>
                 </div>
               </div>
 
               <div>
-                <label className="block text-base sm:text-lg font-black uppercase tracking-wider text-[#0F172A] mb-2">
+                <label className="block text-lg sm:text-xl font-black uppercase tracking-wider text-[#0F172A] mb-2.5">
                   PASSWORD
                 </label>
                 <div className="relative flex items-center">
@@ -7785,12 +7785,12 @@ export default function Level1SchoolWorld({
                       setPasswordInput(e.target.value);
                       if (authError) setAuthError('');
                     }}
-                    className="w-full h-16 pl-6 pr-14 py-4 rounded-2xl border-2 border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-lg sm:text-xl font-bold focus:outline-none focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/20 transition-all shadow-sm"
+                    className="w-full h-20 sm:h-22 pl-7 pr-20 py-4 rounded-2xl sm:rounded-3xl border-2 border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-2xl sm:text-3xl font-extrabold focus:outline-none focus:border-[#10B981] focus:ring-4 focus:ring-[#10B981]/20 transition-all shadow-sm"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword((s) => !s)}
-                    className="absolute right-5 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer select-none text-2xl"
+                    className="absolute right-6 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer select-none text-3xl sm:text-4xl"
                     title={showPassword ? 'Hide password' : 'Show password'}
                   >
                     {showPassword ? '👁️' : '👁️‍🗨️'}
