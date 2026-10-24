@@ -318,14 +318,14 @@ WEBSITE ARCHITECTURE & GROUND TRUTH:
    - NEVER start responses with generic boilerplate like "Welcome to Learn2Invest" or "Learn2Invest is a risk-free simulator" unless the user explicitly asks what the website is.
    - ALWAYS ANSWER IN THE VERY FIRST SENTENCE without lengthy conversational preamble.
    - WHEN A USER ASKS WHERE TO PUT OR INVEST AN AMOUNT OF MONEY (e.g. "I have 10000", "I have 19999", "where should I put", "where to invest"):
-     * Do NOT give long lectures or generic disclaimers.
-     * Give an INSTANT, PRACTICAL, SMART ASSET ALLOCATION BREAKDOWN calculating exact rupee amounts for their money:
-       1. 50% (~₹X) — Index Mutual Funds (e.g. Nifty 50) for wealth creation & beating inflation.
-       2. 30% (~₹Y) — Safe Fixed Income (PPF at 7.1% tax-free or Bank FD at 7.25%) for guaranteed capital protection.
-       3. 20% (~₹Z) — Emergency Savings / Gold ETF for quick liquidity.
-     * End with 1 short line: "💡 You can simulate this portfolio in [Level 2 Lab]!"
+     * Do NOT give long lectures, generic disclaimers, or suggest visiting labs/maps.
+     * Give ONLY a clean, direct asset allocation breakdown with exact calculated rupee amounts:
+       1. 50% (~₹X) — Index Mutual Funds (e.g. Nifty 50) for long-term growth and beating inflation.
+       2. 30% (~₹Y) — Safe Fixed Income (PPF at 7.1% or Bank FD at 7.25%) for guaranteed capital protection.
+       3. 20% (~₹Z) — Emergency Savings / Liquid Cash for quick liquidity.
+     * Keep it clean, direct, and focused strictly on the money. DO NOT mention [Level 2 Lab] or [Campus Map].
    - Keep general responses short (under 120 words), clear, using bullet points, bold key terms, and Indian Rupee formatting (₹).
-   - If user asks where to go or how to navigate, offer direct suggestions using bracket tags like [Level 1 School], [Level 2 Lab], [Level 3 Banking], [Campus Map], [Saved Simulations], [Leaderboard], [Badges], [Performance Report].
+   - DO NOT mention [Level 2 Lab] or [Campus Map] unless the user specifically asks how to navigate there.
    - Dynamic page awareness: Always address the user in context of their active screen: "${userContext?.currentScreen || 'Campus'}".
 
 CURRENT USER LIVE SNAPSHOT:
@@ -452,11 +452,9 @@ CURRENT USER LIVE SNAPSHOT:
       const liq = total - eq - debt
       fallbackReply = `Here is your smart asset allocation for **₹${total.toLocaleString('en-IN')}**:
 
-* **50% (~₹${eq.toLocaleString('en-IN')})** — Index Mutual Funds (e.g. Nifty 50) for long-term growth.
+* **50% (~₹${eq.toLocaleString('en-IN')})** — Index Mutual Funds (e.g. Nifty 50) for long-term growth and beating inflation.
 * **30% (~₹${debt.toLocaleString('en-IN')})** — Safe Fixed Income (PPF at 7.1% or FD at 7.25%) for capital protection.
-* **20% (~₹${liq.toLocaleString('en-IN')})** — Emergency Savings / Gold ETF for quick liquidity.
-
-💡 You can simulate this portfolio in [Level 2 Lab]!`
+* **20% (~₹${liq.toLocaleString('en-IN')})** — Emergency Savings / Liquid Cash for quick liquidity.`
     }
   } else if (qLower.includes('about') || qLower.includes('website') || qLower.includes('what is this') || qLower.includes('explain this website')) {
     fallbackReply = `**Welcome to Learn2Invest!** 🎓

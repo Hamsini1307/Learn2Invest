@@ -54,39 +54,7 @@ function getLiveProgressSnapshot(state, currentScreen) {
 
 // Extract interactive navigation buttons from bot response
 function extractActionPills(text) {
-  if (!text) return []
-  const pills = []
-  const lower = text.toLowerCase()
-
-  if (lower.includes('[level 1 school]') || lower.includes('[level 1]') || lower.includes('/school')) {
-    pills.push({ label: '🏫 Level 1 School', screen: 'beginner', path: '/school' })
-  }
-  if (lower.includes('[level 2 lab]') || lower.includes('[level 2]') || lower.includes('/government-district')) {
-    pills.push({ label: '🏛️ Level 2 Lab', screen: 'intermediate', path: '/government-district' })
-  }
-  if (lower.includes('[level 3 banking]') || lower.includes('[level 3]') || lower.includes('/futuristic-city')) {
-    pills.push({ label: '🌆 Level 3 Banking Hub', screen: 'advanced', path: '/futuristic-city' })
-  }
-  if (lower.includes('[campus map]') || lower.includes('/campus-map') || lower.includes('/dashboard')) {
-    pills.push({ label: '🗺️ Campus Map', screen: 'level-map', path: '/campus-map' })
-  }
-  if (lower.includes('[saved simulations]') || lower.includes('/saved-simulations')) {
-    pills.push({ label: '📁 Saved Simulations', screen: 'saved-simulations', path: '/saved-simulations' })
-  }
-  if (lower.includes('[admin panel]') || lower.includes('/admin')) {
-    pills.push({ label: '🛡️ Admin Panel', screen: 'admin', path: '/admin' })
-  }
-  if (lower.includes('[leaderboard]')) {
-    pills.push({ label: '🏆 Leaderboard', modal: 'leaderboard' })
-  }
-  if (lower.includes('[badges]')) {
-    pills.push({ label: '🎖️ Badges', modal: 'badges' })
-  }
-  if (lower.includes('[performance report]')) {
-    pills.push({ label: '📊 Performance Report', modal: 'report' })
-  }
-
-  return pills.filter((p, i, arr) => arr.findIndex(x => x.label === p.label) === i)
+  return []
 }
 
 // Formatted markdown text renderer with extra-large, ultra-readable typography (18-20px)
@@ -191,43 +159,7 @@ function FormattedMessage({ text, onActionClick }) {
 
   if (inTable) flushTable(`table_end`)
 
-  const actionPills = extractActionPills(text)
-
-  return (
-    <div>
-      {elements}
-      {actionPills.length > 0 && onActionClick && (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginTop: '16px', paddingTop: '14px', borderTop: '1px solid rgba(148,163,184,0.25)' }}>
-          {actionPills.map(p => (
-            <button
-              key={p.label}
-              type="button"
-              onClick={() => onActionClick(p)}
-              style={{
-                background: 'linear-gradient(135deg, rgba(14, 165, 233, 0.35), rgba(99, 102, 241, 0.35))',
-                border: '2px solid #38BDF8',
-                color: '#E0F2FE',
-                borderRadius: '12px',
-                padding: '9px 18px',
-                fontSize: '17px',
-                fontWeight: 900,
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                transition: 'all 0.15s ease',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.35)',
-              }}
-              title={`Click to open ${p.label}`}
-            >
-              <span>{p.label}</span>
-              <span style={{ fontSize: '14px' }}>↗</span>
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  )
+  return <div>{elements}</div>
 }
 
 function formatInline(str) {
@@ -333,8 +265,9 @@ CRITICAL CHATBOT GUIDELINES:
     1. 50% (~₹X) — Index Mutual Funds (e.g. Nifty 50) for long-term growth.
     2. 30% (~₹Y) — Safe Fixed Income (PPF 7.1% or FD 7.25%) for guaranteed capital protection.
     3. 20% (~₹Z) — Emergency Savings / Gold ETF for quick liquidity.
-  * End with: "💡 You can simulate this portfolio in [Level 2 Lab]!"
-- Keep general responses short (under 120 words), clear, using bullet points, bold key terms, and Indian Rupee formatting (₹).`
+  * Keep it clean, direct, and focused strictly on the money. DO NOT mention [Level 2 Lab] or [Campus Map].
+- Keep general responses short (under 120 words), clear, using bullet points, bold key terms, and Indian Rupee formatting (₹).
+- DO NOT mention [Level 2 Lab] or [Campus Map] unless the user specifically asks how to navigate there.`
 
     const openAiMessages = [
       { role: 'system', content: directSystemInstruction },
@@ -373,11 +306,9 @@ CRITICAL CHATBOT GUIDELINES:
       const liq = total - eq - debt
       return `Here is your smart asset allocation for **₹${total.toLocaleString('en-IN')}**:
 
-* **50% (~₹${eq.toLocaleString('en-IN')})** — Index Mutual Funds (e.g. Nifty 50) for long-term growth.
-* **30% (~₹${debt.toLocaleString('en-IN')})** — Safe Fixed Income (PPF at 7.1% or FD at 7.25%) for capital protection.
-* **20% (~₹${liq.toLocaleString('en-IN')})** — Emergency Savings / Gold ETF for quick liquidity.
-
-💡 You can simulate this portfolio in [Level 2 Lab]!`
+* **50% (~₹${eq.toLocaleString('en-IN')})** — Index Mutual Funds (e.g. Nifty 50) for long-term growth and beating inflation.
+* **30% (~₹${debt.toLocaleString('en-IN')})** — Safe Fixed Income (PPF at 7.1% or FD at 7.25%) for guaranteed capital protection.
+* **20% (~₹${liq.toLocaleString('en-IN')})** — Emergency Savings / Liquid Cash for quick liquidity.`
     }
   }
 
@@ -638,6 +569,14 @@ export default function Chatbot({
 
   const handleToggleOpen = () => {
     soundEngine.playClick()
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.resume()
+    }
+    if (!isOpen && !isVoiceMuted) {
+      setTimeout(() => {
+        handleReadAloud('Hey, how can I help you?', 'auto_welcome')
+      }, 250)
+    }
     if (onToggle) onToggle()
     else setInternalOpen((o) => !o)
   }
@@ -650,11 +589,9 @@ export default function Chatbot({
     else setInternalOpen(false)
   }
 
-  const initialGreeting = `👋 Hello! I am ${guideName}, your personal AI Financial Mentor for Learn2Invest.
+  const initialGreeting = `👋 Hey! How can I help you?
 
-I am powered by Google Gemini and have full knowledge of Indian savings schemes, portfolio investing, banking procedures, cyber fraud protection, and this website's features.
-
-Ask me any real-time financial question, or tap one of the suggested topics below to get started!`
+Ask me any financial question about investing, Indian savings schemes, or banking procedures to get started!`
 
   const [msgs, setMsgs] = useState(() => [
     {
@@ -673,6 +610,7 @@ Ask me any real-time financial question, or tap one of the suggested topics belo
   const [speakingIdx, setSpeakingIdx] = useState(null)
   const [isListeningVoice, setIsListeningVoice] = useState(false)
   const recognitionRef = useRef(null)
+  const hasSpokenWelcomeRef = useRef(false)
 
   // Mouse Pointer & Quiz Reaction State
   const [lookVec, setLookVec] = useState({ x: 0, y: 0 })
@@ -693,6 +631,22 @@ Ask me any real-time financial question, or tap one of the suggested topics belo
     }
   }, [])
 
+  // Auto-speak "Hey, how can I help you?" when chatbot opens
+  useEffect(() => {
+    if (isOpen) {
+      if (!hasSpokenWelcomeRef.current && !isVoiceMuted) {
+        hasSpokenWelcomeRef.current = true
+        const timer = setTimeout(() => {
+          handleReadAloud('Hey, how can I help you?', 'auto_welcome')
+        }, 300)
+        return () => clearTimeout(timer)
+      }
+    } else {
+      hasSpokenWelcomeRef.current = false
+      stopSpeech()
+    }
+  }, [isOpen, isVoiceMuted])
+
   // Reset conversation handler
   const handleResetChat = () => {
     soundEngine.playClick()
@@ -706,6 +660,11 @@ Ask me any real-time financial question, or tap one of the suggested topics belo
         text: initialGreeting,
       },
     ])
+    if (!isVoiceMuted) {
+      setTimeout(() => {
+        handleReadAloud('Hey, how can I help you?', 'auto_welcome')
+      }, 250)
+    }
   }
 
   // Quiz reaction event listener
@@ -780,11 +739,80 @@ Ask me any real-time financial question, or tap one of the suggested topics belo
     setSpeakingIdx(null)
   }
 
+  // Voice Selector: Picks natural female voice for Luna, or natural male voice for Leo
+  const getGuideVoice = (voices, isFemale) => {
+    if (!voices || voices.length === 0) return null
+
+    const femaleKeywords = [
+      'female', 'neerja', 'heera', 'zira', 'samantha', 'karen', 'victoria',
+      'veena', 'priya', 'swara', 'eva', 'jenny', 'aria', 'sarah', 'natasha'
+    ]
+    const maleKeywords = [
+      'male', 'david', 'ravi', 'mark', 'george', 'daniel', 'rishi',
+      'guy', 'christopher', 'eric', 'brian', 'prabhat'
+    ]
+
+    const englishVoices = voices.filter(
+      (v) => v.lang && v.lang.toLowerCase().startsWith('en')
+    )
+    const pool = englishVoices.length > 0 ? englishVoices : voices
+
+    if (isFemale) {
+      // 1. Try Indian English Female voice (e.g. Heera, Neerja, Veena)
+      const inFemale = pool.find(
+        (v) =>
+          (v.lang === 'en-IN' || v.lang === 'en_IN') &&
+          femaleKeywords.some((kw) => v.name.toLowerCase().includes(kw))
+      )
+      if (inFemale) return inFemale
+
+      // 2. Try any English Female voice (e.g. Zira, Jenny, Samantha)
+      const anyEnFemale = pool.find(
+        (v) =>
+          femaleKeywords.some((kw) => v.name.toLowerCase().includes(kw)) &&
+          !maleKeywords.some((kw) => v.name.toLowerCase().includes(kw))
+      )
+      if (anyEnFemale) return anyEnFemale
+
+      // 3. Fallback: filter out known male voices
+      const nonMale = pool.find(
+        (v) => !maleKeywords.some((kw) => v.name.toLowerCase().includes(kw))
+      )
+      if (nonMale) return nonMale
+
+      return pool[0]
+    } else {
+      // 1. Try Indian English Male voice (e.g. Ravi, Rishi, Prabhat)
+      const inMale = pool.find(
+        (v) =>
+          (v.lang === 'en-IN' || v.lang === 'en_IN') &&
+          maleKeywords.some((kw) => v.name.toLowerCase().includes(kw))
+      )
+      if (inMale) return inMale
+
+      // 2. Try any English Male voice (e.g. David, Mark, Guy)
+      const anyEnMale = pool.find(
+        (v) =>
+          maleKeywords.some((kw) => v.name.toLowerCase().includes(kw)) &&
+          !femaleKeywords.some((kw) => v.name.toLowerCase().includes(kw))
+      )
+      if (anyEnMale) return anyEnMale
+
+      // 3. Fallback: find any voice with male keyword or default
+      const maleVoice = pool.find((v) =>
+        maleKeywords.some((kw) => v.name.toLowerCase().includes(kw))
+      )
+      if (maleVoice) return maleVoice
+
+      return pool[0]
+    }
+  }
+
   const handleReadAloud = (textToRead, idx) => {
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) return
     if (isVoiceMuted) return
 
-    if (speakingIdx === idx && idx !== 'auto_voice') {
+    if (speakingIdx === idx && idx !== 'auto_welcome') {
       stopSpeech()
       return
     }
@@ -804,22 +832,29 @@ Ask me any real-time financial question, or tap one of the suggested topics belo
 
     if (!cleanSpeech) return
 
+    const isGirl = aiGuideAvatar === 'female' || guideName.toLowerCase().includes('luna')
     const utter = new SpeechSynthesisUtterance(cleanSpeech)
     const allVoices = window.speechSynthesis.getVoices()
-    const preferredVoice =
-      allVoices.find((v) => v.lang === 'en-IN') ||
-      allVoices.find((v) => v.lang.startsWith('en')) ||
-      allVoices[0]
+    const preferredVoice = getGuideVoice(allVoices, isGirl)
 
     if (preferredVoice) {
       utter.voice = preferredVoice
-      utter.lang = preferredVoice.lang
+      utter.lang = preferredVoice.lang || (isGirl ? 'en-US' : 'en-IN')
     } else {
-      utter.lang = 'en-IN'
+      utter.lang = isGirl ? 'en-US' : 'en-IN'
     }
 
-    utter.rate = 1.0
-    utter.pitch = aiGuideAvatar === 'female' ? 1.08 : 0.95
+    // Set distinctive, natural vocal pitch and rate:
+    // Luna (Girl) = higher sweet pitch (1.28)
+    // Leo (Boy) = deeper warm pitch (0.88)
+    if (isGirl) {
+      utter.pitch = 1.28
+      utter.rate = 1.04
+    } else {
+      utter.pitch = 0.88
+      utter.rate = 0.98
+    }
+
     utter.onend = () => setSpeakingIdx(null)
     utter.onerror = () => setSpeakingIdx(null)
     setSpeakingIdx(idx)
@@ -1244,7 +1279,7 @@ Ask me any real-time financial question, or tap one of the suggested topics belo
                 <div style={{ fontSize: '12.5px', color: '#93C5FD', fontWeight: 600 }}>
                   {isListeningVoice
                     ? '🎙️ Listening to your voice now...'
-                    : '⚡ Live Google Gemini AI'}
+                    : '🟢 Online • AI Financial Mentor'}
                 </div>
               </div>
             </div>
@@ -1492,7 +1527,7 @@ Ask me any real-time financial question, or tap one of the suggested topics belo
                   gap: '10px',
                 }}
               >
-                <span>✨ Gemini is thinking</span>
+                <span>✨ {guideName} is thinking</span>
                 <span style={{ display: 'inline-flex', gap: '4px' }}>
                   <span style={{ animation: 'blink 1.2s infinite', fontSize: '18px' }}>•</span>
                   <span style={{ animation: 'blink 1.2s infinite 0.2s', fontSize: '18px' }}>•</span>
@@ -1603,20 +1638,6 @@ Ask me any real-time financial question, or tap one of the suggested topics belo
                 <span>Send</span>
                 <span style={{ fontSize: '13px' }}>➤</span>
               </button>
-            </div>
-
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                fontSize: '11.5px',
-                color: '#64748B',
-                padding: '0 4px',
-              }}
-            >
-              <span>⚡ Google Gemini AI • Live Financial Mentor</span>
-              <span>{SCREEN_KNOWLEDGE[currentScreen]?.badge || 'Campus'}</span>
             </div>
           </form>
         </div>
