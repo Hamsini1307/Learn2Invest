@@ -1981,8 +1981,15 @@ function SchoolYardAndFacade3D({ frontDoorOpenRef, isNightMode = false }) {
           </group>
         ))}
 
-        {/* Central Classical Cream Stone Tower & Portico ("Learn2Invest School" - Image 3) */}
-        <RoundedBox args={[6.2, 9.5, 0.95]} position={[0, 6.9, 0.1]} radius={0.05} castShadow>
+        {/* Central Classical Cream Stone Tower (Upper Facade Wall Above Entrance Beam y >= 3.82) */}
+        <RoundedBox args={[6.2, 7.85, 0.95]} position={[0, 7.74, 0.1]} radius={0.05} castShadow>
+          <meshStandardMaterial color="#f5ebe0" roughness={0.6} />
+        </RoundedBox>
+        {/* Left & Right Flanking Jamb Walls (Behind Pillars) — Doorway Opening [x: -1.95 to +1.95] is 100% Clear */}
+        <RoundedBox args={[1.15, 3.82, 0.95]} position={[-2.525, 1.91, 0.1]} radius={0.04} castShadow>
+          <meshStandardMaterial color="#f5ebe0" roughness={0.6} />
+        </RoundedBox>
+        <RoundedBox args={[1.15, 3.82, 0.95]} position={[2.525, 1.91, 0.1]} radius={0.04} castShadow>
           <meshStandardMaterial color="#f5ebe0" roughness={0.6} />
         </RoundedBox>
 
@@ -2108,9 +2115,9 @@ function SchoolYardAndFacade3D({ frontDoorOpenRef, isNightMode = false }) {
           FINANCIAL ACADEMY & SCHOOL
         </Text>
 
-        {/* Animated Warm Glass Double Entrance Doors */}
-        <group ref={leftDoorRef} position={[-1.85, 0.35, 0.2]}>
-          <RoundedBox args={[1.8, 3.4, 0.12]} position={[0.9, 1.7, 0]} radius={0.02}>
+        {/* Animated Warm Glass Double Entrance Doors (Extended Upwards to Portico Beam) */}
+        <group ref={leftDoorRef} position={[-1.88, 0.28, 0.2]}>
+          <RoundedBox args={[1.86, 3.56, 0.1]} position={[0.93, 1.78, 0]} radius={0.02}>
             <meshStandardMaterial
               color="#fde68a"
               emissive={isNightMode ? '#f59e0b' : '#000000'}
@@ -2121,9 +2128,23 @@ function SchoolYardAndFacade3D({ frontDoorOpenRef, isNightMode = false }) {
               opacity={0.82}
             />
           </RoundedBox>
+          {/* Top & Bottom Slim Architectural Trim */}
+          <mesh position={[0.93, 3.53, 0]}>
+            <boxGeometry args={[1.86, 0.06, 0.12]} />
+            <meshStandardMaterial color="#475569" roughness={0.3} />
+          </mesh>
+          <mesh position={[0.93, 0.03, 0]}>
+            <boxGeometry args={[1.86, 0.06, 0.12]} />
+            <meshStandardMaterial color="#475569" roughness={0.3} />
+          </mesh>
+          {/* Vertical Pull Handle */}
+          <mesh position={[1.76, 1.5, 0.08]}>
+            <cylinderGeometry args={[0.02, 0.02, 0.7, 8]} />
+            <meshStandardMaterial color="#fbbf24" metalness={0.85} roughness={0.2} />
+          </mesh>
         </group>
-        <group ref={rightDoorRef} position={[1.85, 0.35, 0.2]}>
-          <RoundedBox args={[1.8, 3.4, 0.12]} position={[-0.9, 1.7, 0]} radius={0.02}>
+        <group ref={rightDoorRef} position={[1.88, 0.28, 0.2]}>
+          <RoundedBox args={[1.86, 3.56, 0.1]} position={[-0.93, 1.78, 0]} radius={0.02}>
             <meshStandardMaterial
               color="#fde68a"
               emissive={isNightMode ? '#f59e0b' : '#000000'}
@@ -2134,6 +2155,20 @@ function SchoolYardAndFacade3D({ frontDoorOpenRef, isNightMode = false }) {
               opacity={0.82}
             />
           </RoundedBox>
+          {/* Top & Bottom Slim Architectural Trim */}
+          <mesh position={[-0.93, 3.53, 0]}>
+            <boxGeometry args={[1.86, 0.06, 0.12]} />
+            <meshStandardMaterial color="#475569" roughness={0.3} />
+          </mesh>
+          <mesh position={[-0.93, 0.03, 0]}>
+            <boxGeometry args={[1.86, 0.06, 0.12]} />
+            <meshStandardMaterial color="#475569" roughness={0.3} />
+          </mesh>
+          {/* Vertical Pull Handle */}
+          <mesh position={[-1.76, 1.5, 0.08]}>
+            <cylinderGeometry args={[0.02, 0.02, 0.7, 8]} />
+            <meshStandardMaterial color="#fbbf24" metalness={0.85} roughness={0.2} />
+          </mesh>
         </group>
       </group>
     </group>
