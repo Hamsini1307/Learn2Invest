@@ -25,6 +25,11 @@ server/local_db.json
 # OS files
 .DS_Store
 Thumbs.db
-Learn2Invest_Upgraded.zip
 *.zip
 scratch/
+
+# Documents & PDFs
+*.pdf
+
+# Scratch test files
+scratch_test.html

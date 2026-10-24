@@ -353,7 +353,7 @@ export default function Navbar({
               )}
             </div>
 
-            
+
 
             {openLeaderboard && (
               <button

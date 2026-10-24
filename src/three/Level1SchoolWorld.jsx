@@ -6732,14 +6732,14 @@ export default function Level1SchoolWorld({
             </div>
 
             {/* Top 3 Podium Cards */}
-            <div className="p-5 overflow-y-auto space-y-4">
+            <div className="p-5 overflow-y-auto space-y-4 bg-amber-50/50">
               <div className="grid grid-cols-3 gap-3">
                 {sortedRankList.slice(0, 3).map((u, idx) => {
                   const medals = ['👑 #1 TOP', '🥇 #2', '🥉 #3']
                   const borderCols = [
-                    'border-amber-400 bg-amber-500/15 shadow-[0_0_25px_rgba(251,191,36,0.3)]',
-                    'border-slate-300 bg-slate-800/80',
-                    'border-amber-600 bg-amber-950/40',
+                    'border-amber-400 bg-amber-100/90 shadow-[0_0_25px_rgba(251,191,36,0.3)] text-slate-950',
+                    'border-slate-300 bg-slate-100/90 text-slate-950',
+                    'border-amber-400 bg-amber-50/90 text-slate-950',
                   ]
                   return (
                     <div
@@ -6750,10 +6750,10 @@ export default function Level1SchoolWorld({
                       <div className="px-2.5 py-0.5 rounded-full bg-slate-950 text-amber-300 text-[10px] font-black mb-1">
                         {medals[idx]}
                       </div>
-                      <div className="text-xs sm:text-sm font-black text-white truncate max-w-full">
+                      <div className="text-xs sm:text-sm font-black text-slate-950 truncate max-w-full">
                         {u.name} {u.isCurrentUser ? '(You)' : ''}
                       </div>
-                      <div className="text-[11px] font-extrabold text-emerald-300 mt-0.5">
+                      <div className="text-[11px] font-black text-emerald-800 mt-0.5">
                         ⭐ {u.xp || 0} XP
                       </div>
                     </div>
@@ -6771,30 +6771,30 @@ export default function Level1SchoolWorld({
                       key={u.name + idx}
                       className={`px-4 py-3 rounded-2xl border flex items-center justify-between gap-3 ${
                         u.isCurrentUser
-                          ? 'bg-emerald-500/20 border-2 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.35)]'
-                          : 'bg-slate-950/80 border-white/10'
+                          ? 'bg-emerald-100/90 border-2 border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.25)] text-slate-950'
+                          : 'bg-white/90 border-amber-200/80 text-slate-950'
                       }`}
                     >
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-slate-800 border border-white/15 flex items-center justify-center font-black text-sm text-amber-300">
+                        <div className="w-9 h-9 rounded-xl bg-amber-100 border border-amber-300 flex items-center justify-center font-black text-sm text-amber-900">
                           #{idx + 1}
                         </div>
                         <span className="text-2xl">{u.avatar || '🎓'}</span>
                         <div>
-                          <div className="text-sm font-black text-white flex items-center gap-1.5">
+                          <div className="text-sm font-black text-slate-950 flex items-center gap-1.5">
                             <span>{rankIcon}</span>
-                            <span>{u.name}</span>
+                            <span className="text-slate-950 font-black">{u.name}</span>
                             {u.isCurrentUser && (
-                              <span className="px-2 py-0.5 rounded-full bg-emerald-400 text-slate-950 text-[10px] font-black">
+                              <span className="px-2 py-0.5 rounded-full bg-emerald-600 text-white text-[10px] font-black">
                                 YOU
                               </span>
                             )}
                           </div>
-                          <div className="text-[11px] font-bold text-slate-400">{u.level || 'Learn2Invest Scholar'}</div>
+                          <div className="text-[11px] font-bold text-slate-700">{u.level || 'Learn2Invest Scholar'}</div>
                         </div>
                       </div>
 
-                      <div className="px-3.5 py-1.5 rounded-xl bg-amber-400/20 border border-amber-400/60 text-amber-300 font-black text-xs sm:text-sm">
+                      <div className="px-3.5 py-1.5 rounded-xl bg-amber-400/30 border border-amber-500/60 text-amber-950 font-black text-xs sm:text-sm">
                         ⭐ {u.xp || 0} XP
                       </div>
                     </div>

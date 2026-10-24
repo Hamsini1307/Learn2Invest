@@ -12,6 +12,7 @@ import Intermediate from './screens/Intermediate.jsx'
 import Simulation from './screens/Simulation.jsx'
 import Advanced from './screens/Advanced.jsx'
 import Navbar from './components/Navbar.jsx'
+
 import FloatingBlobs from './components/FloatingBlobs.jsx'
 import AdminPanel from './screens/AdminPanel.jsx'
 import OverworldCity from './screens/OverworldCity.jsx'
@@ -595,7 +596,7 @@ function AppContent() {
             </>
           )}
 
-          
+
           <AiAvatarSelector
             isOpen={avatarModalOpen}
             onClose={() => setAvatarModalOpen(false)}

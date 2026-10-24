@@ -65,7 +65,7 @@ export default function LeaderboardModal({ user, userXp, onClose, themeMode }) {
         padding: '28px',
         maxWidth: 540,
         width: '100%',
-        color: isLight ? '#0f172a' : '#fef3c7',
+        color: '#0f172a',
         boxShadow: isLight ? '0 10px 40px rgba(234, 88, 12, 0.15)' : '0 0 50px rgba(245, 158, 11, 0.3)',
         fontFamily: "'Space Grotesk', sans-serif"
       }} className="anim-scale" onClick={e => e.stopPropagation()}>
@@ -75,20 +75,20 @@ export default function LeaderboardModal({ user, userXp, onClose, themeMode }) {
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <span style={{ fontSize: 32 }}>🏆</span>
             <div>
-              <h2 className="font-display" style={{ fontSize: 24, color: isLight ? '#0f172a' : '#ffffff', lineHeight: 1 }}>
+              <h2 className="font-display" style={{ fontSize: 24, color: '#0f172a', lineHeight: 1 }}>
                 CAMPUS LEADERBOARD
               </h2>
-              <span style={{ fontSize: 11, color: isLight ? '#ea580c' : '#fbbf24', fontWeight: 800 }}>
+              <span style={{ fontSize: 11, color: '#ea580c', fontWeight: 800 }}>
                 Live Synchronized User Rankings 🇮🇳
               </span>
             </div>
           </div>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', color: isLight ? '#0f172a' : '#fbbf24', fontSize: 22, cursor: 'pointer' }}>✕</button>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#0f172a', fontSize: 22, cursor: 'pointer' }}>✕</button>
         </div>
 
         {/* User Rank Card */}
         <div style={{
-          background: isLight ? '#fff7ed' : 'linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.1))',
+          background: '#fff7ed',
           border: '1.5px solid #ea580c',
           borderRadius: 16,
           padding: '14px 18px',
@@ -100,19 +100,19 @@ export default function LeaderboardModal({ user, userXp, onClose, themeMode }) {
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <span style={{ fontSize: 24 }}>⭐</span>
             <div>
-              <div style={{ fontSize: 11, fontWeight: 800, color: isLight ? '#7c2d12' : '#9ca3af', textTransform: 'uppercase' }}>YOUR CURRENT RANK (#{userRank})</div>
-              <div style={{ fontSize: 16, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff' }}>{currentUserName} (You)</div>
+              <div style={{ fontSize: 11, fontWeight: 800, color: '#7c2d12', textTransform: 'uppercase' }}>YOUR CURRENT RANK (#{userRank})</div>
+              <div style={{ fontSize: 16, fontWeight: 900, color: '#0f172a' }}>{currentUserName} (You)</div>
             </div>
           </div>
           <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: 20, fontWeight: 900, color: isLight ? '#ea580c' : '#fbbf24' }}>{userXp || 0} XP</div>
+            <div style={{ fontSize: 20, fontWeight: 900, color: '#ea580c' }}>{userXp || 0} XP</div>
             <div style={{ fontSize: 10, fontWeight: 800, color: '#059669' }}>Live Synchronized Rank</div>
           </div>
         </div>
 
         {/* Leaderboard Table */}
         {loading ? (
-          <div style={{ padding: '30px', textAlign: 'center', color: isLight ? '#475569' : '#9ca3af', fontWeight: 700 }}>
+          <div style={{ padding: '30px', textAlign: 'center', color: '#475569', fontWeight: 700 }}>
             Syncing live database rankings... 🔄
           </div>
         ) : (
@@ -122,8 +122,8 @@ export default function LeaderboardModal({ user, userXp, onClose, themeMode }) {
               const rankEmoji = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`
               return (
                 <div key={index} style={{
-                  background: item.isYou ? (isLight ? '#ffedd5' : 'rgba(16, 185, 129, 0.2)') : (isLight ? '#f8fafc' : 'rgba(255, 255, 255, 0.04)'),
-                  border: `1.5px solid ${item.isYou ? '#ea580c' : isTop3 ? 'rgba(234, 88, 12, 0.5)' : (isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255, 255, 255, 0.1)')}`,
+                  background: item.isYou ? '#ffedd5' : '#f8fafc',
+                  border: `1.5px solid ${item.isYou ? '#ea580c' : isTop3 ? 'rgba(234, 88, 12, 0.5)' : 'rgba(0,0,0,0.12)'}`,
                   borderRadius: 14,
                   padding: '10px 14px',
                   display: 'flex',
@@ -132,16 +132,16 @@ export default function LeaderboardModal({ user, userXp, onClose, themeMode }) {
                   transition: 'transform 0.2s'
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <div style={{ fontSize: 18, fontWeight: 900, width: 28, textAlign: 'center', color: isTop3 ? (isLight ? '#ea580c' : '#fbbf24') : (isLight ? '#475569' : '#9ca3af') }}>
+                    <div style={{ fontSize: 18, fontWeight: 900, width: 28, textAlign: 'center', color: isTop3 ? '#ea580c' : '#475569' }}>
                       {rankEmoji}
                     </div>
                     <div style={{ fontSize: 22 }}>{item.avatar || '👦'}</div>
                     <div>
-                      <div style={{ fontSize: 13, fontWeight: 900, color: item.isYou ? (isLight ? '#ea580c' : '#6ee7b7') : (isLight ? '#0f172a' : '#ffffff') }}>
+                      <div style={{ fontSize: 13, fontWeight: 900, color: item.isYou ? '#ea580c' : '#0f172a' }}>
                         {item.name} {item.isYou ? '(You)' : ''}
                       </div>
-                      <div style={{ fontSize: 10, color: isLight ? '#475569' : '#9ca3af', fontWeight: 700 }}>
-                        {item.level} • <span style={{ color: isLight ? '#d97706' : '#fbbf24' }}>{item.badge}</span>
+                      <div style={{ fontSize: 10, color: '#475569', fontWeight: 700 }}>
+                        {item.level} • <span style={{ color: '#d97706' }}>{item.badge}</span>
                       </div>
                     </div>
                   </div>

@@ -21,6 +21,22 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 
+process.on('uncaughtException', (err) => {
+  if (err?.name === 'MongooseServerSelectionError' || err?.message?.includes('MongoDB') || err?.name === 'MongoNetworkError') {
+    console.warn('⚠️ Mongoose background error handled gracefully:', err.message || err)
+    return
+  }
+  console.error('Uncaught Exception:', err)
+})
+
+process.on('unhandledRejection', (reason) => {
+  if (reason?.name === 'MongooseServerSelectionError' || reason?.message?.includes('MongoDB')) {
+    console.warn('⚠️ Mongoose unhandled rejection handled gracefully:', reason.message || reason)
+    return
+  }
+  console.error('Unhandled Rejection:', reason)
+})
+
 // Request logging middleware for debugging
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`)
@@ -241,7 +257,6 @@ app.get('/api/leaderboard', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch leaderboard' })
   }
 })
-
 
 // 6. Admin: Get all users with stats
 app.get('/api/admin/users', authenticateToken, async (req, res) => {
