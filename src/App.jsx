@@ -35,6 +35,7 @@ const INITIAL_STATE = {
   user: null, xp: 0, lessonsWatched: [],
   completedModules: [],
   correctCount: 0, quizScore: 0,
+  quizAttempt: null,
   intermediateUnlocked: true, advancedUnlocked: true,
   currentVideo: null, currentModule: null,
   startingLevel: null,
@@ -302,6 +303,7 @@ function AppContent() {
         completedModules: state.completedModules || [],
         correctCount: state.correctCount,
         quizScore: state.quizScore,
+        quizAttempt: state.quizAttempt || null,
         intermediateUnlocked: state.intermediateUnlocked,
         advancedUnlocked: state.advancedUnlocked,
         allocations: state.allocations,
@@ -310,7 +312,7 @@ function AppContent() {
       apiRequest('/api/state/save', 'POST', stateToSave)
         .catch(err => console.error('Failed to sync progress with server:', err))
     }
-  }, [state.xp, state.lessonsWatched, state.completedModules, state.correctCount, state.quizScore, state.intermediateUnlocked, state.advancedUnlocked, state.allocations, state.startingLevel, state.user])
+  }, [state.xp, state.lessonsWatched, state.completedModules, state.correctCount, state.quizScore, state.quizAttempt, state.intermediateUnlocked, state.advancedUnlocked, state.allocations, state.startingLevel, state.user])
 
   const [historyStack, setHistoryStack] = useState([])
 

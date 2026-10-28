@@ -3,7 +3,13 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { Text, RoundedBox, Float, Sparkles, Sky, ContactShadows } from '@react-three/drei'
 import * as THREE from 'three'
 import gsap from 'gsap'
-import { quizQuestions } from '../data.js'
+import {
+  LEVEL1_QUESTION_BANK,
+  getOrCreateQuizAttempt,
+  savePersistedQuizAttempt,
+  calculateQuizAttemptScore,
+  loadPersistedQuizAttempt,
+} from '../data.js'
 import { CuteChibiAvatarSVG } from '../components/AiAvatarSelector.jsx'
 import soundEngine from '../utils/soundEngine.js'
 
@@ -820,28 +826,37 @@ export default function Quiz({
   const watchedLevel1Count = REQUIRED_LEVEL1_VIDEOS.filter((id) => watchedList.includes(id)).length
   const allVideosWatched = watchedLevel1Count >= 5
 
-  const initialMappedQuestions = (quizQuestions || []).map((q, i) => ({
-    id: `q${i + 1}`,
-    question: q.q,
-    options: q.opts,
-    answer: q.ans,
-    hint: q.hint,
-    explanation: q.explain,
-    emoji: q.emoji || '🌸',
-  }))
+  // Restore in-progress attempt on refresh/resume, or initialize a new 10-question attempt (7 Common Q1–Q7 + 3 Varied Q8–Q20)
+  const [attempt, setAttempt] = useState(() =>
+    getOrCreateQuizAttempt(state?.quizAttempt, { forceNew: false, allowCompleted: false })
+  )
+  const questions = attempt?.questions?.length ? attempt.questions : LEVEL1_QUESTION_BANK.slice(0, 10)
 
-  const [questions, setQuestions] = useState(initialMappedQuestions)
-  const [current, setCurrent] = useState(0)
-  const [selected, setSelected] = useState(null)
-  const [answered, setAnswered] = useState(false)
-  const [correct, setCorrect] = useState(0)
+  const [current, setCurrent] = useState(() => attempt?.currentQuestionIdx || 0)
+  const [answersMap, setAnswersMap] = useState(() => attempt?.answers || {})
+  const [selected, setSelected] = useState(() => {
+    const idx = attempt?.currentQuestionIdx || 0
+    return attempt?.answers?.[idx] ?? attempt?.answers?.[String(idx)] ?? null
+  })
+  const [answered, setAnswered] = useState(() => {
+    const idx = attempt?.currentQuestionIdx || 0
+    return (attempt?.answers?.[idx] ?? attempt?.answers?.[String(idx)]) !== undefined
+  })
+  const [correct, setCorrect] = useState(() => {
+    const { correctCount } = calculateQuizAttemptScore(questions, attempt?.answers || {})
+    return correctCount
+  })
   const [done, setDone] = useState(false)
   const [showHint, setShowHint] = useState(false)
   const [showXP, setShowXP] = useState(false)
   const [miniXPPop, setMiniXPPop] = useState(false)
 
   // 'entering' -> character walks into the 3D Exam Hall; 'questions' -> questions presented in the Exam Hall
-  const [examPhase, setExamPhase] = useState(allVideosWatched ? 'entering' : 'locked')
+  const [examPhase, setExamPhase] = useState(() => {
+    if (!allVideosWatched) return 'locked'
+    if (Object.keys(attempt?.answers || {}).length > 0) return 'questions'
+    return 'entering'
+  })
 
   const autoAdvanceTimerRef = useRef(null)
   const walkTimelineRef = useRef(null)
@@ -849,7 +864,7 @@ export default function Quiz({
   // Refs driving the 3D camera, Exam Hall doors, and character walking progress
   const doorOpenRef = useRef(allVideosWatched ? 1 : 0)
   const walkRef = useRef({
-    progress: 0,
+    progress: Object.keys(attempt?.answers || {}).length > 0 ? 1 : 0,
     isWalking: false,
   })
   const cameraPoseRef = useRef({
@@ -861,21 +876,25 @@ export default function Quiz({
     lookZ: 4.0,
   })
 
+  // Sync if backend state loads an in-progress attempt after mount and local attempt has 0 answers
   useEffect(() => {
-    fetch('/content/beginner/quizzes/quiz1.json')
-      .then((r) => {
-        if (r.ok && r.headers.get('content-type')?.includes('json')) {
-          return r.json()
-        }
-        return null
-      })
-      .then((data) => {
-        if (Array.isArray(data) && data.length > 0) {
-          setQuestions(data)
-        }
-      })
-      .catch(() => {})
+    if (state?.quizAttempt?.attemptId && state.quizAttempt.attemptId !== attempt?.attemptId) {
+      const loaded = loadPersistedQuizAttempt(state.quizAttempt)
+      if (loaded && loaded.status === 'in_progress' && Object.keys(answersMap).length === 0) {
+        setAttempt(loaded)
+        setAnswersMap(loaded.answers || {})
+        const resumeIdx = loaded.currentQuestionIdx || 0
+        setCurrent(resumeIdx)
+        const existingAns = loaded.answers?.[resumeIdx] ?? loaded.answers?.[String(resumeIdx)] ?? null
+        setSelected(existingAns)
+        setAnswered(existingAns !== null)
+        const { correctCount } = calculateQuizAttemptScore(loaded.questions, loaded.answers || {})
+        setCorrect(correctCount)
+      }
+    }
+  }, [state?.quizAttempt?.attemptId])
 
+  useEffect(() => {
     return () => {
       if (autoAdvanceTimerRef.current) clearTimeout(autoAdvanceTimerRef.current)
       if (walkTimelineRef.current) walkTimelineRef.current.kill()
@@ -970,7 +989,11 @@ export default function Quiz({
 
   useEffect(() => {
     if (allVideosWatched) {
-      startExamHallWalkIn()
+      if (Object.keys(answersMap).length > 0) {
+        skipWalkIn()
+      } else {
+        startExamHallWalkIn()
+      }
     } else {
       setExamPhase('locked')
       doorOpenRef.current = 0
@@ -993,16 +1016,42 @@ export default function Quiz({
   const cuteTheme = CUTE_QUESTION_THEMES[current % CUTE_QUESTION_THEMES.length]
   const progress = Math.min(100, Math.round(((current + (answered ? 1 : 0)) / questions.length) * 100))
 
-  const advanceToNextQuestion = (updatedCorrectCount) => {
+  const advanceToNextQuestion = (updatedAnswers = answersMap) => {
+    const { correctCount: updatedCorrectCount, score } = calculateQuizAttemptScore(
+      questions,
+      updatedAnswers
+    )
     if (current < questions.length - 1) {
-      setCurrent((c) => c + 1)
-      setSelected(null)
-      setAnswered(false)
+      const nextIdx = current + 1
+      const existingNextAns = updatedAnswers[nextIdx] ?? updatedAnswers[String(nextIdx)] ?? null
+      setCurrent(nextIdx)
+      setSelected(existingNextAns)
+      setAnswered(existingNextAns !== null)
       setShowHint(false)
       setMiniXPPop(false)
+      const nextAttempt = {
+        ...attempt,
+        status: 'in_progress',
+        answers: updatedAnswers,
+        currentQuestionIdx: nextIdx,
+        score,
+        correctCount: updatedCorrectCount,
+      }
+      setAttempt(nextAttempt)
+      savePersistedQuizAttempt(nextAttempt, update)
     } else {
-      const score = Math.min(100, Math.round((updatedCorrectCount / questions.length) * 100))
       const passed = score >= 60
+      const completedAttempt = {
+        ...attempt,
+        status: 'completed',
+        answers: updatedAnswers,
+        currentQuestionIdx: questions.length - 1,
+        score,
+        correctCount: updatedCorrectCount,
+        completedAt: Date.now(),
+      }
+      setAttempt(completedAttempt)
+      const savedPayload = savePersistedQuizAttempt(completedAttempt)
       if (passed) {
         soundEngine.playXPFanfare()
         setShowXP(true)
@@ -1010,6 +1059,7 @@ export default function Quiz({
         const allBegVideos = ['video1', 'video2', 'video3', 'video4', 'video5', 'ppf', 'fd', 'nsc', 'ssy']
         const updatedWatched = Array.from(new Set([...(state.lessonsWatched || []), ...allBegVideos]))
         update({
+          quizAttempt: savedPayload,
           quizScore: score,
           correctCount: updatedCorrectCount,
           quizTotal: questions.length,
@@ -1021,42 +1071,64 @@ export default function Quiz({
           go('beg-complete')
         }, 2100)
       } else {
-        update({ quizScore: score, correctCount: updatedCorrectCount, quizTotal: questions.length })
+        update({
+          quizAttempt: savedPayload,
+          quizScore: score,
+          correctCount: updatedCorrectCount,
+          quizTotal: questions.length,
+        })
         setDone(true)
       }
     }
   }
 
-  // Requirement 6: Auto-advance to next question after selecting an answer
+  // Select an option and wait for user to click Next / Finish
   const handleSelect = (idx) => {
     if (answered) return
     setSelected(idx)
     setAnswered(true)
 
+    const updatedAnswers = { ...answersMap, [current]: idx }
+    setAnswersMap(updatedAnswers)
+
+    const { correctCount: nextCorrect, score } = calculateQuizAttemptScore(
+      questions,
+      updatedAnswers
+    )
+    setCorrect(nextCorrect)
+
     const isRight = idx === q.answer
-    const nextCorrect = isRight ? correct + 1 : correct
     if (isRight) {
       soundEngine.playXPFanfare()
-      setCorrect(nextCorrect)
       setMiniXPPop(true)
     } else {
       soundEngine.playClick()
     }
 
-    if (autoAdvanceTimerRef.current) clearTimeout(autoAdvanceTimerRef.current)
-    autoAdvanceTimerRef.current = setTimeout(() => {
-      advanceToNextQuestion(nextCorrect)
-    }, 1350)
+    const interimAttempt = {
+      ...attempt,
+      status: 'in_progress',
+      answers: updatedAnswers,
+      currentQuestionIdx: current,
+      score,
+      correctCount: nextCorrect,
+    }
+    setAttempt(interimAttempt)
+    savePersistedQuizAttempt(interimAttempt, update)
   }
 
   const handleRetry = () => {
     if (autoAdvanceTimerRef.current) clearTimeout(autoAdvanceTimerRef.current)
+    const freshAttempt = getOrCreateQuizAttempt(attempt, { forceNew: true })
+    setAttempt(freshAttempt)
+    setAnswersMap({})
     setCurrent(0)
     setSelected(null)
     setAnswered(false)
     setCorrect(0)
     setDone(false)
     setShowHint(false)
+    savePersistedQuizAttempt(freshAttempt, update)
     startExamHallWalkIn()
   }
 
@@ -1654,11 +1726,6 @@ export default function Quiz({
                     💡🧸 {showHint ? 'HIDE EXAM HINT' : 'ASK PROCTOR FOR HINT'}
                   </button>
                 )}
-                {!answered && (
-                  <span style={{ fontSize: 11, fontWeight: 800, color: '#f472b6' }}>
-                    ⚡ Auto-Next Enabled on Selection
-                  </span>
-                )}
               </div>
 
               {showHint && !answered && (
@@ -1676,7 +1743,7 @@ export default function Quiz({
                 </div>
               )}
 
-              {/* Auto-Advance Feedback Banner */}
+              {/* Feedback Banner + Explicit Next / Finish Button */}
               {answered && (
                 <div
                   className="anim-fade"
@@ -1686,40 +1753,44 @@ export default function Quiz({
                     borderRadius: 14,
                     padding: '10px 14px',
                     marginTop: 6,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: 12,
                   }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                  <div>
                     <div
                       style={{
                         fontWeight: 900,
                         color: selected === q.answer ? '#86efac' : '#fca5a5',
                         fontSize: 14,
+                        marginBottom: 2,
                       }}
                     >
                       {selected === q.answer ? '🎉🌸 YAY! SUPER CORRECT!' : '💭🧸 OOPS! GOOD TRY!'}
                     </div>
-                    <span style={{ fontSize: 11, fontWeight: 900, color: '#fde047' }}>
-                      ⏭️ Next exam question in 1.3s...
-                    </span>
+                    <div style={{ fontSize: 12, color: '#e2e8f0', fontWeight: 600, lineHeight: 1.4 }}>{q.explanation}</div>
                   </div>
-                  <div style={{ fontSize: 12, color: '#e2e8f0', fontWeight: 600, lineHeight: 1.4 }}>{q.explanation}</div>
-                  <div
+                  <button
+                    onClick={() => {
+                      soundEngine.playClick()
+                      advanceToNextQuestion(answersMap)
+                    }}
                     style={{
-                      marginTop: 8,
-                      height: 4,
-                      borderRadius: 999,
-                      background: 'rgba(255,255,255,0.12)',
-                      overflow: 'hidden',
+                      background: 'linear-gradient(135deg, #fde047, #f59e0b)',
+                      color: '#0f172a',
+                      border: 'none',
+                      borderRadius: 12,
+                      padding: '8px 18px',
+                      fontSize: 13,
+                      fontWeight: 900,
+                      cursor: 'pointer',
+                      flexShrink: 0,
                     }}
                   >
-                    <div
-                      style={{
-                        height: '100%',
-                        background: 'linear-gradient(90deg, #f472b6, #fde047)',
-                        animation: 'autoNextFill 1.3s linear forwards',
-                      }}
-                    />
-                  </div>
+                    {current < questions.length - 1 ? 'Next →' : 'Finish →'}
+                  </button>
                 </div>
               )}
             </div>

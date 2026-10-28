@@ -14,6 +14,13 @@ import {
 } from './Level2ComputerScreens.jsx'
 import LoadingSplashWithMusic from '../components/LoadingSplashWithMusic.jsx'
 import { SchoolGardenStalls3D, SchoolGardenStallModal } from '../components/SchoolGardenStalls.jsx'
+import {
+  LEVEL1_QUESTION_BANK,
+  getOrCreateQuizAttempt,
+  savePersistedQuizAttempt,
+  calculateQuizAttemptScore,
+  loadPersistedQuizAttempt,
+} from '../data.js'
 
 function Text(props) {
   return (
@@ -185,140 +192,10 @@ const LEVEL1_VIDEOS = [
 ]
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// LEVEL 1 EXAMINATION QUESTIONS (10 Questions Displayed One-by-One on Exam Projector)
+// LEVEL 1 EXAMINATION QUESTION BANK (20 Validated Questions: Q1–Q7 Common + Q8–Q20 Varied)
+// 10 Questions Displayed Per Attempt on the Exam Projector
 // ═══════════════════════════════════════════════════════════════════════════════
-const LEVEL1_QUIZ_QUESTIONS = [
-  {
-    id: 1,
-    icon: '🌱✨',
-    tag: 'Investing Basics',
-    question: 'Why is investing your savings smarter than keeping all your cash idle in a drawer?',
-    options: [
-      'Investing helps your money grow over time and beat inflation',
-      'Idle cash automatically doubles every month',
-      'Banks charge a daily fee for keeping cash at home',
-      'Investing guarantees instant lottery prizes',
-    ],
-    answer: 0,
-  },
-  {
-    id: 2,
-    icon: '🐷👑',
-    tag: 'Interest & Savings',
-    question: 'What is "Interest" when you deposit money into a savings account or Fixed Deposit?',
-    options: [
-      'A penalty charged for saving money',
-      'A reward paid to you by the bank for keeping your money with them',
-      'A tax collected by the school',
-      'The price of buying a new piggy bank',
-    ],
-    answer: 1,
-  },
-  {
-    id: 3,
-    icon: '📊🎀',
-    tag: 'Smart Budgeting',
-    question: 'In the popular 50/30/20 budgeting rule, what should at least 20% of your income go toward?',
-    options: [
-      'Video games and candy',
-      'Savings and long-term investments',
-      'Late payment fees',
-      'Impulse shopping',
-    ],
-    answer: 1,
-  },
-  {
-    id: 4,
-    icon: '🛡️🌸',
-    tag: 'Financial Safety',
-    question: 'Why is building an Emergency Fund of 3–6 months of expenses important?',
-    options: [
-      'So you have a safety net for unexpected medical or family needs',
-      'To buy luxury items on sale',
-      'Because banks require it to open an email account',
-      'It replaces the need for all insurance',
-    ],
-    answer: 0,
-  },
-  {
-    id: 5,
-    icon: '🗓️💎',
-    tag: 'Mutual Funds',
-    question: 'What does SIP stand for in smart investing?',
-    options: [
-      'Simple Instant Profit',
-      'Systematic Investment Plan (investing a fixed amount regularly)',
-      'Super Interest Payout',
-      'Savings In Pocket',
-    ],
-    answer: 1,
-  },
-  {
-    id: 6,
-    icon: '❄️🌟',
-    tag: 'Power of Compounding',
-    question: 'How does "Compounding" make your money grow like a snowball?',
-    options: [
-      'You earn returns on both your original principal AND your past interest',
-      'It freezes your account in winter',
-      'It reduces your interest rate every year',
-      'It only works if you withdraw money daily',
-    ],
-    answer: 0,
-  },
-  {
-    id: 7,
-    icon: '🏦🍀',
-    tag: 'Tax Saving Schemes',
-    question: 'Under Section 80C in India, what is the maximum annual tax deduction you can claim?',
-    options: [
-      'Up to ₹10,000 per year',
-      'Up to ₹1.5 Lakh per year',
-      'Up to ₹50 Lakh per year',
-      'Zero deduction is allowed',
-    ],
-    answer: 1,
-  },
-  {
-    id: 8,
-    icon: '🔒🐣',
-    tag: 'Government Schemes',
-    question: 'What makes the Public Provident Fund (PPF) a favorite safe long-term investment?',
-    options: [
-      'It is government-backed with a 15-year lock-in and tax-free (EEE) returns',
-      'It doubles your money every 24 hours',
-      'It has no lock-in period and high stock market risk',
-      'Only banks can invest in it',
-    ],
-    answer: 0,
-  },
-  {
-    id: 9,
-    icon: '🎈🧸',
-    tag: 'Economic Concepts',
-    question: 'What is "Inflation" and how does it affect your money?',
-    options: [
-      'The general rise in prices over time that reduces what your cash can buy',
-      'A bonus gift added to your bank account',
-      'A discount offered by supermarkets',
-      'The weight of gold coins',
-    ],
-    answer: 0,
-  },
-  {
-    id: 10,
-    icon: '⚖️🏆',
-    tag: 'Smart Strategy',
-    question: 'What is "Asset Allocation" (Diversification)?',
-    options: [
-      'Putting all your money into a single risky stock',
-      'Spreading your money across safe Debt, growth Equity, and Gold to balance risk',
-      'Keeping all money in one piggy bank forever',
-      'Spending all your money before the end of the month',
-    ],
-    answer: 1,
-  },
-]
+const LEVEL1_QUIZ_QUESTIONS = LEVEL1_QUESTION_BANK.slice(0, 10)
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // 1. 3D CHARACTERS: LUNA (IMAGE 2) & LEO (IMAGE 3) WITH WALKING & SEATED ANIMATION
@@ -2722,7 +2599,7 @@ function SchoolVeranda3D({ charStateRef }) {
 // 4. ZONE 3: 3D CLASSROOM "101" WITH PHYSICAL PROJECTOR SCREEN (Matching Image 5)
 //    Centered at x = -14, z = -10, facing -Z (Projector Screen at z = -16.85)
 // ═══════════════════════════════════════════════════════════════════════════════
-function Classroom101Scene3D({ projectorContent }) {
+function Classroom101Scene3D({ projectorContent, isVideoFullscreen = false }) {
   return (
     <group position={[-14, 0, -10]}>
       {/* Warm Polished Honey-Cream Classroom Floor (Seamlessly Extends to Veranda Wall at x = +8.9) */}
@@ -2951,11 +2828,11 @@ function Classroom101Scene3D({ projectorContent }) {
           {projectorContent && (
             <Html
               center
-              zIndexRange={[15, 0]}
-              position={[0, 0, 0.05]}
+              zIndexRange={isVideoFullscreen ? [9999, 9990] : [15, 0]}
+              position={[0, isVideoFullscreen ? -0.252 : 0, 0.05]}
               style={{
-                width: 'min(106.5vh, 92vw)',
-                height: 'min(60.7vh, 52.4vw)',
+                width: isVideoFullscreen ? '100vw' : 'min(106.5vh, 92vw)',
+                height: isVideoFullscreen ? '100vh' : 'min(60.7vh, 52.4vw)',
                 pointerEvents: 'auto',
                 userSelect: 'none',
               }}
@@ -4960,18 +4837,71 @@ export default function Level1SchoolWorld({
   const watchPctRef = useRef(0)
   const seekBarFillRef = useRef(null)
   const timeReadoutRef = useRef(null)
+  const fullscreenSeekBarFillRef = useRef(null)
+  const fullscreenTimeReadoutRef = useRef(null)
   const watchBadgeRef = useRef(null)
   const fullscreenWatchBadgeRef = useRef(null)
+  const shouldAutoResumeRef = useRef(true)
   const lastMediaAdvanceRef = useRef({ mediaTime: 0, wallTime: 0, stallCount: 0 })
   const bufferingTimerRef = useRef(null)
 
-  // Examination Center Projector State
-  const [quizSubStage, setQuizSubStage] = useState('start_screen')
-  const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0)
-  const [selectedOption, setSelectedOption] = useState(null)
-  const [quizAnswers, setQuizAnswers] = useState({})
-  const [quizCompletedFlag, setQuizCompletedFlag] = useState(false)
+  // Examination Center Projector State (Persisted Attempt: 7 Common Q1–Q7 + 3 Varied Q8–Q20)
+  const [quizAttempt, setQuizAttempt] = useState(() =>
+    getOrCreateQuizAttempt(state?.quizAttempt, { forceNew: false, allowCompleted: true })
+  )
+  const [quizSubStage, setQuizSubStage] = useState(() => {
+    const initial = loadPersistedQuizAttempt(state?.quizAttempt)
+    if (initial && initial.status === 'in_progress' && Object.keys(initial.answers || {}).length > 0) {
+      return 'questions'
+    }
+    return 'start_screen'
+  })
+  const [currentQuestionIdx, setCurrentQuestionIdx] = useState(() => {
+    const initial = loadPersistedQuizAttempt(state?.quizAttempt)
+    return initial ? initial.currentQuestionIdx || 0 : 0
+  })
+  const [selectedOption, setSelectedOption] = useState(() => {
+    const initial = loadPersistedQuizAttempt(state?.quizAttempt)
+    if (!initial || !initial.answers) return null
+    const idx = initial.currentQuestionIdx || 0
+    return initial.answers[idx] ?? initial.answers[String(idx)] ?? null
+  })
+  const [quizAnswers, setQuizAnswers] = useState(() => {
+    const initial = loadPersistedQuizAttempt(state?.quizAttempt)
+    return initial?.answers || {}
+  })
+  const [quizCompletedFlag, setQuizCompletedFlag] = useState(() => {
+    const initial = loadPersistedQuizAttempt(state?.quizAttempt)
+    const score =
+      typeof initial?.score === 'number'
+        ? initial.score
+        : calculateQuizAttemptScore(initial?.questions || [], initial?.answers || {}).score
+    return (initial?.status === 'completed' && score >= 60) || Boolean(state?.level1Completed && (state?.quizScore ?? 0) >= 60)
+  })
   const quizCompleteBannerRef = useRef(null)
+  const quizAdvanceTimerRef = useRef(null)
+
+  // If backend state loads an in-progress attempt after mount and local attempt has 0 answers, sync without regenerating
+  useEffect(() => {
+    if (state?.quizAttempt?.attemptId && state.quizAttempt.attemptId !== quizAttempt?.attemptId) {
+      const loaded = loadPersistedQuizAttempt(state.quizAttempt)
+      if (loaded && Object.keys(quizAnswers).length === 0) {
+        setQuizAttempt(loaded)
+        setQuizAnswers(loaded.answers || {})
+        setCurrentQuestionIdx(loaded.currentQuestionIdx || 0)
+        setSelectedOption(
+          loaded.answers?.[loaded.currentQuestionIdx || 0] ??
+            loaded.answers?.[String(loaded.currentQuestionIdx || 0)] ??
+            null
+        )
+        if (loaded.status === 'completed' && (loaded.score || 0) >= 60) {
+          setQuizCompletedFlag(true)
+        } else if (loaded.status === 'completed') {
+          setQuizCompletedFlag(false)
+        }
+      }
+    }
+  }, [state?.quizAttempt?.attemptId])
 
   // Floor 2 & Level 2 Computer Lab State
   const [showLevel2ArrivalBanner, setShowLevel2ArrivalBanner] = useState(false)
@@ -5347,7 +5277,13 @@ export default function Level1SchoolWorld({
 
   const currentVideo = LEVEL1_VIDEOS[currentVideoIdx] || LEVEL1_VIDEOS[0]
   const is85PercentReached = watchPct >= 85 || completedVideoIds.includes(currentVideo.id)
-  const currentQuestion = LEVEL1_QUIZ_QUESTIONS[currentQuestionIdx] || LEVEL1_QUIZ_QUESTIONS[0]
+  const activeQuizQuestions =
+    quizAttempt?.questions?.length === 10 ? quizAttempt.questions : LEVEL1_QUIZ_QUESTIONS
+  const currentQuestion = activeQuizQuestions[currentQuestionIdx] || activeQuizQuestions[0]
+  const quizScoreSummary = useMemo(
+    () => calculateQuizAttemptScore(activeQuizQuestions, quizAnswers),
+    [activeQuizQuestions, quizAnswers]
+  )
 
   // Progressive Unlocking Logic:
   // If Beginner level is chosen at login, sections ahead remain locked until each preceding section is completed.
@@ -5361,8 +5297,9 @@ export default function Level1SchoolWorld({
     metricsCompleted ||
     completedBankSections.length > 0
   const isComputer1Unlocked =
-    quizCompletedFlag ||
-    Object.keys(quizAnswers).length >= LEVEL1_QUIZ_QUESTIONS.length ||
+    loginLevelChoice === 'intermediate' ||
+    (quizCompletedFlag && quizScoreSummary.score >= 60) ||
+    (Number(state?.quizScore) >= 60 && Boolean(state?.level1Completed)) ||
     simCompleted ||
     mixerCompleted ||
     metricsCompleted ||
@@ -5398,9 +5335,7 @@ export default function Level1SchoolWorld({
         ? 2
         : 1
 
-    const correctQuizCount = Object.entries(quizAnswers).filter(
-      ([qIdx, ansIdx]) => LEVEL1_QUIZ_QUESTIONS[Number(qIdx)]?.answer === ansIdx
-    ).length
+    const correctQuizCount = quizScoreSummary.correctCount
 
     try {
       localStorage.setItem(
@@ -5527,6 +5462,59 @@ export default function Level1SchoolWorld({
   }
 
   // ───────────────────────────────────────────────────────────────────────────
+  // PER-ACCOUNT PROGRESS SYNC:
+  // Keeps each registered user's watched videos, quiz attempt, lab modules, and XP
+  // isolated in their own account record in 'l2i_accounts_db' so creating a new
+  // account never inherits a previous user's watched videos!
+  // ───────────────────────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (!hasLoggedIn) return
+    const activeEmail = (state?.user?.email || emailInput || '').trim().toLowerCase()
+    const activeName = (state?.user?.name || usernameInput || '').trim().toLowerCase()
+    if (!activeEmail && !activeName) return
+
+    try {
+      const parsed = JSON.parse(localStorage.getItem('l2i_accounts_db') || '[]')
+      if (!Array.isArray(parsed)) return
+      const updated = parsed.map((acc) => {
+        const uMatch = activeName && acc.username && acc.username.toLowerCase() === activeName
+        const eMatch = activeEmail && acc.email && acc.email.toLowerCase() === activeEmail
+        if (!uMatch && !eMatch) return acc
+        return {
+          ...acc,
+          progress: {
+            completedVideoIds,
+            xp: Number(state?.xp) || 0,
+            bankedXp: Number(bankedXp) || 0,
+            quizAttempt,
+            quizAnswers,
+            quizCompletedFlag,
+            simCompleted,
+            mixerCompleted,
+            metricsCompleted,
+            completedBankSections,
+          },
+        }
+      })
+      localStorage.setItem('l2i_accounts_db', JSON.stringify(updated))
+    } catch {}
+  }, [
+    hasLoggedIn,
+    state?.user?.email,
+    state?.user?.name,
+    state?.xp,
+    completedVideoIds,
+    bankedXp,
+    quizAttempt,
+    quizAnswers,
+    quizCompletedFlag,
+    simCompleted,
+    mixerCompleted,
+    metricsCompleted,
+    completedBankSections,
+  ])
+
+  // ───────────────────────────────────────────────────────────────────────────
   // SIGN IN FIRST vs. DIRECT LOG IN VALIDATION:
   // - Users must Sign In first to register an account in 'l2i_accounts_db'.
   // - Only if a user already has a registered account can they Log In directly.
@@ -5598,20 +5586,74 @@ export default function Level1SchoolWorld({
         return
       }
 
-      // Valid registered account found — proceed with Log In!
+      // Valid registered account found — restore ONLY this account's saved progress!
       const finalName = matchedAccount.username || rawUsername || (characterChoice === 'leo' ? 'Leo' : 'Luna')
       const finalEmail = matchedAccount.email || rawEmail || `${finalName.toLowerCase().replace(/\s+/g, '')}@learn2invest.edu`
       setAuthError('')
 
+      const savedProg = matchedAccount.progress || {}
+      const restoredVideos =
+        loginLevelChoice === 'intermediate'
+          ? LEVEL1_VIDEOS.map((v) => v.id)
+          : Array.isArray(savedProg.completedVideoIds)
+            ? savedProg.completedVideoIds
+            : []
+      const restoredQuizAttempt =
+        savedProg.quizAttempt || getOrCreateQuizAttempt(null, { forceNew: true })
+      const restoredQuizAnswers = savedProg.quizAnswers || {}
+      const restoredBankedXp = Number(savedProg.bankedXp) || 0
+      const restoredXp = Number(savedProg.xp) || 0
+
+      setCompletedVideoIds(restoredVideos)
+      setCurrentVideoIdx(0)
+      const firstVidDone = restoredVideos.includes(LEVEL1_VIDEOS[0].id)
+      watchPctRef.current = firstVidDone ? 100 : 0
+      currentTimeRef.current = 0
+      durationRef.current = 0
+      setWatchPct(firstVidDone ? 100 : 0)
+      setCurrentTime(0)
+      setDuration(0)
+      setShowLessonCompletedBanner(false)
+      setQuizAttempt(restoredQuizAttempt)
+      setQuizAnswers(restoredQuizAnswers)
+      setCurrentQuestionIdx(restoredQuizAttempt.currentQuestionIdx || 0)
+      setSelectedOption(
+        restoredQuizAnswers[restoredQuizAttempt.currentQuestionIdx || 0] ??
+          restoredQuizAnswers[String(restoredQuizAttempt.currentQuestionIdx || 0)] ??
+          null
+      )
+      const isQuizPassed = Boolean(
+        savedProg.quizCompletedFlag && (savedProg.quizAttempt?.score ?? 0) >= 60
+      )
+      setQuizCompletedFlag(isQuizPassed)
+      setQuizSubStage('start_screen')
+      setSimCompleted(Boolean(savedProg.simCompleted))
+      setMixerCompleted(Boolean(savedProg.mixerCompleted))
+      setMetricsCompleted(Boolean(savedProg.metricsCompleted))
+      setCompletedBankSections(
+        Array.isArray(savedProg.completedBankSections) ? savedProg.completedBankSections : []
+      )
+      setActiveBankSection(1)
+      setBankedXp(restoredBankedXp)
+
       try {
         localStorage.setItem('l2i_isLoggedIn', 'true')
+        localStorage.setItem('l2i_banked_xp', String(restoredBankedXp))
+        savePersistedQuizAttempt(restoredQuizAttempt)
       } catch {}
 
       if (update) {
         update({
+          xp: restoredXp,
+          lessonsWatched: restoredVideos,
+          completedModules: [],
+          correctCount: restoredQuizAttempt.correctCount || 0,
+          quizScore: restoredQuizAttempt.score || 0,
+          quizAttempt: restoredQuizAttempt,
+          level1Completed: isQuizPassed,
+          intermediateUnlocked: loginLevelChoice === 'intermediate' || isQuizPassed,
           startingLevel: loginLevelChoice,
           user: {
-            ...(state?.user || {}),
             name: finalName,
             email: finalEmail,
             startLevel: loginLevelChoice,
@@ -5632,7 +5674,7 @@ export default function Level1SchoolWorld({
       return
     }
 
-    // modeToUse === 'signin' (First-time registration / Sign In)
+    // modeToUse === 'signin' (First-time registration / Sign In — Brand New Account!)
     if ((!rawUsername && !rawEmail) || !rawPassword) {
       setLoginBtnPressed(false)
       setAuthError(
@@ -5643,6 +5685,33 @@ export default function Level1SchoolWorld({
 
     const cleanName = rawUsername || rawEmail.split('@')[0] || (characterChoice === 'leo' ? 'Leo' : 'Luna')
     const cleanEmail = rawEmail || `${cleanName.toLowerCase().replace(/\s+/g, '')}@learn2invest.edu`
+
+    const initialVideos =
+      loginLevelChoice === 'intermediate' ? LEVEL1_VIDEOS.map((v) => v.id) : []
+    const freshQuizAttempt = getOrCreateQuizAttempt(quizAttempt, { forceNew: true })
+
+    // Reset all in-memory progress for the newly created account so 0/5 videos are watched!
+    setCompletedVideoIds(initialVideos)
+    setCurrentVideoIdx(0)
+    watchPctRef.current = loginLevelChoice === 'intermediate' ? 100 : 0
+    currentTimeRef.current = 0
+    durationRef.current = 0
+    setWatchPct(loginLevelChoice === 'intermediate' ? 100 : 0)
+    setCurrentTime(0)
+    setDuration(0)
+    setShowLessonCompletedBanner(false)
+    setQuizAttempt(freshQuizAttempt)
+    setQuizAnswers({})
+    setCurrentQuestionIdx(0)
+    setSelectedOption(null)
+    setQuizCompletedFlag(false)
+    setQuizSubStage('start_screen')
+    setSimCompleted(false)
+    setMixerCompleted(false)
+    setMetricsCompleted(false)
+    setCompletedBankSections([])
+    setActiveBankSection(1)
+    setBankedXp(0)
 
     const updatedAccounts = [
       ...storedAccounts.filter(
@@ -5657,21 +5726,41 @@ export default function Level1SchoolWorld({
         avatar: characterChoice === 'leo' ? 'leo' : 'luna',
         level: loginLevelChoice,
         createdAt: Date.now(),
+        progress: {
+          completedVideoIds: initialVideos,
+          xp: 0,
+          bankedXp: 0,
+          quizAttempt: freshQuizAttempt,
+          quizAnswers: {},
+          quizCompletedFlag: false,
+          simCompleted: false,
+          mixerCompleted: false,
+          metricsCompleted: false,
+          completedBankSections: [],
+        },
       },
     ]
 
     try {
       localStorage.setItem('l2i_accounts_db', JSON.stringify(updatedAccounts))
       localStorage.setItem('l2i_isLoggedIn', 'true')
+      localStorage.setItem('l2i_banked_xp', '0')
+      savePersistedQuizAttempt(freshQuizAttempt)
     } catch {}
 
     setAuthError('')
 
     if (update) {
       update({
+        xp: 0,
+        lessonsWatched: initialVideos,
+        completedModules: [],
+        correctCount: 0,
+        quizScore: 0,
+        quizAttempt: freshQuizAttempt,
+        level1Completed: false,
         startingLevel: loginLevelChoice,
         user: {
-          ...(state?.user || {}),
           name: cleanName,
           email: cleanEmail,
           startLevel: loginLevelChoice,
@@ -5708,8 +5797,40 @@ export default function Level1SchoolWorld({
     setAuthError('')
     setJourneyStage('login')
     setPasswordInput('')
+    setCompletedVideoIds([])
+    setCurrentVideoIdx(0)
+    watchPctRef.current = 0
+    currentTimeRef.current = 0
+    durationRef.current = 0
+    setWatchPct(0)
+    setCurrentTime(0)
+    setDuration(0)
+    setShowLessonCompletedBanner(false)
+    setQuizAnswers({})
+    setCurrentQuestionIdx(0)
+    setSelectedOption(null)
+    setQuizCompletedFlag(false)
+    setQuizSubStage('start_screen')
+    setSimCompleted(false)
+    setMixerCompleted(false)
+    setMetricsCompleted(false)
+    setCompletedBankSections([])
+    setActiveBankSection(1)
+    setBankedXp(0)
     localStorage.removeItem('l2i_isLoggedIn')
     localStorage.removeItem('l2i_token')
+    if (update) {
+      update({
+        user: null,
+        xp: 0,
+        lessonsWatched: [],
+        completedModules: [],
+        correctCount: 0,
+        quizScore: 0,
+        quizAttempt: null,
+        level1Completed: false,
+      })
+    }
     const cs = charStateRef.current
     cs.visible = true
     cs.x = 0
@@ -5829,13 +5950,20 @@ export default function Level1SchoolWorld({
   }
 
   const syncVideoProgressDom = (cur, dur, nextPct) => {
+    const barPct = dur > 0 ? Math.min(100, (cur / dur) * 100) : nextPct
+    const durText = dur > 0 ? formatSeconds(dur) : currentVideo.durationLabel
+    const timeLabel = `${formatSeconds(cur)} / ${durText}`
     if (seekBarFillRef.current) {
-      const barPct = dur > 0 ? Math.min(100, (cur / dur) * 100) : nextPct
       seekBarFillRef.current.style.width = `${barPct}%`
     }
+    if (fullscreenSeekBarFillRef.current) {
+      fullscreenSeekBarFillRef.current.style.width = `${barPct}%`
+    }
     if (timeReadoutRef.current) {
-      const durText = dur > 0 ? formatSeconds(dur) : currentVideo.durationLabel
-      timeReadoutRef.current.textContent = `${formatSeconds(cur)} / ${durText}`
+      timeReadoutRef.current.textContent = timeLabel
+    }
+    if (fullscreenTimeReadoutRef.current) {
+      fullscreenTimeReadoutRef.current.textContent = timeLabel
     }
     const reached85 = nextPct >= 85 || completedVideoIds.includes(currentVideo.id)
     const badgeLabel = `Watched: ${nextPct}% ${reached85 ? '✓ (85%+)' : '/ 85% Req'}`
@@ -5849,7 +5977,7 @@ export default function Level1SchoolWorld({
 
   const handleTimeUpdate = (e) => {
     const vid = e.target
-    if (!vid || !vid.duration) return
+    if (!vid || (videoElemRef.current && vid !== videoElemRef.current) || !vid.duration) return
     const cur = vid.currentTime
     const dur = vid.duration
     currentTimeRef.current = cur
@@ -5884,12 +6012,12 @@ export default function Level1SchoolWorld({
   }
 
   const handleVideoWaitingOrStalled = (e) => {
-    const vid = e?.target || fullscreenVideoRef.current || videoElemRef.current
-    if (!vid || vid.paused || vid.ended) return
+    const vid = e?.target || videoElemRef.current
+    if (!vid || vid.paused || vid.ended || showLessonCompletedBanner) return
     if (!bufferingTimerRef.current) {
       bufferingTimerRef.current = setTimeout(() => {
         setIsVideoBuffering(true)
-      }, 550)
+      }, 650)
     }
   }
 
@@ -5900,8 +6028,16 @@ export default function Level1SchoolWorld({
     }
     setIsVideoBuffering(false)
     setVideoLoadError(false)
-    const vid = e?.target
-    if (vid && !vid.paused) {
+    const vid = e?.target || videoElemRef.current
+    if (vid && (!videoElemRef.current || vid === videoElemRef.current) && !vid.paused) {
+      if (showLessonCompletedBanner) {
+        try {
+          vid.pause()
+        } catch {}
+        setIsPlaying(false)
+        return
+      }
+      shouldAutoResumeRef.current = true
       setIsPlaying(true)
       // Pause procedural background synth music while classroom lesson video audio is playing
       if (soundEngine && typeof soundEngine.stopMusic === 'function') {
@@ -5910,63 +6046,35 @@ export default function Level1SchoolWorld({
     }
   }
 
-  // Automatic Stall / Freeze Recovery Watchdog for all 5 Classroom Videos
+  // Ensure video is strictly paused whenever Key Takeaways overlay is open
   useEffect(() => {
-    if (journeyStage !== 'classroom_projector' || !isPlaying || showLessonCompletedBanner || videoLoadError) {
-      return
-    }
-    lastMediaAdvanceRef.current = {
-      mediaTime: currentTimeRef.current || 0,
-      wallTime: performance.now(),
-      stallCount: 0,
-    }
-
-    const watchdog = setInterval(() => {
-      const vid = (isVideoFullscreen ? fullscreenVideoRef.current : videoElemRef.current) || videoElemRef.current
-      if (!vid || vid.paused || vid.ended) return
-
-      const now = performance.now()
-      const cur = vid.currentTime || 0
-      const prev = lastMediaAdvanceRef.current
-
-      if (Math.abs(cur - prev.mediaTime) > 0.04) {
-        lastMediaAdvanceRef.current = { mediaTime: cur, wallTime: now, stallCount: 0 }
-        return
-      }
-
-      const elapsedStallMs = now - prev.wallTime
-      if (elapsedStallMs > 1800) {
-        const nextStallCount = (prev.stallCount || 0) + 1
-        lastMediaAdvanceRef.current = { mediaTime: cur, wallTime: now, stallCount: nextStallCount }
-
+    if (showLessonCompletedBanner) {
+      shouldAutoResumeRef.current = false
+      if (videoElemRef.current && !videoElemRef.current.paused) {
         try {
-          if (nextStallCount <= 2) {
-            // Gentle decoder nudge past stalled B/P frame or buffer gap
-            if (vid.duration && cur < vid.duration - 0.15) {
-              vid.currentTime = cur + 0.08
-            }
-            vid.play().catch(() => {})
-          } else {
-            // Full media pipeline reset & seamless resume at exact timestamp if hardware decoder hung
-            const resumeTime = Math.min((vid.duration || cur + 1) - 0.2, cur + 0.12)
-            vid.load()
-            const restoreHandler = () => {
-              vid.removeEventListener('loadedmetadata', restoreHandler)
-              try {
-                if (resumeTime > 0) vid.currentTime = resumeTime
-              } catch {}
-              vid.play().catch(() => {})
-            }
-            vid.addEventListener('loadedmetadata', restoreHandler)
-          }
-        } catch {
-          // ignore
-        }
+          videoElemRef.current.pause()
+        } catch {}
       }
-    }, 900)
+      setIsPlaying(false)
+      setIsVideoBuffering(false)
+    }
+  }, [showLessonCompletedBanner])
 
-    return () => clearInterval(watchdog)
-  }, [journeyStage, isPlaying, isVideoFullscreen, currentVideoIdx, showLessonCompletedBanner, videoLoadError])
+  // Sync data-video-fullscreen attribute on body so floating Chatbot never overlaps fullscreen controls
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      if (isVideoFullscreen) {
+        document.body.setAttribute('data-video-fullscreen', 'true')
+      } else {
+        document.body.removeAttribute('data-video-fullscreen')
+      }
+    }
+    return () => {
+      if (typeof document !== 'undefined') {
+        document.body.removeAttribute('data-video-fullscreen')
+      }
+    }
+  }, [isVideoFullscreen])
 
   const switchClassroomVideo = (targetIdx) => {
     const safeIdx = Math.max(0, Math.min(LEVEL1_VIDEOS.length - 1, targetIdx))
@@ -5974,11 +6082,6 @@ export default function Level1SchoolWorld({
     if (videoElemRef.current) {
       try {
         videoElemRef.current.pause()
-      } catch {}
-    }
-    if (fullscreenVideoRef.current) {
-      try {
-        fullscreenVideoRef.current.pause()
       } catch {}
     }
     if (bufferingTimerRef.current) {
@@ -5990,6 +6093,7 @@ export default function Level1SchoolWorld({
     currentTimeRef.current = 0
     durationRef.current = 0
     watchPctRef.current = initialPct
+    shouldAutoResumeRef.current = true
     lastMediaAdvanceRef.current = { mediaTime: 0, wallTime: performance.now(), stallCount: 0 }
     setIsVideoBuffering(false)
     setVideoLoadError(false)
@@ -6002,16 +6106,18 @@ export default function Level1SchoolWorld({
   }
 
   const togglePlayPause = () => {
-    const vid = (isVideoFullscreen ? fullscreenVideoRef.current : videoElemRef.current) || videoElemRef.current
+    const vid = videoElemRef.current
     if (!vid) return
     soundEngine.playClick()
     if (vid.paused) {
       if (soundEngine && typeof soundEngine.stopMusic === 'function') {
         soundEngine.stopMusic()
       }
+      shouldAutoResumeRef.current = true
       vid.play().catch(() => {})
       setIsPlaying(true)
     } else {
+      shouldAutoResumeRef.current = false
       vid.pause()
       setCurrentTime(vid.currentTime || 0)
       setWatchPct(watchPctRef.current)
@@ -6020,7 +6126,7 @@ export default function Level1SchoolWorld({
   }
 
   const handleSeekBarClick = (e) => {
-    const vid = (isVideoFullscreen ? fullscreenVideoRef.current : videoElemRef.current) || videoElemRef.current
+    const vid = videoElemRef.current
     if (!vid || !vid.duration) return
     const rect = e.currentTarget.getBoundingClientRect()
     const clickRatio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width))
@@ -6035,12 +6141,20 @@ export default function Level1SchoolWorld({
     setWatchPct(nextMaxPct)
   }
 
-  const handleNextVideoClick = () => {
-    if (!is85PercentReached || showLessonCompletedBanner) return
-    if (videoElemRef.current && !videoElemRef.current.paused) {
-      videoElemRef.current.pause()
-      setIsPlaying(false)
+  const markCurrentVideoCompletedAndShowTakeaways = (fullPct = false) => {
+    shouldAutoResumeRef.current = false
+    if (videoElemRef.current) {
+      try {
+        videoElemRef.current.pause()
+      } catch {}
     }
+    setIsPlaying(false)
+    setIsVideoBuffering(false)
+
+    const targetPct = fullPct ? 100 : Math.max(watchPctRef.current, 85)
+    watchPctRef.current = targetPct
+    setWatchPct(targetPct)
+    syncVideoProgressDom(currentTimeRef.current, durationRef.current, targetPct)
 
     soundEngine.playLessonCompleteFanfare()
 
@@ -6054,8 +6168,12 @@ export default function Level1SchoolWorld({
       }
     }
 
-    // Show Key Takeaways screen after each completed video!
     setShowLessonCompletedBanner(true)
+  }
+
+  const handleNextVideoClick = () => {
+    if (!is85PercentReached || showLessonCompletedBanner) return
+    markCurrentVideoCompletedAndShowTakeaways(false)
   }
 
   const handleProceedAfterTakeaways = () => {
@@ -6064,6 +6182,7 @@ export default function Level1SchoolWorld({
     if (currentVideoIdx < LEVEL1_VIDEOS.length - 1) {
       switchClassroomVideo(currentVideoIdx + 1)
     } else {
+      setIsVideoFullscreen(false)
       beginWalkToExaminationCenter()
     }
   }
@@ -6154,15 +6273,112 @@ export default function Level1SchoolWorld({
   // ───────────────────────────────────────────────────────────────────────────
   // SECTIONS 4 - 9: EXAMINATION PROJECTOR QUIZ (Start Quiz -> 1/10 .. 10/10 -> Quiz Completed!)
   // ───────────────────────────────────────────────────────────────────────────
+  const handleStartNewQuizAttempt = () => {
+    soundEngine.playClick()
+    if (quizAdvanceTimerRef.current) clearTimeout(quizAdvanceTimerRef.current)
+    const freshAttempt = getOrCreateQuizAttempt(quizAttempt, { forceNew: true })
+    setQuizAttempt(freshAttempt)
+    setQuizAnswers({})
+    setCurrentQuestionIdx(0)
+    setSelectedOption(null)
+    setQuizSubStage('questions')
+    savePersistedQuizAttempt(freshAttempt, update)
+  }
+
   const handleStartQuizClick = () => {
     soundEngine.playClick()
-    setCurrentQuestionIdx(0)
-    setSelectedOption(quizAnswers[0] ?? null)
+    if (quizAdvanceTimerRef.current) clearTimeout(quizAdvanceTimerRef.current)
+
+    // If previous attempt was already completed, starting the quiz generates a brand-new attempt
+    if (!quizAttempt || quizAttempt.status === 'completed') {
+      const freshAttempt = getOrCreateQuizAttempt(quizAttempt, { forceNew: true })
+      setQuizAttempt(freshAttempt)
+      setQuizAnswers({})
+      setCurrentQuestionIdx(0)
+      setSelectedOption(null)
+      setQuizSubStage('questions')
+      savePersistedQuizAttempt(freshAttempt, update)
+      return
+    }
+
+    // Otherwise resume the existing in-progress attempt without regenerating questions
+    const resumeIdx = Math.min(
+      activeQuizQuestions.length - 1,
+      typeof quizAttempt.currentQuestionIdx === 'number' ? quizAttempt.currentQuestionIdx : 0
+    )
+    setCurrentQuestionIdx(resumeIdx)
+    setSelectedOption(quizAnswers[resumeIdx] ?? quizAnswers[String(resumeIdx)] ?? null)
     setQuizSubStage('questions')
+    savePersistedQuizAttempt(
+      {
+        ...quizAttempt,
+        status: 'in_progress',
+        currentQuestionIdx: resumeIdx,
+        answers: quizAnswers,
+      },
+      update
+    )
+  }
+
+  const advanceQuizStep = (updatedAnswers = quizAnswers) => {
+    if (quizAdvanceTimerRef.current) clearTimeout(quizAdvanceTimerRef.current)
+    const totalQ = activeQuizQuestions.length
+    const { correctCount, score } = calculateQuizAttemptScore(activeQuizQuestions, updatedAnswers)
+
+    if (currentQuestionIdx < totalQ - 1) {
+      const nextQ = currentQuestionIdx + 1
+      setCurrentQuestionIdx(nextQ)
+      setSelectedOption(updatedAnswers[nextQ] ?? updatedAnswers[String(nextQ)] ?? null)
+      const nextAttemptState = {
+        ...quizAttempt,
+        status: 'in_progress',
+        answers: updatedAnswers,
+        currentQuestionIdx: nextQ,
+        score,
+        correctCount,
+      }
+      setQuizAttempt(nextAttemptState)
+      savePersistedQuizAttempt(nextAttemptState, update)
+    } else {
+      const isPassed = score >= 60
+      if (isPassed) {
+        soundEngine.playLessonCompleteFanfare()
+        if (addXP && !quizCompletedFlag) addXP(150)
+        setQuizCompletedFlag(true)
+      } else {
+        soundEngine.playClick()
+        setQuizCompletedFlag(false)
+      }
+      setQuizSubStage('completed')
+      const completedAttemptState = {
+        ...quizAttempt,
+        status: 'completed',
+        answers: updatedAnswers,
+        currentQuestionIdx: totalQ - 1,
+        score,
+        correctCount,
+        passed: isPassed,
+        completedAt: Date.now(),
+      }
+      setQuizAttempt(completedAttemptState)
+      const savedPayload = savePersistedQuizAttempt(completedAttemptState)
+      if (typeof update === 'function') {
+        update({
+          quizAttempt: savedPayload,
+          quizScore: score,
+          correctCount,
+          quizTotal: totalQ,
+          level1Completed: isPassed,
+          intermediateUnlocked: isPassed || loginLevelChoice === 'intermediate',
+        })
+      }
+    }
   }
 
   const handleSelectQuizOption = (optIdx) => {
-    if (selectedOption !== null && quizAnswers[currentQuestionIdx] === undefined) return
+    if (selectedOption !== null) return
+    if (quizAdvanceTimerRef.current) clearTimeout(quizAdvanceTimerRef.current)
+
     setSelectedOption(optIdx)
     const isRight = optIdx === currentQuestion.answer
     if (isRight) {
@@ -6187,29 +6403,34 @@ export default function Level1SchoolWorld({
     const updatedAnswers = { ...quizAnswers, [currentQuestionIdx]: optIdx }
     setQuizAnswers(updatedAnswers)
 
-    setTimeout(() => {
-      if (currentQuestionIdx < LEVEL1_QUIZ_QUESTIONS.length - 1) {
-        const nextQ = currentQuestionIdx + 1
-        setCurrentQuestionIdx(nextQ)
-        setSelectedOption(updatedAnswers[nextQ] ?? null)
-      } else {
-        soundEngine.playLessonCompleteFanfare()
-        if (addXP) addXP(150)
-        setQuizCompletedFlag(true)
-        setQuizSubStage('completed')
-        setTimeout(() => {
-          beginWalkToFloor2AndComputerLab()
-        }, 2400)
-      }
-    }, 950)
+    const { correctCount, score } = calculateQuizAttemptScore(activeQuizQuestions, updatedAnswers)
+    const interimAttemptState = {
+      ...quizAttempt,
+      status: 'in_progress',
+      answers: updatedAnswers,
+      currentQuestionIdx,
+      score,
+      correctCount,
+    }
+    setQuizAttempt(interimAttemptState)
+    savePersistedQuizAttempt(interimAttemptState, update)
   }
 
   const handleQuizBackOneQuestion = () => {
     soundEngine.playClick()
+    if (quizAdvanceTimerRef.current) clearTimeout(quizAdvanceTimerRef.current)
     if (currentQuestionIdx > 0) {
       const prevQ = currentQuestionIdx - 1
       setCurrentQuestionIdx(prevQ)
-      setSelectedOption(quizAnswers[prevQ] ?? null)
+      setSelectedOption(quizAnswers[prevQ] ?? quizAnswers[String(prevQ)] ?? null)
+      savePersistedQuizAttempt(
+        {
+          ...quizAttempt,
+          currentQuestionIdx: prevQ,
+          answers: quizAnswers,
+        },
+        update
+      )
     } else {
       setQuizSubStage('start_screen')
     }
@@ -6219,6 +6440,7 @@ export default function Level1SchoolWorld({
   // SECTIONS 10, 11, 12, 13: EXAM CENTER -> STAIRCASE ("↑ Floor 2") -> FLOOR 2 VERANDA -> COMPUTER LAB
   // ───────────────────────────────────────────────────────────────────────────
   const beginWalkToFloor2AndComputerLab = () => {
+    if (!isComputer1Unlocked) return
     if (timelineRef.current) timelineRef.current.kill()
     setJourneyStage('walking_to_floor2_lab')
     setShowLevel2ArrivalBanner(false)
@@ -7095,8 +7317,8 @@ export default function Level1SchoolWorld({
           ease: 'power2.inOut',
         })
         setQuizSubStage('questions')
-        setCurrentQuestionIdx(LEVEL1_QUIZ_QUESTIONS.length - 1)
-        setSelectedOption(quizAnswers[LEVEL1_QUIZ_QUESTIONS.length - 1] ?? null)
+        setCurrentQuestionIdx(activeQuizQuestions.length - 1)
+        setSelectedOption(quizAnswers[activeQuizQuestions.length - 1] ?? null)
         setJourneyStage('exam_projector')
         soundEngine.startAmbientMusic('examination', true)
       }
@@ -7114,14 +7336,14 @@ export default function Level1SchoolWorld({
         lookZ: -32.85,
       }
       setQuizSubStage('questions')
-      setCurrentQuestionIdx(LEVEL1_QUIZ_QUESTIONS.length - 1)
+      setCurrentQuestionIdx(activeQuizQuestions.length - 1)
       setJourneyStage('exam_projector')
       soundEngine.startAmbientMusic('examination', true)
     } else if (journeyStage === 'exam_projector') {
       if (quizSubStage === 'completed') {
         setQuizSubStage('questions')
-        setCurrentQuestionIdx(LEVEL1_QUIZ_QUESTIONS.length - 1)
-        setSelectedOption(quizAnswers[LEVEL1_QUIZ_QUESTIONS.length - 1] ?? null)
+        setCurrentQuestionIdx(activeQuizQuestions.length - 1)
+        setSelectedOption(quizAnswers[activeQuizQuestions.length - 1] ?? null)
       } else if (quizSubStage === 'questions') {
         handleQuizBackOneQuestion()
       } else {
@@ -7212,30 +7434,26 @@ export default function Level1SchoolWorld({
     if (videoElemRef.current) {
       currentTimeRef.current = videoElemRef.current.currentTime || currentTimeRef.current || 0
       durationRef.current = videoElemRef.current.duration || durationRef.current || 0
-      try {
-        videoElemRef.current.pause()
-      } catch {}
     }
     setCurrentTime(currentTimeRef.current)
     setWatchPct(watchPctRef.current)
     setIsVideoFullscreen(true)
-    try {
-      if (document.documentElement.requestFullscreen && !document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(() => {})
-      }
-    } catch {
-      // ignore browser fullscreen restriction
-    }
   }
 
   const closeVideoFullscreen = () => {
     soundEngine.playClick()
-    if (fullscreenVideoRef.current) {
-      currentTimeRef.current = fullscreenVideoRef.current.currentTime || currentTimeRef.current || 0
-      durationRef.current = fullscreenVideoRef.current.duration || durationRef.current || 0
-      try {
-        fullscreenVideoRef.current.pause()
-      } catch {}
+    if (videoElemRef.current) {
+      currentTimeRef.current = videoElemRef.current.currentTime || currentTimeRef.current || 0
+      durationRef.current = videoElemRef.current.duration || durationRef.current || 0
+      if (showLessonCompletedBanner && !videoElemRef.current.paused) {
+        try {
+          videoElemRef.current.pause()
+        } catch {}
+      }
+    }
+    if (showLessonCompletedBanner) {
+      shouldAutoResumeRef.current = false
+      setIsPlaying(false)
     }
     setCurrentTime(currentTimeRef.current)
     setWatchPct(watchPctRef.current)
@@ -7251,36 +7469,52 @@ export default function Level1SchoolWorld({
 
   // ───────────────────────────────────────────────────────────────────────────
   // 1. CLASSROOM 101 PHYSICAL PROJECTOR SCREEN UI (Videos 1..5 + Key Takeaways After Each Video)
+  //    Single Persistent <video ref={videoElemRef}> Element Across Normal & Full Screen Views
   // ───────────────────────────────────────────────────────────────────────────
   const classroomProjectorUI =
-    journeyStage === 'classroom_projector' && !isVideoFullscreen ? (
+    journeyStage === 'classroom_projector' ? (
       <div
         style={{ WebkitFontSmoothing: 'antialiased', textRendering: 'optimizeLegibility' }}
         className="w-full h-full bg-slate-950 text-white flex flex-col justify-between overflow-hidden relative font-sans select-none"
       >
-        {/* Top Integrated Projector Header Bar (Scaled in vh so it is always crisp & full-sized) */}
+        {/* Top Integrated Projector Header Bar (Scales Up Automatically in Full Screen Mode) */}
         <div
-          style={{ padding: '0.9vh 1.6vh', gap: '1.0vh' }}
-          className="flex items-center justify-between bg-slate-900 border-b border-slate-700 shrink-0"
+          style={{
+            padding: isVideoFullscreen ? '1.5vh 2.4vh' : '0.9vh 1.6vh',
+            gap: isVideoFullscreen ? '1.4vh' : '1.0vh',
+          }}
+          className="flex flex-wrap items-center justify-between bg-slate-900 border-b border-slate-700 shrink-0"
         >
-          <div style={{ gap: '1.0vh' }} className="flex items-center min-w-0 flex-1">
-            <span style={{ fontSize: '2.7vh', lineHeight: 1 }} className="shrink-0">{currentVideo.icon}</span>
+          <div style={{ gap: isVideoFullscreen ? '1.4vh' : '1.0vh' }} className="flex items-center min-w-0 flex-1">
+            <span style={{ fontSize: isVideoFullscreen ? '3.8vh' : '2.7vh', lineHeight: 1 }} className="shrink-0">
+              {currentVideo.icon}
+            </span>
             <div className="min-w-0 flex-1">
               <div
-                style={{ fontSize: '1.15vh', lineHeight: 1.15 }}
+                style={{ fontSize: isVideoFullscreen ? '1.45vh' : '1.15vh', lineHeight: 1.15 }}
                 className="font-extrabold uppercase tracking-wider text-emerald-400 truncate"
               >
-                Learn2Invest Classroom 101 • Video {currentVideoIdx + 1} of {LEVEL1_VIDEOS.length}
+                {isVideoFullscreen ? 'Full Screen Cinema' : 'Learn2Invest Classroom 101'} • Video {currentVideoIdx + 1} of{' '}
+                {LEVEL1_VIDEOS.length}
               </div>
-              <div style={{ fontSize: '1.75vh', lineHeight: 1.2 }} className="font-black text-white truncate">
+              <div
+                style={{ fontSize: isVideoFullscreen ? '2.35vh' : '1.75vh', lineHeight: 1.2 }}
+                className="font-black text-white truncate"
+              >
                 {currentVideo.title}
               </div>
             </div>
           </div>
 
-          <div style={{ gap: '0.65vh' }} className="flex items-center shrink-0">
+          <div style={{ gap: isVideoFullscreen ? '1.0vh' : '0.65vh' }} className="flex items-center flex-wrap shrink-0">
             {/* Quick Video Switcher Pills (V1..V5) so users can jump between or replay any lesson */}
-            <div style={{ gap: '0.35vh' }} className="flex items-center bg-slate-950/80 px-[0.6vh] py-[0.3vh] rounded-full border border-slate-700">
+            <div
+              style={{
+                gap: isVideoFullscreen ? '0.6vh' : '0.35vh',
+                padding: isVideoFullscreen ? '0.5vh 1.0vh' : '0.3vh 0.6vh',
+              }}
+              className="flex items-center bg-slate-950/85 rounded-full border border-slate-700"
+            >
               {LEVEL1_VIDEOS.map((vidItem, idx) => {
                 const isDone = completedVideoIds.includes(vidItem.id)
                 const isActive = idx === currentVideoIdx
@@ -7293,7 +7527,10 @@ export default function Level1SchoolWorld({
                       soundEngine.playClick()
                       switchClassroomVideo(idx)
                     }}
-                    style={{ fontSize: '1.12vh', padding: '0.3vh 0.75vh' }}
+                    style={{
+                      fontSize: isVideoFullscreen ? '1.48vh' : '1.12vh',
+                      padding: isVideoFullscreen ? '0.55vh 1.25vh' : '0.3vh 0.75vh',
+                    }}
                     className={`rounded-full font-black transition-all cursor-pointer ${
                       isActive
                         ? 'bg-emerald-400 text-slate-950 shadow'
@@ -7309,38 +7546,68 @@ export default function Level1SchoolWorld({
               })}
             </div>
 
-            <button
-              onClick={() => {
-                soundEngine.playClick()
-                if (videoElemRef.current && !videoElemRef.current.paused) {
-                  videoElemRef.current.pause()
-                  setIsPlaying(false)
-                }
-                setShowLessonCompletedBanner(true)
-              }}
-              style={{ fontSize: '1.25vh', padding: '0.55vh 1.25vh' }}
-              className="rounded-full bg-amber-400/25 hover:bg-amber-400/35 border-2 border-amber-400 text-amber-200 font-black cursor-pointer transition-all whitespace-nowrap"
-            >
-              🌟 Key Takeaways
-            </button>
-            <button
-              onClick={openVideoFullscreen}
-              style={{ fontSize: '1.25vh', padding: '0.55vh 1.25vh', gap: '0.4vh' }}
-              className="rounded-full bg-cyan-500/25 hover:bg-cyan-500/35 border-2 border-cyan-400 text-cyan-100 font-black cursor-pointer transition-all flex items-center whitespace-nowrap"
-              title="Open Video in Full Screen"
-            >
-              <span>⛶</span>
-              <span>Full Screen</span>
-            </button>
+            {is85PercentReached && (
+              <button
+                onClick={() => {
+                  soundEngine.playClick()
+                  markCurrentVideoCompletedAndShowTakeaways(false)
+                }}
+                style={{
+                  fontSize: isVideoFullscreen ? '1.65vh' : '1.25vh',
+                  padding: isVideoFullscreen ? '0.9vh 1.8vh' : '0.55vh 1.25vh',
+                }}
+                className="rounded-full bg-amber-400/25 hover:bg-amber-400/35 border-2 border-amber-400 text-amber-200 font-black cursor-pointer transition-all whitespace-nowrap"
+              >
+                🌟 Key Takeaways
+              </button>
+            )}
+
+            {!isVideoFullscreen ? (
+              <button
+                onClick={openVideoFullscreen}
+                style={{ fontSize: '1.25vh', padding: '0.55vh 1.25vh', gap: '0.4vh' }}
+                className="rounded-full bg-cyan-500/25 hover:bg-cyan-500/35 border-2 border-cyan-400 text-cyan-100 font-black cursor-pointer transition-all flex items-center whitespace-nowrap"
+                title="Open Video in Full Screen"
+              >
+                <span>⛶</span>
+                <span>Full Screen</span>
+              </button>
+            ) : (
+              <>
+                <button
+                  onClick={closeVideoFullscreen}
+                  style={{ fontSize: '1.65vh', padding: '0.9vh 1.8vh', gap: '0.6vh' }}
+                  className="rounded-2xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-black cursor-pointer shadow-md flex items-center transition-transform hover:scale-105 whitespace-nowrap"
+                  title="Zoom Out back to Classroom Projector View"
+                >
+                  <span>🔍</span>
+                  <span>Zoom Out (Normal View)</span>
+                </button>
+                <button
+                  onClick={closeVideoFullscreen}
+                  style={{ fontSize: '1.65vh', padding: '0.9vh 1.8vh' }}
+                  className="rounded-2xl bg-rose-500 hover:bg-rose-400 text-white font-black cursor-pointer shadow-md transition-transform hover:scale-105 whitespace-nowrap"
+                >
+                  ✕ Exit Full Screen
+                </button>
+              </>
+            )}
+
             <div
-              style={{ fontSize: '1.22vh', padding: '0.55vh 1.15vh' }}
+              style={{
+                fontSize: isVideoFullscreen ? '1.58vh' : '1.22vh',
+                padding: isVideoFullscreen ? '0.85vh 1.6vh' : '0.55vh 1.15vh',
+              }}
               className="rounded-full bg-slate-800 border border-slate-600 font-extrabold text-white whitespace-nowrap"
             >
               Completed: {completedVideoIds.length} / {LEVEL1_VIDEOS.length}
             </div>
             <div
               ref={watchBadgeRef}
-              style={{ fontSize: '1.22vh', padding: '0.55vh 1.25vh' }}
+              style={{
+                fontSize: isVideoFullscreen ? '1.58vh' : '1.22vh',
+                padding: isVideoFullscreen ? '0.85vh 1.6vh' : '0.55vh 1.25vh',
+              }}
               className={`rounded-full font-black border-2 whitespace-nowrap ${
                 is85PercentReached
                   ? 'bg-emerald-500/25 border-emerald-400 text-emerald-200'
@@ -7352,7 +7619,7 @@ export default function Level1SchoolWorld({
           </div>
         </div>
 
-        {/* Center Video Surface Fitted Cleanly Inside the Physical Projector Screen */}
+        {/* Center Video Surface Fitted Cleanly Inside the Physical Projector Screen or Full Screen */}
         <div className="relative flex-1 min-h-0 bg-black flex items-center justify-center overflow-hidden p-[0.6vh]">
           {!videoLoadError ? (
             <video
@@ -7360,14 +7627,14 @@ export default function Level1SchoolWorld({
               key={currentVideo.id}
               src={currentVideo.src}
               preload="auto"
-              autoPlay
               playsInline
               onPlay={handleVideoCanPlayOrPlaying}
               onPlaying={handleVideoCanPlayOrPlaying}
               onCanPlay={handleVideoCanPlayOrPlaying}
               onWaiting={handleVideoWaitingOrStalled}
               onStalled={handleVideoWaitingOrStalled}
-              onPause={() => {
+              onPause={(e) => {
+                if (e.target !== videoElemRef.current) return
                 setIsPlaying(false)
                 setIsVideoBuffering(false)
               }}
@@ -7377,31 +7644,24 @@ export default function Level1SchoolWorld({
                 durationRef.current = dur
                 setDuration(dur)
                 setVideoLoadError(false)
-                if (currentTimeRef.current > 0.5 && dur > currentTimeRef.current) {
+                if (currentTimeRef.current > 0.3 && dur > currentTimeRef.current + 0.25) {
                   try {
                     e.target.currentTime = currentTimeRef.current
                   } catch {}
                 }
                 syncVideoProgressDom(currentTimeRef.current || 0, dur, watchPctRef.current)
+                if (shouldAutoResumeRef.current && !showLessonCompletedBanner) {
+                  e.target.play().catch(() => {})
+                } else {
+                  try {
+                    e.target.pause()
+                  } catch {}
+                  setIsPlaying(false)
+                }
               }}
               onError={() => setVideoLoadError(true)}
               onEnded={() => {
-                watchPctRef.current = 100
-                setWatchPct(100)
-                setIsVideoBuffering(false)
-                soundEngine.playLessonCompleteFanfare()
-                if (!completedVideoIds.includes(currentVideo.id)) {
-                  const updatedCompleted = [...completedVideoIds, currentVideo.id]
-                  setCompletedVideoIds(updatedCompleted)
-                  if (addXP) addXP(30)
-                  if (update) {
-                    const mergedWatched = Array.from(
-                      new Set([...(state?.lessonsWatched || []), ...updatedCompleted])
-                    )
-                    update({ lessonsWatched: mergedWatched })
-                  }
-                }
-                setShowLessonCompletedBanner(true)
+                markCurrentVideoCompletedAndShowTakeaways(true)
               }}
               onClick={togglePlayPause}
               className="w-full h-full max-w-full max-h-full object-contain cursor-pointer rounded-lg"
@@ -7446,16 +7706,24 @@ export default function Level1SchoolWorld({
               className="absolute inset-0 flex flex-col items-center justify-center bg-black/45 hover:bg-black/30 transition-all group cursor-pointer"
             >
               <div
-                style={{ width: '8.5vh', height: '8.5vh', fontSize: '3.6vh' }}
+                style={{
+                  width: isVideoFullscreen ? '10.5vh' : '8.5vh',
+                  height: isVideoFullscreen ? '10.5vh' : '8.5vh',
+                  fontSize: isVideoFullscreen ? '4.4vh' : '3.6vh',
+                }}
                 className="rounded-full bg-emerald-500 text-slate-950 flex items-center justify-center font-black shadow-[0_0_35px_rgba(16,185,129,0.85)] group-hover:scale-110 transition-transform"
               >
                 ▶
               </div>
               <span
-                style={{ fontSize: '1.45vh', padding: '0.9vh 2.4vh', marginTop: '1.4vh' }}
+                style={{
+                  fontSize: isVideoFullscreen ? '1.85vh' : '1.45vh',
+                  padding: isVideoFullscreen ? '1.1vh 2.8vh' : '0.9vh 2.4vh',
+                  marginTop: '1.4vh',
+                }}
                 className="font-extrabold tracking-wider uppercase text-white bg-slate-900/95 rounded-full border border-white/25"
               >
-                Click Projector to Play Video {currentVideoIdx + 1}
+                Click to Play Video {currentVideoIdx + 1}
               </span>
             </button>
           )}
@@ -7464,7 +7732,7 @@ export default function Level1SchoolWorld({
           {showLessonCompletedBanner && (
             <div
               onWheel={(e) => e.stopPropagation()}
-              style={{ padding: '0.9vh 1.3vh' }}
+              style={{ padding: isVideoFullscreen ? '2.2vh 3.5vh' : '0.9vh 1.3vh' }}
               className="absolute inset-0 bg-slate-950 flex items-center justify-center z-30"
             >
               <div
@@ -7474,27 +7742,35 @@ export default function Level1SchoolWorld({
               >
                 {/* 1. Golden Header Bar (shrink-0) */}
                 <div
-                  style={{ padding: '0.95vh 1.8vh' }}
+                  style={{ padding: isVideoFullscreen ? '1.4vh 2.4vh' : '0.95vh 1.8vh' }}
                   className="bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 text-slate-950 flex items-center justify-between shrink-0"
                 >
                   <div
-                    style={{ fontSize: '1.75vh', gap: '0.8vh' }}
+                    style={{ fontSize: isVideoFullscreen ? '2.1vh' : '1.75vh', gap: '0.8vh' }}
                     className="flex items-center font-black uppercase tracking-wide"
                   >
-                    <span style={{ fontSize: '2.1vh' }}>🌟</span>
+                    <span style={{ fontSize: isVideoFullscreen ? '2.5vh' : '2.1vh' }}>🌟</span>
                     <span>INVEST CLUB: KEY TAKEAWAYS! — VIDEO {currentVideoIdx + 1} OF {LEVEL1_VIDEOS.length}</span>
                   </div>
                   <div style={{ gap: '0.8vh' }} className="flex items-center">
                     <span
                       ref={floatingXpTextRef}
-                      style={{ fontSize: '1.35vh', padding: '0.4vh 1.4vh' }}
+                      style={{
+                        fontSize: isVideoFullscreen ? '1.65vh' : '1.35vh',
+                        padding: isVideoFullscreen ? '0.6vh 1.8vh' : '0.4vh 1.4vh',
+                      }}
                       className="rounded-full bg-slate-950 text-amber-300 font-black shadow"
                     >
                       ⭐ +30 XP EARNED!
                     </span>
                     <button
                       onClick={() => setShowLessonCompletedBanner(false)}
-                      style={{ width: '2.9vh', height: '2.9vh', fontSize: '1.45vh', borderRadius: '0.7vh' }}
+                      style={{
+                        width: isVideoFullscreen ? '3.8vh' : '2.9vh',
+                        height: isVideoFullscreen ? '3.8vh' : '2.9vh',
+                        fontSize: isVideoFullscreen ? '1.8vh' : '1.45vh',
+                        borderRadius: '0.7vh',
+                      }}
                       className="bg-slate-950 text-amber-400 font-black flex items-center justify-center cursor-pointer"
                       title="Return to video"
                     >
@@ -7505,38 +7781,49 @@ export default function Level1SchoolWorld({
 
                 {/* 2. Middle 4 Key Lesson Terms Grid (Strictly Contained & Non-Overlapping) */}
                 <div
-                  style={{ padding: '0.9vh 1.6vh', gap: '0.75vh' }}
+                  style={{
+                    padding: isVideoFullscreen ? '1.6vh 2.4vh' : '0.9vh 1.6vh',
+                    gap: isVideoFullscreen ? '1.2vh' : '0.75vh',
+                  }}
                   className="flex-1 min-h-0 flex flex-col overflow-y-auto"
                 >
                   <div
-                    style={{ fontSize: '1.42vh', lineHeight: 1.2 }}
+                    style={{ fontSize: isVideoFullscreen ? '1.85vh' : '1.42vh', lineHeight: 1.2 }}
                     className="text-center font-black text-amber-300 uppercase tracking-wider shrink-0 truncate"
                   >
                     🎉 MASTER THESE KEY LESSON TERMS ({currentVideo.title}):
                   </div>
 
                   <div
-                    style={{ gap: '0.95vh' }}
+                    style={{ gap: isVideoFullscreen ? '1.4vh' : '0.95vh' }}
                     className="grid grid-cols-2 grid-rows-2 flex-1 min-h-0"
                   >
                     {(currentVideo.takeaways || []).map((t, idx) => (
                       <div
                         key={idx}
-                        style={{ padding: '1.0vh 1.4vh', borderRadius: '1.3vh', gap: '1.1vh' }}
+                        style={{
+                          padding: isVideoFullscreen ? '1.6vh 2.2vh' : '1.0vh 1.4vh',
+                          borderRadius: '1.3vh',
+                          gap: isVideoFullscreen ? '1.5vh' : '1.1vh',
+                        }}
                         className="bg-slate-950 border-2 border-amber-500/55 flex items-center min-h-0 overflow-hidden"
                       >
-                        <div style={{ fontSize: '3.0vh', lineHeight: 1 }} className="shrink-0">
+                        <div style={{ fontSize: isVideoFullscreen ? '4.0vh' : '3.0vh', lineHeight: 1 }} className="shrink-0">
                           {t.emoji || '⭐'}
                         </div>
                         <div className="min-w-0 flex-1">
                           <div
-                            style={{ fontSize: '1.68vh', lineHeight: 1.18, marginBottom: '0.3vh' }}
+                            style={{
+                              fontSize: isVideoFullscreen ? '2.1vh' : '1.68vh',
+                              lineHeight: 1.18,
+                              marginBottom: '0.4vh',
+                            }}
                             className="font-black text-amber-200"
                           >
                             {t.term}
                           </div>
                           <div
-                            style={{ fontSize: '1.36vh', lineHeight: 1.28 }}
+                            style={{ fontSize: isVideoFullscreen ? '1.68vh' : '1.36vh', lineHeight: 1.32 }}
                             className="text-slate-100 font-semibold"
                           >
                             {t.def}
@@ -7549,12 +7836,19 @@ export default function Level1SchoolWorld({
 
                 {/* 3. Dedicated Bottom Action Footer Bar (Separate shrink-0 Row — Never Overlaps Cards!) */}
                 <div
-                  style={{ padding: '0.85vh 1.6vh', gap: '1.2vh' }}
+                  style={{
+                    padding: isVideoFullscreen ? '1.3vh 2.4vh' : '0.85vh 1.6vh',
+                    gap: isVideoFullscreen ? '1.6vh' : '1.2vh',
+                  }}
                   className="bg-slate-900 border-t border-slate-800 flex items-center justify-between shrink-0 z-10"
                 >
                   <button
                     onClick={() => setShowLessonCompletedBanner(false)}
-                    style={{ fontSize: '1.45vh', padding: '0.9vh 2.0vh', borderRadius: '1.1vh' }}
+                    style={{
+                      fontSize: isVideoFullscreen ? '1.75vh' : '1.45vh',
+                      padding: isVideoFullscreen ? '1.15vh 2.4vh' : '0.9vh 2.0vh',
+                      borderRadius: '1.1vh',
+                    }}
                     className="bg-slate-800 hover:bg-slate-700 border-2 border-white/30 text-white font-black cursor-pointer shrink-0"
                   >
                     ↺ Back to Video
@@ -7562,7 +7856,11 @@ export default function Level1SchoolWorld({
 
                   <button
                     onClick={handleProceedAfterTakeaways}
-                    style={{ fontSize: '1.52vh', padding: '0.9vh 2.2vh', borderRadius: '1.1vh' }}
+                    style={{
+                      fontSize: isVideoFullscreen ? '1.85vh' : '1.52vh',
+                      padding: isVideoFullscreen ? '1.15vh 2.6vh' : '0.9vh 2.2vh',
+                      borderRadius: '1.1vh',
+                    }}
                     className="flex-1 bg-gradient-to-r from-amber-400 via-yellow-400 to-emerald-400 text-slate-950 font-black shadow-[0_0_25px_rgba(251,191,36,0.65)] hover:scale-[1.01] active:scale-95 transition-all cursor-pointer truncate"
                   >
                     {currentVideoIdx < LEVEL1_VIDEOS.length - 1
@@ -7575,33 +7873,51 @@ export default function Level1SchoolWorld({
           )}
         </div>
 
-        {/* Bottom Custom Projector Controls + Full Screen + GSAP Animated "Next Video" Button */}
+        {/* Bottom Custom Projector Controls + Full Screen Toggle + GSAP Animated "Next Video" Button */}
         <div
-          style={{ padding: '1.1vh 2.0vh', gap: '1.8vh' }}
+          style={{
+            padding: isVideoFullscreen ? '1.6vh 2.6vh' : '1.1vh 2.0vh',
+            gap: isVideoFullscreen ? '2.2vh' : '1.8vh',
+          }}
           className="bg-slate-900 border-t border-slate-700 flex items-center justify-between shrink-0"
         >
-          <div style={{ gap: '1.0vh' }} className="flex items-center">
+          <div style={{ gap: isVideoFullscreen ? '1.3vh' : '1.0vh' }} className="flex items-center">
             <button
               onClick={togglePlayPause}
-              style={{ fontSize: '1.45vh', padding: '0.8vh 1.8vh', borderRadius: '1.0vh' }}
+              style={{
+                fontSize: isVideoFullscreen ? '1.85vh' : '1.45vh',
+                padding: isVideoFullscreen ? '1.05vh 2.4vh' : '0.8vh 1.8vh',
+                borderRadius: '1.2vh',
+              }}
               className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black transition-transform active:scale-95 shadow-md cursor-pointer"
             >
               {isPlaying ? '⏸ Pause' : '▶ Play'}
             </button>
-            <button
-              onClick={openVideoFullscreen}
-              style={{ fontSize: '1.45vh', padding: '0.8vh 1.6vh', borderRadius: '1.0vh' }}
-              className="bg-cyan-500/25 hover:bg-cyan-500/35 border-2 border-cyan-400 text-cyan-100 font-black transition-transform active:scale-95 cursor-pointer"
-              title="Watch in Full Screen"
-            >
-              ⛶ Full Screen
-            </button>
+            {!isVideoFullscreen ? (
+              <button
+                onClick={openVideoFullscreen}
+                style={{ fontSize: '1.45vh', padding: '0.8vh 1.6vh', borderRadius: '1.0vh' }}
+                className="bg-cyan-500/25 hover:bg-cyan-500/35 border-2 border-cyan-400 text-cyan-100 font-black transition-transform active:scale-95 cursor-pointer"
+                title="Watch in Full Screen"
+              >
+                ⛶ Full Screen
+              </button>
+            ) : (
+              <button
+                onClick={closeVideoFullscreen}
+                style={{ fontSize: '1.85vh', padding: '1.05vh 2.2vh', borderRadius: '1.2vh' }}
+                className="bg-slate-800 hover:bg-slate-700 border-2 border-cyan-400 text-cyan-100 font-black transition-transform active:scale-95 cursor-pointer"
+                title="Return to Normal Classroom Projector View"
+              >
+                🔍 Normal Projector View
+              </button>
+            )}
           </div>
 
-          <div style={{ gap: '0.5vh' }} className="flex-1 flex flex-col">
+          <div style={{ gap: isVideoFullscreen ? '0.7vh' : '0.5vh' }} className="flex-1 flex flex-col">
             <div
               onClick={handleSeekBarClick}
-              style={{ height: '1.3vh' }}
+              style={{ height: isVideoFullscreen ? '1.6vh' : '1.3vh' }}
               className="relative w-full bg-slate-700 rounded-full cursor-pointer overflow-hidden"
             >
               <div
@@ -7611,7 +7927,10 @@ export default function Level1SchoolWorld({
               />
               <div className="absolute top-0 bottom-0 left-[85%] w-1 bg-white/90" />
             </div>
-            <div style={{ fontSize: '1.3vh' }} className="flex justify-between font-bold text-slate-200">
+            <div
+              style={{ fontSize: isVideoFullscreen ? '1.58vh' : '1.3vh' }}
+              className="flex justify-between font-bold text-slate-200"
+            >
               <span ref={timeReadoutRef}>
                 {formatSeconds(currentTime)} / {duration ? formatSeconds(duration) : currentVideo.durationLabel}
               </span>
@@ -7621,7 +7940,7 @@ export default function Level1SchoolWorld({
                   setWatchPct(watchPctRef.current)
                   syncVideoProgressDom(currentTimeRef.current, durationRef.current, watchPctRef.current)
                 }}
-                style={{ fontSize: '1.3vh' }}
+                style={{ fontSize: isVideoFullscreen ? '1.58vh' : '1.3vh' }}
                 className="text-amber-300 hover:underline font-extrabold cursor-pointer"
               >
                 ⚡ Reach 85% Watch Mark
@@ -7630,7 +7949,7 @@ export default function Level1SchoolWorld({
           </div>
 
           <div className="flex justify-end shrink-0">
-            {is85PercentReached && (
+            {is85PercentReached ? (
               <button
                 ref={nextVideoBtnRef}
                 onClick={() => {
@@ -7640,11 +7959,24 @@ export default function Level1SchoolWorld({
                     handleNextVideoClick()
                   }
                 }}
-                style={{ fontSize: '1.45vh', padding: '0.8vh 1.8vh', borderRadius: '1.0vh' }}
+                style={{
+                  fontSize: isVideoFullscreen ? '1.85vh' : '1.45vh',
+                  padding: isVideoFullscreen ? '1.05vh 2.2vh' : '0.8vh 1.8vh',
+                  borderRadius: '1.2vh',
+                }}
                 className="bg-gradient-to-r from-amber-400 to-emerald-400 text-slate-950 font-black shadow-[0_0_24px_rgba(251,191,36,0.75)] hover:scale-105 active:scale-95 transition-transform cursor-pointer"
               >
                 {showLessonCompletedBanner ? 'Next Video →' : '🌟 Key Takeaways & Next →'}
               </button>
+            ) : (
+              isVideoFullscreen && (
+                <div
+                  style={{ fontSize: '1.58vh', padding: '1.0vh 1.8vh', borderRadius: '1.2vh' }}
+                  className="bg-slate-800/90 border border-slate-600 text-slate-300 font-extrabold whitespace-nowrap"
+                >
+                  🔒 Watch 85% to Unlock Key Takeaways
+                </div>
+              )
             )}
           </div>
         </div>
@@ -7670,13 +8002,26 @@ export default function Level1SchoolWorld({
             <p className="text-base text-slate-600 max-w-lg mb-6 font-bold">
               Answer 10 interactive questions presented one at a time on the examination projector to unlock Floor 2!
             </p>
-            <button
-              onClick={handleStartQuizClick}
-              onMouseEnter={() => soundEngine.playHover()}
-              className="px-11 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-lime-500 text-slate-950 font-black text-lg shadow-[0_12px_32px_rgba(16,185,129,0.5)] hover:shadow-[0_0_38px_rgba(52,211,153,0.9)] hover:scale-105 active:scale-95 transition-all cursor-pointer"
-            >
-              Start Quiz
-            </button>
+            <div className="flex items-center gap-3 flex-wrap justify-center">
+              <button
+                onClick={handleStartQuizClick}
+                onMouseEnter={() => soundEngine.playHover()}
+                className="px-10 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-lime-500 text-slate-950 font-black text-lg shadow-[0_12px_32px_rgba(16,185,129,0.5)] hover:shadow-[0_0_38px_rgba(52,211,153,0.9)] hover:scale-105 active:scale-95 transition-all cursor-pointer"
+              >
+                {quizAttempt?.status === 'in_progress' && Object.keys(quizAnswers).length > 0
+                  ? `Resume Quiz (${Object.keys(quizAnswers).length}/${activeQuizQuestions.length})`
+                  : 'Start Quiz'}
+              </button>
+              {Object.keys(quizAnswers).length > 0 && (
+                <button
+                  onClick={handleStartNewQuizAttempt}
+                  onMouseEnter={() => soundEngine.playHover()}
+                  className="px-6 py-3.5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-amber-300 border-2 border-amber-400 font-black text-sm transition-all cursor-pointer"
+                >
+                  🔄 Start New Quiz
+                </button>
+              )}
+            </div>
           </div>
         )}
 
@@ -7708,18 +8053,18 @@ export default function Level1SchoolWorld({
                   ⬅ Back
                 </button>
                 <div className="px-5 py-2 rounded-full bg-amber-400 text-slate-950 font-black text-sm shadow-md">
-                  {currentQuestionIdx + 1} / {LEVEL1_QUIZ_QUESTIONS.length} Questions
+                  {currentQuestionIdx + 1} / {activeQuizQuestions.length} Questions
                 </div>
               </div>
             </div>
 
             {/* Question Text & 4 Interactive Answer Options */}
-            <div className="my-auto py-2">
-              <h3 className="text-xl font-black text-white mb-4 leading-snug">
+            <div className="my-auto py-1.5">
+              <h3 className="text-xl font-black text-white mb-3.5 leading-snug">
                 {currentQuestion.icon} {currentQuestion.question}
               </h3>
 
-              <div className="grid grid-cols-2 gap-3.5">
+              <div className="grid grid-cols-2 gap-3">
                 {currentQuestion.options.map((opt, idx) => {
                   const isSelected = selectedOption === idx
                   const isCorrect = idx === currentQuestion.answer
@@ -7736,8 +8081,11 @@ export default function Level1SchoolWorld({
                   return (
                     <button
                       key={idx}
+                      disabled={selectedOption !== null}
                       onClick={() => handleSelectQuizOption(idx)}
-                      className={`p-4 rounded-2xl border-2 text-left flex items-center gap-3.5 transition-all cursor-pointer ${btnClass}`}
+                      className={`p-3.5 rounded-2xl border-2 text-left flex items-center gap-3.5 transition-all ${
+                        selectedOption !== null ? 'cursor-default' : 'cursor-pointer'
+                      } ${btnClass}`}
                     >
                       <span className="w-8 h-8 rounded-xl bg-pink-500 text-white font-black text-sm flex items-center justify-center shrink-0">
                         {String.fromCharCode(65 + idx)}
@@ -7747,38 +8095,118 @@ export default function Level1SchoolWorld({
                   )
                 })}
               </div>
+
+              {/* Associated Explanation / Feedback Banner + Explicit Next / Finish Button */}
+              {selectedOption !== null && (
+                <div
+                  className={`mt-3 px-4 py-2.5 rounded-xl border flex items-center justify-between gap-3 ${
+                    selectedOption === currentQuestion.answer
+                      ? 'bg-emerald-500/20 border-emerald-400/70 text-emerald-100'
+                      : 'bg-rose-500/20 border-rose-400/70 text-rose-100'
+                  }`}
+                >
+                  <div className="text-xs font-bold leading-snug">
+                    <span className="font-black uppercase mr-1.5">
+                      {selectedOption === currentQuestion.answer ? '✅ Correct!' : '❌ Incorrect — Explanation:'}
+                    </span>
+                    {currentQuestion.explanation}
+                  </div>
+                  <button
+                    onClick={() => {
+                      soundEngine.playClick()
+                      advanceQuizStep(quizAnswers)
+                    }}
+                    className="px-5 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs sm:text-sm shrink-0 cursor-pointer shadow-md transition-transform hover:scale-105 active:scale-95"
+                  >
+                    {currentQuestionIdx < activeQuizQuestions.length - 1 ? 'Next →' : 'Finish →'}
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Bottom Progress Bar */}
-            <div className="flex items-center justify-between text-xs font-bold text-slate-300 pt-2.5 border-t border-white/10">
+            <div className="flex items-center justify-between text-xs font-bold text-slate-300 pt-2 border-t border-white/10">
               <span>
-                Answered: {Object.keys(quizAnswers).length} • Remaining:{' '}
-                {Math.max(0, LEVEL1_QUIZ_QUESTIONS.length - Object.keys(quizAnswers).length)}
+                Answered: {quizScoreSummary.answeredCount} / {activeQuizQuestions.length} • Score: {quizScoreSummary.correctCount}/{activeQuizQuestions.length} ({quizScoreSummary.score}%)
               </span>
-              <span className="text-emerald-300 font-extrabold text-xs">
-                ✨ Luna reacts live to every answer!
-              </span>
+              <div className="flex items-center gap-3">
+                <span className="text-emerald-300 font-extrabold text-xs">
+                  ✨ Select an answer, then click {currentQuestionIdx < activeQuizQuestions.length - 1 ? 'Next →' : 'Finish →'}
+                </span>
+              </div>
             </div>
           </div>
         )}
 
         {quizSubStage === 'completed' && (
-          /* Section 9: GSAP "Quiz Completed!" Celebration -> Automatically walks to Floor 2 Staircase */
-          <div className="w-full h-full bg-gradient-to-br from-emerald-950 via-slate-900 to-indigo-950 text-white flex flex-col items-center justify-center p-8 text-center">
-            <div
-              ref={quizCompleteBannerRef}
-              className="px-11 py-8 rounded-3xl bg-white/10 border-2 border-amber-400 shadow-[0_0_55px_rgba(251,191,36,0.55)]"
-            >
-              <div className="text-5xl mb-2 animate-bounce">🏆🎉⭐</div>
-              <div className="inline-block px-5 py-1.5 rounded-full bg-amber-400 text-slate-950 font-black text-sm uppercase tracking-wider mb-2">
-                +150 XP Examination Reward Claimed!
+          /* Section 9: Quiz Completed Screen (Pass >= 60% vs. Needs Improvement < 60%) */
+          (() => {
+            const isPassed = quizScoreSummary.score >= 60
+            return (
+              <div className="w-full h-full bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 text-white flex flex-col items-center justify-center p-8 text-center">
+                <div
+                  ref={quizCompleteBannerRef}
+                  className={`px-10 py-7 rounded-3xl bg-slate-900/90 border-2 shadow-2xl max-w-xl w-full ${
+                    isPassed
+                      ? 'border-amber-400 shadow-[0_0_55px_rgba(251,191,36,0.45)]'
+                      : 'border-rose-400 shadow-[0_0_55px_rgba(244,63,94,0.35)]'
+                  }`}
+                >
+                  <div className="text-5xl mb-2 animate-bounce">
+                    {isPassed ? '🏆🎉⭐' : '📝💡⚠️'}
+                  </div>
+
+                  <div
+                    className={`inline-block px-5 py-1.5 rounded-full font-black text-sm uppercase tracking-wider mb-2.5 ${
+                      isPassed
+                        ? 'bg-amber-400 text-slate-950'
+                        : 'bg-rose-500/25 border border-rose-400 text-rose-200'
+                    }`}
+                  >
+                    {isPassed
+                      ? '⭐ +150 XP Examination Reward Claimed!'
+                      : '⚠️ Minimum 60% Score Required to Pass & Unlock Floor 2'}
+                  </div>
+
+                  <h2 className="text-3xl font-black text-white mb-2">
+                    {isPassed ? 'Quiz Passed!' : 'Needs Improvement!'} Score: {quizScoreSummary.correctCount} / {activeQuizQuestions.length} ({quizScoreSummary.score}%)
+                  </h2>
+
+                  <p className="text-sm text-slate-300 max-w-md mx-auto font-bold mb-5 leading-relaxed">
+                    {isPassed
+                      ? `Congratulations! You scored ${quizScoreSummary.score}%, passing the 60% threshold. You can now proceed to Floor 2 Computer Lab.`
+                      : `You scored ${quizScoreSummary.score}%. A minimum score of 60% (at least 6/10 correct) is required to pass the Level 1 Examination and proceed to Floor 2.`}
+                  </p>
+
+                  <div className="flex items-center justify-center gap-3 flex-wrap">
+                    <button
+                      onClick={handleStartNewQuizAttempt}
+                      className={`px-6 py-3 rounded-xl font-black text-xs sm:text-sm cursor-pointer transition-transform hover:scale-105 active:scale-95 shadow-md ${
+                        isPassed
+                          ? 'bg-white/15 hover:bg-white/25 border border-amber-300 text-amber-200'
+                          : 'bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950'
+                      }`}
+                    >
+                      🔄 Retake Quiz {isPassed ? '' : '(Try Again)'}
+                    </button>
+
+                    {isPassed ? (
+                      <button
+                        onClick={beginWalkToFloor2AndComputerLab}
+                        className="px-6 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs sm:text-sm cursor-pointer shadow-md transition-transform hover:scale-105"
+                      >
+                        Continue to Floor 2 →
+                      </button>
+                    ) : (
+                      <div className="px-5 py-3 rounded-xl bg-slate-800 border border-slate-600 text-slate-400 font-extrabold text-xs sm:text-sm">
+                        🔒 Floor 2 Locked (Score 60%+ to Unlock)
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
-              <h2 className="text-3xl font-black text-white mb-1">Quiz Completed!</h2>
-              <p className="text-sm text-emerald-200 max-w-md font-bold">
-                10 / 10 Questions Completed! {characterChoice === 'leo' || characterChoice === 'max' ? 'Leo' : 'Luna'} is now walking to the Floor 2 Staircase...
-              </p>
-            </div>
-          </div>
+            )
+          })()
         )}
       </div>
     ) : null
@@ -7942,7 +8370,7 @@ export default function Level1SchoolWorld({
           </group>
 
           {/* 3. 3D Classroom 101 with Seated Students, Teacher & Physical Video Projector Screen */}
-          <Classroom101Scene3D projectorContent={classroomProjectorUI} />
+          <Classroom101Scene3D projectorContent={classroomProjectorUI} isVideoFullscreen={isVideoFullscreen} />
 
           <group visible={journeyStage !== 'classroom_projector'}>
             {/* 4. 3D Examination Center 103 with Seated Students, Teacher & Physical Quiz Projector Screen */}
@@ -8040,17 +8468,18 @@ export default function Level1SchoolWorld({
           (BACK, HOME, 🏆 RANK LIST, 🗺️ MAP, STAGE PILL,
            ☀️ DAYLIGHT / 🌙 NIGHT MODE THEME CHANGER, ⭐ XP, 🎵 VOLUME, 🚪 LOGOUT)
       ═══════════════════════════════════════════════════════════════════ */}
-      <div
-        style={{
-          WebkitFontSmoothing: 'antialiased',
-          textRendering: 'optimizeLegibility',
-          top: '1.2vh',
-          left: '1.4vh',
-          right: '1.4vh',
-          gap: '1.0vh',
-        }}
-        className="absolute z-30 flex items-start justify-between pointer-events-none flex-wrap max-w-full"
-      >
+      {!isVideoFullscreen && (
+        <div
+          style={{
+            WebkitFontSmoothing: 'antialiased',
+            textRendering: 'optimizeLegibility',
+            top: '1.2vh',
+            left: '1.4vh',
+            right: '1.4vh',
+            gap: '1.0vh',
+          }}
+          className="absolute z-30 flex items-start justify-between pointer-events-none flex-wrap max-w-full"
+        >
         {/* Left: BACK, HOME, Rank List, MAP & Stage Pill */}
         <div style={{ gap: '1.0vh' }} className="flex items-center pointer-events-auto flex-wrap">
           {journeyStage !== 'login' && journeyStage !== 'school_yard' && (
@@ -8267,11 +8696,12 @@ export default function Level1SchoolWorld({
           )}
         </div>
       </div>
+      )}
 
       {/* ═══════════════════════════════════════════════════════════════════
           ON-SCREEN ARROW KEYS CONTROLLER (↑ ↓ ← →) + 360° TURN (ONLY WHEN LOGGED IN)
       ═══════════════════════════════════════════════════════════════════ */}
-      {hasLoggedIn && (
+      {hasLoggedIn && !isVideoFullscreen && (
         <div className="absolute bottom-5 left-4 z-30 flex items-center gap-2.5 pointer-events-auto">
           <div className="p-2.5 rounded-2xl bg-slate-950/90 border border-emerald-400/50 backdrop-blur-md shadow-xl flex flex-col items-center gap-1">
             <button
@@ -8455,110 +8885,6 @@ export default function Level1SchoolWorld({
                   )
                 })}
               </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ═══════════════════════════════════════════════════════════════════
-          ⛶ FULL-SCREEN CINEMA VIDEO MODAL (Guaranteed Single Screen + Zoom Out)
-      ═══════════════════════════════════════════════════════════════════ */}
-      {isVideoFullscreen && (
-        <div className="fixed inset-0 z-50 bg-slate-950 flex flex-col justify-between text-white select-none">
-          <div className="px-6 py-3.5 bg-slate-900 border-b border-slate-800 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span className="text-3xl">{currentVideo.icon}</span>
-              <div>
-                <div className="text-xs font-black uppercase tracking-wider text-emerald-400">
-                  Full Screen Cinema • Video {currentVideoIdx + 1} of {LEVEL1_VIDEOS.length}
-                </div>
-                <div className="text-lg font-black text-white">{currentVideo.title}</div>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <div
-                ref={fullscreenWatchBadgeRef}
-                className="px-3.5 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-400 text-emerald-300 text-xs font-black"
-              >
-                Watched: {watchPct}% {is85PercentReached ? '✓ (85%+)' : '/ 85% Req'}
-              </div>
-              <button
-                onClick={closeVideoFullscreen}
-                className="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-xs cursor-pointer shadow-md flex items-center gap-1.5"
-                title="Zoom Out back to Classroom Projector View"
-              >
-                <span>🔍</span>
-                <span>Zoom Out (Normal View)</span>
-              </button>
-              <button
-                onClick={closeVideoFullscreen}
-                className="px-4 py-2 rounded-xl bg-rose-500 hover:bg-rose-400 text-white font-black text-xs cursor-pointer"
-              >
-                ✕ Exit Full Screen
-              </button>
-            </div>
-          </div>
-
-          <div className="relative flex-1 min-h-0 bg-black flex items-center justify-center p-4 overflow-hidden">
-            <video
-              ref={fullscreenVideoRef}
-              key={`fs-${currentVideo.id}`}
-              src={currentVideo.src}
-              preload="auto"
-              autoPlay
-              playsInline
-              controls
-              onPlay={handleVideoCanPlayOrPlaying}
-              onPlaying={handleVideoCanPlayOrPlaying}
-              onCanPlay={handleVideoCanPlayOrPlaying}
-              onWaiting={handleVideoWaitingOrStalled}
-              onStalled={handleVideoWaitingOrStalled}
-              onPause={() => {
-                setIsPlaying(false)
-                setIsVideoBuffering(false)
-              }}
-              onLoadedMetadata={(e) => {
-                const dur = e.target.duration || 0
-                durationRef.current = dur
-                if (currentTimeRef.current > 0.5 && dur > currentTimeRef.current) {
-                  try {
-                    e.target.currentTime = currentTimeRef.current
-                  } catch {}
-                }
-              }}
-              onTimeUpdate={handleTimeUpdate}
-              onEnded={() => {
-                watchPctRef.current = 100
-                setWatchPct(100)
-                setIsVideoFullscreen(false)
-                setShowLessonCompletedBanner(true)
-              }}
-              className="w-full h-full max-w-full max-h-full object-contain rounded-xl"
-            />
-          </div>
-
-          <div className="px-6 py-3.5 bg-slate-900 border-t border-slate-800 flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-300">
-              {currentVideo.subtitle}
-            </span>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={closeVideoFullscreen}
-                className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-white/20 text-white font-black text-xs cursor-pointer"
-              >
-                🔍 Zoom Out to Classroom
-              </button>
-              <button
-                onClick={() => {
-                  setWatchPct(100)
-                  closeVideoFullscreen()
-                  setShowLessonCompletedBanner(true)
-                }}
-                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-emerald-400 text-slate-950 font-black text-xs cursor-pointer"
-              >
-                🌟 View Key Takeaways & Next Video →
-              </button>
             </div>
           </div>
         </div>

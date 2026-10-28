@@ -14,6 +14,7 @@ const UserStateSchema = new mongoose.Schema({
   completedModules: { type: [String], default: [] },
   correctCount: { type: Number, default: 0 },
   quizScore: { type: Number, default: 0 },
+  quizAttempt: { type: mongoose.Schema.Types.Mixed, default: null },
   intermediateUnlocked: { type: Boolean, default: false },
   advancedUnlocked: { type: Boolean, default: false },
   level1Completed: { type: Boolean, default: false },

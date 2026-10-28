@@ -1,122 +1,602 @@
 [
   {
-    "id": "q1",
-    "question": "What is financial literacy mainly about?",
-    "options": [ "Earning a lot of money",
-        "Understanding how to manage money",
-        "Avoiding banks",
-        "Spending money quickly"
-],
-    "answer": 1,
-    "hint": "Think about managing money, not just earning it.",
-    "explanation": "Financial literacy means understanding how to earn, save, spend, and invest money effectively.",
-    "emoji": "🏦"
-  },
-  {
-    "id": "q2",
-          "question": "Which of the following is NOT a part of financial literacy?",
-      "options": [
-        "Saving money",
-        "Investing money",
-        "Ignoring expenses",
-        "Managing income"
-      ],
-      "answer": 2,
-      "hint": "Financial literacy requires awareness, not ignorance.",
-      "explaination": "Ignoring expenses is not part of financial literacy. Managing income, saving, and investing are essential.",
-    "emoji": "⏳"
-  },
-  {
-    "question": "What does 'investment' mean?",
-      "options": [
-        "Spending money for fun",
-        "Keeping money idle",
-        "Using money to earn more money",
-        "Borrowing money"
-      ],
-      "answer": 2,
-      "hint": "Money should grow, not stay idle.",
-      "explaination": "Investment means putting money into assets or instruments so it grows over time.",
-    "emoji": "📈"
-  },
-  {
-    "id": "q4",
-    "question": "Why is starting investment early beneficial?",
-      "options": [
-        "You can spend more",
-        "Money gets more time to grow",
-        "Banks give free money",
-        "No taxes are applied"
-      ],
-      "answer": 1,
-      "hint": "Time plays a key role in growth.",
-      "explaination": "Starting early allows compounding, where money grows over time.",
-  
-    "emoji": "📮"
-  },
-  {
-    "id": "q5",
-     "question": "Why are government bonds considered very safe?",
-      "options": [
-        "They give high returns",
-        "They are backed by the government",
-        "They are digital",
-        "They change daily"
-      ],
-      "answer": 1,
-      "hint": "Who is guaranteeing the money?",
-      "explaination": "Government bonds are safe because they are backed by the government.",
-    "emoji": "💸"
-  },
-  {
-    "id": "q6",
-    "question": "What does SIP stand for in mutual funds?",
-    "options": ["Systematic Investment Plan", "Savings Interest Plan", "Secure Income Portfolio", "Standard Investment Policy"],
+    "id": "Q1",
+    "isCommon": true,
+    "videoId": "video2",
+    "difficulty": "easy",
+    "icon": "📚",
+    "emoji": "📚",
+    "tag": "Video 2 • Financial Literacy",
+    "question": "What does financial literacy mean?",
+    "options": [
+      "Understanding how to earn, save, invest, and manage money",
+      "Learning only how to calculate interest",
+      "Knowing only how to open a bank account",
+      "Spending money without planning"
+    ],
     "answer": 0,
-    "hint": "You invest a fixed amount regularly — monthly or weekly.",
-    "explaination": "SIP = Systematic Investment Plan — a method of investing fixed amounts regularly in mutual funds.",
-    "emoji": "🔄"
+    "hint": "Think about the complete set of skills needed to handle money wisely.",
+    "explanation": "Financial literacy means understanding how to earn, save, invest, and manage money wisely across daily life and future goals.",
+    "number": 1,
+    "q": "What does financial literacy mean?",
+    "opts": [
+      "Understanding how to earn, save, invest, and manage money",
+      "Learning only how to calculate interest",
+      "Knowing only how to open a bank account",
+      "Spending money without planning"
+    ],
+    "ans": 0,
+    "explain": "Financial literacy means understanding how to earn, save, invest, and manage money wisely across daily life and future goals.",
+    "correctOptionText": "Understanding how to earn, save, invest, and manage money"
   },
   {
-    "id": "q7",
-    "question": "Under which section of Income Tax can you claim deduction for PPF investments?",
-    "options": ["Section 80D", "Section 80C", "Section 24B", "Section 10(14)"],
+    "id": "Q2",
+    "isCommon": true,
+    "videoId": "video1",
+    "difficulty": "easy",
+    "icon": "📈",
+    "emoji": "📈",
+    "tag": "Video 1 • Money & Investment",
+    "question": "What is the main purpose of investing?",
+    "options": [
+      "To spend money immediately",
+      "To grow money over time",
+      "To avoid keeping financial records",
+      "To eliminate every financial risk"
+    ],
     "answer": 1,
-    "hint": "This section covers most popular saving instruments like PPF, ELSS, LIC.",
-    "explaination": "Section 80C allows deduction of up to ₹1.5 lakh per year for PPF, NSC, SSY and other investments.",
-    "emoji": "📋"
+    "hint": "Investing puts money into assets with a long-term goal in mind.",
+    "explanation": "The main purpose of investing is to put money into assets or opportunities so that it grows and earns returns over time.",
+    "number": 2,
+    "q": "What is the main purpose of investing?",
+    "opts": [
+      "To spend money immediately",
+      "To grow money over time",
+      "To avoid keeping financial records",
+      "To eliminate every financial risk"
+    ],
+    "ans": 1,
+    "explain": "The main purpose of investing is to put money into assets or opportunities so that it grows and earns returns over time.",
+    "correctOptionText": "To grow money over time"
   },
   {
-    "id": "q8",
-     "question": "Which of the following is a liability?",
-      "options": [
-        "Savings",
-        "Property investment",
-        "Loan",
-        "Mutual fund"
-      ],
-      "answer": 2,
-      "hint": "Think about money you owe.",
-      "explaination": "Liabilities are obligations like loans that reduce your wealth.",
-
-    "emoji": "💰"
-  },
-  {
-    "id": "q9",
-    "question": "Sukanya Samriddhi Yojana can be opened for a girl child below what age?",
-    "options": ["5 years", "8 years", "10 years", "12 years"],
+    "id": "Q3",
+    "isCommon": true,
+    "videoId": "video3",
+    "difficulty": "easy",
+    "icon": "🎈",
+    "emoji": "🎈",
+    "tag": "Video 3 • Basic Financial Terms",
+    "question": "What is inflation?",
+    "options": [
+      "A decrease in all expenses",
+      "An increase in savings account balances",
+      "An increase in prices over time",
+      "A fixed return on investments"
+    ],
     "answer": 2,
-    "hint": "The account must be opened before the girl turns double digits in age.",
-    "explaination": "SSY account can be opened for a girl child below 10 years of age.",
-    "emoji": "👧"
+    "hint": "Think about why goods and services cost more over the years.",
+    "explanation": "Inflation is the general increase in prices over time, which reduces the purchasing power of money.",
+    "number": 3,
+    "q": "What is inflation?",
+    "opts": [
+      "A decrease in all expenses",
+      "An increase in savings account balances",
+      "An increase in prices over time",
+      "A fixed return on investments"
+    ],
+    "ans": 2,
+    "explain": "Inflation is the general increase in prices over time, which reduces the purchasing power of money.",
+    "correctOptionText": "An increase in prices over time"
   },
   {
-    "id": "q10",
-    "question": "Which of these is considered the SAFEST investment option?",
-    "options": ["Stock Market", "Cryptocurrency", "Government Bonds / PPF", "Real Estate"],
+    "id": "Q4",
+    "isCommon": true,
+    "videoId": "video3",
+    "difficulty": "easy",
+    "icon": "🐷",
+    "emoji": "🐷",
+    "tag": "Video 3 • Basic Financial Terms",
+    "question": "Which term describes money kept aside for future use?",
+    "options": [
+      "Liability",
+      "Expense",
+      "Return",
+      "Savings"
+    ],
+    "answer": 3,
+    "hint": "This is the portion of income you set aside rather than spend immediately.",
+    "explanation": "Savings refers to money set aside from current income for future needs, emergencies, or goals.",
+    "number": 4,
+    "q": "Which term describes money kept aside for future use?",
+    "opts": [
+      "Liability",
+      "Expense",
+      "Return",
+      "Savings"
+    ],
+    "ans": 3,
+    "explain": "Savings refers to money set aside from current income for future needs, emergencies, or goals.",
+    "correctOptionText": "Savings"
+  },
+  {
+    "id": "Q5",
+    "isCommon": true,
+    "videoId": "video3",
+    "difficulty": "easy",
+    "icon": "📋",
+    "emoji": "📋",
+    "tag": "Video 3 • Basic Financial Terms",
+    "question": "What is a budget used for?",
+    "options": [
+      "Planning income and expenses",
+      "Predicting guaranteed investment profits",
+      "Removing all financial obligations",
+      "Increasing prices in the market"
+    ],
+    "answer": 0,
+    "hint": "A budget tracks how much money comes in and how much goes out.",
+    "explanation": "A budget is a financial plan used for tracking and planning your income and expenses wisely.",
+    "number": 5,
+    "q": "What is a budget used for?",
+    "opts": [
+      "Planning income and expenses",
+      "Predicting guaranteed investment profits",
+      "Removing all financial obligations",
+      "Increasing prices in the market"
+    ],
+    "ans": 0,
+    "explain": "A budget is a financial plan used for tracking and planning your income and expenses wisely.",
+    "correctOptionText": "Planning income and expenses"
+  },
+  {
+    "id": "Q6",
+    "isCommon": true,
+    "videoId": "video4",
+    "difficulty": "medium",
+    "icon": "🧾",
+    "emoji": "🧾",
+    "tag": "Video 4 • Tax-Saving Investments",
+    "question": "Which of the following is a tax-saving investment option mentioned in the video?",
+    "options": [
+      "Cryptocurrency trading",
+      "ELSS",
+      "Everyday shopping",
+      "Personal entertainment expenses"
+    ],
+    "answer": 1,
+    "hint": "Look for the Equity Linked Savings Scheme discussed alongside PPF, NPS, and NSC.",
+    "explanation": "ELSS (Equity Linked Savings Scheme) is an eligible tax-saving investment option mentioned alongside PPF, NPS, NSC, and tax-saving FDs.",
+    "number": 6,
+    "q": "Which of the following is a tax-saving investment option mentioned in the video?",
+    "opts": [
+      "Cryptocurrency trading",
+      "ELSS",
+      "Everyday shopping",
+      "Personal entertainment expenses"
+    ],
+    "ans": 1,
+    "explain": "ELSS (Equity Linked Savings Scheme) is an eligible tax-saving investment option mentioned alongside PPF, NPS, NSC, and tax-saving FDs.",
+    "correctOptionText": "ELSS"
+  },
+  {
+    "id": "Q7",
+    "isCommon": true,
+    "videoId": "video5",
+    "difficulty": "medium",
+    "icon": "🧭",
+    "emoji": "🧭",
+    "tag": "Video 5 • Smart Asset Allocation",
+    "question": "What should you consider when choosing an investment?",
+    "options": [
+      "Only the highest advertised return",
+      "Only what your friends invest in",
+      "Financial goals, risk tolerance, and investment duration",
+      "Only the name of the investment provider"
+    ],
     "answer": 2,
-    "hint": "It is backed by the Government of India — zero risk of default.",
-    "explaination": "Government bonds and PPF are 100% safe as they are backed by the Government of India with guaranteed returns.",
-    "emoji": "🛡️"
+    "hint": "Smart asset allocation matches investments to your personal situation and timeline.",
+    "explanation": "When choosing an investment, you should evaluate your financial goals, risk tolerance, and investment duration (time horizon).",
+    "number": 7,
+    "q": "What should you consider when choosing an investment?",
+    "opts": [
+      "Only the highest advertised return",
+      "Only what your friends invest in",
+      "Financial goals, risk tolerance, and investment duration",
+      "Only the name of the investment provider"
+    ],
+    "ans": 2,
+    "explain": "When choosing an investment, you should evaluate your financial goals, risk tolerance, and investment duration (time horizon).",
+    "correctOptionText": "Financial goals, risk tolerance, and investment duration"
+  },
+  {
+    "id": "Q8",
+    "isCommon": false,
+    "videoId": "video3",
+    "difficulty": "easy",
+    "icon": "💰",
+    "emoji": "💰",
+    "tag": "Video 3 • Basic Financial Terms",
+    "question": "What is capital in investing?",
+    "options": [
+      "The initial money invested",
+      "Money spent on entertainment",
+      "A loan repayment date",
+      "The increase in market prices"
+    ],
+    "answer": 0,
+    "hint": "It is the starting principal amount you put into an investment.",
+    "explanation": "Capital is the initial amount of money or financial principal that you put into an investment or business.",
+    "number": 8,
+    "q": "What is capital in investing?",
+    "opts": [
+      "The initial money invested",
+      "Money spent on entertainment",
+      "A loan repayment date",
+      "The increase in market prices"
+    ],
+    "ans": 0,
+    "explain": "Capital is the initial amount of money or financial principal that you put into an investment or business.",
+    "correctOptionText": "The initial money invested"
+  },
+  {
+    "id": "Q9",
+    "isCommon": false,
+    "videoId": "video3",
+    "difficulty": "easy",
+    "icon": "🏦",
+    "emoji": "🏦",
+    "tag": "Video 3 • Basic Financial Terms",
+    "question": "What is interest?",
+    "options": [
+      "Money paid for groceries",
+      "The extra money earned or paid on an amount of money",
+      "The total amount of monthly expenses",
+      "The value of a physical asset only"
+    ],
+    "answer": 1,
+    "hint": "Banks pay this on savings/FDs and charge it on loans.",
+    "explanation": "Interest is the extra money earned on savings/investments or paid as the cost of borrowing money.",
+    "number": 9,
+    "q": "What is interest?",
+    "opts": [
+      "Money paid for groceries",
+      "The extra money earned or paid on an amount of money",
+      "The total amount of monthly expenses",
+      "The value of a physical asset only"
+    ],
+    "ans": 1,
+    "explain": "Interest is the extra money earned on savings/investments or paid as the cost of borrowing money.",
+    "correctOptionText": "The extra money earned or paid on an amount of money"
+  },
+  {
+    "id": "Q10",
+    "isCommon": false,
+    "videoId": "video3",
+    "difficulty": "easy",
+    "icon": "⚖️",
+    "emoji": "⚖️",
+    "tag": "Video 3 • Basic Financial Terms",
+    "question": "Which is an example of a liability?",
+    "options": [
+      "Savings kept for emergencies",
+      "An investment account",
+      "A loan that must be repaid",
+      "Money received as salary"
+    ],
+    "answer": 2,
+    "hint": "Liabilities are financial obligations or debts that you owe to others.",
+    "explanation": "A loan that must be repaid is a liability because it represents a financial obligation owed to a lender.",
+    "number": 10,
+    "q": "Which is an example of a liability?",
+    "opts": [
+      "Savings kept for emergencies",
+      "An investment account",
+      "A loan that must be repaid",
+      "Money received as salary"
+    ],
+    "ans": 2,
+    "explain": "A loan that must be repaid is a liability because it represents a financial obligation owed to a lender.",
+    "correctOptionText": "A loan that must be repaid"
+  },
+  {
+    "id": "Q11",
+    "isCommon": false,
+    "videoId": "video1",
+    "difficulty": "easy",
+    "icon": "💵",
+    "emoji": "💵",
+    "tag": "Video 1 • Money & Investment",
+    "question": "What does lump-sum investment mean?",
+    "options": [
+      "Investing a large amount at one time",
+      "Saving a small amount every week",
+      "Paying monthly household bills",
+      "Borrowing money for daily expenses"
+    ],
+    "answer": 0,
+    "hint": "Contrast a single one-time deposit with regular periodic installments.",
+    "explanation": "A lump-sum investment means investing a single large amount of money all at one time rather than in periodic installments.",
+    "number": 11,
+    "q": "What does lump-sum investment mean?",
+    "opts": [
+      "Investing a large amount at one time",
+      "Saving a small amount every week",
+      "Paying monthly household bills",
+      "Borrowing money for daily expenses"
+    ],
+    "ans": 0,
+    "explain": "A lump-sum investment means investing a single large amount of money all at one time rather than in periodic installments.",
+    "correctOptionText": "Investing a large amount at one time"
+  },
+  {
+    "id": "Q12",
+    "isCommon": false,
+    "videoId": "video2",
+    "difficulty": "easy",
+    "icon": "🏛️",
+    "emoji": "🏛️",
+    "tag": "Video 2 • Investment Options",
+    "question": "Which investment generally offers a fixed interest rate for a chosen period?",
+    "options": [
+      "Cryptocurrency",
+      "Individual stocks",
+      "Gold prices",
+      "Fixed Deposit"
+    ],
+    "answer": 3,
+    "hint": "Its name directly describes locking in a deposit at a predetermined rate.",
+    "explanation": "A Fixed Deposit (FD) generally offers a fixed interest rate over a chosen tenure with lower risk.",
+    "number": 12,
+    "q": "Which investment generally offers a fixed interest rate for a chosen period?",
+    "opts": [
+      "Cryptocurrency",
+      "Individual stocks",
+      "Gold prices",
+      "Fixed Deposit"
+    ],
+    "ans": 3,
+    "explain": "A Fixed Deposit (FD) generally offers a fixed interest rate over a chosen tenure with lower risk.",
+    "correctOptionText": "Fixed Deposit"
+  },
+  {
+    "id": "Q13",
+    "isCommon": false,
+    "videoId": "video2",
+    "difficulty": "medium",
+    "icon": "📊",
+    "emoji": "📊",
+    "tag": "Video 2 • Investment Options",
+    "question": "What is a mutual fund?",
+    "options": [
+      "A loan from a government office",
+      "An investment pool managed according to a fund's strategy",
+      "A bank account with no investment exposure",
+      "A guaranteed method of earning profits"
+    ],
+    "answer": 1,
+    "hint": "Money from many investors is pooled together and invested according to a stated objective.",
+    "explanation": "A mutual fund pools money from multiple investors and invests it across assets such as stocks or bonds according to the fund's strategy.",
+    "number": 13,
+    "q": "What is a mutual fund?",
+    "opts": [
+      "A loan from a government office",
+      "An investment pool managed according to a fund's strategy",
+      "A bank account with no investment exposure",
+      "A guaranteed method of earning profits"
+    ],
+    "ans": 1,
+    "explain": "A mutual fund pools money from multiple investors and invests it across assets such as stocks or bonds according to the fund's strategy.",
+    "correctOptionText": "An investment pool managed according to a fund's strategy"
+  },
+  {
+    "id": "Q14",
+    "isCommon": false,
+    "videoId": "video2",
+    "difficulty": "medium",
+    "icon": "⚡",
+    "emoji": "⚡",
+    "tag": "Video 2 • Risk & Return",
+    "question": "Which investment can experience rapid price fluctuations?",
+    "options": [
+      "A fixed interest rate agreed in an FD",
+      "A household budget",
+      "Cryptocurrency",
+      "A record of monthly expenses"
+    ],
+    "answer": 2,
+    "hint": "Digital currencies are known for high volatility and sharp price swings.",
+    "explanation": "Cryptocurrency is highly volatile and can experience rapid price fluctuations, carrying higher risk than fixed-income options.",
+    "number": 14,
+    "q": "Which investment can experience rapid price fluctuations?",
+    "opts": [
+      "A fixed interest rate agreed in an FD",
+      "A household budget",
+      "Cryptocurrency",
+      "A record of monthly expenses"
+    ],
+    "ans": 2,
+    "explain": "Cryptocurrency is highly volatile and can experience rapid price fluctuations, carrying higher risk than fixed-income options.",
+    "correctOptionText": "Cryptocurrency"
+  },
+  {
+    "id": "Q15",
+    "isCommon": false,
+    "videoId": "video4",
+    "difficulty": "medium",
+    "icon": "🛡️",
+    "emoji": "🛡️",
+    "tag": "Video 4 • Tax-Saving Investments",
+    "question": "What is a possible purpose of a tax-saving investment?",
+    "options": [
+      "Reducing eligible taxable income under applicable rules",
+      "Removing every tax obligation automatically",
+      "Guaranteeing the highest return",
+      "Avoiding the need to understand an investment"
+    ],
+    "answer": 0,
+    "hint": "Eligible tax-saving instruments help lower tax liability legally within statutory limits.",
+    "explanation": "Tax-saving investments help reduce eligible taxable income and tax liability under applicable tax rules while building long-term savings.",
+    "number": 15,
+    "q": "What is a possible purpose of a tax-saving investment?",
+    "opts": [
+      "Reducing eligible taxable income under applicable rules",
+      "Removing every tax obligation automatically",
+      "Guaranteeing the highest return",
+      "Avoiding the need to understand an investment"
+    ],
+    "ans": 0,
+    "explain": "Tax-saving investments help reduce eligible taxable income and tax liability under applicable tax rules while building long-term savings.",
+    "correctOptionText": "Reducing eligible taxable income under applicable rules"
+  },
+  {
+    "id": "Q16",
+    "isCommon": false,
+    "videoId": "video4",
+    "difficulty": "medium",
+    "icon": "🔒",
+    "emoji": "🔒",
+    "tag": "Video 4 • Lock-in & Rules",
+    "question": "Why should investors check an investment's lock-in period?",
+    "options": [
+      "It determines their monthly salary",
+      "It guarantees a profit",
+      "It removes market risk",
+      "It indicates when withdrawals may be restricted"
+    ],
+    "answer": 3,
+    "hint": "During a lock-in period, you cannot freely withdraw your invested funds.",
+    "explanation": "An investment's lock-in period indicates the duration during which withdrawals are restricted or not permitted.",
+    "number": 16,
+    "q": "Why should investors check an investment's lock-in period?",
+    "opts": [
+      "It determines their monthly salary",
+      "It guarantees a profit",
+      "It removes market risk",
+      "It indicates when withdrawals may be restricted"
+    ],
+    "ans": 3,
+    "explain": "An investment's lock-in period indicates the duration during which withdrawals are restricted or not permitted.",
+    "correctOptionText": "It indicates when withdrawals may be restricted"
+  },
+  {
+    "id": "Q17",
+    "isCommon": false,
+    "videoId": "video4",
+    "difficulty": "easy",
+    "icon": "👧",
+    "emoji": "👧",
+    "tag": "Video 4 • Government Schemes",
+    "question": "Which scheme is designed to support savings for a girl child in India?",
+    "options": [
+      "ELSS",
+      "Sukanya Samriddhi Yojana",
+      "Cryptocurrency",
+      "An ordinary monthly budget"
+    ],
+    "answer": 1,
+    "hint": "This government-backed small savings scheme is specifically named for a girl child.",
+    "explanation": "Sukanya Samriddhi Yojana (SSY) is a Government of India savings scheme specifically designed to support the future education and savings of a girl child.",
+    "number": 17,
+    "q": "Which scheme is designed to support savings for a girl child in India?",
+    "opts": [
+      "ELSS",
+      "Sukanya Samriddhi Yojana",
+      "Cryptocurrency",
+      "An ordinary monthly budget"
+    ],
+    "ans": 1,
+    "explain": "Sukanya Samriddhi Yojana (SSY) is a Government of India savings scheme specifically designed to support the future education and savings of a girl child.",
+    "correctOptionText": "Sukanya Samriddhi Yojana"
+  },
+  {
+    "id": "Q18",
+    "isCommon": false,
+    "videoId": "video5",
+    "difficulty": "medium",
+    "icon": "💧",
+    "emoji": "💧",
+    "tag": "Video 5 • Smart Asset Allocation",
+    "question": "What does liquidity refer to in investing?",
+    "options": [
+      "How quickly an asset can be converted into cash without a significant loss in value",
+      "The amount of tax automatically saved",
+      "The total number of investments owned",
+      "The guaranteed annual profit"
+    ],
+    "answer": 0,
+    "hint": "Think about how easily you can access your money when you need cash.",
+    "explanation": "Liquidity refers to how quickly and easily an asset can be converted into cash without a significant loss in value.",
+    "number": 18,
+    "q": "What does liquidity refer to in investing?",
+    "opts": [
+      "How quickly an asset can be converted into cash without a significant loss in value",
+      "The amount of tax automatically saved",
+      "The total number of investments owned",
+      "The guaranteed annual profit"
+    ],
+    "ans": 0,
+    "explain": "Liquidity refers to how quickly and easily an asset can be converted into cash without a significant loss in value.",
+    "correctOptionText": "How quickly an asset can be converted into cash without a significant loss in value"
+  },
+  {
+    "id": "Q19",
+    "isCommon": false,
+    "videoId": "video5",
+    "difficulty": "medium",
+    "icon": "🧺",
+    "emoji": "🧺",
+    "tag": "Video 5 • Smart Asset Allocation",
+    "question": "Why might an investor diversify their investments?",
+    "options": [
+      "To guarantee that every investment earns a profit",
+      "To avoid setting financial goals",
+      "To spread exposure across different investments",
+      "To make every investment equally risky"
+    ],
+    "answer": 2,
+    "hint": "Don't put all your eggs in one basket.",
+    "explanation": "Diversification spreads investment exposure across different asset classes to help manage and reduce overall portfolio risk.",
+    "number": 19,
+    "q": "Why might an investor diversify their investments?",
+    "opts": [
+      "To guarantee that every investment earns a profit",
+      "To avoid setting financial goals",
+      "To spread exposure across different investments",
+      "To make every investment equally risky"
+    ],
+    "ans": 2,
+    "explain": "Diversification spreads investment exposure across different asset classes to help manage and reduce overall portfolio risk.",
+    "correctOptionText": "To spread exposure across different investments"
+  },
+  {
+    "id": "Q20",
+    "isCommon": false,
+    "videoId": "video5",
+    "difficulty": "medium",
+    "icon": "🎯",
+    "emoji": "🎯",
+    "tag": "Video 5 • Smart Asset Allocation",
+    "question": "What is a key consideration when investing for a long-term goal?",
+    "options": [
+      "Choosing solely based on a friend's recommendation",
+      "Ignoring investment risk",
+      "Selecting only assets that can be sold immediately",
+      "Matching investment choices to the goal and time horizon"
+    ],
+    "answer": 3,
+    "hint": "Your investment choices should align with when you need the money and what the goal requires.",
+    "explanation": "When investing for a long-term goal, it is essential to match your investment choices to your specific goal, time horizon, and risk tolerance.",
+    "number": 20,
+    "q": "What is a key consideration when investing for a long-term goal?",
+    "opts": [
+      "Choosing solely based on a friend's recommendation",
+      "Ignoring investment risk",
+      "Selecting only assets that can be sold immediately",
+      "Matching investment choices to the goal and time horizon"
+    ],
+    "ans": 3,
+    "explain": "When investing for a long-term goal, it is essential to match your investment choices to your specific goal, time horizon, and risk tolerance.",
+    "correctOptionText": "Matching investment choices to the goal and time horizon"
   }
 ]

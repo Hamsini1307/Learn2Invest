@@ -1034,19 +1034,28 @@ Ask me any financial question about investing, Indian savings schemes, or bankin
         /* Chat Launcher & Window Animations */
         .l2i-chat-launcher {
           position: fixed;
-          right: 24px;
-          bottom: 24px;
+          right: 18px;
+          bottom: 96px;
           z-index: 99998;
           display: flex;
           flex-direction: column;
-          align-items: center;
+          align-items: flex-end;
           cursor: pointer;
           user-select: none;
           filter: drop-shadow(0 14px 28px rgba(0,0,0,0.65));
-          transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+          transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        body[data-video-fullscreen="true"] .l2i-chat-launcher {
+          bottom: 108px;
+          right: 20px;
+          transform: scale(0.88);
+          transform-origin: bottom right;
         }
         .l2i-chat-launcher:hover {
-          transform: scale(1.06) translateY(-4px);
+          transform: scale(1.05) translateY(-4px);
+        }
+        body[data-video-fullscreen="true"] .l2i-chat-launcher:hover {
+          transform: scale(0.93) translateY(-4px);
         }
 
         .l2i-chat-window {
