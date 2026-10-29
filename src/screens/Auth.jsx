@@ -25,7 +25,7 @@ const LEVEL_OPTIONS = [
 ]
 
 const Label = ({ children }) => (
-  <label style={{ display: 'block', fontSize: 12, color: '#0f172a', marginBottom: 6, fontWeight: 900, letterSpacing: 1, textTransform: 'uppercase', fontFamily: "'Space Grotesk', sans-serif" }}>
+  <label style={{ display: 'block', fontSize: 14, color: '#0f172a', marginBottom: 8, fontWeight: 900, letterSpacing: 1, textTransform: 'uppercase', fontFamily: "'Space Grotesk', sans-serif" }}>
     {children}
   </label>
 )
@@ -39,10 +39,10 @@ const InputField = ({ type, placeholder, value, onChange, onKeyDown }) => (
       color: '#ffffff',
       background: '#181512',
       border: '1.5px solid #d97706',
-      borderRadius: '12px',
-      padding: '12px 16px',
+      borderRadius: '14px',
+      padding: '14px 18px',
       fontWeight: 800,
-      fontSize: 14,
+      fontSize: 16,
       width: '100%',
       outline: 'none',
       boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.4)'
@@ -126,7 +126,7 @@ export default function Auth({ onLogin }) {
 
       {/* Main Container */}
       <div className="glass-card-deep anim-scale" style={{
-        padding: '44px 40px', width: '92%', maxWidth: 580,
+        padding: '50px 46px', width: '92%', maxWidth: 680,
         position: 'relative', overflow: 'hidden',
         background: '#ffffff',
         border: '2.5px solid #ea580c',
@@ -134,15 +134,15 @@ export default function Auth({ onLogin }) {
         color: '#0f172a'
       }}>
 
-        <div style={{ textAlign: 'center', marginBottom: 24, position: 'relative', zIndex: 1 }}>
-          <div style={{ display: 'inline-block', marginBottom: 10 }}>
+        <div style={{ textAlign: 'center', marginBottom: 28, position: 'relative', zIndex: 1 }}>
+          <div style={{ display: 'inline-block', marginBottom: 12 }}>
             <span className="sticker-badge sticker-yellow">⚡ LUXURY FINANCIAL ARENA</span>
           </div>
           <h1 className="font-display" style={{
-            fontSize: 44, color: '#0f172a',
-            lineHeight: 1, marginBottom: 4, letterSpacing: '1px'
+            fontSize: 50, color: '#0f172a',
+            lineHeight: 1, marginBottom: 6, letterSpacing: '1px'
           }}>LEARN2INVEST</h1>
-          <p style={{ color: '#0f172a', fontSize: 13, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1px' }}>
+          <p style={{ color: '#0f172a', fontSize: 14, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1px' }}>
             Fuel your financial ambition 🇮🇳
           </p>
         </div>
@@ -150,15 +150,15 @@ export default function Auth({ onLogin }) {
         {/* Tab Switcher */}
         <div style={{
           display: 'flex', background: '#fff7ed',
-          borderRadius: 999, padding: 4, marginBottom: 24,
+          borderRadius: 999, padding: 5, marginBottom: 26,
           border: '2px solid #ea580c',
           position: 'relative', zIndex: 1
         }}>
           {[['register', '✨ CREATE ACCOUNT'], ['login', '🔑 SIGN IN']].map(([t, label]) => (
             <div key={t} onClick={() => { setTab(t); setError('') }}
               style={{
-                flex: 1, textAlign: 'center', padding: '12px',
-                borderRadius: 999, cursor: 'pointer', fontSize: 13, fontWeight: 900,
+                flex: 1, textAlign: 'center', padding: '14px',
+                borderRadius: 999, cursor: 'pointer', fontSize: 14, fontWeight: 900,
                 fontFamily: "'Space Grotesk', sans-serif",
                 background: tab === t
                   ? 'linear-gradient(135deg, #ea580c, #f59e0b)'
@@ -237,12 +237,12 @@ export default function Auth({ onLogin }) {
               {levelError && <p style={{ fontSize: 12, color: '#e11d48', marginTop: 6, fontWeight: 800 }}>⚠ Please select a starting level.</p>}
             </div>
 
-            <button className="btn-primary" onClick={handleRegister} style={{ width: '100%', marginTop: 8, padding: '16px' }}>
+            <button className="btn-primary" onClick={handleRegister} style={{ width: '100%', marginTop: 8, padding: '18px', fontSize: 16 }}>
               CREATE ACCOUNT ✨
             </button>
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16, position: 'relative', zIndex: 1 }} className="anim-fade">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 18, position: 'relative', zIndex: 1 }} className="anim-fade">
             <div><Label>Email Address</Label>
               <InputField type="email" placeholder="you@example.com" value={email} onChange={e => setEmail(e.target.value)} />
             </div>
@@ -251,7 +251,7 @@ export default function Auth({ onLogin }) {
                 onChange={e => setPass(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleLogin()} />
             </div>
-            <button className="btn-primary" onClick={handleLogin} style={{ width: '100%', padding: '16px' }}>
+            <button className="btn-primary" onClick={handleLogin} style={{ width: '100%', padding: '18px', fontSize: 16 }}>
               SIGN IN 🔑
             </button>
             <p style={{ textAlign: 'center', fontSize: 13, color: '#0f172a', fontWeight: 900 }}>

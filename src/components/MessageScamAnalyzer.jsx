@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import Tesseract from 'tesseract.js'
 
 const PRESET_MESSAGES = [
   {
@@ -172,7 +173,9 @@ export default function MessageScamAnalyzer({ themeMode = 'dark' }) {
   const [inputText, setInputText] = useState('')
   const [result, setResult] = useState(null)
   const [imagePreview, setImagePreview] = useState(null)
-  const [uploading, setUploading] = useState(false)
+  const [ocrScanning, setOcrScanning] = useState(false)
+  const [ocrProgress, setOcrProgress] = useState(0)
+  const [ocrError, setOcrError] = useState('')
 
   const handleAnalyze = () => {
     if (!inputText.trim()) return
@@ -187,79 +190,107 @@ export default function MessageScamAnalyzer({ themeMode = 'dark' }) {
     setResult(res)
   }
 
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0]
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0]
     if (!file) return
-    setUploading(true)
+    setOcrError('')
+    setOcrScanning(true)
+    setOcrProgress(0)
+
     const reader = new FileReader()
     reader.onload = (event) => {
       setImagePreview(event.target.result)
-      const sampleExtractedText = "Dear SBI User, your NetBanking access has been suspended today due to expired KYC. Please verify your Aadhaar immediately by clicking here: http://sbi-kyc-verify.top/login to prevent permanent blocking."
-      setInputText(sampleExtractedText)
-      setUploading(false)
-      const res = analyzeMessageContent(sampleExtractedText)
-      setResult(res)
     }
     reader.readAsDataURL(file)
+
+    try {
+      const result = await Tesseract.recognize(
+        file,
+        'eng',
+        {
+          logger: (m) => {
+            if (m.status === 'recognizing text' && typeof m.progress === 'number') {
+              setOcrProgress(Math.round(m.progress * 100))
+            }
+          }
+        }
+      )
+      const extractedText = (result?.data?.text || '').trim()
+      if (extractedText) {
+        setInputText(extractedText)
+        const res = analyzeMessageContent(extractedText)
+        setResult(res)
+      } else {
+        setOcrError('No readable text detected in this image. Please paste or enter the message text directly.')
+      }
+    } catch (err) {
+      console.error('OCR Extraction error:', err)
+      setOcrError('Failed to read text from screenshot. Please try pasting the message.')
+    } finally {
+      setOcrScanning(false)
+    }
   }
 
   const handleClear = () => {
     setInputText('')
     setImagePreview(null)
     setResult(null)
+    setOcrError('')
+    setOcrProgress(0)
+    setOcrScanning(false)
   }
 
   return (
     <div
       style={{
         background: '#ffffff',
-        borderRadius: 20,
-        padding: '24px',
-        border: '2px solid #ea580c',
+        borderRadius: 24,
+        padding: '30px',
+        border: '2.5px solid #ea580c',
         boxShadow: '0 10px 30px rgba(234, 88, 12, 0.15)',
-        marginTop: 28,
+        marginTop: 32,
         fontFamily: "'Space Grotesk', sans-serif",
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 16 }}>
         <div
           style={{
-            width: 44,
-            height: 44,
-            borderRadius: 14,
+            width: 52,
+            height: 52,
+            borderRadius: 16,
             background: '#ffedd5',
-            border: '1.5px solid #f59e0b',
+            border: '2px solid #f59e0b',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: 22,
+            fontSize: 26,
           }}
         >
           🛡️
         </div>
         <div>
-          <h3 style={{ fontSize: 18, fontWeight: 900, color: '#0f172a', margin: 0 }}>
+          <h3 style={{ fontSize: 22, fontWeight: 900, color: '#0f172a', margin: 0 }}>
             SMS & MESSAGE SCAM / SPAM ANALYZER
           </h3>
-          <p style={{ fontSize: 12, color: '#475569', margin: '2px 0 0', fontWeight: 600 }}>
+          <p style={{ fontSize: 15, color: '#475569', margin: '3px 0 0', fontWeight: 600 }}>
             Upload or paste any SMS or message you received on your phone to scan for fraud
           </p>
         </div>
       </div>
 
       {/* Preset Example Buttons */}
-      <div style={{ marginBottom: 16 }}>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+      <div style={{ marginBottom: 20 }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
           {PRESET_MESSAGES.map((preset, idx) => (
             <button
               key={idx}
               onClick={() => handleSelectPreset(preset.text)}
               style={{
                 background: '#ffedd5',
-                border: '1.5px solid #ea580c',
+                border: '2px solid #ea580c',
                 borderRadius: 999,
-                padding: '6px 14px',
-                fontSize: 11,
+                padding: '9px 18px',
+                fontSize: 14,
                 fontWeight: 800,
                 color: '#7c2d12',
                 cursor: 'pointer',
@@ -273,7 +304,7 @@ export default function MessageScamAnalyzer({ themeMode = 'dark' }) {
       </div>
 
       {/* Input Text Box */}
-      <div style={{ marginBottom: 16 }}>
+      <div style={{ marginBottom: 20 }}>
         <textarea
           rows={4}
           value={inputText}
@@ -282,10 +313,10 @@ export default function MessageScamAnalyzer({ themeMode = 'dark' }) {
           style={{
             width: '100%',
             background: '#ffffff',
-            border: '2px solid #ea580c',
-            borderRadius: 14,
-            padding: 14,
-            fontSize: 13,
+            border: '2.5px solid #ea580c',
+            borderRadius: 16,
+            padding: 18,
+            fontSize: 16,
             fontWeight: 700,
             color: '#0f172a',
             fontFamily: 'inherit',
@@ -297,35 +328,50 @@ export default function MessageScamAnalyzer({ themeMode = 'dark' }) {
 
       {/* Image Screenshot Preview if uploaded */}
       {imagePreview && (
-        <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 12, background: '#ffedd5', padding: 10, borderRadius: 12, border: '1.5px solid #f59e0b' }}>
-          <img src={imagePreview} alt="Screenshot preview" style={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 8, border: '1px solid #f59e0b' }} />
-          <div>
-            <div style={{ fontSize: 11, fontWeight: 900, color: '#9a3412' }}>📷 SCREENSHOT UPLOADED & SCANNED</div>
-            <div style={{ fontSize: 10, color: '#475569', fontWeight: 700 }}>Text extracted automatically via OCR scanner</div>
+        <div style={{ marginBottom: 20, display: 'flex', alignItems: 'center', gap: 14, background: '#ffedd5', padding: 14, borderRadius: 16, border: '2px solid #f59e0b' }}>
+          <img src={imagePreview} alt="Screenshot preview" style={{ width: 70, height: 70, objectFit: 'cover', borderRadius: 10, border: '1.5px solid #f59e0b' }} />
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 13, fontWeight: 900, color: '#9a3412', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span>📷 SCREENSHOT {ocrScanning ? 'SCANNING...' : 'UPLOADED & SCANNED'}</span>
+              {ocrScanning && <span style={{ fontSize: 12, color: '#ea580c' }}>({ocrProgress}%)</span>}
+            </div>
+            <div style={{ fontSize: 12, color: '#475569', fontWeight: 700, marginTop: 2 }}>
+              {ocrScanning ? 'Reading real text from image using OCR scanner...' : 'Text extracted automatically via real OCR scanner'}
+            </div>
+            {ocrScanning && (
+              <div style={{ width: '100%', height: 6, background: '#fed7aa', borderRadius: 999, marginTop: 8, overflow: 'hidden' }}>
+                <div style={{ width: `${ocrProgress}%`, height: '100%', background: '#ea580c', transition: 'width 0.2s ease' }} />
+              </div>
+            )}
+            {ocrError && (
+              <div style={{ fontSize: 12, color: '#dc2626', fontWeight: 800, marginTop: 4 }}>
+                ⚠️ {ocrError}
+              </div>
+            )}
           </div>
         </div>
       )}
 
       {/* Action Buttons */}
-      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 20 }}>
+      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 24 }}>
         <button
           className="btn-primary"
           onClick={handleAnalyze}
-          style={{ padding: '10px 24px', fontSize: 13, fontWeight: 900 }}
+          style={{ padding: '14px 28px', fontSize: 16, fontWeight: 900, borderRadius: 14 }}
         >
           🔍 ANALYZE MESSAGE
         </button>
 
-        <label className="btn-outline" style={{ padding: '10px 18px', fontSize: 13, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6, fontWeight: 800, color: '#7c2d12', borderColor: '#ea580c' }}>
-          <span>📷 UPLOAD SCREENSHOT</span>
-          <input type="file" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} />
+        <label className="btn-outline" style={{ padding: '14px 24px', fontSize: 15, cursor: ocrScanning ? 'wait' : 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8, fontWeight: 800, color: '#7c2d12', borderColor: '#ea580c', borderRadius: 14, opacity: ocrScanning ? 0.6 : 1 }}>
+          <span>{ocrScanning ? '⏳ SCANNING IMAGE...' : '📷 UPLOAD SCREENSHOT'}</span>
+          <input type="file" accept="image/*" onChange={handleImageUpload} disabled={ocrScanning} style={{ display: 'none' }} />
         </label>
 
         {inputText && (
           <button
             className="btn-outline"
             onClick={handleClear}
-            style={{ padding: '10px 18px', fontSize: 13, fontWeight: 800, color: '#7c2d12', borderColor: '#ea580c' }}
+            style={{ padding: '14px 22px', fontSize: 15, fontWeight: 800, color: '#7c2d12', borderColor: '#ea580c', borderRadius: 14 }}
           >
             Clear
           </button>
@@ -337,26 +383,26 @@ export default function MessageScamAnalyzer({ themeMode = 'dark' }) {
         <div
           className="anim-scale"
           style={{
-            borderRadius: 16,
+            borderRadius: 20,
             background: result.verdict === 'SCAM' ? '#fff1f2' : result.verdict === 'SPAM' ? '#fff7ed' : '#ecfdf5',
-            border: `2px solid ${result.border}`,
-            padding: 20,
-            marginTop: 10,
+            border: `2.5px solid ${result.border}`,
+            padding: 24,
+            marginTop: 14,
           }}
         >
           {/* Header & Threat Meter */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, marginBottom: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 14, marginBottom: 18 }}>
             <div>
-              <div style={{ fontWeight: 900, fontSize: 16, color: result.verdict === 'SCAM' ? '#e11d48' : result.verdict === 'SPAM' ? '#d97706' : '#059669' }}>
+              <div style={{ fontWeight: 900, fontSize: 20, color: result.verdict === 'SCAM' ? '#e11d48' : result.verdict === 'SPAM' ? '#d97706' : '#059669' }}>
                 {result.label}
               </div>
-              <div style={{ fontSize: 12, color: '#334155', marginTop: 2, fontWeight: 700 }}>
+              <div style={{ fontSize: 15, color: '#334155', marginTop: 4, fontWeight: 700 }}>
                 Threat Assessment Score: <strong style={{ color: result.verdict === 'SCAM' ? '#e11d48' : result.verdict === 'SPAM' ? '#d97706' : '#059669' }}>{result.threatScore}% Risk</strong>
               </div>
             </div>
 
             {/* Risk Meter Bar */}
-            <div style={{ width: 140, height: 10, background: '#e2e8f0', borderRadius: 999, overflow: 'hidden', border: '1px solid rgba(0,0,0,0.1)' }}>
+            <div style={{ width: 160, height: 14, background: '#e2e8f0', borderRadius: 999, overflow: 'hidden', border: '1.5px solid rgba(0,0,0,0.1)' }}>
               <div
                 style={{
                   width: `${result.threatScore}%`,
@@ -370,25 +416,25 @@ export default function MessageScamAnalyzer({ themeMode = 'dark' }) {
 
           {/* Red Flags List */}
           {result.redFlags.length > 0 && (
-            <div style={{ marginBottom: 16 }}>
-              <div style={{ fontSize: 12, fontWeight: 900, color: result.verdict === 'SCAM' ? '#e11d48' : '#d97706', marginBottom: 6, textTransform: 'uppercase' }}>
+            <div style={{ marginBottom: 18 }}>
+              <div style={{ fontSize: 14, fontWeight: 900, color: result.verdict === 'SCAM' ? '#e11d48' : '#d97706', marginBottom: 8, textTransform: 'uppercase' }}>
                 🚩 Red Flags Detected ({result.redFlags.length}):
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {result.redFlags.map((flag, idx) => (
                   <div
                     key={idx}
                     style={{
                       background: '#ffffff',
-                      padding: '10px 14px',
-                      borderRadius: 10,
-                      fontSize: 12,
+                      padding: '12px 18px',
+                      borderRadius: 12,
+                      fontSize: 15,
                       fontWeight: 800,
                       color: '#991b1b',
-                      border: '1px solid #fca5a5',
+                      border: '1.5px solid #fca5a5',
                       display: 'flex',
                       alignItems: 'flex-start',
-                      gap: 8,
+                      gap: 10,
                     }}
                   >
                     <span>⚠️</span>
@@ -401,25 +447,25 @@ export default function MessageScamAnalyzer({ themeMode = 'dark' }) {
 
           {/* Safe Signals */}
           {result.safeSignals.length > 0 && result.verdict === 'SAFE' && (
-            <div style={{ marginBottom: 16 }}>
-              <div style={{ fontSize: 12, fontWeight: 900, color: '#059669', marginBottom: 6, textTransform: 'uppercase' }}>
+            <div style={{ marginBottom: 18 }}>
+              <div style={{ fontSize: 14, fontWeight: 900, color: '#059669', marginBottom: 8, textTransform: 'uppercase' }}>
                 ✓ Legitimate Banking Indicators:
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {result.safeSignals.map((sig, idx) => (
                   <div
                     key={idx}
                     style={{
                       background: '#ffffff',
-                      padding: '10px 14px',
-                      borderRadius: 10,
-                      fontSize: 12,
+                      padding: '12px 18px',
+                      borderRadius: 12,
+                      fontSize: 15,
                       fontWeight: 800,
                       color: '#065f46',
                       border: '1px solid #6ee7b7',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: 8,
+                      gap: 10,
                     }}
                   >
                     <span>🛡️</span>
@@ -432,10 +478,10 @@ export default function MessageScamAnalyzer({ themeMode = 'dark' }) {
 
           {/* Recommendations & Action Plan */}
           <div>
-            <div style={{ fontSize: 12, fontWeight: 900, color: '#0f172a', marginBottom: 6, textTransform: 'uppercase' }}>
+            <div style={{ fontSize: 14, fontWeight: 900, color: '#0f172a', marginBottom: 8, textTransform: 'uppercase' }}>
               🛡️ Recommended Safety Actions:
             </div>
-            <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12, color: '#1e293b', lineHeight: 1.6, fontWeight: 700 }}>
+            <ul style={{ margin: 0, paddingLeft: 20, fontSize: 14, color: '#1e293b', lineHeight: 1.6, fontWeight: 700 }}>
               {result.recommendations.map((rec, i) => (
                 <li key={i}>{rec}</li>
               ))}

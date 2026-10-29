@@ -33,3 +33,5 @@ scratch/
 
 # Scratch test files
 scratch_test.html
+
+*.traineddata

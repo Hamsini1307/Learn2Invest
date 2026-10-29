@@ -314,8 +314,8 @@ export const BANK_TEMPLATES_CONFIG = {
     image: '/slips/pnb_deposit.jpg',
     fields: [
       // Left Counterfoil (Customer Receipt Copy)
-      { id: 'cfBranch', bindKey: 'branch', label: 'Branch Name (Left)', x: 10.5, y: 20.5, fontSize: '0.80rem', renderingMode: 'text' },
-      { id: 'cfDate', bindKey: 'date', label: 'Date (Left)', x: 20.0, y: 20.5, gap: 2.2, boxWidth: '10px', fontSize: '0.80rem', renderingMode: 'dateBoxes' },
+      { id: 'cfBranch', bindKey: 'branch', label: 'Branch Name (Left)', x: 8.5, y: 20.2, width: 8.5, fontSize: '0.76rem', renderingMode: 'text' },
+      { id: 'cfDate', bindKey: 'date', label: 'Date (Left)', x: 19.8, y: 20.2, gap: 2.2, boxWidth: '10px', fontSize: '0.80rem', renderingMode: 'dateBoxes' },
       { id: 'cfAccNo', bindKey: 'accountNumber', label: 'Account Number (Left)', x: 7.2, y: 30.5, gap: 3.0, boxWidth: '10px', fontSize: '0.82rem', renderingMode: 'characterBoxes' },
       { id: 'cfName', bindKey: 'name', label: 'Name (Left)', x: 10.5, y: 37.2, fontSize: '0.82rem', renderingMode: 'text' },
       { id: 'cfMobile', bindKey: 'mobileNumber', label: 'Tel (Left)', x: 10.0, y: 42.2, fontSize: '0.80rem', renderingMode: 'text' },
@@ -326,8 +326,8 @@ export const BANK_TEMPLATES_CONFIG = {
       { id: 'denomTotal', bindKey: 'amount', label: 'Total Cash', x: 45.5, y: 81.5, fontSize: '0.88rem', renderingMode: 'amount' },
 
       // Right Main Section (Bank Record Copy)
-      { id: 'mainBranch', bindKey: 'branch', label: 'Branch Name (Right)', x: 60.5, y: 14.5, fontSize: '0.82rem', renderingMode: 'text' },
-      { id: 'mainDate', bindKey: 'date', label: 'Date (Right)', x: 80.2, y: 12.0, gap: 3.2, boxWidth: '11px', fontSize: '0.82rem', renderingMode: 'dateBoxes' },
+      { id: 'mainBranch', bindKey: 'branch', label: 'Branch Name (Right)', x: 58.0, y: 14.5, width: 16.0, fontSize: '0.80rem', renderingMode: 'text' },
+      { id: 'mainDate', bindKey: 'date', label: 'Date (Right)', x: 80.5, y: 11.8, gap: 3.2, boxWidth: '11px', fontSize: '0.82rem', renderingMode: 'dateBoxes' },
       { id: 'mainAccNo', bindKey: 'accountNumber', label: 'Account Number (Right)', x: 54.2, y: 26.5, gap: 5.5, boxWidth: '12px', fontSize: '0.88rem', renderingMode: 'characterBoxes' },
       { id: 'mainName', bindKey: 'name', label: 'Name (Right)', x: 59.0, y: 32.8, fontSize: '0.85rem', renderingMode: 'text' },
       { id: 'mainMobile', bindKey: 'mobileNumber', label: 'Mobile Number (Right)', x: 66.0, y: 38.2, fontSize: '0.82rem', renderingMode: 'text' },
