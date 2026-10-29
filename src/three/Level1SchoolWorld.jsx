@@ -9115,7 +9115,10 @@ export default function Level1SchoolWorld({
           SCHOOL EXIT & ROAD TO BANK BANNER (Crisp Black Font on Frosted Blurred Card)
       ═══════════════════════════════════════════════════════════════════ */}
       {journeyStage === 'reached_exit' && (
-        <div className="absolute bottom-7 left-1/2 -translate-x-1/2 z-30 w-[min(94vw,840px)] px-7 py-5 rounded-3xl bg-white/92 backdrop-blur-xl border-2 border-emerald-500 shadow-[0_15px_55px_rgba(16,185,129,0.45)] text-black flex flex-col sm:flex-row items-center justify-between gap-5">
+        <div
+          className="absolute bottom-7 left-1/2 -translate-x-1/2 z-30 w-[min(94vw,840px)] px-7 py-5 rounded-3xl bg-white border-2 border-emerald-500 shadow-[0_20px_60px_rgba(0,0,0,0.45)] text-slate-900 flex flex-col sm:flex-row items-center justify-between gap-5"
+          style={{ backgroundColor: '#ffffff', color: '#0f172a' }}
+        >
           <div className="flex items-center gap-4">
             <div className="text-4xl animate-bounce">🎓🛣️🏛️</div>
             <div>
@@ -9143,48 +9146,51 @@ export default function Level1SchoolWorld({
 
       {/* ═══════════════════════════════════════════════════════════════════
           LEVEL 3 — BANK EMPLOYEE GUIDE INTERACTION PANEL (Maya — 2 Cabins + XP Deposit)
-          Crisp Black Text on Frosted Blurred Background
+          Solid Opaque Card with Ultra-Crisp High-Contrast Text & Badges
       ═══════════════════════════════════════════════════════════════════ */}
       {journeyStage === 'bank_employee' && (
-        <div className="absolute bottom-7 left-1/2 -translate-x-1/2 z-30 w-[min(94vw,820px)] rounded-3xl bg-white/92 backdrop-blur-xl border-2 border-blue-500 shadow-[0_20px_65px_rgba(30,64,175,0.45)] p-6 sm:p-7 text-black">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-300 pb-4">
+        <div
+          className="absolute bottom-7 left-1/2 -translate-x-1/2 z-30 w-[min(94vw,820px)] rounded-3xl bg-white border-2 border-blue-500 shadow-[0_25px_80px_rgba(0,0,0,0.55)] p-6 sm:p-7 text-slate-900"
+          style={{ backgroundColor: '#ffffff', color: '#0f172a' }}
+        >
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
             <div className="flex items-center gap-4">
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-800 border-2 border-amber-400 flex items-center justify-center text-3xl shadow-lg shrink-0 text-white">
                 👩‍💼
               </div>
               <div>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 border border-blue-400 text-black text-xs font-black uppercase tracking-wider mb-1">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-400 text-blue-950 text-xs font-black uppercase tracking-wider mb-1">
                   <span>🏛️ Level 3 Bank Lobby</span>
                   <span>•</span>
                   <span>Senior Banking Officer</span>
                 </div>
-                <h2 className="text-xl sm:text-2xl font-black text-black">
+                <h2 className="text-xl sm:text-2xl font-black text-slate-900">
                   Maya — Your Personal Banking Guide
                 </h2>
               </div>
             </div>
 
             <div className="flex items-center gap-2 flex-wrap">
-              <div className="px-3.5 py-2 rounded-2xl bg-amber-100 border border-amber-400 text-black text-xs sm:text-sm font-black">
+              <div className="px-3.5 py-2 rounded-2xl bg-amber-50 border border-amber-400 text-amber-950 text-xs sm:text-sm font-black">
                 🏦 Banked XP Vault: {bankedXp} XP
               </div>
-              <div className="px-4 py-2 rounded-2xl bg-emerald-100 border border-emerald-400 text-black text-xs sm:text-sm font-black">
+              <div className="px-4 py-2 rounded-2xl bg-emerald-50 border border-emerald-400 text-emerald-950 text-xs sm:text-sm font-black">
                 Cabins Completed: {completedBankSections.length} / 2
               </div>
             </div>
           </div>
 
-          <p className="mt-4 text-sm sm:text-base text-black font-bold leading-relaxed">
-            “Welcome to the <span className="text-blue-900 font-black">Learn2Invest Bank</span>,{' '}
-            <span className="text-emerald-800 font-black">
+          <p className="mt-4 text-sm sm:text-base text-slate-800 font-bold leading-relaxed">
+            “Welcome to the <span className="text-blue-700 font-black">Learn2Invest Bank</span>,{' '}
+            <span className="text-emerald-700 font-black">
               {characterChoice === 'leo' || characterChoice === 'max' ? 'Leo' : 'Luna'}
             </span>
-            ! You can <span className="underline font-black">deposit your collected XP safely in the Bank through me</span> (and withdraw it anytime at our <span className="font-black">24/7 Side ATM Machine</span>), or explore our 2 cabins:{' '}
-            <span className="text-blue-900 font-black">Cabin 1: Banking Slip Writing</span> and{' '}
-            <span className="text-emerald-900 font-black">Cabin 2: Digital Banking Safety</span>!”
+            ! You can <span className="underline font-black text-slate-950">deposit your collected XP safely in the Bank through me</span> (and withdraw it anytime at our <span className="font-black text-slate-950">24/7 Side ATM Machine</span>), or explore our 2 cabins:{' '}
+            <span className="text-blue-700 font-black">Cabin 1: Banking Slip Writing</span> and{' '}
+            <span className="text-emerald-700 font-black">Cabin 2: Digital Banking Safety</span>!”
           </p>
 
-          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-300">
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-200">
             <div className="flex items-center gap-2 flex-wrap">
               <button
                 type="button"
@@ -9192,7 +9198,7 @@ export default function Level1SchoolWorld({
                   soundEngine.playClick()
                   setShowXpDepositModal(true)
                 }}
-                className="px-4 py-2.5 rounded-2xl bg-amber-400 hover:bg-amber-300 border-2 border-black/20 text-black font-black text-xs sm:text-sm shadow-md hover:scale-105 transition-transform cursor-pointer"
+                className="px-4 py-2.5 rounded-2xl bg-amber-400 hover:bg-amber-300 border-2 border-black/20 text-slate-950 font-black text-xs sm:text-sm shadow-md hover:scale-105 transition-transform cursor-pointer"
               >
                 🏦 Deposit XP with Maya ({state?.xp || 0} Wallet XP)
               </button>
@@ -9202,7 +9208,7 @@ export default function Level1SchoolWorld({
                   soundEngine.playClick()
                   startAtmQueueExperience()
                 }}
-                className="px-4 py-2.5 rounded-2xl bg-cyan-300 hover:bg-cyan-200 border-2 border-black/20 text-black font-black text-xs sm:text-sm shadow-md hover:scale-105 transition-transform cursor-pointer"
+                className="px-4 py-2.5 rounded-2xl bg-cyan-300 hover:bg-cyan-200 border-2 border-black/20 text-slate-950 font-black text-xs sm:text-sm shadow-md hover:scale-105 transition-transform cursor-pointer"
               >
                 🏧 Walk to 24/7 ATM Queue ({bankedXp} Banked XP)
               </button>
@@ -9211,7 +9217,7 @@ export default function Level1SchoolWorld({
             <button
               onClick={handleEmployeeInteract}
               onMouseEnter={() => soundEngine.playHover()}
-              className="px-7 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 text-black border-2 border-black/20 font-black text-sm sm:text-base shadow-[0_10px_30px_rgba(16,185,129,0.45)] hover:scale-105 active:scale-95 transition-all cursor-pointer"
+              className="px-7 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 text-slate-950 border-2 border-black/20 font-black text-sm sm:text-base shadow-[0_10px_30px_rgba(16,185,129,0.45)] hover:scale-105 active:scale-95 transition-all cursor-pointer"
             >
               🏛️ Enter Cabin 1: Banking Slip Writing →
             </button>
@@ -9889,7 +9895,10 @@ export default function Level1SchoolWorld({
       ═══════════════════════════════════════════════════════════════════ */}
       {(showXpDepositModal || showAtmModal) && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md pointer-events-auto">
-          <div className="w-[min(94vw,540px)] rounded-3xl bg-white/95 backdrop-blur-xl border-3 border-amber-500 shadow-[0_25px_90px_rgba(0,0,0,0.85)] overflow-hidden text-black">
+          <div
+            className="w-[min(94vw,540px)] rounded-3xl bg-white border-3 border-amber-500 shadow-[0_25px_90px_rgba(0,0,0,0.85)] overflow-hidden text-slate-900"
+            style={{ backgroundColor: '#ffffff', color: '#0f172a' }}
+          >
             <div
               className={`px-6 py-4 flex items-center justify-between border-b-2 border-black/15 ${
                 showAtmModal
