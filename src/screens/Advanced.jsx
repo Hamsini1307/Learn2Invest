@@ -1973,20 +1973,28 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
               </span>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 16, marginBottom: 24 }}>
+            {/* ─── ENLARGED VIDEO SELECTOR BUTTONS (MATCHING USER GREEN CIRCLES) ─── */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: 18, marginBottom: 28 }}>
               {Object.keys(VIDEOS_DB).map(vKey => {
                 const isSelected = selectedVideo === vKey
+                const icon = vKey === 'upi_working' ? '🏦' : vKey === 'safety_phishing' ? '🛡️' : '💳'
+                const cleanLabel = vKey === 'upi_working'
+                  ? 'Part 1: Digital Banking Overview'
+                  : vKey === 'safety_phishing'
+                    ? 'Spam & Phishing Safety'
+                    : 'Debit & Credit Cards Guide'
+
                 return (
                   <button
                     key={vKey}
                     type="button"
                     onClick={() => setSelectedVideo(vKey)}
                     style={{
-                      fontSize: 24,
-                      padding: '22px 28px',
-                      minHeight: 88,
+                      fontSize: 28,
+                      padding: '28px 36px',
+                      minHeight: 110,
                       fontWeight: 900,
-                      borderRadius: 20,
+                      borderRadius: 24,
                       cursor: 'pointer',
                       background: isSelected
                         ? 'linear-gradient(135deg, #ea580c 0%, #f97316 100%)'
@@ -1995,20 +2003,27 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
                         ? '#ffffff'
                         : (isLight ? '#7c2d12' : '#fbbf24'),
                       border: isSelected
-                        ? '3.5px solid #c2410c'
-                        : (isLight ? '3.5px solid #ea580c' : '3.5px solid rgba(251, 191, 36, 0.4)'),
+                        ? '4px solid #c2410c'
+                        : (isLight ? '4px solid #ea580c' : '4px solid rgba(251, 191, 36, 0.4)'),
                       boxShadow: isSelected
-                        ? '0 10px 30px rgba(234, 88, 12, 0.5)'
-                        : (isLight ? '0 4px 14px rgba(234, 88, 12, 0.12)' : 'none'),
+                        ? '0 12px 35px rgba(234, 88, 12, 0.55), 0 0 20px rgba(249, 115, 22, 0.35)'
+                        : (isLight ? '0 6px 18px rgba(234, 88, 12, 0.15)' : 'none'),
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       textAlign: 'center',
+                      gap: 16,
                       lineHeight: 1.3,
-                      transition: 'all 0.2s ease',
+                      transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
                     }}
+                    className="hover:scale-[1.02] active:scale-[0.98]"
                   >
-                    {VIDEOS_DB[vKey].title}
+                    <span style={{ fontSize: 40, filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.2))' }}>
+                      {icon}
+                    </span>
+                    <span style={{ fontSize: 28, fontWeight: 900, letterSpacing: '-0.01em' }}>
+                      {cleanLabel}
+                    </span>
                   </button>
                 )
               })}
