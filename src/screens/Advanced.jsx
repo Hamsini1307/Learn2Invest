@@ -50,63 +50,119 @@ const RBI_COURT_CASES = [
   }
 ]
 
-const CYBER_SCENARIOS = [
-  {
-    id: 1,
-    title: "📧 Phishing Email Alert",
-    scenario: "You receive an email claiming to be from your bank asking you to click a link and re-verify your password immediately.",
-    opts: [
-      { text: "Click the link and enter your password.", correct: false },
-      { text: "Ignore the email and visit the official bank site directly.", correct: true }
-    ],
-    explain: "Banks will never email you direct links to login or reset your password."
-  },
-  {
-    id: 2,
-    title: "📞 The Fake Customer Support Call",
-    scenario: "A person claiming to be a bank manager calls asking for the 6-digit OTP sent to your phone to 'upgrade your KYC status' and prevent card suspension.",
-    opts: [
-      { text: "Share the OTP since it is from a customer support manager.", correct: false },
-      { text: "Never share the OTP. Bank officials will never ask for PINs or OTPs.", correct: true }
-    ],
-    explain: "An OTP is a secret one-time password. Sharing it allows attackers to bypass security and transfer your funds."
-  },
-  {
-    id: 3,
-    title: "💸 The UPI Payment Trap",
-    scenario: "Someone wants to buy your old bicycle online and sends a UPI 'Collect Request' asking for your UPI PIN to transfer the cash to you.",
-    opts: [
-      { text: "Enter your PIN to receive the payment.", correct: false },
-      { text: "Decline the request. A UPI PIN is only needed to SEND money, never to receive it.", correct: true }
-    ],
-    explain: "This is a common UPI scam. PINs are only entered when debited. Receiving money requires no PIN."
-  },
-  {
-    id: 4,
-    title: "📶 Public Wi-Fi Danger",
-    scenario: "You are at a coffee shop and want to check your bank balance. The shop has a free public Wi-Fi network.",
-    opts: [
-      { text: "Connect to the public Wi-Fi and complete the net banking transfer.", correct: false },
-      { text: "Use cellular data (4G/5G) or a secure VPN, as public Wi-Fi can leak bank credentials.", correct: true }
-    ],
-    explain: "Public Wi-Fi networks can be sniffed or spoofed by hackers to capture passwords. Always use private networks for banking."
-  }
-]
+const TOPIC_SCENARIOS = {
+  upi_working: [
+    {
+      id: 1,
+      title: "💸 The UPI 'Collect Request' Trap",
+      scenario: "Someone wants to buy your used item online and sends a UPI 'Collect Request' asking you to enter your 6-digit secret UPI PIN to 'receive the money'.",
+      opts: [
+        { text: "Enter your PIN to receive the payment into your bank account.", correct: false },
+        { text: "Decline the request. A UPI PIN is only needed to SEND money, never to receive it.", correct: true }
+      ],
+      explain: "This is a common UPI scam. A UPI PIN is an authorization key to DEBIT money from your bank account. Receiving money never requires entering a PIN."
+    },
+    {
+      id: 2,
+      title: "📶 Public Wi-Fi NetBanking Danger",
+      scenario: "You are at a cafe and want to transfer money via NetBanking. The cafe provides an open, unencrypted public Wi-Fi network.",
+      opts: [
+        { text: "Connect to the free public Wi-Fi and complete the net banking transfer.", correct: false },
+        { text: "Use your private cellular mobile data (4G/5G) for banking transactions.", correct: true }
+      ],
+      explain: "Public Wi-Fi networks can be snooped or spoofed by bad actors to capture passwords. Always use private cellular mobile networks for financial apps."
+    },
+    {
+      id: 3,
+      title: "🔄 Accidental Wrong Account Transfer",
+      scenario: "While sending ₹5,000 via IMPS, you made a typo in one digit of the account number and the money got credited to an unknown person's account.",
+      opts: [
+        { text: "Immediately notify your bank with the UTR transaction number to initiate an interbank dispute reversal.", correct: true },
+        { text: "Assume the money is permanently lost and do nothing.", correct: false }
+      ],
+      explain: "Under RBI guidelines, if an accidental transfer occurs, you should report the transaction reference (UTR) to your home branch immediately so they can coordinate with the beneficiary bank."
+    }
+  ],
+  safety_phishing: [
+    {
+      id: 1,
+      title: "📱 The Phishing SMS Trap",
+      scenario: "You receive an SMS from an unknown phone number: 'Dear user, your bank account will be blocked. Click here to verify your KYC: http://block-sbi.top/verify'",
+      opts: [
+        { text: "Click the link immediately to verify and avoid getting blocked.", correct: false },
+        { text: "Ignore and report the SMS. Banks never send warning links from random phone numbers.", correct: true }
+      ],
+      explain: "Banks never send SMS containing verification web links. Entering your credentials or password on unknown links compromises your account."
+    },
+    {
+      id: 2,
+      title: "📞 The Fake Customer Support Call",
+      scenario: "A person claiming to be a bank manager calls asking for the 6-digit OTP sent to your phone to 'upgrade your KYC status' and prevent card suspension.",
+      opts: [
+        { text: "Share the OTP since the caller claims to be a bank official.", correct: false },
+        { text: "Never share the OTP. Bank officials will never ask for PINs or OTPs.", correct: true }
+      ],
+      explain: "An OTP is a secret one-time password. Sharing it allows attackers to bypass security and transfer your funds."
+    },
+    {
+      id: 3,
+      title: "⚡ The Fake Electricity Bill Disconnection",
+      scenario: "You receive an urgent message: 'Your electricity will be disconnected tonight at 9:30 PM due to unpaid bill. Immediately call our power officer at 9876543210.'",
+      opts: [
+        { text: "Call the number and pay through the link they text you.", correct: false },
+        { text: "Ignore the message and check your bill only through your official electricity utility portal.", correct: true }
+      ],
+      explain: "Scammers use urgent deadlines to cause panic. Official utility providers never demand payments through personal phone numbers or random links."
+    }
+  ],
+  card_basics: [
+    {
+      id: 1,
+      title: "💳 Protecting Your 3-Digit CVV",
+      scenario: "A delivery agent calls and asks you to read out your 16-digit debit card number and the 3-digit CVV on the back of the card to confirm an order payment.",
+      opts: [
+        { text: "Read out the CVV and expiry date to the delivery agent over the phone.", correct: false },
+        { text: "Never disclose your CVV or card details over a phone call.", correct: true }
+      ],
+      explain: "The CVV (Card Verification Value) is a secret authorization code. Sharing it over the phone enables unauthorized card-not-present online purchases."
+    },
+    {
+      id: 2,
+      title: "🏧 The Tampered ATM Machine Slot",
+      scenario: "At an ATM booth, you notice the green card slot feels loose and has adhesive residue around the edges, and the keypad feels unusually raised.",
+      opts: [
+        { text: "Insert your card anyway and quickly withdraw cash.", correct: false },
+        { text: "Do not use the ATM. It may have a card skimmer installed to clone your card.", correct: true }
+      ],
+      explain: "Criminals install fake skimmer overlays on ATM card slots to read magnetic stripes and place hidden cameras near keypads to steal PINs."
+    },
+    {
+      id: 3,
+      title: "📊 Credit Card: Total Due vs Minimum Due",
+      scenario: "Your monthly credit card statement shows a Total Amount Due of ₹20,000 and a Minimum Amount Due of ₹1,000.",
+      opts: [
+        { text: "Always pay the Total Amount Due in full before the due date.", correct: true },
+        { text: "Pay only the Minimum Due because the remaining balance is completely interest-free.", correct: false }
+      ],
+      explain: "Paying only the Minimum Amount Due triggers high revolving interest charges (often 36% to 42% per year) on the remaining balance from the transaction date."
+    }
+  ]
+};
 
 const VIDEOS_DB = {
   upi_working: {
     title: "🏦 Part 1: Digital Banking Overview",
-    url: "https://www.youtube.com/embed/zvPyqN-FEPQ?rel=0",
+    url: "https://www.youtube-nocookie.com/embed/zvPyqN-FEPQ?rel=0&enablejsapi=1",
     desc: "An overview of digital banking and mobile channels."
   },
   safety_phishing: {
     title: "🛡️ Spam & Phishing Safety",
-    url: "https://www.youtube.com/embed/NI37JI7KnSc?rel=0",
+    url: "https://www.youtube-nocookie.com/embed/NI37JI7KnSc?rel=0&enablejsapi=1",
     desc: "An animated guide explaining email spam and password protection."
   },
   card_basics: {
     title: "💳 Debit & Credit Cards Guide",
-    url: "https://www.youtube.com/embed/mllbYh0DFMc?rel=0",
+    url: "https://www.youtube-nocookie.com/embed/mllbYh0DFMc?rel=0&enablejsapi=1",
     desc: "A breakdown of Credit vs Debit cards and interest calculation."
   }
 }
@@ -656,6 +712,25 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
   const [cyberGameCompleted, setCyberGameCompleted] = useState(cyberSafetyDone)
   const [selectedVideo, setSelectedVideo] = useState('upi_working')
   const [digitalVideoWatched, setDigitalVideoWatched] = useState(false)
+  const [watchedVideos, setWatchedVideos] = useState({})
+  const [completedTopics, setCompletedTopics] = useState({})
+
+  const currentScenarios = TOPIC_SCENARIOS[selectedVideo] || TOPIC_SCENARIOS.upi_working
+  const isCurrentVideoWatched = !!(watchedVideos[selectedVideo] || digitalVideoWatched)
+  const isCurrentTopicDone = !!completedTopics[selectedVideo]
+
+  useEffect(() => {
+    const handleYouTubeMessage = (event) => {
+      try {
+        const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data
+        if (data && (data.event === 'onStateChange' || data.info === 0) && data.info === 0) {
+          setWatchedVideos(prev => ({ ...prev, [selectedVideo]: true })); setDigitalVideoWatched(true)
+        }
+      } catch (err) {}
+    }
+    window.addEventListener('message', handleYouTubeMessage)
+    return () => window.removeEventListener('message', handleYouTubeMessage)
+  }, [])
 
   const markLevel3Section = (sectionId) => {
     const current = state?.completedModules || []
@@ -671,7 +746,8 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
 
   const handleCyberAnswer = (optIndex) => {
     setSelectedOpt(optIndex)
-    const currentScen = CYBER_SCENARIOS[digitalScenarioIdx]
+    const currentScen = currentScenarios[digitalScenarioIdx]
+    if (!currentScen) return
     const isCorrect = currentScen.opts[optIndex].correct
 
     if (!isCorrect) {
@@ -684,9 +760,10 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
   const handleNextScenario = () => {
     setSelectedOpt(null)
     setDigitalFeedback('')
-    if (digitalScenarioIdx < CYBER_SCENARIOS.length - 1) {
+    if (digitalScenarioIdx < currentScenarios.length - 1) {
       setDigitalScenarioIdx(prev => prev + 1)
     } else {
+      setCompletedTopics(prev => ({ ...prev, [selectedVideo]: true }))
       setCyberGameCompleted(true)
       if (addXP) addXP(50)
       markLevel3Section('cyber_game')
@@ -956,6 +1033,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
     }
 
     // Special binding overrides
+    if (field.id === 'cfBranch' && typeof value === 'string' && value.includes(',')) value = value.split(',')[0].trim()
     if (field.id.startsWith('denom500')) value = userData.notes500 > 0 ? `${userData.notes500}` : ''
     if (field.id.startsWith('denom200')) value = userData.notes200 > 0 ? `${userData.notes200}` : ''
     if (field.id.startsWith('denom100')) value = userData.notes100 > 0 ? `${userData.notes100}` : ''
@@ -1117,8 +1195,8 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
         fontWeight: field.fontWeight || 900,
         fontFamily: field.fontFamily || "'Courier New', monospace",
         lineHeight: 1.25,
-        wordBreak: 'break-word',
-        whiteSpace: field.width ? 'normal' : 'nowrap',
+        wordBreak: field.multiline || field.renderingMode === 'amountInWords' ? 'break-word' : 'normal',
+        whiteSpace: field.multiline || field.renderingMode === 'amountInWords' ? 'normal' : 'nowrap',
         overflow: 'hidden',
         textOverflow: 'ellipsis',
         display: field.height ? 'flex' : 'block',
@@ -1322,7 +1400,6 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
                 <BankLogo id={inst.id} />
               </div>
               <div style={{ fontSize: 18, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff', textAlign: 'center' }}>{inst.name}</div>
-              <div style={{ fontSize: 14, color: '#ea580c', fontWeight: 900, background: 'rgba(234, 88, 12, 0.12)', padding: '4px 12px', borderRadius: 8 }}>IFSC: {inst.code}</div>
             </div>
           ))}
         </div>
@@ -1850,7 +1927,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
               DIGITAL BANKING & SAFETY 🛡️
             </h2>
             <p style={{ color: isLight ? '#334155' : 'var(--text-sub, #d1d5db)', fontSize: 18, fontWeight: 700, lineHeight: 1.6, maxWidth: 900, margin: '0 auto' }}>
-              Step 1: Watch the Digital Banking YouTube tutorial first. Step 2: Defend your bank account against phishing traps & SMS scams!
+              Step 1: Watch each video tutorial. Step 2: Complete the matching interactive safety challenge below!
             </p>
           </div>
 
@@ -1860,7 +1937,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
             padding: 28,
             borderRadius: 24,
             background: isLight ? '#fff7ed' : 'rgba(234, 88, 12, 0.1)',
-            border: `2.5px solid ${digitalVideoWatched ? '#10b981' : '#ea580c'}`,
+            border: `2.5px solid ${isCurrentVideoWatched ? '#10b981' : '#ea580c'}`,
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, marginBottom: 18 }}>
               <h3 className="font-display" style={{ fontSize: 26, color: isLight ? '#0f172a' : '#ffffff', margin: 0, fontWeight: 900 }}>
@@ -1871,29 +1948,39 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
                 fontWeight: 900,
                 padding: '8px 20px',
                 borderRadius: 999,
-                background: digitalVideoWatched ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.2)',
-                border: `2px solid ${digitalVideoWatched ? '#10b981' : '#f59e0b'}`,
-                color: digitalVideoWatched ? '#059669' : '#d97706'
+                background: isCurrentVideoWatched ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.2)',
+                border: `2px solid ${isCurrentVideoWatched ? '#10b981' : '#f59e0b'}`,
+                color: isCurrentVideoWatched ? '#059669' : '#d97706'
               }}>
-                {digitalVideoWatched ? 'Video Watched ✓ • Activities Unlocked' : 'Watch Video to Unlock Activities Below'}
+                {isCurrentVideoWatched ? 'Video Watched ✓ • Activities Unlocked' : 'Watch Video to Unlock Activities Below'}
               </span>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 14, marginBottom: 20 }}>
-              {Object.keys(VIDEOS_DB).map(vKey => (
-                <button
-                  key={vKey}
-                  onClick={() => setSelectedVideo(vKey)}
-                  className={selectedVideo === vKey ? 'btn-primary' : 'btn-outline'}
-                  style={{
-                    fontSize: 16, padding: '16px 20px', fontWeight: 900, borderRadius: 14,
-                    color: selectedVideo === vKey ? '#ffffff' : (isLight ? '#7c2d12' : '#fbbf24'),
-                    borderColor: isLight ? '#ea580c' : undefined
-                  }}
-                >
-                  {VIDEOS_DB[vKey].title}
-                </button>
-              ))}
+              {Object.keys(VIDEOS_DB).map(vKey => {
+                const isDone = !!completedTopics[vKey]
+                return (
+                  <button
+                    key={vKey}
+                    onClick={() => {
+                      setSelectedVideo(vKey)
+                      setDigitalScenarioIdx(0)
+                      setSelectedOpt(null)
+                      setDigitalFeedback('')
+                    }}
+                    className={selectedVideo === vKey ? 'btn-primary' : 'btn-outline'}
+                    style={{
+                      fontSize: 16, padding: '16px 20px', fontWeight: 900, borderRadius: 14,
+                      color: selectedVideo === vKey ? '#ffffff' : (isLight ? '#7c2d12' : '#fbbf24'),
+                      borderColor: isLight ? '#ea580c' : undefined,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8
+                    }}
+                  >
+                    <span>{VIDEOS_DB[vKey].title}</span>
+                    {isDone && <span style={{ color: '#10b981', fontWeight: 900 }}>✓</span>}
+                  </button>
+                )
+              })}
             </div>
 
             <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden', borderRadius: 20, border: '2.5px solid #ea580c', marginBottom: 20 }}>
@@ -1901,13 +1988,15 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
                 src={VIDEOS_DB[selectedVideo].url}
                 title={VIDEOS_DB[selectedVideo].title}
                 style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerPolicy="strict-origin-when-cross-origin"
                 allowFullScreen
               />
             </div>
 
-            {!digitalVideoWatched ? (
+            {!isCurrentVideoWatched ? (
               <button
-                onClick={() => setDigitalVideoWatched(true)}
+                onClick={() => { setWatchedVideos(prev => ({ ...prev, [selectedVideo]: true })); setDigitalVideoWatched(true); }}
                 style={{
                   width: '100%',
                   padding: '20px 28px',
@@ -1939,10 +2028,10 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
             )}
           </div>
 
-          {/* ─── STEP 2: REST OF DIGITAL BANKING SAFETY (REVEALED AFTER VIDEO IS WATCHED) ─── */}
-          {digitalVideoWatched && (
+          {/* ─── STEP 2: TOPIC-SPECIFIC CHALLENGES (REVEALED AFTER VIDEO IS WATCHED) ─── */}
+          {isCurrentVideoWatched && (
             <div className="anim-fade">
-              {!cyberGameCompleted ? (
+              {!isCurrentTopicDone ? (
                 <div className="glass-card" style={{
                   padding: 32, borderRadius: 24,
                   border: '2.5px solid #ea580c',
@@ -1959,7 +2048,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
                       border: '2px solid #ea580c',
                       letterSpacing: '0.5px'
                     }}>
-                      🎯 SCENARIO {digitalScenarioIdx + 1} OF {CYBER_SCENARIOS.length}
+                      🎯 {VIDEOS_DB[selectedVideo].title.split(':')[1]?.trim() || 'CHALLENGE'} • SCENARIO {digitalScenarioIdx + 1} OF {currentScenarios.length}
                     </span>
                     <div style={{
                       fontSize: 15, fontWeight: 900,
@@ -1973,56 +2062,60 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
                     </div>
                   </div>
 
-                  <div style={{
-                    background: isLight ? 'linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)' : 'rgba(245, 158, 11, 0.14)',
-                    borderRadius: 20, padding: 26,
-                    border: '2px solid #ea580c', marginBottom: 24,
-                    boxShadow: isLight ? '0 6px 20px rgba(234, 88, 12, 0.1)' : 'none'
-                  }}>
-                    <h3 style={{ fontWeight: 900, fontSize: 24, color: isLight ? '#9a3412' : '#fbbf24', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 10 }}>
-                      {CYBER_SCENARIOS[digitalScenarioIdx].title}
-                    </h3>
-                    <p style={{ fontSize: 18, color: isLight ? '#0f172a' : '#f3f4f6', lineHeight: 1.6, fontWeight: 800, margin: 0 }}>
-                      {CYBER_SCENARIOS[digitalScenarioIdx].scenario}
-                    </p>
-                  </div>
+                  {currentScenarios[digitalScenarioIdx] && (
+                    <>
+                      <div style={{
+                        background: isLight ? 'linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)' : 'rgba(245, 158, 11, 0.14)',
+                        borderRadius: 20, padding: 26,
+                        border: '2px solid #ea580c', marginBottom: 24,
+                        boxShadow: isLight ? '0 6px 20px rgba(234, 88, 12, 0.1)' : 'none'
+                      }}>
+                        <h3 style={{ fontWeight: 900, fontSize: 24, color: isLight ? '#9a3412' : '#fbbf24', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 10 }}>
+                          {currentScenarios[digitalScenarioIdx].title}
+                        </h3>
+                        <p style={{ fontSize: 18, color: isLight ? '#0f172a' : '#f3f4f6', lineHeight: 1.6, fontWeight: 800, margin: 0 }}>
+                          {currentScenarios[digitalScenarioIdx].scenario}
+                        </p>
+                      </div>
 
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 24 }}>
-                    {CYBER_SCENARIOS[digitalScenarioIdx].opts.map((opt, i) => {
-                      const isSelected = selectedOpt === i
-                      const isCorrect = opt.correct
-                      let btnBg = isLight ? '#f8fafc' : 'rgba(255,255,255,0.06)'
-                      let btnBorder = isLight ? '#ea580c' : '#f59e0b'
-                      let btnColor = isLight ? '#0f172a' : '#ffffff'
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 24 }}>
+                        {currentScenarios[digitalScenarioIdx].opts.map((opt, i) => {
+                          const isSelected = selectedOpt === i
+                          const isCorrect = opt.correct
+                          let btnBg = isLight ? '#f8fafc' : 'rgba(255,255,255,0.06)'
+                          let btnBorder = isLight ? '#ea580c' : '#f59e0b'
+                          let btnColor = isLight ? '#0f172a' : '#ffffff'
 
-                      if (isSelected) {
-                        btnBg = isCorrect ? 'linear-gradient(135deg, #059669, #10b981)' : 'linear-gradient(135deg, #e11d48, #f43f5e)'
-                        btnBorder = isCorrect ? '#047857' : '#be123c'
-                        btnColor = '#ffffff'
-                      }
+                          if (isSelected) {
+                            btnBg = isCorrect ? 'linear-gradient(135deg, #059669, #10b981)' : 'linear-gradient(135deg, #e11d48, #f43f5e)'
+                            btnBorder = isCorrect ? '#047857' : '#be123c'
+                            btnColor = '#ffffff'
+                          }
 
-                      return (
-                        <button
-                          key={i}
-                          onClick={() => handleCyberAnswer(i)}
-                          style={{
-                            textAlign: 'left', fontSize: 17, padding: '18px 26px', width: '100%',
-                            fontWeight: 800, borderRadius: 16, cursor: 'pointer',
-                            background: btnBg,
-                            color: btnColor,
-                            border: `2.5px solid ${btnBorder}`,
-                            boxShadow: isSelected
-                              ? (isCorrect ? '0 6px 20px rgba(16, 185, 129, 0.4)' : '0 6px 20px rgba(225, 29, 72, 0.4)')
-                              : (isLight ? '0 2px 8px rgba(234, 88, 12, 0.1)' : 'none'),
-                            transition: 'all 0.2s ease',
-                            lineHeight: 1.5
-                          }}
-                        >
-                          {opt.text}
-                        </button>
-                      )
-                    })}
-                  </div>
+                          return (
+                            <button
+                              key={i}
+                              onClick={() => handleCyberAnswer(i)}
+                              style={{
+                                textAlign: 'left', fontSize: 17, padding: '18px 26px', width: '100%',
+                                fontWeight: 800, borderRadius: 16, cursor: 'pointer',
+                                background: btnBg,
+                                color: btnColor,
+                                border: `2.5px solid ${btnBorder}`,
+                                boxShadow: isSelected
+                                  ? (isCorrect ? '0 6px 20px rgba(16, 185, 129, 0.4)' : '0 6px 20px rgba(225, 29, 72, 0.4)')
+                                  : (isLight ? '0 2px 8px rgba(234, 88, 12, 0.1)' : 'none'),
+                                transition: 'all 0.2s ease',
+                                lineHeight: 1.5
+                              }}
+                            >
+                              {opt.text}
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </>
+                  )}
 
                   {digitalFeedback && (
                     <div className="anim-fade" style={{
@@ -2035,24 +2128,38 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
 
                   {selectedOpt !== null && (
                     <button className="btn-primary" onClick={handleNextScenario} style={{ width: '100%', fontSize: 18, padding: '18px 28px', fontWeight: 900, borderRadius: 16 }}>
-                      {digitalScenarioIdx < CYBER_SCENARIOS.length - 1 ? 'NEXT SCENARIO →' : '🏆 FINISH CHALLENGE (+50 XP)'}
+                      {digitalScenarioIdx < currentScenarios.length - 1 ? 'NEXT SCENARIO →' : `🏆 FINISH ${VIDEOS_DB[selectedVideo].title.toUpperCase()} (+50 XP)`}
                     </button>
                   )}
                 </div>
               ) : (
-                <div style={{ textAlign: 'center', padding: 40, background: isLight ? '#ffffff' : 'var(--bg-card-deep, #12100c)', border: '2px solid #ea580c', borderRadius: 24 }} className="glass-card">
-                  <div style={{ fontSize: 68, marginBottom: 14 }}>🛡️</div>
-                  <h3 className="font-display" style={{ fontSize: 38, color: isLight ? '#ea580c' : '#fbbf24', marginBottom: 10 }}>
-                    CHALLENGE PASSED!
+                <div style={{ textAlign: 'center', padding: 40, background: isLight ? '#ffffff' : 'var(--bg-card-deep, #12100c)', border: '2px solid #10b981', borderRadius: 24 }} className="glass-card">
+                  <div style={{ fontSize: 68, marginBottom: 14 }}>🎉</div>
+                  <h3 className="font-display" style={{ fontSize: 38, color: '#10b981', marginBottom: 10 }}>
+                    {VIDEOS_DB[selectedVideo].title} Completed!
                   </h3>
                   <p style={{ color: isLight ? '#475569' : '#d1d5db', fontSize: 18, fontWeight: 600, marginBottom: 20 }}>
-                    Shield Health: {shieldScore}% • You earned +50 XP and mastered digital bank safety!
+                    Shield Health: {shieldScore}% • You mastered this topic's safety rules!
                   </p>
+                  <button
+                    onClick={() => {
+                      setCompletedTopics(prev => ({ ...prev, [selectedVideo]: false }))
+                      setDigitalScenarioIdx(0)
+                      setSelectedOpt(null)
+                      setDigitalFeedback('')
+                    }}
+                    className="btn-outline"
+                    style={{ fontSize: 15, padding: '12px 24px', fontWeight: 800, color: '#ea580c', borderColor: '#ea580c', borderRadius: 14 }}
+                  >
+                    🔄 Retake This Topic's Scenarios
+                  </button>
                 </div>
               )}
 
-              {/* Phone SMS & Phishing Message Analyzer */}
-              <MessageScamAnalyzer themeMode={themeMode} />
+              {/* Real OCR SMS & Message Scam Analyzer — exclusive to Spam & Phishing Safety topic */}
+              {selectedVideo === 'safety_phishing' && (
+                <MessageScamAnalyzer themeMode={themeMode} />
+              )}
             </div>
           )}
         </div>

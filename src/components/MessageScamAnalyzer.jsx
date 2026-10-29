@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import Tesseract from 'tesseract.js'
 
 const PRESET_MESSAGES = [
   {
@@ -172,7 +173,9 @@ export default function MessageScamAnalyzer({ themeMode = 'dark' }) {
   const [inputText, setInputText] = useState('')
   const [result, setResult] = useState(null)
   const [imagePreview, setImagePreview] = useState(null)
-  const [uploading, setUploading] = useState(false)
+  const [ocrScanning, setOcrScanning] = useState(false)
+  const [ocrProgress, setOcrProgress] = useState(0)
+  const [ocrError, setOcrError] = useState('')
 
   const handleAnalyze = () => {
     if (!inputText.trim()) return
@@ -187,26 +190,54 @@ export default function MessageScamAnalyzer({ themeMode = 'dark' }) {
     setResult(res)
   }
 
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0]
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0]
     if (!file) return
-    setUploading(true)
+    setOcrError('')
+    setOcrScanning(true)
+    setOcrProgress(0)
+
     const reader = new FileReader()
     reader.onload = (event) => {
       setImagePreview(event.target.result)
-      const sampleExtractedText = "Dear SBI User, your NetBanking access has been suspended today due to expired KYC. Please verify your Aadhaar immediately by clicking here: http://sbi-kyc-verify.top/login to prevent permanent blocking."
-      setInputText(sampleExtractedText)
-      setUploading(false)
-      const res = analyzeMessageContent(sampleExtractedText)
-      setResult(res)
     }
     reader.readAsDataURL(file)
+
+    try {
+      const result = await Tesseract.recognize(
+        file,
+        'eng',
+        {
+          logger: (m) => {
+            if (m.status === 'recognizing text' && typeof m.progress === 'number') {
+              setOcrProgress(Math.round(m.progress * 100))
+            }
+          }
+        }
+      )
+      const extractedText = (result?.data?.text || '').trim()
+      if (extractedText) {
+        setInputText(extractedText)
+        const res = analyzeMessageContent(extractedText)
+        setResult(res)
+      } else {
+        setOcrError('No readable text detected in this image. Please paste or enter the message text directly.')
+      }
+    } catch (err) {
+      console.error('OCR Extraction error:', err)
+      setOcrError('Failed to read text from screenshot. Please try pasting the message.')
+    } finally {
+      setOcrScanning(false)
+    }
   }
 
   const handleClear = () => {
     setInputText('')
     setImagePreview(null)
     setResult(null)
+    setOcrError('')
+    setOcrProgress(0)
+    setOcrScanning(false)
   }
 
   return (
@@ -299,9 +330,24 @@ export default function MessageScamAnalyzer({ themeMode = 'dark' }) {
       {imagePreview && (
         <div style={{ marginBottom: 20, display: 'flex', alignItems: 'center', gap: 14, background: '#ffedd5', padding: 14, borderRadius: 16, border: '2px solid #f59e0b' }}>
           <img src={imagePreview} alt="Screenshot preview" style={{ width: 70, height: 70, objectFit: 'cover', borderRadius: 10, border: '1.5px solid #f59e0b' }} />
-          <div>
-            <div style={{ fontSize: 14, fontWeight: 900, color: '#9a3412' }}>📷 SCREENSHOT UPLOADED & SCANNED</div>
-            <div style={{ fontSize: 13, color: '#475569', fontWeight: 700 }}>Text extracted automatically via OCR scanner</div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 13, fontWeight: 900, color: '#9a3412', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span>📷 SCREENSHOT {ocrScanning ? 'SCANNING...' : 'UPLOADED & SCANNED'}</span>
+              {ocrScanning && <span style={{ fontSize: 12, color: '#ea580c' }}>({ocrProgress}%)</span>}
+            </div>
+            <div style={{ fontSize: 12, color: '#475569', fontWeight: 700, marginTop: 2 }}>
+              {ocrScanning ? 'Reading real text from image using OCR scanner...' : 'Text extracted automatically via real OCR scanner'}
+            </div>
+            {ocrScanning && (
+              <div style={{ width: '100%', height: 6, background: '#fed7aa', borderRadius: 999, marginTop: 8, overflow: 'hidden' }}>
+                <div style={{ width: `${ocrProgress}%`, height: '100%', background: '#ea580c', transition: 'width 0.2s ease' }} />
+              </div>
+            )}
+            {ocrError && (
+              <div style={{ fontSize: 12, color: '#dc2626', fontWeight: 800, marginTop: 4 }}>
+                ⚠️ {ocrError}
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -316,9 +362,9 @@ export default function MessageScamAnalyzer({ themeMode = 'dark' }) {
           🔍 ANALYZE MESSAGE
         </button>
 
-        <label className="btn-outline" style={{ padding: '14px 24px', fontSize: 15, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8, fontWeight: 800, color: '#7c2d12', borderColor: '#ea580c', borderRadius: 14 }}>
-          <span>📷 UPLOAD SCREENSHOT</span>
-          <input type="file" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} />
+        <label className="btn-outline" style={{ padding: '14px 24px', fontSize: 15, cursor: ocrScanning ? 'wait' : 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8, fontWeight: 800, color: '#7c2d12', borderColor: '#ea580c', borderRadius: 14, opacity: ocrScanning ? 0.6 : 1 }}>
+          <span>{ocrScanning ? '⏳ SCANNING IMAGE...' : '📷 UPLOAD SCREENSHOT'}</span>
+          <input type="file" accept="image/*" onChange={handleImageUpload} disabled={ocrScanning} style={{ display: 'none' }} />
         </label>
 
         {inputText && (
