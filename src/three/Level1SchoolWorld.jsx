@@ -228,7 +228,7 @@ function PlayerCharacter3D({ characterId = 'luna', outfitTheme = null, charState
       Math.sin(cs.rotY - groupRef.current.rotation.y),
       Math.cos(cs.rotY - groupRef.current.rotation.y)
     )
-    groupRef.current.rotation.y += rotDiff * 0.18
+    groupRef.current.rotation.y += rotDiff * 0.32
 
     if (cs.pose === 'walking') {
       const cycle = Math.sin(t * 10.5)
@@ -622,6 +622,7 @@ function AnimatedNPCStudent3D({ student }) {
 
   useFrame(({ clock }, delta) => {
     if (!groupRef.current) return
+    const dt = Math.min(0.04, delta || 0.016)
     const t = clock.getElapsedTime() + student.phase
     const wps = student.waypoints
     if (!wps || wps.length < 2) return
@@ -636,22 +637,22 @@ function AnimatedNPCStudent3D({ student }) {
     const dz = nextWp[2] - currWp[2]
     const dist = Math.max(0.1, Math.hypot(dx, dy, dz))
 
-    st.tSeg += (delta * student.speed) / dist
+    st.tSeg += (dt * student.speed) / dist
     if (st.tSeg >= 1) {
-      st.tSeg = 0
+      st.tSeg = st.tSeg - 1
       st.wpIndex = nextIdx
     }
 
-    const x = currWp[0] + dx * st.tSeg
-    const y = currWp[1] + dy * st.tSeg
-    const z = currWp[2] + dz * st.tSeg
+    const x = currWp[0] + dx * Math.min(1, Math.max(0, st.tSeg))
+    const y = currWp[1] + dy * Math.min(1, Math.max(0, st.tSeg))
+    const z = currWp[2] + dz * Math.min(1, Math.max(0, st.tSeg))
 
     const cycle = Math.sin(t * 9.5)
     groupRef.current.position.set(x, y + Math.abs(cycle) * 0.07, z)
 
     const targetRotY = Math.atan2(dx, dz)
     const rotDiff = ((targetRotY - groupRef.current.rotation.y + Math.PI * 3) % (Math.PI * 2)) - Math.PI
-    groupRef.current.rotation.y += rotDiff * 0.12
+    groupRef.current.rotation.y += rotDiff * 0.22
 
     if (leftLegRef.current) leftLegRef.current.rotation.x = cycle * 0.62
     if (rightLegRef.current) rightLegRef.current.rotation.x = -cycle * 0.62
@@ -1319,7 +1320,9 @@ function BalconyStudentWalker3D({ position, shirtColor, pantsColor, hairColor, i
       const step = Math.sin(clock.getElapsedTime() * 8.5 + phase) * 0.48
       if (leftLegRef.current) leftLegRef.current.rotation.x = step
       if (rightLegRef.current) rightLegRef.current.rotation.x = -step
-      studentRef.current.rotation.y = Math.cos(t) >= 0 ? 0 : Math.PI
+      const targetRot = Math.cos(t) >= 0 ? 0 : Math.PI
+      const rotDiff = ((targetRot - studentRef.current.rotation.y + Math.PI * 3) % (Math.PI * 2)) - Math.PI
+      studentRef.current.rotation.y += rotDiff * 0.16
     } else {
       if (leftLegRef.current) leftLegRef.current.rotation.x = 0
       if (rightLegRef.current) rightLegRef.current.rotation.x = 0
@@ -3384,11 +3387,7 @@ function GrandAtriumCeilingAndChandeliers3D({ isNightMode = false }) {
         <meshStandardMaterial color="#f8efe2" roughness={0.7} />
       </mesh>
 
-      {/* Rear Upper Wall above Floor 2 Landing (z = -48.2, y = 11.0) */}
-      <mesh position={[0, 11.0, -48.2]} receiveShadow>
-        <boxGeometry args={[21.4, 5.6, 0.6]} />
-        <meshStandardMaterial color="#f8efe2" roughness={0.7} />
-      </mesh>
+      {/* Rear Upper Wall removed from Floor 2 entrance so Level 2 computer lab is directly visible */}
 
       {/* ─── 3. GRAND CHANDELIER #1 (AT ATRIUM CENTER, z = -14.0) ─── */}
       <group position={[0, 13.8, -14.0]}>
@@ -3881,8 +3880,9 @@ function StaircaseAndFloor2Veranda3D() {
         ))}
       </group>
 
-      {/* ─── 8. SOLID GROUND-TO-CEILING REAR BULKHEAD WALL (z = -48.2, y = 0 to 8.5m) ─── */}
-      <RoundedBox args={[16.2, 8.5, 0.45]} position={[0, 4.25, -48.2]} radius={0.02} receiveShadow castShadow>
+      {/* ─── 8. GROUND-FLOOR REAR BULKHEAD WALL (UNDER FLOOR 2, z = -48.2, y = 0 to 6.2m) ─── */}
+      {/* Wall terminates at y = 6.2 (Floor 2 floor slab) so Level 2 entrance has no wall blocking the computers */}
+      <RoundedBox args={[16.2, 6.2, 0.45]} position={[0, 3.1, -48.2]} radius={0.02} receiveShadow castShadow>
         <meshStandardMaterial color="#f8efe2" roughness={0.7} />
       </RoundedBox>
 
@@ -3976,10 +3976,7 @@ function StaircaseAndFloor2Veranda3D() {
           <boxGeometry args={[0.35, 7.2, 10.5]} />
           <meshStandardMaterial color="#fbf3e8" />
         </mesh>
-        <mesh position={[0, 3.4, 4.8]}>
-          <planeGeometry args={[9.2, 4.8]} />
-          <meshBasicMaterial color="#bae6fd" transparent opacity={0.45} />
-        </mesh>
+
         {[-3.8, 3.8].map((px, i) => (
           <group key={i} position={[px, 0, -1.5]}>
             <mesh position={[0, 0.42, 0]} castShadow>
@@ -4711,8 +4708,19 @@ function Level1CinematicCameraRig({ camStateRef, journeyStage }) {
       return
     }
 
-    camera.position.lerp(targetPosRef.current, 0.12)
-    lookAtVec.current.lerp(targetLookRef.current, 0.12)
+    const lerpRate = [
+      'walking_to_classroom',
+      'walking_to_exam',
+      'walking_to_floor2_lab',
+      'walking_to_exit',
+      'walking_to_bank',
+      'walking_bank_section',
+      'walking_bank_exit',
+    ].includes(journeyStage)
+      ? 0.32
+      : 0.22
+    camera.position.lerp(targetPosRef.current, lerpRate)
+    lookAtVec.current.lerp(targetLookRef.current, lerpRate)
     camera.lookAt(lookAtVec.current)
   })
 
@@ -5199,6 +5207,13 @@ export default function Level1SchoolWorld({
     let rafId = null
     const tickMovement = () => {
       if (hasLoggedIn) {
+        // If a cinematic walk timeline is currently playing, let GSAP drive movement without interference
+        const isTimelineActive = timelineRef.current && timelineRef.current.isActive && timelineRef.current.isActive()
+        if (isTimelineActive) {
+          rafId = requestAnimationFrame(tickMovement)
+          return
+        }
+
         const pk = pressedKeysRef.current
         const turnDir = (pk.right ? 1 : 0) - (pk.left ? 1 : 0)
         const moveActive = pk.up || pk.down || pk.left || pk.right
@@ -5865,6 +5880,12 @@ export default function Level1SchoolWorld({
     cs.pose = 'walking'
 
     const cam = camStateRef.current
+    cam.x = 0
+    cam.y = 2.4
+    cam.z = 27.5
+    cam.lookX = 0
+    cam.lookY = 1.6
+    cam.lookZ = 18.0
 
     const tl = gsap.timeline({
       onComplete: () => {
@@ -5879,36 +5900,44 @@ export default function Level1SchoolWorld({
     })
     timelineRef.current = tl
 
-    // Segment A: Walk straight down the center stone walkway (no fountain)
-    tl.to(cs, { x: 0, z: 13.5, rotY: Math.PI, duration: 2.0, ease: 'none' }, 0)
+    // Segment 1 (0s - 2.0s): Walk down the center stone walkway toward school doors
+    tl.to(cs, { x: 0, y: 0, z: 13.5, rotY: Math.PI, duration: 2.0, ease: 'none' }, 0)
     tl.to(
       cam,
-      { x: 0, y: 2.8, z: 20.5, lookX: 0, lookY: 2.0, lookZ: 8.0, duration: 2.0, ease: 'power1.inOut' },
+      { x: 0, y: 2.3, z: 18.0, lookX: 0, lookY: 1.6, lookZ: 9.0, duration: 2.0, ease: 'power1.inOut' },
       0
     )
 
-    // Segment B: Up steps through opening entrance doors
+    // Segment 2 (2.0s - 4.0s): Up steps and through the opening front doors
     tl.to(
       frontDoorOpenRef,
       { current: 1, duration: 0.8, onStart: () => soundEngine.playDoorOpen() },
       2.3
     )
-    tl.to(cs, { x: 0, z: 3.2, rotY: Math.PI, duration: 2.0, ease: 'none' }, 2.0)
+    tl.to(cs, { x: -1.5, y: 0, z: -2.0, rotY: Math.PI, duration: 2.0, ease: 'none' }, 2.0)
     tl.to(
       cam,
-      { x: 0, y: 2.6, z: 9.5, lookX: 0, lookY: 2.0, lookZ: -2.0, duration: 2.0, ease: 'power1.inOut' },
+      { x: -0.5, y: 2.2, z: 2.5, lookX: -1.2, lookY: 1.6, lookZ: -6.5, duration: 2.0, ease: 'power1.inOut' },
       2.0
     )
 
-    // Segment C: Walk through Veranda to Door 101
-    tl.to(cs, { x: -1.4, z: -7.5, rotY: Math.PI + 0.2, duration: 2.2, ease: 'none' }, 4.0)
+    // Segment 3 (4.0s - 5.8s): Walk down the Veranda to Door 101, then turn through Door 101 into Classroom 101
+    // (Door 101 is located at x = -5.1, z = -7.5)
+    tl.to(cs, { x: -2.5, y: 0, z: -7.5, rotY: Math.PI, duration: 0.9, ease: 'none' }, 4.0)
+    tl.to(cs, { x: -8.0, y: 0, z: -7.5, rotY: -Math.PI / 2, duration: 1.0, ease: 'none' }, 4.9)
     tl.to(
       cam,
-      { x: 1.2, y: 2.6, z: -1.2, lookX: -2.2, lookY: 1.9, lookZ: -10.5, duration: 2.2, ease: 'power1.inOut' },
+      { x: -0.5, y: 2.2, z: -7.5, lookX: -6.0, lookY: 1.6, lookZ: -7.5, duration: 0.9, ease: 'power1.inOut' },
       4.0
     )
+    tl.to(
+      cam,
+      { x: -4.5, y: 2.2, z: -7.5, lookX: -12.0, lookY: 1.6, lookZ: -7.5, duration: 1.0, ease: 'power1.inOut' },
+      4.9
+    )
 
-    // Segment D: Enter Classroom 101 & sit in the front-left student chair (x: -16.1, y: 0.08, z: -12.68)
+    // Segment 4 (5.9s - 7.6s): Walk along classroom aisle to student desk at (-16.1, -12.68)
+    tl.to(cs, { x: -16.1, y: 0, z: -7.5, rotY: -Math.PI / 2, duration: 0.9, ease: 'none' }, 5.9)
     tl.to(
       cs,
       {
@@ -5916,26 +5945,26 @@ export default function Level1SchoolWorld({
         y: 0.08,
         z: -12.68,
         rotY: Math.PI,
-        duration: 1.8,
+        duration: 0.9,
         ease: 'power1.out',
         onComplete: () => {
           cs.pose = 'seated'
           cs.rotY = Math.PI
         },
       },
-      6.2
+      6.8
     )
     tl.to(
       cam,
-      { x: -11.2, y: 3.1, z: -8.6, lookX: -14.8, lookY: 2.1, lookZ: -14.2, duration: 1.8, ease: 'power1.inOut' },
-      6.2
+      { x: -11.5, y: 2.2, z: -7.5, lookX: -16.1, lookY: 1.6, lookZ: -10.5, duration: 0.9, ease: 'power1.inOut' },
+      5.9
     )
 
-    // Segment E: Camera frames the Classroom Projector Screen while showing the seated player, classmates & teacher
+    // Segment 5 (6.8s - 8.4s): Camera settles into classroom projector framing with seated player & classmates visible
     tl.to(
       cam,
-      { x: -14.0, y: 3.55, z: -9.85, lookX: -14.0, lookY: 3.65, lookZ: -16.85, duration: 1.5, ease: 'power2.inOut' },
-      8.0
+      { x: -14.0, y: 3.55, z: -9.85, lookX: -14.0, lookY: 3.65, lookZ: -16.85, duration: 1.6, ease: 'power2.inOut' },
+      6.8
     )
   }
 
@@ -6199,9 +6228,19 @@ export default function Level1SchoolWorld({
 
     const cs = charStateRef.current
     cs.visible = true
+    cs.x = -16.1
     cs.y = 0
+    cs.z = -12.68
+    cs.rotY = 0 // Face forward towards +Z to stand up and walk down the aisle
     cs.pose = 'walking'
+
     const cam = camStateRef.current
+    cam.x = -16.1
+    cam.y = 2.4
+    cam.z = -16.0
+    cam.lookX = -16.1
+    cam.lookY = 1.6
+    cam.lookZ = -9.0
 
     const tl = gsap.timeline({
       onComplete: () => {
@@ -6216,31 +6255,54 @@ export default function Level1SchoolWorld({
     })
     timelineRef.current = tl
 
-    // 1. Character stands up and leaves Classroom 101 into the Veranda
-    tl.to(
-      cs,
-      { x: -1.4, y: 0, z: -9.5, rotY: -Math.PI / 2, duration: 1.9, ease: 'none' },
-      0
-    )
+    // Segment 1 (0s - 1.4s): Character stands up from desk and walks down Classroom 101 aisle toward door
+    tl.to(cs, { x: -16.1, y: 0, z: -7.5, rotY: 0, duration: 1.4, ease: 'none' }, 0)
     tl.to(
       cam,
-      { x: 1.5, y: 2.7, z: -4.0, lookX: -1.5, lookY: 1.8, lookZ: -12.5, duration: 1.9, ease: 'power1.inOut' },
+      { x: -16.1, y: 2.3, z: -11.5, lookX: -16.1, lookY: 1.6, lookZ: -4.5, duration: 1.4, ease: 'power1.inOut' },
       0
     )
 
-    // 2. Character walks through the Veranda toward Doorway 103 (Examination Center)
+    // Segment 2 (1.4s - 2.8s): Turn right and walk out through Door 101 (x = -5.1, z = -7.5) into the Veranda
+    tl.to(cs, { x: -1.5, y: 0, z: -7.5, rotY: Math.PI / 2, duration: 1.4, ease: 'none' }, 1.4)
     tl.to(
-      cs,
-      { x: -1.4, y: 0, z: -23.5, rotY: Math.PI, duration: 2.4, ease: 'none' },
-      1.9
+      cam,
+      { x: -9.5, y: 2.2, z: -7.5, lookX: -2.0, lookY: 1.6, lookZ: -7.5, duration: 0.8, ease: 'power1.inOut' },
+      1.4
     )
     tl.to(
       cam,
-      { x: 1.4, y: 2.6, z: -16.5, lookX: -2.0, lookY: 1.8, lookZ: -25.0, duration: 2.4, ease: 'power1.inOut' },
-      1.9
+      { x: -5.0, y: 2.2, z: -7.5, lookX: 2.0, lookY: 1.6, lookZ: -7.5, duration: 0.6, ease: 'power1.inOut' },
+      2.2
     )
 
-    // 3. Character enters Examination Center 103 & sits in the front-left chair (x: -16.1, y: 0.08, z: -28.68)
+    // Segment 3 (2.8s - 5.0s): Turn and walk straight down the Veranda to Door 103 (z = -7.5 to z = -23.5)
+    tl.to(cs, { x: -1.5, y: 0, z: -23.5, rotY: Math.PI, duration: 2.2, ease: 'none' }, 2.8)
+    tl.to(
+      cam,
+      { x: -1.5, y: 2.2, z: -3.5, lookX: -1.5, lookY: 1.6, lookZ: -11.5, duration: 0.6, ease: 'power1.inOut' },
+      2.8
+    )
+    tl.to(
+      cam,
+      { x: -1.5, y: 2.2, z: -19.5, lookX: -1.5, lookY: 1.6, lookZ: -27.5, duration: 1.6, ease: 'power1.inOut' },
+      3.4
+    )
+
+    // Segment 4 (5.0s - 6.8s): Turn left through Door 103 (x = -5.1, z = -23.5) into Examination Classroom 103
+    tl.to(cs, { x: -16.1, y: 0, z: -23.5, rotY: -Math.PI / 2, duration: 1.8, ease: 'none' }, 5.0)
+    tl.to(
+      cam,
+      { x: -1.5, y: 2.2, z: -23.5, lookX: -6.0, lookY: 1.6, lookZ: -23.5, duration: 0.8, ease: 'power1.inOut' },
+      5.0
+    )
+    tl.to(
+      cam,
+      { x: -11.5, y: 2.2, z: -23.5, lookX: -17.0, lookY: 1.6, lookZ: -23.5, duration: 1.0, ease: 'power1.inOut' },
+      5.8
+    )
+
+    // Segment 5 (6.8s - 8.4s): Walk down aisle to exam desk at (-16.1, -28.68) and sit down
     tl.to(
       cs,
       {
@@ -6248,26 +6310,19 @@ export default function Level1SchoolWorld({
         y: 0.08,
         z: -28.68,
         rotY: Math.PI,
-        duration: 1.8,
+        duration: 1.2,
         ease: 'power1.out',
         onComplete: () => {
           cs.pose = 'seated'
           cs.rotY = Math.PI
         },
       },
-      4.3
+      6.8
     )
     tl.to(
       cam,
-      { x: -11.2, y: 3.1, z: -24.6, lookX: -14.8, lookY: 2.1, lookZ: -30.2, duration: 1.8, ease: 'power1.inOut' },
-      4.3
-    )
-
-    // 4. Camera frames the Examination Center Projector Screen with seated player, classmates & teacher visible
-    tl.to(
-      cam,
-      { x: -14.0, y: 3.55, z: -25.85, lookX: -14.0, lookY: 3.65, lookZ: -32.85, duration: 1.5, ease: 'power2.inOut' },
-      6.1
+      { x: -14.0, y: 3.55, z: -25.85, lookX: -14.0, lookY: 3.65, lookZ: -32.85, duration: 1.6, ease: 'power2.inOut' },
+      6.8
     )
   }
 
@@ -6503,8 +6558,8 @@ export default function Level1SchoolWorld({
         y: 8.8,
         z: -29.5,
         lookX: 0,
-        lookY: 7.4,
-        lookZ: -41.0,
+        lookY: 7.7,
+        lookZ: -52.0,
         duration: 3.0,
         ease: 'power1.inOut',
       },
@@ -7856,18 +7911,35 @@ export default function Level1SchoolWorld({
                   </button>
 
                   <button
-                    onClick={handleProceedAfterTakeaways}
+                    onClick={() => {
+                      soundEngine.playClick()
+                      setShowLessonCompletedBanner(false)
+                      setIsVideoFullscreen(false)
+                      beginWalkToExaminationCenter()
+                    }}
                     style={{
                       fontSize: isVideoFullscreen ? '1.85vh' : '1.52vh',
                       padding: isVideoFullscreen ? '1.15vh 2.6vh' : '0.9vh 2.2vh',
                       borderRadius: '1.1vh',
                     }}
-                    className="flex-1 bg-gradient-to-r from-amber-400 via-yellow-400 to-emerald-400 text-slate-950 font-black shadow-[0_0_25px_rgba(251,191,36,0.65)] hover:scale-[1.01] active:scale-95 transition-all cursor-pointer truncate"
+                    className="flex-1 bg-gradient-to-r from-emerald-500 via-teal-400 to-amber-400 hover:from-emerald-400 hover:to-amber-300 text-slate-950 font-black shadow-[0_0_25px_rgba(16,185,129,0.7)] hover:scale-[1.01] active:scale-95 transition-all cursor-pointer truncate"
                   >
-                    {currentVideoIdx < LEVEL1_VIDEOS.length - 1
-                      ? `GOT IT! NEXT VIDEO (VIDEO ${currentVideoIdx + 2}: ${LEVEL1_VIDEOS[currentVideoIdx + 1].title}) 🚀`
-                      : 'GOT IT! ALL 5 VIDEOS COMPLETED — WALK TO EXAMINATION QUIZ 🚀'}
+                    🚶 Stand Up & Walk to Quiz Classroom 📝
                   </button>
+
+                  {currentVideoIdx < LEVEL1_VIDEOS.length - 1 && (
+                    <button
+                      onClick={handleProceedAfterTakeaways}
+                      style={{
+                        fontSize: isVideoFullscreen ? '1.85vh' : '1.52vh',
+                        padding: isVideoFullscreen ? '1.15vh 2.4vh' : '0.9vh 2.0vh',
+                        borderRadius: '1.1vh',
+                      }}
+                      className="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-amber-300 font-black hover:scale-[1.01] active:scale-95 transition-all cursor-pointer whitespace-nowrap"
+                    >
+                      Next Video ({currentVideoIdx + 2}/5) →
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -8301,7 +8373,7 @@ export default function Level1SchoolWorld({
           CONTINUOUS 3D WORLD CANVAS (ALL ZONES IN ONE UNIFIED 3D CAMPUS)
       ═══════════════════════════════════════════════════════════════════ */}
       <Canvas
-        dpr={journeyStage === 'classroom_projector' ? 1 : [1, 1.5]}
+        dpr={1}
         shadows={journeyStage !== 'classroom_projector'}
         camera={{ position: [0, 3.3, 27.2], fov: 46, near: 0.1, far: 290 }}
         onPointerDown={(e) => {
@@ -8314,6 +8386,8 @@ export default function Level1SchoolWorld({
         gl={{
           antialias: true,
           powerPreference: 'high-performance',
+          stencil: false,
+          depth: true,
           toneMapping: THREE.ACESFilmicToneMapping,
           toneMappingExposure: isNightMode ? 0.96 : 1.08,
         }}
@@ -8332,12 +8406,13 @@ export default function Level1SchoolWorld({
             intensity={isNightMode ? 0.95 : 1.55}
             color={isNightMode ? '#bfdbfe' : '#fff7ed'}
             castShadow={journeyStage !== 'classroom_projector'}
-            shadow-mapSize-width={2048}
-            shadow-mapSize-height={2048}
-            shadow-camera-left={-45}
-            shadow-camera-right={45}
-            shadow-camera-top={45}
-            shadow-camera-bottom={-45}
+            shadow-mapSize-width={1024}
+            shadow-mapSize-height={1024}
+            shadow-bias={-0.0004}
+            shadow-camera-left={-40}
+            shadow-camera-right={40}
+            shadow-camera-top={40}
+            shadow-camera-bottom={-40}
           />
           <group visible={!isNightMode && journeyStage !== 'classroom_projector'}>
             <Sky sunPosition={[35, 22, 28]} turbidity={0.25} rayleigh={0.45} />
