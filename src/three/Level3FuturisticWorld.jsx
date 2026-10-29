@@ -1002,7 +1002,7 @@ export default function Level3FuturisticWorld(props) {
             padding: '24px 16px',
           }}
         >
-          <div style={{ maxWidth: 1120, margin: '0 auto' }}>
+          <div style={{ maxWidth: 1460, margin: '0 auto' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <div style={{ fontSize: 14, fontWeight: 900, color: '#38bdf8' }}>
                 🌆 LEVEL 3 FUTURISTIC HUB · {activeBuildingModal.toUpperCase().replace('_', ' ')}

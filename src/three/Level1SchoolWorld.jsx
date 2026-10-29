@@ -4851,6 +4851,8 @@ export default function Level1SchoolWorld({
   const [journeyStage, setJourneyStage] = useState('login')
   const [hasLoggedIn, setHasLoggedIn] = useState(false)
   const [hasMovedInYard, setHasMovedInYard] = useState(false)
+  const hasMovedInYardRef = useRef(false)
+  const lastMoveTimeRef = useRef(0)
   const [authError, setAuthError] = useState('')
   const [isComputerFullscreen, setIsComputerFullscreen] = useState(false)
   const [isPlayerInAtmQueue, setIsPlayerInAtmQueue] = useState(false)
@@ -5328,8 +5330,16 @@ export default function Level1SchoolWorld({
           { x: 2.45, z: -51.08, y: 6.28, rotY: Math.PI - 0.22, level: 2 },
         ]
 
+        const now = performance.now()
+        const deltaMs = Math.min(50, Math.max(8, now - (lastMoveTimeRef.current || now)))
+        lastMoveTimeRef.current = now
+        const dtFactor = deltaMs / 16.666
+
         if (moveActive) {
-          setHasMovedInYard(true)
+          if (!hasMovedInYardRef.current) {
+            hasMovedInYardRef.current = true
+            setHasMovedInYard(true)
+          }
           if (timelineRef.current && timelineRef.current.isActive && timelineRef.current.isActive()) {
             timelineRef.current.kill()
           }
@@ -5339,11 +5349,11 @@ export default function Level1SchoolWorld({
 
           // Smooth 360-degree continuous turning with Left / Right
           if (turnDir !== 0) {
-            cs.rotY -= turnDir * 0.046
+            cs.rotY -= turnDir * (0.062 * dtFactor)
           }
 
-          // Walk forward along the character's current 360° facing angle
-          const walkSpeed = pk.up || pk.down ? 0.22 : 0.09
+          // Walk forward along the character's current 360° facing angle (Normal responsive walking speed)
+          const walkSpeed = (pk.up || pk.down ? 0.36 : 0.15) * dtFactor
           const fX = Math.sin(cs.rotY)
           const fZ = Math.cos(cs.rotY)
           cs.x = Math.max(-52, Math.min(26, cs.x + fX * walkSpeed))
@@ -5351,7 +5361,7 @@ export default function Level1SchoolWorld({
           syncElevationFromZ(cs)
 
           manualCamFollowUntilRef.current = performance.now() + 2000
-          updateCameraBehindCharacter(cs, 0.11)
+          updateCameraBehindCharacter(cs, 0.13)
         } else if (
           journeyStage !== 'classroom_projector' &&
           journeyStage !== 'exam_projector' &&
@@ -5425,7 +5435,7 @@ export default function Level1SchoolWorld({
     mixerCompleted && 2,
     metricsCompleted && 3,
   ].filter(Boolean)
-  const isLevel3Unlocked = metricsCompleted || completedBankSections.length > 0
+  const isLevel3Unlocked = metricsCompleted || completedBankSections.length > 0 || Boolean(state?.advancedUnlocked) || Boolean(state?.level2Completed) || Boolean(state?.level3Unlocked) || (typeof localStorage !== 'undefined' && (localStorage.getItem('l2i_level2Completed') === 'true' || localStorage.getItem('l2i_advancedUnlocked') === 'true'))
   const isBankSec2Unlocked = completedBankSections.includes(1) || completedBankSections.includes(2)
   const isJourneyCompleteUnlocked = completedBankSections.includes(2)
 
@@ -5553,26 +5563,99 @@ export default function Level1SchoolWorld({
   const jumpDirectlyToExaminationQuiz = () => {
     if (timelineRef.current) timelineRef.current.kill()
     setCompletedVideoIds(LEVEL1_VIDEOS.map((v) => v.id))
+    setJourneyStage('walking_to_exam')
+    soundEngine.startAmbientMusic('exploration', true)
+
     const cs = charStateRef.current
     cs.visible = true
-    cs.x = -16.1
-    cs.y = 0.08
-    cs.z = -28.68
+    cs.x = 0
+    cs.y = 0
+    cs.z = 23.0
     cs.rotY = Math.PI
-    cs.pose = 'seated'
-    gsap.to(camStateRef.current, {
-      x: -14.0,
-      y: 3.55,
-      z: -25.85,
-      lookX: -14.0,
-      lookY: 3.65,
-      lookZ: -32.85,
-      duration: 1.1,
-      ease: 'power2.inOut',
+    cs.pose = 'walking'
+
+    const cam = camStateRef.current
+    cam.x = 0
+    cam.y = 2.4
+    cam.z = 27.5
+    cam.lookX = 0
+    cam.lookY = 1.6
+    cam.lookZ = 18.0
+
+    const tl = gsap.timeline({
+      onComplete: () => {
+        cs.x = -16.1
+        cs.y = 0.08
+        cs.z = -28.68
+        cs.pose = 'seated'
+        cs.rotY = Math.PI
+        // The quiz is displayed strictly AFTER the user is seated in the quiz classroom
+        setJourneyStage('exam_projector')
+        setQuizSubStage('start_screen')
+        soundEngine.startAmbientMusic('examination', true)
+      },
     })
-    setQuizSubStage('start_screen')
-    setJourneyStage('exam_projector')
-    soundEngine.startAmbientMusic('examination', true)
+    timelineRef.current = tl
+
+    // Segment 1 (0s - 1.5s): Walk down the center stone walkway toward school doors
+    tl.to(cs, { x: 0, y: 0, z: 13.5, rotY: Math.PI, duration: 1.5, ease: 'none' }, 0)
+    tl.to(
+      cam,
+      { x: 0, y: 2.3, z: 18.0, lookX: 0, lookY: 1.6, lookZ: 9.0, duration: 1.5, ease: 'power1.inOut' },
+      0
+    )
+
+    // Segment 2 (1.5s - 2.8s): Up steps and through front entrance into veranda
+    tl.to(
+      frontDoorOpenRef,
+      { current: 1, duration: 0.6, onStart: () => soundEngine.playDoorOpen() },
+      1.6
+    )
+    tl.to(cs, { x: -1.5, y: 0, z: -2.0, rotY: Math.PI, duration: 1.3, ease: 'none' }, 1.5)
+    tl.to(
+      cam,
+      { x: -0.5, y: 2.2, z: 2.5, lookX: -1.2, lookY: 1.6, lookZ: -6.5, duration: 1.3, ease: 'power1.inOut' },
+      1.5
+    )
+
+    // Segment 3 (2.8s - 4.2s): Walk down the veranda past Classroom 101 straight to Door 103 (z = -23.5)
+    tl.to(cs, { x: -1.5, y: 0, z: -23.5, rotY: Math.PI, duration: 1.4, ease: 'none' }, 2.8)
+    tl.to(
+      cam,
+      { x: -1.5, y: 2.2, z: -17.5, lookX: -1.5, lookY: 1.6, lookZ: -25.5, duration: 1.4, ease: 'power1.inOut' },
+      2.8
+    )
+
+    // Segment 4 (4.2s - 5.4s): Turn left through Door 103 into Examination Classroom 103
+    tl.to(cs, { x: -16.1, y: 0, z: -23.5, rotY: -Math.PI / 2, duration: 1.2, ease: 'none' }, 4.2)
+    tl.to(
+      cam,
+      { x: -10.5, y: 2.2, z: -23.5, lookX: -16.5, lookY: 1.6, lookZ: -23.5, duration: 1.2, ease: 'power1.inOut' },
+      4.2
+    )
+
+    // Segment 5 (5.4s - 6.6s): Walk down aisle to exam desk at (-16.1, -28.68) and sit down
+    tl.to(
+      cs,
+      {
+        x: -16.1,
+        y: 0.08,
+        z: -28.68,
+        rotY: Math.PI,
+        duration: 1.0,
+        ease: 'power1.out',
+        onComplete: () => {
+          cs.pose = 'seated'
+          cs.rotY = Math.PI
+        },
+      },
+      5.4
+    )
+    tl.to(
+      cam,
+      { x: -14.0, y: 3.55, z: -25.85, lookX: -14.0, lookY: 3.65, lookZ: -32.85, duration: 1.2, ease: 'power2.inOut' },
+      5.4
+    )
   }
 
   // ───────────────────────────────────────────────────────────────────────────
@@ -5778,6 +5861,7 @@ export default function Level1SchoolWorld({
       }
 
       setHasLoggedIn(true)
+      hasMovedInYardRef.current = false
       setHasMovedInYard(false)
       setLoginBtnPressed(false)
       if (loginLevelChoice === 'intermediate') {
@@ -5885,6 +5969,7 @@ export default function Level1SchoolWorld({
     }
 
     setHasLoggedIn(true)
+    hasMovedInYardRef.current = false
     setHasMovedInYard(false)
     setLoginBtnPressed(false)
     if (loginLevelChoice === 'intermediate') {
@@ -5907,6 +5992,7 @@ export default function Level1SchoolWorld({
     setIsComputerFullscreen(false)
     setIsPlayerInAtmQueue(false)
     setHasLoggedIn(false)
+    hasMovedInYardRef.current = false
     setHasMovedInYard(false)
     setAuthError('')
     setJourneyStage('login')
@@ -5998,44 +6084,44 @@ export default function Level1SchoolWorld({
     })
     timelineRef.current = tl
 
-    // Segment 1 (0s - 2.0s): Walk down the center stone walkway toward school doors
-    tl.to(cs, { x: 0, y: 0, z: 13.5, rotY: Math.PI, duration: 2.0, ease: 'none' }, 0)
+    // Segment 1 (0s - 1.4s): Walk down the center stone walkway toward school doors
+    tl.to(cs, { x: 0, y: 0, z: 13.5, rotY: Math.PI, duration: 1.4, ease: 'none' }, 0)
     tl.to(
       cam,
-      { x: 0, y: 2.3, z: 18.0, lookX: 0, lookY: 1.6, lookZ: 9.0, duration: 2.0, ease: 'power1.inOut' },
+      { x: 0, y: 2.3, z: 18.0, lookX: 0, lookY: 1.6, lookZ: 9.0, duration: 1.4, ease: 'power1.inOut' },
       0
     )
 
-    // Segment 2 (2.0s - 4.0s): Up steps and through the opening front doors
+    // Segment 2 (1.4s - 2.7s): Up steps and through the opening front doors
     tl.to(
       frontDoorOpenRef,
-      { current: 1, duration: 0.8, onStart: () => soundEngine.playDoorOpen() },
-      2.3
+      { current: 1, duration: 0.6, onStart: () => soundEngine.playDoorOpen() },
+      1.6
     )
-    tl.to(cs, { x: -1.5, y: 0, z: -2.0, rotY: Math.PI, duration: 2.0, ease: 'none' }, 2.0)
+    tl.to(cs, { x: -1.5, y: 0, z: -2.0, rotY: Math.PI, duration: 1.3, ease: 'none' }, 1.4)
     tl.to(
       cam,
-      { x: -0.5, y: 2.2, z: 2.5, lookX: -1.2, lookY: 1.6, lookZ: -6.5, duration: 2.0, ease: 'power1.inOut' },
-      2.0
+      { x: -0.5, y: 2.2, z: 2.5, lookX: -1.2, lookY: 1.6, lookZ: -6.5, duration: 1.3, ease: 'power1.inOut' },
+      1.4
     )
 
-    // Segment 3 (4.0s - 5.8s): Walk down the Veranda to Door 101, then turn through Door 101 into Classroom 101
+    // Segment 3 (2.7s - 4.1s): Walk down the Veranda to Door 101, then turn through Door 101 into Classroom 101
     // (Door 101 is located at x = -5.1, z = -7.5)
-    tl.to(cs, { x: -2.5, y: 0, z: -7.5, rotY: Math.PI, duration: 0.9, ease: 'none' }, 4.0)
-    tl.to(cs, { x: -8.0, y: 0, z: -7.5, rotY: -Math.PI / 2, duration: 1.0, ease: 'none' }, 4.9)
+    tl.to(cs, { x: -2.5, y: 0, z: -7.5, rotY: Math.PI, duration: 0.7, ease: 'none' }, 2.7)
+    tl.to(cs, { x: -8.0, y: 0, z: -7.5, rotY: -Math.PI / 2, duration: 0.7, ease: 'none' }, 3.4)
     tl.to(
       cam,
-      { x: -0.5, y: 2.2, z: -7.5, lookX: -6.0, lookY: 1.6, lookZ: -7.5, duration: 0.9, ease: 'power1.inOut' },
-      4.0
+      { x: -0.5, y: 2.2, z: -7.5, lookX: -6.0, lookY: 1.6, lookZ: -7.5, duration: 0.7, ease: 'power1.inOut' },
+      2.7
     )
     tl.to(
       cam,
-      { x: -4.5, y: 2.2, z: -7.5, lookX: -12.0, lookY: 1.6, lookZ: -7.5, duration: 1.0, ease: 'power1.inOut' },
-      4.9
+      { x: -4.5, y: 2.2, z: -7.5, lookX: -12.0, lookY: 1.6, lookZ: -7.5, duration: 0.7, ease: 'power1.inOut' },
+      3.4
     )
 
-    // Segment 4 (5.9s - 7.6s): Walk along classroom aisle to student desk at (-16.1, -12.68)
-    tl.to(cs, { x: -16.1, y: 0, z: -7.5, rotY: -Math.PI / 2, duration: 0.9, ease: 'none' }, 5.9)
+    // Segment 4 (4.1s - 5.5s): Walk along classroom aisle to student desk at (-16.1, -12.68)
+    tl.to(cs, { x: -16.1, y: 0, z: -7.5, rotY: -Math.PI / 2, duration: 0.7, ease: 'none' }, 4.1)
     tl.to(
       cs,
       {
@@ -6043,26 +6129,26 @@ export default function Level1SchoolWorld({
         y: 0.08,
         z: -12.68,
         rotY: Math.PI,
-        duration: 0.9,
+        duration: 0.7,
         ease: 'power1.out',
         onComplete: () => {
           cs.pose = 'seated'
           cs.rotY = Math.PI
         },
       },
-      6.8
+      4.8
     )
     tl.to(
       cam,
-      { x: -11.5, y: 2.2, z: -7.5, lookX: -16.1, lookY: 1.6, lookZ: -10.5, duration: 0.9, ease: 'power1.inOut' },
-      5.9
+      { x: -11.5, y: 2.2, z: -7.5, lookX: -16.1, lookY: 1.6, lookZ: -10.5, duration: 0.7, ease: 'power1.inOut' },
+      4.1
     )
 
-    // Segment 5 (6.8s - 8.4s): Camera settles into classroom projector framing with seated player & classmates visible
+    // Segment 5 (4.8s - 6.0s): Camera settles into classroom projector framing with seated player & classmates visible
     tl.to(
       cam,
-      { x: -14.0, y: 3.55, z: -9.85, lookX: -14.0, lookY: 3.65, lookZ: -16.85, duration: 1.6, ease: 'power2.inOut' },
-      6.8
+      { x: -14.0, y: 3.55, z: -9.85, lookX: -14.0, lookY: 3.65, lookZ: -16.85, duration: 1.2, ease: 'power2.inOut' },
+      4.8
     )
   }
 
@@ -6353,54 +6439,54 @@ export default function Level1SchoolWorld({
     })
     timelineRef.current = tl
 
-    // Segment 1 (0s - 1.4s): Character stands up from desk and walks down Classroom 101 aisle toward door
-    tl.to(cs, { x: -16.1, y: 0, z: -7.5, rotY: 0, duration: 1.4, ease: 'none' }, 0)
+    // Segment 1 (0s - 1.2s): Character stands up from desk and walks down Classroom 101 aisle toward door
+    tl.to(cs, { x: -16.1, y: 0, z: -7.5, rotY: 0, duration: 1.2, ease: 'none' }, 0)
     tl.to(
       cam,
-      { x: -16.1, y: 2.3, z: -11.5, lookX: -16.1, lookY: 1.6, lookZ: -4.5, duration: 1.4, ease: 'power1.inOut' },
+      { x: -16.1, y: 2.3, z: -11.5, lookX: -16.1, lookY: 1.6, lookZ: -4.5, duration: 1.2, ease: 'power1.inOut' },
       0
     )
 
-    // Segment 2 (1.4s - 2.8s): Turn right and walk out through Door 101 (x = -5.1, z = -7.5) into the Veranda
-    tl.to(cs, { x: -1.5, y: 0, z: -7.5, rotY: Math.PI / 2, duration: 1.4, ease: 'none' }, 1.4)
+    // Segment 2 (1.2s - 2.2s): Turn right and walk out through Door 101 (x = -5.1, z = -7.5) into the Veranda
+    tl.to(cs, { x: -1.5, y: 0, z: -7.5, rotY: Math.PI / 2, duration: 1.0, ease: 'none' }, 1.2)
     tl.to(
       cam,
-      { x: -9.5, y: 2.2, z: -7.5, lookX: -2.0, lookY: 1.6, lookZ: -7.5, duration: 0.8, ease: 'power1.inOut' },
-      1.4
+      { x: -9.5, y: 2.2, z: -7.5, lookX: -2.0, lookY: 1.6, lookZ: -7.5, duration: 0.6, ease: 'power1.inOut' },
+      1.2
     )
     tl.to(
       cam,
-      { x: -5.0, y: 2.2, z: -7.5, lookX: 2.0, lookY: 1.6, lookZ: -7.5, duration: 0.6, ease: 'power1.inOut' },
+      { x: -5.0, y: 2.2, z: -7.5, lookX: 2.0, lookY: 1.6, lookZ: -7.5, duration: 0.4, ease: 'power1.inOut' },
+      1.8
+    )
+
+    // Segment 3 (2.2s - 3.6s): Turn and walk straight down the Veranda to Door 103 (z = -7.5 to z = -23.5)
+    tl.to(cs, { x: -1.5, y: 0, z: -23.5, rotY: Math.PI, duration: 1.4, ease: 'none' }, 2.2)
+    tl.to(
+      cam,
+      { x: -1.5, y: 2.2, z: -3.5, lookX: -1.5, lookY: 1.6, lookZ: -11.5, duration: 0.5, ease: 'power1.inOut' },
       2.2
     )
-
-    // Segment 3 (2.8s - 5.0s): Turn and walk straight down the Veranda to Door 103 (z = -7.5 to z = -23.5)
-    tl.to(cs, { x: -1.5, y: 0, z: -23.5, rotY: Math.PI, duration: 2.2, ease: 'none' }, 2.8)
     tl.to(
       cam,
-      { x: -1.5, y: 2.2, z: -3.5, lookX: -1.5, lookY: 1.6, lookZ: -11.5, duration: 0.6, ease: 'power1.inOut' },
-      2.8
-    )
-    tl.to(
-      cam,
-      { x: -1.5, y: 2.2, z: -19.5, lookX: -1.5, lookY: 1.6, lookZ: -27.5, duration: 1.6, ease: 'power1.inOut' },
-      3.4
+      { x: -1.5, y: 2.2, z: -19.5, lookX: -1.5, lookY: 1.6, lookZ: -27.5, duration: 0.9, ease: 'power1.inOut' },
+      2.7
     )
 
-    // Segment 4 (5.0s - 6.8s): Turn left through Door 103 (x = -5.1, z = -23.5) into Examination Classroom 103
-    tl.to(cs, { x: -16.1, y: 0, z: -23.5, rotY: -Math.PI / 2, duration: 1.8, ease: 'none' }, 5.0)
+    // Segment 4 (3.6s - 4.8s): Turn left through Door 103 (x = -5.1, z = -23.5) into Examination Classroom 103
+    tl.to(cs, { x: -16.1, y: 0, z: -23.5, rotY: -Math.PI / 2, duration: 1.2, ease: 'none' }, 3.6)
     tl.to(
       cam,
-      { x: -1.5, y: 2.2, z: -23.5, lookX: -6.0, lookY: 1.6, lookZ: -23.5, duration: 0.8, ease: 'power1.inOut' },
-      5.0
+      { x: -1.5, y: 2.2, z: -23.5, lookX: -6.0, lookY: 1.6, lookZ: -23.5, duration: 0.6, ease: 'power1.inOut' },
+      3.6
     )
     tl.to(
       cam,
-      { x: -11.5, y: 2.2, z: -23.5, lookX: -17.0, lookY: 1.6, lookZ: -23.5, duration: 1.0, ease: 'power1.inOut' },
-      5.8
+      { x: -11.5, y: 2.2, z: -23.5, lookX: -17.0, lookY: 1.6, lookZ: -23.5, duration: 0.6, ease: 'power1.inOut' },
+      4.2
     )
 
-    // Segment 5 (6.8s - 8.4s): Walk down aisle to exam desk at (-16.1, -28.68) and sit down
+    // Segment 5 (4.8s - 6.0s): Walk down aisle to exam desk at (-16.1, -28.68) and sit down
     tl.to(
       cs,
       {
@@ -6408,19 +6494,19 @@ export default function Level1SchoolWorld({
         y: 0.08,
         z: -28.68,
         rotY: Math.PI,
-        duration: 1.2,
+        duration: 1.0,
         ease: 'power1.out',
         onComplete: () => {
           cs.pose = 'seated'
           cs.rotY = Math.PI
         },
       },
-      6.8
+      4.8
     )
     tl.to(
       cam,
-      { x: -14.0, y: 3.55, z: -25.85, lookX: -14.0, lookY: 3.65, lookZ: -32.85, duration: 1.6, ease: 'power2.inOut' },
-      6.8
+      { x: -14.0, y: 3.55, z: -25.85, lookX: -14.0, lookY: 3.65, lookZ: -32.85, duration: 1.2, ease: 'power2.inOut' },
+      4.8
     )
   }
 
@@ -6850,6 +6936,19 @@ export default function Level1SchoolWorld({
     if (!metricsCompleted) {
       setMetricsCompleted(true)
       if (addXP) addXP(100)
+    }
+    try {
+      localStorage.setItem('l2i_level2Completed', 'true')
+      localStorage.setItem('l2i_advancedUnlocked', 'true')
+    } catch {}
+    if (update) {
+      update({
+        level2Completed: true,
+        advancedUnlocked: true,
+        intermediateUnlocked: true,
+        level3Unlocked: true,
+        completedModules: ['simulators', 'mixer', 'portfolio']
+      })
     }
     setComputerFeedbackBanner({
       title: 'Level 2 Completed!',
@@ -8547,7 +8646,12 @@ export default function Level1SchoolWorld({
             position={isNightMode ? [-38, 48, -32] : [22, 36, 24]}
             intensity={isNightMode ? 0.95 : 1.55}
             color={isNightMode ? '#bfdbfe' : '#fff7ed'}
-            castShadow={journeyStage !== 'classroom_projector'}
+            castShadow={
+              journeyStage === 'school_yard' ||
+              journeyStage === 'login' ||
+              journeyStage === 'walking_to_classroom' ||
+              journeyStage === 'walking_to_exam'
+            }
             shadow-mapSize-width={1024}
             shadow-mapSize-height={1024}
             shadow-bias={-0.0004}
@@ -9446,7 +9550,7 @@ export default function Level1SchoolWorld({
           LEVEL 3 — ORIGINAL BANK PAPER SLIP WRITER & DIGITAL SAFETY ARENA (2 CABINS)
       ═══════════════════════════════════════════════════════════════════ */}
       {journeyStage === 'bank_section' && !bankSectionFeedbackBanner && (
-        <div style={{ paddingTop: "10.5vh", paddingBottom: "2vh", paddingLeft: "1.5vw", paddingRight: "1.5vw" }} className="fixed inset-0 z-40 bg-slate-950/80 backdrop-blur-md flex flex-col items-center justify-center pointer-events-auto overflow-hidden">
+        <div style={{ paddingTop: "7.5vh", paddingBottom: "1.5vh", paddingLeft: "1vw", paddingRight: "1vw" }} className="fixed inset-0 z-40 bg-slate-950/80 backdrop-blur-md flex flex-col items-center justify-center pointer-events-auto overflow-hidden">
           <Level3BankSectionScreen
             sectionNumber={activeBankSection}
             completedSections={completedBankSections}
@@ -9547,18 +9651,14 @@ export default function Level1SchoolWorld({
               <div
                 onClick={() => {
                   setShowCampusMapModal(false)
-                  if (isLevel3Unlocked) {
-                    focusCameraOnBankSection(1, false)
-                  } else {
-                    setShowXpDepositModal(true)
-                  }
+                  focusCameraOnBankSection(1, false)
                 }}
                 className="absolute top-[26%] right-[5%] sm:right-[7%] px-3.5 py-2 rounded-2xl bg-slate-950/90 border-2 border-amber-400 text-white shadow-xl cursor-pointer hover:scale-105 transition-transform"
               >
                 <div className="text-[10px] font-black uppercase tracking-wider text-amber-400">
                   📍 LEVEL 3 FINANCIAL CENTER (SIDE OF SCHOOL)
                 </div>
-                <div className="text-xs sm:text-sm font-black">🏛️ Learn2Invest Bank & Maya XP Deposit</div>
+                <div className="text-xs sm:text-sm font-black">🏛️ Learn2Invest Bank • Click to Enter →</div>
               </div>
 
               {/* Interactive Badge Over 24/7 ATM Machine Location (Beside the Bank!) */}
@@ -9606,11 +9706,17 @@ export default function Level1SchoolWorld({
                 <span className="text-2xl">💻</span>
               </div>
 
-              <div className="p-3.5 rounded-2xl border border-amber-400/50 bg-amber-950/40 flex items-center justify-between">
+              <div
+                onClick={() => {
+                  setShowCampusMapModal(false)
+                  focusCameraOnBankSection(1, false)
+                }}
+                className="p-3.5 rounded-2xl border-2 border-amber-400 bg-amber-950/70 flex items-center justify-between cursor-pointer hover:bg-amber-900/70 transition-all shadow-lg hover:scale-105"
+              >
                 <div>
-                  <div className="text-xs font-black text-amber-300 uppercase">LEVEL 3</div>
-                  <div className="text-sm font-black text-white">Side Bank & Maya Vault</div>
-                  <div className="text-xs text-slate-300">2 Cabins • Deposit XP with Maya</div>
+                  <div className="text-xs font-black text-amber-300 uppercase">LEVEL 3 • CLICK TO ENTER</div>
+                  <div className="text-sm font-black text-white">Side Bank & 2 Cabins</div>
+                  <div className="text-xs text-amber-200">Click to Walk to Level 3 Bank →</div>
                 </div>
                 <span className="text-2xl">🏛️</span>
               </div>
@@ -9758,7 +9864,7 @@ export default function Level1SchoolWorld({
           <div
             ref={loginPanelRef}
             data-login-card="true"
-            className="w-full max-w-[1440px] rounded-[52px] bg-white border-2 border-slate-200/90 shadow-[0_35px_100px_-15px_rgba(0,0,0,0.5)] p-8 sm:p-14 text-black transition-all my-auto"
+            className="w-full max-w-[1550px] rounded-[52px] bg-white border-2 border-slate-200/90 shadow-[0_35px_100px_-15px_rgba(0,0,0,0.5)] p-8 sm:p-14 text-black transition-all my-auto"
           >
             {/* Top Logo & Motto */}
             <div className="flex flex-col items-center justify-center mb-8 select-none text-center">
