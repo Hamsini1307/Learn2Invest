@@ -126,7 +126,7 @@ export default function Auth({ onLogin }) {
 
       {/* Main Container */}
       <div className="glass-card-deep anim-scale" style={{
-        padding: '40px 36px', width: '92%', maxWidth: 510,
+        padding: '44px 40px', width: '92%', maxWidth: 580,
         position: 'relative', overflow: 'hidden',
         background: '#ffffff',
         border: '2.5px solid #ea580c',

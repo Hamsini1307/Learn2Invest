@@ -1101,12 +1101,12 @@ export default function Level3BankZone3D({
               )}
 
               {/* Physical Interactive Banking Monitor on Cabin Desk */}
-              <group position={[0, 1.72, -0.05]}>
-                <RoundedBox args={[2.75, 1.55, 0.07]} radius={0.03} castShadow>
+              <group position={[0, 1.82, -0.05]}>
+                <RoundedBox args={[3.4, 1.9, 0.07]} radius={0.03} castShadow>
                   <meshStandardMaterial color="#0f172a" roughness={0.3} />
                 </RoundedBox>
                 <mesh position={[0, 0, 0.04]}>
-                  <planeGeometry args={[2.58, 1.4]} />
+                  <planeGeometry args={[3.22, 1.74]} />
                   <meshBasicMaterial color={isCurrent ? '#0f172a' : '#020617'} />
                 </mesh>
 
@@ -1114,12 +1114,12 @@ export default function Level3BankZone3D({
                 {isBankLobbyActive && !activeBankSection && (
                   <Html
                     transform
-                    distanceFactor={1.6}
+                    distanceFactor={1.85}
                     position={[0, 0, 0.048]}
                     zIndexRange={[15, 0]}
                     style={{
-                      width: '480px',
-                      height: '260px',
+                      width: '620px',
+                      height: '345px',
                       pointerEvents: 'auto',
                       userSelect: 'none',
                     }}
@@ -1136,8 +1136,8 @@ export default function Level3BankZone3D({
                             ? 'linear-gradient(145deg, #0f172a, #1e1b4b)'
                             : 'linear-gradient(145deg, #0f172a, #042f2e)',
                         border: `3px solid ${isDone ? '#10b981' : counter.accent}`,
-                        borderRadius: '16px',
-                        padding: '16px',
+                        borderRadius: '18px',
+                        padding: '20px',
                         boxSizing: 'border-box',
                         color: '#fff',
                         display: 'flex',
@@ -1153,23 +1153,23 @@ export default function Level3BankZone3D({
                             background: counter.accent,
                             color: '#020617',
                             fontWeight: 900,
-                            fontSize: '12px',
-                            padding: '4px 10px',
+                            fontSize: '14px',
+                            padding: '5px 12px',
                             borderRadius: '999px',
                           }}
                         >
                           {counter.cabinName} • SECTION {counter.num} OF 2
                         </span>
-                        <span style={{ fontSize: '13px', fontWeight: 900, color: isDone ? '#4ade80' : '#fbbf24' }}>
+                        <span style={{ fontSize: '14px', fontWeight: 900, color: isDone ? '#4ade80' : '#fbbf24' }}>
                           {isDone ? '✓ Completed' : 'Click to Enter'}
                         </span>
                       </div>
 
                       <div>
-                        <div style={{ fontSize: '22px', fontWeight: 900, marginBottom: '6px' }}>
+                        <div style={{ fontSize: '26px', fontWeight: 900, marginBottom: '8px' }}>
                           {counter.icon} {counter.title}
                         </div>
-                        <div style={{ fontSize: '13px', color: '#cbd5e1', lineHeight: 1.4 }}>
+                        <div style={{ fontSize: '15px', color: '#cbd5e1', lineHeight: 1.45 }}>
                           {counter.num === 1
                             ? 'Practice filling Indian Bank Deposit Slips, Withdrawal Forms & Cheques with exact Branch IFSC search.'
                             : 'Watch the Digital Banking YouTube Tutorial first, then defend against UPI traps & SMS scams.'}
@@ -1178,12 +1178,12 @@ export default function Level3BankZone3D({
 
                       <div
                         style={{
-                          background: 'rgba(255,255,255,0.1)',
-                          borderRadius: '10px',
-                          padding: '8px 12px',
+                          background: 'rgba(255,255,255,0.12)',
+                          borderRadius: '12px',
+                          padding: '10px 14px',
                           textAlign: 'center',
                           fontWeight: 900,
-                          fontSize: '13px',
+                          fontSize: '15px',
                           color: '#38bdf8',
                         }}
                       >
@@ -1224,12 +1224,12 @@ export default function Level3BankZone3D({
               </RoundedBox>
 
               {/* Physical Interactive Advisory Monitor */}
-              <group position={[0.15, 1.72, 0]} rotation={[0, -Math.PI / 2, 0]}>
-                <RoundedBox args={[2.55, 1.48, 0.07]} radius={0.03} castShadow>
+              <group position={[0.15, 1.82, 0]} rotation={[0, -Math.PI / 2, 0]}>
+                <RoundedBox args={[3.2, 1.8, 0.07]} radius={0.03} castShadow>
                   <meshStandardMaterial color="#0f172a" roughness={0.3} />
                 </RoundedBox>
                 <mesh position={[0, 0, 0.04]}>
-                  <planeGeometry args={[2.4, 1.34]} />
+                  <planeGeometry args={[3.0, 1.64]} />
                   <meshBasicMaterial color="#020617" />
                 </mesh>
               </group>

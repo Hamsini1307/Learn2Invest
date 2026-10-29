@@ -825,7 +825,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
           right: field.right ? `${field.right}%` : 'auto',
           display: 'flex',
           gap: `${field.gap || 6}px`,
-          fontSize: field.fontSize || '0.85rem',
+          fontSize: field.fontSize || '0.98rem',
           color: field.color || '#1d4ed8',
           fontWeight: field.fontWeight || 900,
           fontFamily: "'Courier New', monospace"
@@ -877,7 +877,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
           display: 'flex',
           gap: `${field.gap || 6}px`,
           letterSpacing: field.letterSpacing || 'normal',
-          fontSize: field.fontSize || '0.9rem',
+          fontSize: field.fontSize || '1.02rem',
           color: field.color || '#1d4ed8',
           fontWeight: field.fontWeight || 900,
           fontFamily: "'Courier New', monospace"
@@ -944,7 +944,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
         height: field.height ? `${field.height}%` : 'auto',
         maxWidth: field.width ? `${field.width}%` : 'none',
         maxHeight: field.height ? `${field.height}%` : 'none',
-        fontSize: field.fontSize || '0.85rem',
+        fontSize: field.fontSize || '0.98rem',
         letterSpacing: field.letterSpacing || 'normal',
         color: field.color || '#1d4ed8',
         fontWeight: field.fontWeight || 900,
@@ -1607,7 +1607,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
         <div className="printable-slip-area" style={{
           position: 'relative',
           width: '100%',
-          maxWidth: 1160,
+          maxWidth: 1320,
           margin: '0 auto',
           borderRadius: 16,
           overflow: 'hidden',

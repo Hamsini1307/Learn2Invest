@@ -66,7 +66,7 @@ export default function Level3BankSectionScreen({
             }
           : {
               width: '100%',
-              maxWidth: '1500px',
+              maxWidth: '1620px',
               height: '100%',
               maxHeight: '100%',
               backgroundColor: '#ffffff',
