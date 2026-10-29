@@ -968,3 +968,30 @@ select::placeholder,
   -webkit-text-fill-color: #94a3b8 !important;
   opacity: 0.85 !important;
 }
+
+
+/* ─── CHATBOT INPUT & PLACEHOLDER (FORCE LARGE TEXT & PLACEHOLDER IN BOX) ─── */
+.l2i-chat-input,
+.l2i-chat-window input[type="text"] {
+  font-size: 28px !important;
+  line-height: normal !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  background: #ffffff !important;
+}
+
+.l2i-chat-input::placeholder,
+.l2i-chat-window input[type="text"]::placeholder,
+.l2i-chat-input::-webkit-input-placeholder,
+.l2i-chat-window input[type="text"]::-webkit-input-placeholder,
+.l2i-chat-input::-moz-placeholder,
+.l2i-chat-window input[type="text"]::-moz-placeholder,
+.l2i-chat-input:-ms-input-placeholder,
+.l2i-chat-window input[type="text"]:-ms-input-placeholder {
+  font-size: 26px !important;
+  font-weight: 700 !important;
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+  opacity: 1 !important;
+}

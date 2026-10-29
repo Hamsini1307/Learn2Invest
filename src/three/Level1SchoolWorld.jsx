@@ -2436,18 +2436,131 @@ function SchoolVeranda3D({ charStateRef }) {
             <meshStandardMaterial color="#c08248" />
           </RoundedBox>
 
-          {/* Closed Classroom 102 Interior Backing Wall (Ensures No Empty Grey Void Behind Door 102) */}
+          {/* Closed Classroom 102 Interior Backing Wall & REAL SOLID CLASSROOM DOUBLE DOOR (Image 2) */}
           {idx === 1 && (
-            <group position={[-0.28, 1.9, 0]}>
-              <mesh receiveShadow>
+            <group position={[0.04, 1.82, 0]}>
+              {/* Interior Backing Wall Behind Glass Panes */}
+              <mesh position={[-0.32, 0, 0]} receiveShadow>
                 <boxGeometry args={[0.15, 3.8, 3.3]} />
                 <meshStandardMaterial color="#f6ede2" roughness={0.7} />
               </mesh>
               {/* Cozy Classroom Blackboard behind Door 102 window */}
-              <mesh position={[0.08, 0.45, 0]}>
+              <mesh position={[-0.24, 0.45, 0]}>
                 <boxGeometry args={[0.02, 1.5, 2.4]} />
                 <meshStandardMaterial color="#14532d" roughness={0.5} />
               </mesh>
+
+              {/* ─── REAL CLASSROOM 102 DOUBLE DOOR (Always Firmly Mounted in Frame - Image 2) ─── */}
+              {/* Left Door Leaf (z = +0.78) */}
+              <group position={[0, 0, 0.78]}>
+                {/* Rich Warm Oak Door Leaf Body */}
+                <RoundedBox args={[0.12, 3.58, 1.54]} radius={0.02} castShadow receiveShadow>
+                  <meshStandardMaterial color="#b45309" roughness={0.42} />
+                </RoundedBox>
+                {/* Recessed Lower Wood Wainscot Panel */}
+                <RoundedBox args={[0.14, 1.25, 1.28]} position={[0, -0.92, 0]} radius={0.02}>
+                  <meshStandardMaterial color="#92400e" roughness={0.5} />
+                </RoundedBox>
+                <RoundedBox args={[0.15, 1.15, 1.18]} position={[0, -0.92, 0]} radius={0.01}>
+                  <meshStandardMaterial color="#78350f" roughness={0.55} />
+                </RoundedBox>
+                {/* Polished Brass Kickplate */}
+                <RoundedBox args={[0.15, 0.32, 1.3]} position={[0.01, -1.6, 0]} radius={0.01}>
+                  <meshStandardMaterial color="#d4af37" metalness={0.85} roughness={0.2} />
+                </RoundedBox>
+                {/* Upper Dark Frame for Vertical Glass Viewing Window */}
+                <RoundedBox args={[0.14, 1.68, 0.46]} position={[0, 0.72, -0.36]} radius={0.02}>
+                  <meshStandardMaterial color="#1c1917" roughness={0.6} />
+                </RoundedBox>
+                {/* Warm Lighted Glass Viewing Pane */}
+                <mesh position={[0, 0.72, -0.36]}>
+                  <boxGeometry args={[0.1, 1.55, 0.36]} />
+                  <meshStandardMaterial
+                    color="#bae6fd"
+                    emissive="#fef08a"
+                    emissiveIntensity={0.35}
+                    roughness={0.1}
+                    metalness={0.2}
+                  />
+                </mesh>
+                {/* Brushed Silver Vertical Pull Handle (Outside / Hallway Side) */}
+                <group position={[0.1, 0, -0.62]}>
+                  <mesh castShadow>
+                    <cylinderGeometry args={[0.022, 0.022, 0.88, 14]} />
+                    <meshStandardMaterial color="#e2e8f0" metalness={0.88} roughness={0.15} />
+                  </mesh>
+                  {[-0.38, 0.38].map((hy, hIdx) => (
+                    <mesh key={hIdx} position={[-0.03, hy, 0]} rotation={[0, 0, Math.PI / 2]}>
+                      <cylinderGeometry args={[0.016, 0.016, 0.06, 10]} />
+                      <meshStandardMaterial color="#94a3b8" metalness={0.85} />
+                    </mesh>
+                  ))}
+                </group>
+              </group>
+
+              {/* Right Door Leaf (z = -0.78) */}
+              <group position={[0, 0, -0.78]}>
+                {/* Rich Warm Oak Door Leaf Body */}
+                <RoundedBox args={[0.12, 3.58, 1.54]} radius={0.02} castShadow receiveShadow>
+                  <meshStandardMaterial color="#b45309" roughness={0.42} />
+                </RoundedBox>
+                {/* Recessed Lower Wood Wainscot Panel */}
+                <RoundedBox args={[0.14, 1.25, 1.28]} position={[0, -0.92, 0]} radius={0.02}>
+                  <meshStandardMaterial color="#92400e" roughness={0.5} />
+                </RoundedBox>
+                <RoundedBox args={[0.15, 1.15, 1.18]} position={[0, -0.92, 0]} radius={0.01}>
+                  <meshStandardMaterial color="#78350f" roughness={0.55} />
+                </RoundedBox>
+                {/* Polished Brass Kickplate */}
+                <RoundedBox args={[0.15, 0.32, 1.3]} position={[0.01, -1.6, 0]} radius={0.01}>
+                  <meshStandardMaterial color="#d4af37" metalness={0.85} roughness={0.2} />
+                </RoundedBox>
+                {/* Upper Dark Frame for Vertical Glass Viewing Window */}
+                <RoundedBox args={[0.14, 1.68, 0.46]} position={[0, 0.72, 0.36]} radius={0.02}>
+                  <meshStandardMaterial color="#1c1917" roughness={0.6} />
+                </RoundedBox>
+                {/* Warm Lighted Glass Viewing Pane */}
+                <mesh position={[0, 0.72, 0.36]}>
+                  <boxGeometry args={[0.1, 1.55, 0.36]} />
+                  <meshStandardMaterial
+                    color="#bae6fd"
+                    emissive="#fef08a"
+                    emissiveIntensity={0.35}
+                    roughness={0.1}
+                    metalness={0.2}
+                  />
+                </mesh>
+                {/* Brushed Silver Vertical Pull Handle (Outside / Hallway Side) */}
+                <group position={[0.1, 0, 0.62]}>
+                  <mesh castShadow>
+                    <cylinderGeometry args={[0.022, 0.022, 0.88, 14]} />
+                    <meshStandardMaterial color="#e2e8f0" metalness={0.88} roughness={0.15} />
+                  </mesh>
+                  {[-0.38, 0.38].map((hy, hIdx) => (
+                    <mesh key={hIdx} position={[-0.03, hy, 0]} rotation={[0, 0, Math.PI / 2]}>
+                      <cylinderGeometry args={[0.016, 0.016, 0.06, 10]} />
+                      <meshStandardMaterial color="#94a3b8" metalness={0.85} />
+                    </mesh>
+                  ))}
+                </group>
+              </group>
+
+              {/* Polished Brass Center Plaque: "CLASSROOM 102" */}
+              <group position={[0.07, 0.1, 0]}>
+                <RoundedBox args={[0.02, 0.28, 0.72]} radius={0.02}>
+                  <meshStandardMaterial color="#d4af37" metalness={0.9} roughness={0.15} />
+                </RoundedBox>
+                <Text
+                  position={[0.015, 0, 0]}
+                  rotation={[0, Math.PI / 2, 0]}
+                  fontSize={0.075}
+                  color="#1c1917"
+                  anchorX="center"
+                  anchorY="middle"
+                >
+                  CLASSROOM 102
+                </Text>
+              </group>
             </group>
           )}
 
@@ -2457,131 +2570,135 @@ function SchoolVeranda3D({ charStateRef }) {
             <meshStandardMaterial color="#475569" metalness={0.7} roughness={0.3} />
           </RoundedBox>
 
-          {/* Left Sliding Door Leaf */}
-          <group
-            ref={(el) => (leftDoorRefs.current[idx] = el)}
-            position={[0, 1.82, 0.78]}
-          >
-            {/* Rich Warm Oak Door Leaf Body */}
-            <RoundedBox args={[0.09, 3.58, 1.54]} position={[0, 0, 0]} radius={0.02} castShadow receiveShadow>
-              <meshStandardMaterial color="#b45309" roughness={0.42} />
-            </RoundedBox>
+          {/* Left Sliding Door Leaf (Doors 101 & 103 only; Door 102 has dedicated solid door above) */}
+          {idx !== 1 && (
+            <group
+              ref={(el) => (leftDoorRefs.current[idx] = el)}
+              position={[0, 1.82, 0.78]}
+            >
+              {/* Rich Warm Oak Door Leaf Body */}
+              <RoundedBox args={[0.09, 3.58, 1.54]} position={[0, 0, 0]} radius={0.02} castShadow receiveShadow>
+                <meshStandardMaterial color="#b45309" roughness={0.42} />
+              </RoundedBox>
 
-            {/* Recessed Lower Wood Panel (Wainscot Bevel) */}
-            <RoundedBox args={[0.11, 1.25, 1.28]} position={[0, -0.92, 0]} radius={0.02}>
-              <meshStandardMaterial color="#92400e" roughness={0.5} />
-            </RoundedBox>
-            <RoundedBox args={[0.12, 1.15, 1.18]} position={[0, -0.92, 0]} radius={0.01}>
-              <meshStandardMaterial color="#78350f" roughness={0.55} />
-            </RoundedBox>
+              {/* Recessed Lower Wood Panel (Wainscot Bevel) */}
+              <RoundedBox args={[0.11, 1.25, 1.28]} position={[0, -0.92, 0]} radius={0.02}>
+                <meshStandardMaterial color="#92400e" roughness={0.5} />
+              </RoundedBox>
+              <RoundedBox args={[0.12, 1.15, 1.18]} position={[0, -0.92, 0]} radius={0.01}>
+                <meshStandardMaterial color="#78350f" roughness={0.55} />
+              </RoundedBox>
 
-            {/* Upper Dark Frame for Vertical Glass Viewing Window */}
-            <RoundedBox args={[0.11, 1.68, 0.42]} position={[0, 0.72, -0.36]} radius={0.02}>
-              <meshStandardMaterial color="#1c1917" roughness={0.6} />
-            </RoundedBox>
-            {/* Narrow Clean Glass Viewing Pane */}
-            <mesh position={[0, 0.72, -0.36]}>
-              <boxGeometry args={[0.08, 1.55, 0.32]} />
-              <meshPhysicalMaterial
-                color="#bae6fd"
-                transparent
-                opacity={0.35}
-                roughness={0.08}
-                metalness={0.15}
-              />
-            </mesh>
-
-            {/* Brushed Silver Vertical Pull Handle (Outside / Hallway Side) */}
-            <group position={[0.08, 0, -0.62]}>
-              <mesh castShadow>
-                <cylinderGeometry args={[0.02, 0.02, 0.88, 14]} />
-                <meshStandardMaterial color="#e2e8f0" metalness={0.88} roughness={0.15} />
+              {/* Upper Dark Frame for Vertical Glass Viewing Window */}
+              <RoundedBox args={[0.11, 1.68, 0.42]} position={[0, 0.72, -0.36]} radius={0.02}>
+                <meshStandardMaterial color="#1c1917" roughness={0.6} />
+              </RoundedBox>
+              {/* Narrow Clean Glass Viewing Pane */}
+              <mesh position={[0, 0.72, -0.36]}>
+                <boxGeometry args={[0.08, 1.55, 0.32]} />
+                <meshPhysicalMaterial
+                  color="#bae6fd"
+                  transparent
+                  opacity={0.35}
+                  roughness={0.08}
+                  metalness={0.15}
+                />
               </mesh>
-              {[-0.38, 0.38].map((hy, hIdx) => (
-                <mesh key={hIdx} position={[-0.03, hy, 0]} rotation={[0, 0, Math.PI / 2]}>
-                  <cylinderGeometry args={[0.015, 0.015, 0.06, 10]} />
-                  <meshStandardMaterial color="#94a3b8" metalness={0.85} />
-                </mesh>
-              ))}
-            </group>
 
-            {/* Brushed Silver Vertical Pull Handle (Inside / Classroom Side) */}
-            <group position={[-0.08, 0, -0.62]}>
-              <mesh>
-                <cylinderGeometry args={[0.02, 0.02, 0.88, 14]} />
-                <meshStandardMaterial color="#e2e8f0" metalness={0.88} roughness={0.15} />
+              {/* Brushed Silver Vertical Pull Handle (Outside / Hallway Side) */}
+              <group position={[0.08, 0, -0.62]}>
+                <mesh castShadow>
+                  <cylinderGeometry args={[0.022, 0.022, 0.88, 14]} />
+                  <meshStandardMaterial color="#e2e8f0" metalness={0.88} roughness={0.15} />
+                </mesh>
+                {[-0.38, 0.38].map((hy, hIdx) => (
+                  <mesh key={hIdx} position={[-0.03, hy, 0]} rotation={[0, 0, Math.PI / 2]}>
+                    <cylinderGeometry args={[0.016, 0.016, 0.06, 10]} />
+                    <meshStandardMaterial color="#94a3b8" metalness={0.85} />
+                  </mesh>
+                ))}
+              </group>
+
+              {/* Brushed Silver Vertical Pull Handle (Inside / Classroom Side) */}
+              <group position={[-0.08, 0, -0.62]}>
+                <mesh>
+                  <cylinderGeometry args={[0.02, 0.02, 0.88, 14]} />
+                  <meshStandardMaterial color="#e2e8f0" metalness={0.88} roughness={0.15} />
+                </mesh>
+                {[-0.38, 0.38].map((hy, hIdx) => (
+                  <mesh key={hIdx} position={[0.03, hy, 0]} rotation={[0, 0, Math.PI / 2]}>
+                    <cylinderGeometry args={[0.016, 0.016, 0.06, 10]} />
+                    <meshStandardMaterial color="#94a3b8" metalness={0.85} />
+                  </mesh>
+                ))}
+              </group>
+            </group>
+          )}
+
+          {/* Right Sliding Door Leaf (Doors 101 & 103 only) */}
+          {idx !== 1 && (
+            <group
+              ref={(el) => (rightDoorRefs.current[idx] = el)}
+              position={[0, 1.82, -0.78]}
+            >
+              {/* Rich Warm Oak Door Leaf Body */}
+              <RoundedBox args={[0.09, 3.58, 1.54]} position={[0, 0, 0]} radius={0.02} castShadow receiveShadow>
+                <meshStandardMaterial color="#b45309" roughness={0.42} />
+              </RoundedBox>
+
+              {/* Recessed Lower Wood Panel (Wainscot Bevel) */}
+              <RoundedBox args={[0.11, 1.25, 1.28]} position={[0, -0.92, 0]} radius={0.02}>
+                <meshStandardMaterial color="#92400e" roughness={0.5} />
+              </RoundedBox>
+              <RoundedBox args={[0.12, 1.15, 1.18]} position={[0, -0.92, 0]} radius={0.01}>
+                <meshStandardMaterial color="#78350f" roughness={0.55} />
+              </RoundedBox>
+
+              {/* Upper Dark Frame for Vertical Glass Viewing Window */}
+              <RoundedBox args={[0.11, 1.68, 0.42]} position={[0, 0.72, 0.36]} radius={0.02}>
+                <meshStandardMaterial color="#1c1917" roughness={0.6} />
+              </RoundedBox>
+              {/* Narrow Clean Glass Viewing Pane */}
+              <mesh position={[0, 0.72, 0.36]}>
+                <boxGeometry args={[0.08, 1.55, 0.32]} />
+                <meshPhysicalMaterial
+                  color="#bae6fd"
+                  transparent
+                  opacity={0.35}
+                  roughness={0.08}
+                  metalness={0.15}
+                />
               </mesh>
-              {[-0.38, 0.38].map((hy, hIdx) => (
-                <mesh key={hIdx} position={[0.03, hy, 0]} rotation={[0, 0, Math.PI / 2]}>
-                  <cylinderGeometry args={[0.015, 0.015, 0.06, 10]} />
-                  <meshStandardMaterial color="#94a3b8" metalness={0.85} />
+
+              {/* Brushed Silver Vertical Pull Handle (Outside / Hallway Side) */}
+              <group position={[0.08, 0, 0.62]}>
+                <mesh castShadow>
+                  <cylinderGeometry args={[0.022, 0.022, 0.88, 14]} />
+                  <meshStandardMaterial color="#e2e8f0" metalness={0.88} roughness={0.15} />
                 </mesh>
-              ))}
-            </group>
-          </group>
+                {[-0.38, 0.38].map((hy, hIdx) => (
+                  <mesh key={hIdx} position={[-0.03, hy, 0]} rotation={[0, 0, Math.PI / 2]}>
+                    <cylinderGeometry args={[0.016, 0.016, 0.06, 10]} />
+                    <meshStandardMaterial color="#94a3b8" metalness={0.85} />
+                  </mesh>
+                ))}
+              </group>
 
-          {/* Right Sliding Door Leaf */}
-          <group
-            ref={(el) => (rightDoorRefs.current[idx] = el)}
-            position={[0, 1.82, -0.78]}
-          >
-            {/* Rich Warm Oak Door Leaf Body */}
-            <RoundedBox args={[0.09, 3.58, 1.54]} position={[0, 0, 0]} radius={0.02} castShadow receiveShadow>
-              <meshStandardMaterial color="#b45309" roughness={0.42} />
-            </RoundedBox>
-
-            {/* Recessed Lower Wood Panel (Wainscot Bevel) */}
-            <RoundedBox args={[0.11, 1.25, 1.28]} position={[0, -0.92, 0]} radius={0.02}>
-              <meshStandardMaterial color="#92400e" roughness={0.5} />
-            </RoundedBox>
-            <RoundedBox args={[0.12, 1.15, 1.18]} position={[0, -0.92, 0]} radius={0.01}>
-              <meshStandardMaterial color="#78350f" roughness={0.55} />
-            </RoundedBox>
-
-            {/* Upper Dark Frame for Vertical Glass Viewing Window */}
-            <RoundedBox args={[0.11, 1.68, 0.42]} position={[0, 0.72, 0.36]} radius={0.02}>
-              <meshStandardMaterial color="#1c1917" roughness={0.6} />
-            </RoundedBox>
-            {/* Narrow Clean Glass Viewing Pane */}
-            <mesh position={[0, 0.72, 0.36]}>
-              <boxGeometry args={[0.08, 1.55, 0.32]} />
-              <meshPhysicalMaterial
-                color="#bae6fd"
-                transparent
-                opacity={0.35}
-                roughness={0.08}
-                metalness={0.15}
-              />
-            </mesh>
-
-            {/* Brushed Silver Vertical Pull Handle (Outside / Hallway Side) */}
-            <group position={[0.08, 0, 0.62]}>
-              <mesh castShadow>
-                <cylinderGeometry args={[0.02, 0.02, 0.88, 14]} />
-                <meshStandardMaterial color="#e2e8f0" metalness={0.88} roughness={0.15} />
-              </mesh>
-              {[-0.38, 0.38].map((hy, hIdx) => (
-                <mesh key={hIdx} position={[-0.03, hy, 0]} rotation={[0, 0, Math.PI / 2]}>
-                  <cylinderGeometry args={[0.015, 0.015, 0.06, 10]} />
-                  <meshStandardMaterial color="#94a3b8" metalness={0.85} />
+              {/* Brushed Silver Vertical Pull Handle (Inside / Classroom Side) */}
+              <group position={[-0.08, 0, 0.62]}>
+                <mesh>
+                  <cylinderGeometry args={[0.02, 0.02, 0.88, 14]} />
+                  <meshStandardMaterial color="#e2e8f0" metalness={0.88} roughness={0.15} />
                 </mesh>
-              ))}
+                {[-0.38, 0.38].map((hy, hIdx) => (
+                  <mesh key={hIdx} position={[0.03, hy, 0]} rotation={[0, 0, Math.PI / 2]}>
+                    <cylinderGeometry args={[0.016, 0.016, 0.06, 10]} />
+                    <meshStandardMaterial color="#94a3b8" metalness={0.85} />
+                  </mesh>
+                ))}
+              </group>
             </group>
-
-            {/* Brushed Silver Vertical Pull Handle (Inside / Classroom Side) */}
-            <group position={[-0.08, 0, 0.62]}>
-              <mesh>
-                <cylinderGeometry args={[0.02, 0.02, 0.88, 14]} />
-                <meshStandardMaterial color="#e2e8f0" metalness={0.88} roughness={0.15} />
-              </mesh>
-              {[-0.38, 0.38].map((hy, hIdx) => (
-                <mesh key={hIdx} position={[0.03, hy, 0]} rotation={[0, 0, Math.PI / 2]}>
-                  <cylinderGeometry args={[0.015, 0.015, 0.06, 10]} />
-                  <meshStandardMaterial color="#94a3b8" metalness={0.85} />
-                </mesh>
-              ))}
-            </group>
-          </group>
+          )}
 
           {/* Dark Slate Room Number Sign ("101", "102", "103") Above Door Frame (Image 4) */}
           <RoundedBox args={[0.12, 0.46, 0.92]} position={[0.26, 4.12, 0]} radius={0.04}>
@@ -3756,7 +3873,7 @@ function StaircaseAndFloor2Veranda3D() {
       ))}
 
       {/* ─── 5. ARCHITECTURAL FLOOR 2 SIGNPOST ─── */}
-      <group position={[0, 7.85, -31.5]}>
+      <group position={[3.8, 7.85, -31.5]}>
         {[-1.2, 1.2].map((hx, i) => (
           <mesh key={i} position={[hx, 0.85, 0]}>
             <cylinderGeometry args={[0.025, 0.025, 1.2, 8]} />
@@ -3957,11 +4074,8 @@ function StaircaseAndFloor2Veranda3D() {
         ))}
       </group>
 
-      {/* ─── 8. GROUND-FLOOR REAR BULKHEAD WALL (UNDER FLOOR 2, z = -48.2, y = 0 to 6.2m) ─── */}
-      {/* Wall terminates at y = 6.2 (Floor 2 floor slab) so Level 2 entrance has no wall blocking the computers */}
-      <RoundedBox args={[16.2, 6.2, 0.45]} position={[0, 3.1, -48.2]} radius={0.02} receiveShadow castShadow>
-        <meshStandardMaterial color="#f8efe2" roughness={0.7} />
-      </RoundedBox>
+      {/* ─── 8. GROUND-FLOOR REAR FOUNDATION (Directly Behind Stairs at z = -37.0, Leaves Level 2 Completely Open) ─── */}
+      {/* Retains foundation under staircase at z = -37.0 and ensures Level 2 Computer Lab is 100% visible with NO blocking walls */}
 
       {/* ─── 9. COZY UNDER-STAIRCASE ACADEMY STUDY FEATURES ─── */}
       {/* Right Side Under-Stair Study Bench & Oak Bookshelf */}
@@ -4077,6 +4191,7 @@ function StaircaseAndFloor2Veranda3D() {
 // ═══════════════════════════════════════════════════════════════════════════════
 function Floor2ComputerLabScene3D({
   activeComputerIndex,
+  isAtmActive = false,
   computer1Content,
   computer2Content,
   computer3Content,
@@ -4227,7 +4342,7 @@ function Floor2ComputerLabScene3D({
               </mesh>
 
               {/* ─── EMBEDDED INTERACTIVE MODULE PERFECTLY FITTED INSIDE COMPUTER SCREEN ─── */}
-              {ws.content && (
+              {ws.content && !isAtmActive && (
                 <Html
                   center
                   zIndexRange={[15, 0]}
@@ -6739,11 +6854,11 @@ export default function Level1SchoolWorld({
       cam,
       {
         x: 0,
-        y: 8.8,
-        z: -29.5,
+        y: 8.35,
+        z: -38.5,
         lookX: 0,
-        lookY: 7.7,
-        lookZ: -52.0,
+        lookY: 7.82,
+        lookZ: -52.28,
         duration: 3.0,
         ease: 'power1.inOut',
       },
@@ -6906,7 +7021,7 @@ export default function Level1SchoolWorld({
     setTimeout(() => {
       setComputerFeedbackBanner(null)
       focusCameraOnComputer(2, true)
-    }, 2600)
+    }, 3200)
   }
 
   // Complete Computer 2 (Savings Mixer) -> Stand up & walk to Computer 3
@@ -6926,7 +7041,7 @@ export default function Level1SchoolWorld({
     setTimeout(() => {
       setComputerFeedbackBanner(null)
       focusCameraOnComputer(3, true)
-    }, 2600)
+    }, 3200)
   }
 
   // Complete Computer 3 (Combined Metrics) -> Show "Level 2 Completed" -> Walk outside through the Veranda ("EXIT") -> Continue to Level 3 Bank!
@@ -6958,7 +7073,7 @@ export default function Level1SchoolWorld({
     setTimeout(() => {
       setComputerFeedbackBanner(null)
       beginWalkToExit(true)
-    }, 3000)
+    }, 3600)
   }
 
   // ───────────────────────────────────────────────────────────────────────────
@@ -7329,7 +7444,23 @@ export default function Level1SchoolWorld({
     if (timelineRef.current) timelineRef.current.kill()
     if (atmQueueTimerRef.current) clearInterval(atmQueueTimerRef.current)
 
+    // Completely dismiss all non-ATM screens, modules, and computer overlays
+    setIsComputerFullscreen(false)
+    setActiveGardenStall(null)
     setShowCampusMapModal(false)
+    setShowXpDepositModal(false)
+    setShowRankModal(false)
+    setIsVideoFullscreen(false)
+    setShowLessonCompletedBanner(false)
+    setShowLevel2ArrivalBanner(false)
+    setShowLevel3ArrivalBanner(false)
+    setComputerFeedbackBanner(null)
+    setBankSectionFeedbackBanner(null)
+
+    if (journeyStage === 'computer_lab' || journeyStage === 'classroom_projector' || journeyStage === 'exam_projector') {
+      setJourneyStage('school_yard')
+    }
+
     setIsPlayerInAtmQueue(true)
     setAtmQueuePosition(2) // 2 NPC customers ahead in line (Player is #3 in queue)
 
@@ -8542,7 +8673,10 @@ export default function Level1SchoolWorld({
     setIsComputerFullscreen((prev) => !prev)
   }
 
+  const isAtmActive = Boolean(isPlayerInAtmQueue || showAtmModal)
+
   const computer1MonitorUI =
+    !isAtmActive &&
     journeyStage === 'computer_lab' &&
     !computerTransitioning &&
     !isComputerFullscreen &&
@@ -8565,6 +8699,7 @@ export default function Level1SchoolWorld({
 
   // COMPUTER 2 (SECTION 2): SAVINGS MIXER (Add/Remove 6 Schemes Simultaneously + Educational Notes + Comparison Metric + What Should You Know + Learning Challenges + Growth Projector + Multi-Goal Planner)
   const computer2MonitorUI =
+    !isAtmActive &&
     journeyStage === 'computer_lab' &&
     !computerTransitioning &&
     !isComputerFullscreen &&
@@ -8583,6 +8718,7 @@ export default function Level1SchoolWorld({
 
   // COMPUTER 3 (SECTION 3): PORTFOLIO SIMULATION (Add/Remove 6 Schemes with >=1 Default + "When Can I Buy?" Investment Plan + Add/Remove History)
   const computer3MonitorUI =
+    !isAtmActive &&
     journeyStage === 'computer_lab' &&
     !computerTransitioning &&
     !isComputerFullscreen &&
@@ -8704,6 +8840,7 @@ export default function Level1SchoolWorld({
             {/* 6. Floor 2 — 3D Computer Laboratory with 3 Physical Monitors, Teacher & Classmates */}
             <Floor2ComputerLabScene3D
               activeComputerIndex={activeComputerIndex}
+              isAtmActive={isAtmActive}
               computer1Content={computer1MonitorUI}
               computer2Content={computer2MonitorUI}
               computer3Content={computer3MonitorUI}
@@ -8948,8 +9085,7 @@ export default function Level1SchoolWorld({
           <button
             type="button"
             onClick={() => {
-              soundEngine.playClick()
-              setShowAtmModal(true)
+              startAtmQueueExperience()
             }}
             style={{ width: '10.6vh', minWidth: '10.6vh', height: '9.4vh', minHeight: '9.4vh', padding: '0.8vh', borderRadius: '1.8vh', gap: '0.35vh' }}
             className="bg-slate-900 hover:bg-slate-800 border-2 border-amber-400 text-amber-300 shadow-xl flex flex-col items-center justify-center cursor-pointer transition-transform hover:scale-105 text-center"
@@ -9216,7 +9352,7 @@ export default function Level1SchoolWorld({
       {/* ═══════════════════════════════════════════════════════════════════
           ⛶ LEVEL 2 FULL-SCREEN COMPUTER WORKSTATION OVERLAY (Displays All Info Clearly!)
       ═══════════════════════════════════════════════════════════════════ */}
-      {isComputerFullscreen && journeyStage === 'computer_lab' && !computerFeedbackBanner && (
+      {isComputerFullscreen && journeyStage === 'computer_lab' && !computerFeedbackBanner && !isAtmActive && (
         <div
           style={{ paddingTop: '11.2vh', paddingBottom: '1.8vh', paddingLeft: '2vw', paddingRight: '2vw' }}
           className="fixed inset-0 z-40 bg-slate-950/95 backdrop-blur-xl flex flex-col items-center justify-between pointer-events-auto overflow-hidden"
@@ -9360,18 +9496,18 @@ export default function Level1SchoolWorld({
           (z-50 + Centered Celebration Overlay so it NEVER hides behind 3D screens!)
       ═══════════════════════════════════════════════════════════════════ */}
       {computerFeedbackBanner && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/75 backdrop-blur-md pointer-events-none p-4 sm:p-8">
-          <div className="w-[min(92vw,920px)] min-h-[50vh] sm:min-h-[56vh] px-8 py-10 sm:px-14 sm:py-14 rounded-[32px] sm:rounded-[48px] bg-white border-4 sm:border-8 border-amber-400 shadow-[0_0_120px_rgba(251,191,36,0.95),0_30px_90px_rgba(0,0,0,0.85)] flex flex-col items-center justify-center text-center mx-4 animate-bounce">
-            <div className="text-6xl sm:text-8xl md:text-9xl mb-4 sm:mb-6 drop-shadow-md select-none">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md pointer-events-none p-4 sm:p-8">
+          <div className="w-[min(96vw,1440px)] min-h-[82vh] sm:min-h-[88vh] px-8 py-12 sm:px-20 sm:py-20 rounded-[40px] sm:rounded-[64px] bg-white border-[8px] sm:border-[16px] border-amber-400 shadow-[0_0_200px_rgba(251,191,36,1),0_40px_120px_rgba(0,0,0,0.95)] flex flex-col items-center justify-center text-center mx-4 animate-bounce">
+            <div className="text-8xl sm:text-[130px] md:text-[160px] lg:text-[180px] mb-6 sm:mb-10 drop-shadow-2xl select-none">
               🎉 🏆 ✨
             </div>
-            <div className="inline-flex items-center gap-2 px-8 py-2.5 sm:px-12 sm:py-3.5 rounded-full bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 border-2 sm:border-4 border-amber-600 text-black font-black text-lg sm:text-2xl md:text-3xl mb-5 sm:mb-7 shadow-[0_8px_25px_rgba(245,158,11,0.5)]">
+            <div className="inline-flex items-center gap-4 px-12 py-4 sm:px-20 sm:py-6 rounded-full bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 border-[4px] sm:border-[6px] border-amber-600 text-black font-black text-2xl sm:text-4xl md:text-5xl mb-8 sm:mb-10 shadow-[0_15px_40px_rgba(245,158,11,0.7)]">
               ⭐ {computerFeedbackBanner.xp}
             </div>
-            <div className="text-3xl sm:text-5xl md:text-6xl font-black text-slate-950 leading-tight tracking-tight mb-4 sm:mb-6">
+            <div className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-black text-slate-950 leading-tight tracking-tight mb-6 sm:mb-10">
               {computerFeedbackBanner.title}
             </div>
-            <div className="text-base sm:text-2xl md:text-3xl font-extrabold text-emerald-700 leading-relaxed max-w-3xl">
+            <div className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-emerald-700 leading-relaxed max-w-5xl">
               {computerFeedbackBanner.sub}
             </div>
           </div>
@@ -9467,61 +9603,62 @@ export default function Level1SchoolWorld({
 
       {/* ═══════════════════════════════════════════════════════════════════
           LEVEL 3 — BANK EMPLOYEE GUIDE INTERACTION PANEL (Maya — 2 Cabins + XP Deposit)
-          Solid Opaque Card with Ultra-Crisp High-Contrast Text & Badges
+          Enlarged Ultra-Crisp Kiosk Card (Matching User Sketch with Big Typography & Prominent Buttons)
       ═══════════════════════════════════════════════════════════════════ */}
       {journeyStage === 'bank_employee' && (
         <div
-          className="absolute bottom-7 left-1/2 -translate-x-1/2 z-30 w-[min(94vw,820px)] rounded-3xl bg-white border-2 border-blue-500 shadow-[0_25px_80px_rgba(0,0,0,0.55)] p-6 sm:p-7 text-slate-900"
+          className="absolute bottom-5 sm:bottom-7 left-1/2 -translate-x-1/2 z-30 w-[min(97vw,1440px)] rounded-[36px] sm:rounded-[48px] bg-white border-4 sm:border-6 border-blue-500 shadow-[0_30px_120px_rgba(0,0,0,0.75)] p-8 sm:p-12 text-slate-900"
           style={{ backgroundColor: '#ffffff', color: '#0f172a' }}
         >
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-800 border-2 border-amber-400 flex items-center justify-center text-3xl shadow-lg shrink-0 text-white">
+          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5 border-b-2 border-slate-200 pb-5">
+            <div className="flex items-center gap-5">
+              <div className="w-22 h-22 sm:w-28 sm:h-28 rounded-3xl bg-gradient-to-br from-blue-600 via-indigo-700 to-indigo-900 border-4 border-amber-400 flex items-center justify-center text-5xl sm:text-6xl shadow-2xl shrink-0 text-white">
                 👩‍💼
               </div>
               <div>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-400 text-blue-950 text-xs font-black uppercase tracking-wider mb-1">
+                <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-blue-50 border-2 border-blue-400 text-blue-950 text-xs sm:text-sm font-black uppercase tracking-wider mb-1.5">
                   <span>🏛️ Level 3 Bank Lobby</span>
                   <span>•</span>
                   <span>Senior Banking Officer</span>
                 </div>
-                <h2 className="text-xl sm:text-2xl font-black text-slate-900">
+                <h2 className="text-3xl sm:text-5xl lg:text-6xl font-black text-slate-900 tracking-tight">
                   Maya — Your Personal Banking Guide
                 </h2>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 flex-wrap">
-              <div className="px-3.5 py-2 rounded-2xl bg-amber-50 border border-amber-400 text-amber-950 text-xs sm:text-sm font-black">
-                🏦 Banked XP Vault: {bankedXp} XP
+            <div className="flex items-center gap-3 flex-wrap">
+              <div className="px-5 py-2.5 sm:px-6 sm:py-3 rounded-2xl bg-amber-50 border-2 border-amber-400 text-amber-950 text-sm sm:text-base font-black shadow-sm">
+                🏦 Banked XP Vault: <span className="text-amber-800 font-extrabold">{bankedXp} XP</span>
               </div>
-              <div className="px-4 py-2 rounded-2xl bg-emerald-50 border border-emerald-400 text-emerald-950 text-xs sm:text-sm font-black">
-                Cabins Completed: {completedBankSections.length} / 2
+              <div className="px-5 py-2.5 sm:px-6 sm:py-3 rounded-2xl bg-emerald-50 border-2 border-emerald-400 text-emerald-950 text-sm sm:text-base font-black shadow-sm">
+                Cabins Completed: <span className="text-emerald-800 font-extrabold">{completedBankSections.length} / 2</span>
               </div>
             </div>
           </div>
 
-          <p className="mt-4 text-sm sm:text-base text-slate-800 font-bold leading-relaxed">
+          <p className="mt-5 text-lg sm:text-2xl lg:text-3xl text-slate-800 font-bold leading-relaxed">
             “Welcome to the <span className="text-blue-700 font-black">Learn2Invest Bank</span>,{' '}
             <span className="text-emerald-700 font-black">
               {characterChoice === 'leo' || characterChoice === 'max' ? 'Leo' : 'Luna'}
             </span>
-            ! You can <span className="underline font-black text-slate-950">deposit your collected XP safely in the Bank through me</span> (and withdraw it anytime at our <span className="font-black text-slate-950">24/7 Side ATM Machine</span>), or explore our 2 cabins:{' '}
+            ! You can <span className="underline font-black text-slate-950 decoration-blue-500 decoration-2">deposit your collected XP safely in the Bank through me</span> (and withdraw it anytime at our <span className="font-black text-slate-950">24/7 Side ATM Machine</span>), or explore our 2 cabins:{' '}
             <span className="text-blue-700 font-black">Cabin 1: Banking Slip Writing</span> and{' '}
             <span className="text-emerald-700 font-black">Cabin 2: Digital Banking Safety</span>!”
           </p>
 
-          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-200">
-            <div className="flex items-center gap-2 flex-wrap">
+          <div className="mt-8 flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-5 sm:gap-6 pt-6 sm:pt-8 border-t-4 border-slate-200">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 sm:gap-6 flex-wrap">
               <button
                 type="button"
                 onClick={() => {
                   soundEngine.playClick()
                   setShowXpDepositModal(true)
                 }}
-                className="px-4 py-2.5 rounded-2xl bg-amber-400 hover:bg-amber-300 border-2 border-black/20 text-slate-950 font-black text-xs sm:text-sm shadow-md hover:scale-105 transition-transform cursor-pointer"
+                className="px-8 py-5 sm:px-10 sm:py-6 rounded-3xl bg-amber-400 hover:bg-amber-300 border-3 sm:border-4 border-amber-600 text-slate-950 font-black text-lg sm:text-2xl lg:text-3xl shadow-[0_12px_30px_rgba(245,158,11,0.45)] hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-3.5 text-center"
               >
-                🏦 Deposit XP with Maya ({state?.xp || 0} Wallet XP)
+                <span className="text-3xl sm:text-4xl">🏦</span>
+                <span>Deposit XP with Maya ({state?.xp || 0} Wallet XP)</span>
               </button>
               <button
                 type="button"
@@ -9529,18 +9666,20 @@ export default function Level1SchoolWorld({
                   soundEngine.playClick()
                   startAtmQueueExperience()
                 }}
-                className="px-4 py-2.5 rounded-2xl bg-cyan-300 hover:bg-cyan-200 border-2 border-black/20 text-slate-950 font-black text-xs sm:text-sm shadow-md hover:scale-105 transition-transform cursor-pointer"
+                className="px-8 py-5 sm:px-10 sm:py-6 rounded-3xl bg-cyan-300 hover:bg-cyan-200 border-3 sm:border-4 border-cyan-500 text-slate-950 font-black text-lg sm:text-2xl lg:text-3xl shadow-[0_12px_30px_rgba(6,182,212,0.45)] hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-3.5 text-center"
               >
-                🏧 Walk to 24/7 ATM Queue ({bankedXp} Banked XP)
+                <span className="text-3xl sm:text-4xl">🏧</span>
+                <span>Walk to 24/7 ATM Queue ({bankedXp} Banked XP)</span>
               </button>
             </div>
 
             <button
               onClick={handleEmployeeInteract}
               onMouseEnter={() => soundEngine.playHover()}
-              className="px-7 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 text-slate-950 border-2 border-black/20 font-black text-sm sm:text-base shadow-[0_10px_30px_rgba(16,185,129,0.45)] hover:scale-105 active:scale-95 transition-all cursor-pointer"
+              className="px-10 py-5 sm:px-14 sm:py-7 rounded-3xl bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 text-slate-950 border-3 sm:border-4 border-emerald-600 font-black text-xl sm:text-3xl lg:text-4xl shadow-[0_16px_45px_rgba(16,185,129,0.55)] hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-4 text-center shrink-0"
             >
-              🏛️ Enter Cabin 1: Banking Slip Writing →
+              <span className="text-3xl sm:text-5xl">🏛️</span>
+              <span>Enter Cabin 1: Banking Slip Writing →</span>
             </button>
           </div>
         </div>
@@ -9550,7 +9689,7 @@ export default function Level1SchoolWorld({
           LEVEL 3 — ORIGINAL BANK PAPER SLIP WRITER & DIGITAL SAFETY ARENA (2 CABINS)
       ═══════════════════════════════════════════════════════════════════ */}
       {journeyStage === 'bank_section' && !bankSectionFeedbackBanner && (
-        <div style={{ paddingTop: "7.5vh", paddingBottom: "1.5vh", paddingLeft: "1vw", paddingRight: "1vw" }} className="fixed inset-0 z-40 bg-slate-950/80 backdrop-blur-md flex flex-col items-center justify-center pointer-events-auto overflow-hidden">
+        <div style={{ paddingTop: "2vh", paddingBottom: "2vh", paddingLeft: "1vw", paddingRight: "1vw" }} className="fixed inset-0 z-40 bg-slate-950/80 backdrop-blur-md flex flex-col items-center justify-center pointer-events-auto overflow-hidden">
           <Level3BankSectionScreen
             sectionNumber={activeBankSection}
             completedSections={completedBankSections}
@@ -9571,27 +9710,27 @@ export default function Level1SchoolWorld({
           Includes: School Pin, 3 Garden Stalls Pin, Road Path, Bank Pin & 24/7 ATM Pin!
       ═══════════════════════════════════════════════════════════════════ */}
       {(journeyStage === 'journey_complete' || showCampusMapModal) && (
-        <div className="absolute inset-0 z-40 flex items-center justify-center p-3 sm:p-6 pt-16 bg-slate-950/80 backdrop-blur-md pointer-events-auto">
-          <div className="w-[min(96vw,1040px)] max-h-[88vh] overflow-y-auto rounded-3xl bg-slate-950/95 border-2 border-amber-400 shadow-[0_25px_90px_rgba(0,0,0,0.9)] p-5 sm:p-7 text-white">
+        <div className="absolute inset-0 z-40 flex items-center justify-center p-2 sm:p-5 pt-3 sm:pt-6 bg-slate-950/85 backdrop-blur-md pointer-events-auto">
+          <div className="w-[min(98vw,1560px)] min-h-[90vh] max-h-[96vh] overflow-y-auto rounded-[36px] sm:rounded-[52px] bg-slate-950/98 border-4 sm:border-6 border-amber-400 shadow-[0_30px_140px_rgba(251,191,36,0.45),0_30px_100px_rgba(0,0,0,0.95)] p-6 sm:p-10 lg:p-12 text-white flex flex-col justify-between">
             {/* Header */}
-            <div className="flex flex-wrap items-center justify-between gap-3 mb-4 border-b border-white/15 pb-4">
+            <div className="flex flex-wrap items-center justify-between gap-4 mb-4 sm:mb-6 border-b-2 border-white/15 pb-4 sm:pb-5">
               <div>
-                <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider shadow-md mb-1.5">
+                <div className="inline-flex items-center gap-2.5 px-5 py-1.5 rounded-full bg-amber-400 text-slate-950 font-black text-xs sm:text-sm uppercase tracking-wider shadow-md mb-2">
                   <span>🗺️ Official Campus Route Map • School, Garden Stalls, Side Boulevard, Bank & 24/7 ATM</span>
                 </div>
-                <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white leading-tight">
+                <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white leading-tight">
                   LEARN<span className="text-lime-400">2</span>INVEST SCHOOL TO BANK & ATM MAP
                 </h1>
               </div>
 
-              <div className="flex items-center gap-3">
-                <div className="px-4 py-2 rounded-full bg-emerald-500/20 border border-emerald-400 text-emerald-300 font-black text-sm">
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="px-5 py-2.5 sm:px-6 sm:py-3 rounded-full bg-emerald-500/20 border-2 border-emerald-400 text-emerald-300 font-black text-sm sm:text-base shadow-sm">
                   ⭐ {state?.xp || 0} Wallet XP • 🏦 {bankedXp} Banked XP
                 </div>
                 {showCampusMapModal && journeyStage !== 'journey_complete' && (
                   <button
                     onClick={() => setShowCampusMapModal(false)}
-                    className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 border border-white/25 text-white font-black text-lg flex items-center justify-center cursor-pointer"
+                    className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 border-2 border-white/30 text-white font-black text-2xl flex items-center justify-center cursor-pointer hover:scale-105 active:scale-95 transition-all"
                     title="Close Map"
                   >
                     ✕
@@ -9601,11 +9740,11 @@ export default function Level1SchoolWorld({
             </div>
 
             {/* Attached School-to-Bank Map Image with Living Animated Route & Pin Overlays */}
-            <div className="relative w-full rounded-2xl overflow-hidden border-2 border-amber-400/80 shadow-2xl bg-slate-900">
+            <div className="relative w-full rounded-3xl overflow-hidden border-3 border-amber-400/90 shadow-2xl bg-slate-900 max-h-[64vh] flex items-center justify-center">
               <img
                 src="/images/school_to_bank_map.jpg"
                 alt="Learn2Invest School to Bank Journey Map"
-                className="w-full h-auto block object-cover"
+                className="w-full h-auto max-h-[64vh] block object-contain sm:object-cover"
               />
 
               {/* Interactive Badge Over School Pin (Top-Left) */}
@@ -9614,12 +9753,12 @@ export default function Level1SchoolWorld({
                   setShowCampusMapModal(false)
                   handleGlobalHome()
                 }}
-                className="absolute top-[14%] left-[6%] sm:left-[10%] px-3.5 py-2 rounded-2xl bg-slate-950/90 border-2 border-emerald-400 text-white shadow-xl cursor-pointer hover:scale-105 transition-transform"
+                className="absolute top-[12%] left-[4%] sm:left-[8%] px-4 py-2.5 sm:px-5 sm:py-3 rounded-2xl bg-slate-950/95 border-2 border-emerald-400 text-white shadow-2xl cursor-pointer hover:scale-105 transition-transform"
               >
-                <div className="text-[10px] font-black uppercase tracking-wider text-emerald-400">
+                <div className="text-[11px] sm:text-xs font-black uppercase tracking-wider text-emerald-400">
                   📍 LEVEL 1 & LEVEL 2
                 </div>
-                <div className="text-xs sm:text-sm font-black">🏫 Learn2Invest School & Lab</div>
+                <div className="text-xs sm:text-base font-black">🏫 Learn2Invest School & Lab</div>
               </div>
 
               {/* Interactive Badge Over Right-Side Garden Stalls */}
@@ -9628,17 +9767,17 @@ export default function Level1SchoolWorld({
                   setShowCampusMapModal(false)
                   setActiveGardenStall(3)
                 }}
-                className="absolute bottom-[18%] left-[12%] sm:left-[16%] px-3.5 py-2 rounded-2xl bg-slate-950/90 border-2 border-pink-400 text-white shadow-xl cursor-pointer hover:scale-105 transition-transform"
+                className="absolute bottom-[16%] left-[10%] sm:left-[14%] px-4 py-2.5 sm:px-5 sm:py-3 rounded-2xl bg-slate-950/95 border-2 border-pink-400 text-white shadow-2xl cursor-pointer hover:scale-105 transition-transform"
               >
-                <div className="text-[10px] font-black uppercase tracking-wider text-pink-300">
+                <div className="text-[11px] sm:text-xs font-black uppercase tracking-wider text-pink-300">
                   📍 SCHOOL YARD RIGHT GARDEN
                 </div>
-                <div className="text-xs sm:text-sm font-black">🎡 3 Garden Stalls (Clothes • Ice Cream • Spin Wheel)</div>
+                <div className="text-xs sm:text-base font-black">🎡 3 Garden Stalls (Clothes • Ice Cream • Spin Wheel)</div>
               </div>
 
               {/* Animated Student Marker Travelling Along the Dashed Red Route */}
               <div
-                className="absolute px-3 py-1.5 rounded-full bg-pink-600/95 border-2 border-white text-white text-xs font-black shadow-[0_0_25px_rgba(236,72,153,0.9)] flex items-center gap-1.5 pointer-events-none"
+                className="absolute px-4 py-2 rounded-full bg-pink-600/95 border-2 border-white text-white text-xs sm:text-sm font-black shadow-[0_0_25px_rgba(236,72,153,0.9)] flex items-center gap-2 pointer-events-none"
                 style={{
                   animation: 'mapRouteWalk 7s ease-in-out infinite alternate',
                 }}
@@ -9653,12 +9792,12 @@ export default function Level1SchoolWorld({
                   setShowCampusMapModal(false)
                   focusCameraOnBankSection(1, false)
                 }}
-                className="absolute top-[26%] right-[5%] sm:right-[7%] px-3.5 py-2 rounded-2xl bg-slate-950/90 border-2 border-amber-400 text-white shadow-xl cursor-pointer hover:scale-105 transition-transform"
+                className="absolute top-[24%] right-[4%] sm:right-[6%] px-4 py-2.5 sm:px-5 sm:py-3 rounded-2xl bg-slate-950/95 border-2 border-amber-400 text-white shadow-2xl cursor-pointer hover:scale-105 transition-transform"
               >
-                <div className="text-[10px] font-black uppercase tracking-wider text-amber-400">
+                <div className="text-[11px] sm:text-xs font-black uppercase tracking-wider text-amber-400">
                   📍 LEVEL 3 FINANCIAL CENTER (SIDE OF SCHOOL)
                 </div>
-                <div className="text-xs sm:text-sm font-black">🏛️ Learn2Invest Bank • Click to Enter →</div>
+                <div className="text-xs sm:text-base font-black">🏛️ Learn2Invest Bank • Click to Enter →</div>
               </div>
 
               {/* Interactive Badge Over 24/7 ATM Machine Location (Beside the Bank!) */}
@@ -9667,12 +9806,12 @@ export default function Level1SchoolWorld({
                   setShowCampusMapModal(false)
                   startAtmQueueExperience()
                 }}
-                className="absolute bottom-[18%] right-[6%] sm:right-[8%] px-4 py-2.5 rounded-2xl bg-cyan-950/95 border-2 border-cyan-400 text-white shadow-[0_0_25px_rgba(34,211,238,0.6)] cursor-pointer hover:scale-105 transition-transform"
+                className="absolute bottom-[16%] right-[5%] sm:right-[7%] px-5 py-3 rounded-2xl bg-cyan-950/95 border-2 border-cyan-400 text-white shadow-[0_0_30px_rgba(34,211,238,0.7)] cursor-pointer hover:scale-105 transition-transform"
               >
-                <div className="text-[10px] font-black uppercase tracking-wider text-cyan-300">
+                <div className="text-[11px] sm:text-xs font-black uppercase tracking-wider text-cyan-300">
                   📍 BESIDE LEVEL 3 BANK • 24/7 KIOSK & QUEUE
                 </div>
-                <div className="text-xs sm:text-sm font-black">🏧 Learn2Invest ATM Machine (Join Queue)</div>
+                <div className="text-xs sm:text-base font-black">🏧 Learn2Invest ATM Machine (Join Queue)</div>
               </div>
 
               <style>{`
@@ -9687,23 +9826,23 @@ export default function Level1SchoolWorld({
             </div>
 
             {/* 4-Card Summary + Action Buttons */}
-            <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-              <div className="p-3.5 rounded-2xl border border-emerald-400/50 bg-emerald-950/40 flex items-center justify-between">
+            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="p-4 sm:p-5 rounded-2xl border-2 border-emerald-400/50 bg-emerald-950/40 flex items-center justify-between shadow-sm">
                 <div>
-                  <div className="text-xs font-black text-emerald-300 uppercase">LEVEL 1</div>
-                  <div className="text-sm font-black text-white">School & Garden Stalls</div>
-                  <div className="text-xs text-slate-300">5 Videos • 10-Q Quiz • 3 Stalls</div>
+                  <div className="text-xs sm:text-sm font-black text-emerald-300 uppercase">LEVEL 1</div>
+                  <div className="text-base sm:text-lg font-black text-white">School & Garden Stalls</div>
+                  <div className="text-xs sm:text-sm text-slate-300">5 Videos • 10-Q Quiz • 3 Stalls</div>
                 </div>
-                <span className="text-2xl">🏫</span>
+                <span className="text-3xl sm:text-4xl">🏫</span>
               </div>
 
-              <div className="p-3.5 rounded-2xl border border-cyan-400/50 bg-cyan-950/40 flex items-center justify-between">
+              <div className="p-4 sm:p-5 rounded-2xl border-2 border-cyan-400/50 bg-cyan-950/40 flex items-center justify-between shadow-sm">
                 <div>
-                  <div className="text-xs font-black text-cyan-300 uppercase">LEVEL 2</div>
-                  <div className="text-sm font-black text-white">Floor 2 Simulation Lab</div>
-                  <div className="text-xs text-slate-300">3 Interactive Workstations</div>
+                  <div className="text-xs sm:text-sm font-black text-cyan-300 uppercase">LEVEL 2</div>
+                  <div className="text-base sm:text-lg font-black text-white">Floor 2 Simulation Lab</div>
+                  <div className="text-xs sm:text-sm text-slate-300">3 Interactive Workstations</div>
                 </div>
-                <span className="text-2xl">💻</span>
+                <span className="text-3xl sm:text-4xl">💻</span>
               </div>
 
               <div
@@ -9711,14 +9850,14 @@ export default function Level1SchoolWorld({
                   setShowCampusMapModal(false)
                   focusCameraOnBankSection(1, false)
                 }}
-                className="p-3.5 rounded-2xl border-2 border-amber-400 bg-amber-950/70 flex items-center justify-between cursor-pointer hover:bg-amber-900/70 transition-all shadow-lg hover:scale-105"
+                className="p-4 sm:p-5 rounded-2xl border-2 border-amber-400 bg-amber-950/70 flex items-center justify-between cursor-pointer hover:bg-amber-900/70 transition-all shadow-lg hover:scale-105"
               >
                 <div>
-                  <div className="text-xs font-black text-amber-300 uppercase">LEVEL 3 • CLICK TO ENTER</div>
-                  <div className="text-sm font-black text-white">Side Bank & 2 Cabins</div>
-                  <div className="text-xs text-amber-200">Click to Walk to Level 3 Bank →</div>
+                  <div className="text-xs sm:text-sm font-black text-amber-300 uppercase">LEVEL 3 • CLICK TO ENTER</div>
+                  <div className="text-base sm:text-lg font-black text-white">Side Bank & Maya Vault</div>
+                  <div className="text-xs sm:text-sm text-amber-200">2 Cabins • Deposit XP with Maya (Click to Enter →)</div>
                 </div>
-                <span className="text-2xl">🏛️</span>
+                <span className="text-3xl sm:text-4xl">🏛️</span>
               </div>
 
               <div
@@ -9726,24 +9865,24 @@ export default function Level1SchoolWorld({
                   setShowCampusMapModal(false)
                   startAtmQueueExperience()
                 }}
-                className="p-3.5 rounded-2xl border-2 border-cyan-400 bg-cyan-900/40 flex items-center justify-between cursor-pointer hover:bg-cyan-900/60 transition-colors"
+                className="p-4 sm:p-5 rounded-2xl border-2 border-cyan-400 bg-cyan-900/40 flex items-center justify-between cursor-pointer hover:bg-cyan-900/60 shadow-sm transition-colors"
               >
                 <div>
-                  <div className="text-xs font-black text-cyan-300 uppercase">BESIDE BANK • 24/7</div>
-                  <div className="text-sm font-black text-white">ATM Machine & Live Queue</div>
-                  <div className="text-xs text-cyan-200">Click to Walk to ATM Queue</div>
+                  <div className="text-xs sm:text-sm font-black text-cyan-300 uppercase">BESIDE BANK • 24/7</div>
+                  <div className="text-base sm:text-lg font-black text-white">ATM Machine & Live Queue</div>
+                  <div className="text-xs sm:text-sm text-cyan-200">Click to Walk to ATM Queue</div>
                 </div>
-                <span className="text-2xl">🏧</span>
+                <span className="text-3xl sm:text-4xl">🏧</span>
               </div>
             </div>
 
-            <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
               <button
                 onClick={() => {
                   setShowCampusMapModal(false)
                   handleGlobalHome()
                 }}
-                className="py-3.5 px-4 rounded-2xl bg-slate-800 hover:bg-slate-700 border border-white/25 text-white font-black text-sm transition-all cursor-pointer"
+                className="py-4 sm:py-5 px-6 rounded-2xl bg-slate-800 hover:bg-slate-700 border-2 border-white/25 text-white font-black text-base sm:text-lg transition-all cursor-pointer hover:scale-105 active:scale-95"
               >
                 🏠 Return to School Yard
               </button>
@@ -9752,7 +9891,7 @@ export default function Level1SchoolWorld({
                   setShowCampusMapModal(false)
                   startAtmQueueExperience()
                 }}
-                className="py-3.5 px-4 rounded-2xl bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950 font-black text-sm shadow-lg transition-all cursor-pointer"
+                className="py-4 sm:py-5 px-6 rounded-2xl bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950 font-black text-base sm:text-lg shadow-xl transition-all cursor-pointer hover:scale-105 active:scale-95"
               >
                 🏧 Walk to 24/7 Bank ATM Queue
               </button>
@@ -9761,7 +9900,7 @@ export default function Level1SchoolWorld({
                   setShowCampusMapModal(false)
                   handleReplayJourney()
                 }}
-                className="py-3.5 px-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 font-black text-sm shadow-lg transition-all cursor-pointer"
+                className="py-4 sm:py-5 px-6 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 font-black text-base sm:text-lg shadow-xl transition-all cursor-pointer hover:scale-105 active:scale-95"
               >
                 🔄 Replay Full 3D Journey
               </button>
@@ -10217,27 +10356,28 @@ export default function Level1SchoolWorld({
           BANK XP DEPOSIT MODAL (Through Bank Guide Maya) & 24/7 ATM XP WITHDRAWAL MODAL
       ═══════════════════════════════════════════════════════════════════ */}
       {(showXpDepositModal || showAtmModal) && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md pointer-events-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/85 backdrop-blur-md pointer-events-auto">
           <div
-            className="w-[min(94vw,540px)] rounded-3xl bg-white border-3 border-amber-500 shadow-[0_25px_90px_rgba(0,0,0,0.85)] overflow-hidden text-slate-900"
+            className="w-[min(96vw,1380px)] max-h-[94vh] overflow-y-auto rounded-[36px] sm:rounded-[52px] bg-white border-[6px] sm:border-[8px] border-cyan-400 shadow-[0_0_120px_rgba(34,211,238,0.5),0_30px_100px_rgba(0,0,0,0.9)] text-slate-900"
             style={{ backgroundColor: '#ffffff', color: '#0f172a' }}
           >
+            {/* Giant Kiosk Top Bar */}
             <div
-              className={`px-6 py-4 flex items-center justify-between border-b-2 border-black/15 ${
+              className={`px-8 py-6 sm:px-14 sm:py-9 flex items-center justify-between border-b-4 border-black/15 ${
                 showAtmModal
-                  ? 'bg-gradient-to-r from-cyan-400 via-sky-400 to-blue-400'
+                  ? 'bg-gradient-to-r from-cyan-400 via-sky-400 to-blue-500'
                   : 'bg-gradient-to-r from-amber-400 via-yellow-400 to-emerald-400'
               }`}
             >
-              <div className="flex items-center gap-3">
-                <span className="text-3xl">{showAtmModal ? '🏧' : '👩‍💼'}</span>
+              <div className="flex items-center gap-5 sm:gap-7">
+                <span className="text-5xl sm:text-7xl drop-shadow-md select-none">{showAtmModal ? '🏧' : '👩‍💼'}</span>
                 <div>
-                  <div className="text-[11px] font-black uppercase tracking-widest text-black/80">
+                  <div className="text-xs sm:text-base font-black uppercase tracking-widest text-black/85 mb-1">
                     {showAtmModal
                       ? 'Learn2Invest 24/7 Side ATM Machine'
                       : 'Learn2Invest Bank • Maya XP Vault Counter'}
                   </div>
-                  <h2 className="text-xl font-black text-black leading-tight">
+                  <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black text-black leading-tight tracking-tight">
                     {showAtmModal ? 'ATM XP Withdrawal & Balance Kiosk' : 'Deposit Collected XP with Maya'}
                   </h2>
                 </div>
@@ -10248,27 +10388,36 @@ export default function Level1SchoolWorld({
                   setShowAtmModal(false)
                   setXpBankToast('')
                 }}
-                className="w-9 h-9 rounded-full bg-black text-white font-black text-sm flex items-center justify-center cursor-pointer"
+                className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-slate-950 hover:bg-slate-800 text-white font-black text-xl sm:text-3xl flex items-center justify-center cursor-pointer shadow-xl hover:scale-105 active:scale-95 transition-all"
+                title="Close Kiosk"
               >
                 ✕
               </button>
             </div>
 
-            <div className="p-6 space-y-4">
-              {/* Balances */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="p-4 rounded-2xl bg-amber-100 border-2 border-amber-400 text-center">
-                  <div className="text-[11px] font-black uppercase text-black">Wallet XP (On Hand)</div>
-                  <div className="text-2xl font-black text-black mt-1">⭐ {state?.xp || 0} XP</div>
+            <div className="p-8 sm:p-14 space-y-7 sm:space-y-10">
+              {/* Massive Balances Display */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
+                <div className="p-6 sm:p-9 rounded-3xl bg-amber-50 border-4 border-amber-400 text-center shadow-lg">
+                  <div className="text-sm sm:text-lg font-black uppercase tracking-wider text-amber-900 mb-2">
+                    Wallet XP (On Hand)
+                  </div>
+                  <div className="text-4xl sm:text-6xl lg:text-7xl font-black text-amber-950 mt-1">
+                    ⭐ {state?.xp || 0} XP
+                  </div>
                 </div>
-                <div className="p-4 rounded-2xl bg-emerald-100 border-2 border-emerald-500 text-center">
-                  <div className="text-[11px] font-black uppercase text-black">Banked XP (In Vault)</div>
-                  <div className="text-2xl font-black text-black mt-1">🏦 {bankedXp} XP</div>
+                <div className="p-6 sm:p-9 rounded-3xl bg-emerald-50 border-4 border-emerald-500 text-center shadow-lg">
+                  <div className="text-sm sm:text-lg font-black uppercase tracking-wider text-emerald-900 mb-2">
+                    Banked XP (In Vault)
+                  </div>
+                  <div className="text-4xl sm:text-6xl lg:text-7xl font-black text-emerald-950 mt-1">
+                    🏦 {bankedXp} XP
+                  </div>
                 </div>
               </div>
 
-              {/* Mode Switcher */}
-              <div className="flex items-center gap-2 bg-slate-200 p-1.5 rounded-2xl border border-slate-400">
+              {/* Mode Switcher Tabs */}
+              <div className="flex items-center gap-4 bg-slate-100 p-2.5 sm:p-3.5 rounded-3xl border-3 border-slate-300 shadow-inner">
                 <button
                   type="button"
                   onClick={() => {
@@ -10277,10 +10426,10 @@ export default function Level1SchoolWorld({
                     setShowAtmModal(false)
                     setXpBankToast('')
                   }}
-                  className={`flex-1 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                  className={`flex-1 py-4 sm:py-5 px-6 rounded-2xl text-base sm:text-2xl font-black transition-all cursor-pointer ${
                     showXpDepositModal && !showAtmModal
-                      ? 'bg-amber-400 text-black shadow'
-                      : 'text-black hover:bg-white/60'
+                      ? 'bg-amber-400 text-black shadow-lg scale-[1.01] border-2 border-amber-600'
+                      : 'text-slate-700 hover:bg-white/80'
                   }`}
                 >
                   👩‍💼 Deposit XP (Bank Guide Maya)
@@ -10293,21 +10442,22 @@ export default function Level1SchoolWorld({
                     setShowXpDepositModal(false)
                     setXpBankToast('')
                   }}
-                  className={`flex-1 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                  className={`flex-1 py-4 sm:py-5 px-6 rounded-2xl text-base sm:text-2xl font-black transition-all cursor-pointer ${
                     showAtmModal
-                      ? 'bg-cyan-400 text-black shadow'
-                      : 'text-black hover:bg-white/60'
+                      ? 'bg-cyan-400 text-black shadow-lg scale-[1.01] border-2 border-cyan-600'
+                      : 'text-slate-700 hover:bg-white/80'
                   }`}
                 >
                   🏧 Withdraw XP (Bank ATM)
                 </button>
               </div>
 
+              {/* Amount Selection */}
               <div>
-                <label className="block text-xs font-black uppercase tracking-wider text-black mb-1.5">
+                <label className="block text-base sm:text-2xl font-black uppercase tracking-wider text-slate-900 mb-3 sm:mb-4">
                   Select XP Amount to {showAtmModal ? 'Withdraw from ATM' : 'Deposit in Bank'}:
                 </label>
-                <div className="flex items-center gap-2 mb-2.5">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-5 mb-4 sm:mb-6">
                   {[10, 20, 50, 100].map((preset) => (
                     <button
                       key={preset}
@@ -10316,10 +10466,10 @@ export default function Level1SchoolWorld({
                         soundEngine.playClick()
                         setXpTransferAmount(preset)
                       }}
-                      className={`flex-1 py-2 rounded-xl border-2 font-black text-xs cursor-pointer ${
+                      className={`py-4 sm:py-6 rounded-2xl border-3 font-black text-xl sm:text-3xl cursor-pointer transition-all shadow-md ${
                         Number(xpTransferAmount) === preset
-                          ? 'bg-slate-900 text-white border-black'
-                          : 'bg-white text-black border-slate-400 hover:bg-slate-100'
+                          ? 'bg-slate-950 text-white border-black scale-105'
+                          : 'bg-white text-slate-900 border-slate-300 hover:bg-slate-100 hover:scale-102'
                       }`}
                     >
                       {preset} XP
@@ -10331,22 +10481,23 @@ export default function Level1SchoolWorld({
                   min={1}
                   value={xpTransferAmount}
                   onChange={(e) => setXpTransferAmount(Math.max(1, Number(e.target.value) || 0))}
-                  className="w-full px-4 py-2.5 rounded-xl bg-white border-2 border-slate-400 text-black font-black text-sm"
+                  className="w-full px-6 py-4 sm:py-5 rounded-2xl bg-white border-4 border-slate-300 focus:border-cyan-500 text-slate-950 font-black text-2xl sm:text-4xl text-center shadow-inner"
                 />
               </div>
 
               {xpBankToast && (
-                <div className="p-3 rounded-2xl bg-emerald-100 border-2 border-emerald-500 text-black text-xs font-black text-center">
+                <div className="p-5 sm:p-7 rounded-3xl bg-emerald-100 border-3 border-emerald-500 text-emerald-950 text-lg sm:text-2xl font-black text-center shadow-md animate-bounce">
                   {xpBankToast}
                 </div>
               )}
 
-              <div className="flex items-center gap-3 pt-1">
+              {/* Giant Confirmation Action Button */}
+              <div className="pt-2">
                 {!showAtmModal ? (
                   <button
                     type="button"
                     onClick={() => handleDepositXpAtBank(xpTransferAmount)}
-                    className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-amber-400 to-emerald-400 border-2 border-black/20 text-black font-black text-sm shadow-lg hover:scale-[1.01] active:scale-95 transition-all cursor-pointer"
+                    className="w-full py-5 sm:py-7 px-8 rounded-3xl bg-gradient-to-r from-amber-400 via-yellow-400 to-emerald-400 border-3 border-amber-600 text-slate-950 font-black text-xl sm:text-3xl shadow-[0_15px_45px_rgba(245,158,11,0.4)] hover:scale-[1.01] active:scale-95 transition-all cursor-pointer"
                   >
                     🏦 Deposit {xpTransferAmount} XP with Bank Guide Maya →
                   </button>
@@ -10354,7 +10505,7 @@ export default function Level1SchoolWorld({
                   <button
                     type="button"
                     onClick={() => handleWithdrawXpAtAtm(xpTransferAmount)}
-                    className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-cyan-400 to-emerald-400 border-2 border-black/20 text-black font-black text-sm shadow-lg hover:scale-[1.01] active:scale-95 transition-all cursor-pointer"
+                    className="w-full py-5 sm:py-7 px-8 rounded-3xl bg-gradient-to-r from-cyan-400 via-teal-400 to-emerald-400 border-3 border-cyan-600 text-slate-950 font-black text-xl sm:text-3xl shadow-[0_15px_45px_rgba(6,182,212,0.5)] hover:scale-[1.01] active:scale-95 transition-all cursor-pointer"
                   >
                     🏧 Withdraw {xpTransferAmount} XP from ATM Machine →
                   </button>
