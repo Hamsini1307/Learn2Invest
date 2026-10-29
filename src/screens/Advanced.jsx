@@ -1136,7 +1136,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
   }
 
   return (
-    <div className="content-area" style={{ fontFamily: "'Space Grotesk', sans-serif", padding: lockedTab ? '16px 20px 60px' : undefined, maxWidth: lockedTab ? '1400px' : '100%', margin: '0 auto' }}>
+    <div className="content-area" style={{ fontFamily: "'Space Grotesk', sans-serif", padding: lockedTab ? '16px 20px 60px' : undefined, width: '100%', maxWidth: '100%' }}>
       
       {/* Navigation Header */}
       {!lockedTab && (
@@ -1296,8 +1296,8 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
       </div>
 
       {/* ─── SECTION 1: BANK SELECTION TABS ─── */}
-      <div className="glass-card-deep" style={{ padding: 20, borderRadius: 20, marginBottom: 20, background: isLight ? '#ffffff' : '#12100c', border: '1.5px solid #ea580c' }}>
-        <div style={{ fontSize: 13, fontWeight: 900, color: '#ea580c', textTransform: 'uppercase', marginBottom: 12 }}>
+      <div className="glass-card-deep" style={{ padding: 24, borderRadius: 22, marginBottom: 22, background: isLight ? '#ffffff' : '#12100c', border: '2px solid #ea580c' }}>
+        <div style={{ fontSize: 15, fontWeight: 900, color: '#ea580c', textTransform: 'uppercase', marginBottom: 14 }}>
           🏛️ SELECT FINANCIAL INSTITUTION (5 BANKS)
         </div>
 
@@ -1311,18 +1311,18 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
               }}
               style={{
                 background: selectedBankId === inst.id ? (isLight ? '#fff7ed' : 'rgba(245, 158, 11, 0.2)') : (isLight ? '#f8fafc' : 'rgba(255,255,255,0.04)'),
-                border: `2.5px solid ${selectedBankId === inst.id ? '#ea580c' : (isLight ? '#cbd5e1' : 'rgba(255,255,255,0.1)')}`,
-                borderRadius: 18, padding: '18px 16px', cursor: 'pointer',
+                border: `3px solid ${selectedBankId === inst.id ? '#ea580c' : (isLight ? '#cbd5e1' : 'rgba(255,255,255,0.1)')}`,
+                borderRadius: 20, padding: '22px 18px', cursor: 'pointer',
                 display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                gap: 10, transition: 'all 0.2s',
-                boxShadow: selectedBankId === inst.id ? '0 8px 24px rgba(234, 88, 12, 0.35)' : 'none'
+                gap: 12, transition: 'all 0.2s',
+                boxShadow: selectedBankId === inst.id ? '0 10px 28px rgba(234, 88, 12, 0.35)' : 'none'
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 80, width: '100%' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 95, width: '100%' }}>
                 <BankLogo id={inst.id} />
               </div>
               <div style={{ fontSize: 18, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff', textAlign: 'center' }}>{inst.name}</div>
-              <div style={{ fontSize: 14, color: '#ea580c', fontWeight: 900, background: 'rgba(234, 88, 12, 0.12)', padding: '3px 10px', borderRadius: 8 }}>IFSC: {inst.code}</div>
+              <div style={{ fontSize: 14, color: '#ea580c', fontWeight: 900, background: 'rgba(234, 88, 12, 0.12)', padding: '4px 12px', borderRadius: 8 }}>IFSC: {inst.code}</div>
             </div>
           ))}
         </div>
@@ -1578,13 +1578,11 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
         boxShadow: highlightForm ? '0 0 30px rgba(16, 185, 129, 0.4)' : 'none',
         transition: 'all 0.4s'
       }}>
-        <div style={{ fontSize: 12, fontWeight: 900, color: highlightForm ? '#10b981' : '#ea580c', textTransform: 'uppercase', marginBottom: 12 }}>
+        <div style={{ fontSize: 14, fontWeight: 900, color: highlightForm ? '#10b981' : '#ea580c', textTransform: 'uppercase', marginBottom: 14 }}>
           ✍️ ENTER YOUR INFORMATION ONCE ({docType === 'deposit' ? 'SYSTEM RENDERS IT ON CASH DEPOSIT SLIP' : docType === 'withdrawal' ? 'SYSTEM RENDERS IT ON WITHDRAWAL SLIP' : 'SYSTEM RENDERS IT ON CHEQUE LEAF'})
         </div>
 
-
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 18 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
           <div>
             <label style={{ fontSize: 14, fontWeight: 900, color: isLight ? '#0f172a' : '#f8fafc', display: 'block', marginBottom: 6, letterSpacing: '0.02em' }}>
               {docType === 'cheque' ? 'PAY TO (PAYEE NAME / SELF)' : 'ACCOUNT HOLDER / PAYEE NAME'}
@@ -1595,7 +1593,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
               onChange={e => setUserData({ ...userData, name: e.target.value })}
               placeholder={docType === 'cheque' ? "e.g. Self or Hamsini" : "e.g. Hamsini"}
               className="input-light"
-              style={{ padding: '13px 16px', fontSize: 15, fontWeight: 800, borderRadius: 12 }}
+              style={{ padding: '13px 16px', fontSize: 16, fontWeight: 800, borderRadius: 12 }}
             />
           </div>
 
@@ -1607,7 +1605,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
               onChange={e => setUserData({ ...userData, accountNumber: e.target.value })}
               placeholder="e.g. 10984523910"
               className="input-light"
-              style={{ padding: '13px 16px', fontSize: 15, fontWeight: 800, borderRadius: 12 }}
+              style={{ padding: '13px 16px', fontSize: 16, fontWeight: 800, borderRadius: 12 }}
             />
           </div>
 
@@ -1620,7 +1618,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
               placeholder="e.g. CNRB0001001"
               className="input-light"
               style={{
-                padding: '13px 16px', fontSize: 15, fontWeight: 800, borderRadius: 12, textTransform: 'uppercase',
+                padding: '13px 16px', fontSize: 16, fontWeight: 800, borderRadius: 12, textTransform: 'uppercase',
                 border: highlightForm ? '2.5px solid #10b981' : undefined,
                 background: highlightForm ? (isLight ? '#ecfdf5' : 'rgba(16, 185, 129, 0.2)') : undefined,
                 transition: 'all 0.3s'
@@ -1648,7 +1646,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
               placeholder="e.g. Pandeshwar, Mangaluru"
               className="input-light"
               style={{
-                padding: '13px 16px', fontSize: 15, fontWeight: 800, borderRadius: 12,
+                padding: '13px 16px', fontSize: 16, fontWeight: 800, borderRadius: 12,
                 border: highlightForm ? '2.5px solid #10b981' : undefined,
                 background: highlightForm ? (isLight ? '#ecfdf5' : 'rgba(16, 185, 129, 0.2)') : undefined,
                 transition: 'all 0.3s'
@@ -1665,7 +1663,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
                 onChange={e => setUserData({ ...userData, chequeNumber: e.target.value })}
                 placeholder="e.g. 104502"
                 className="input-light"
-                style={{ padding: '13px 16px', fontSize: 15, fontWeight: 800, borderRadius: 12 }}
+                style={{ padding: '13px 16px', fontSize: 16, fontWeight: 800, borderRadius: 12 }}
               />
             </div>
           ) : (
@@ -1677,7 +1675,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
                 onChange={e => setUserData({ ...userData, mobileNumber: e.target.value })}
                 placeholder="e.g. 9876543210"
                 className="input-light"
-                style={{ padding: '13px 16px', fontSize: 15, fontWeight: 800, borderRadius: 12 }}
+                style={{ padding: '13px 16px', fontSize: 16, fontWeight: 800, borderRadius: 12 }}
               />
             </div>
           )}
@@ -1689,7 +1687,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
               value={userData.date}
               onChange={e => setUserData({ ...userData, date: e.target.value })}
               className="input-light"
-              style={{ padding: '13px 16px', fontSize: 15, fontWeight: 800, borderRadius: 12 }}
+              style={{ padding: '13px 16px', fontSize: 16, fontWeight: 800, borderRadius: 12 }}
             />
           </div>
 
@@ -1703,7 +1701,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
               onChange={e => setUserData({ ...userData, amount: e.target.value })}
               placeholder="e.g. 5000"
               className="input-light"
-              style={{ padding: '13px 16px', fontSize: 15, fontWeight: 800, borderRadius: 12 }}
+              style={{ padding: '13px 16px', fontSize: 16, fontWeight: 800, borderRadius: 12 }}
             />
 
           </div>
@@ -1764,8 +1762,8 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
 
       {/* ─── SECTION 3: LIVE ORIGINAL IMAGE VISUAL PREVIEW ─── */}
       <div className="glass-card-deep" style={{ padding: 24, borderRadius: 20, marginBottom: 20, background: isLight ? '#ffffff' : '#12100c', border: '2.5px solid #ea580c' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, flexWrap: 'wrap', gap: 10 }}>
-          <div style={{ fontSize: 12, fontWeight: 900, color: '#ea580c', textTransform: 'uppercase' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, flexWrap: 'wrap', gap: 10 }}>
+          <div style={{ fontSize: 15, fontWeight: 900, color: '#ea580c', textTransform: 'uppercase' }}>
             📸 ORIGINAL TEMPLATE PREVIEW ({currentTemplate.institution} • {docType.toUpperCase()})
           </div>
         </div>
@@ -1807,7 +1805,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
           width: `${Math.round(slipScale * 100)}%`,
           maxWidth: slipScale > 1.2 ? '1600px' : slipScale > 1.05 ? '1450px' : '1320px',
           margin: '0 auto',
-          borderRadius: 16,
+          borderRadius: 18,
           overflow: 'hidden',
           border: '3px solid #d97706',
           boxShadow: '0 12px 36px rgba(0,0,0,0.4)',
@@ -1828,11 +1826,11 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
         </div>
 
         {/* Print / Export Action Bar */}
-        <div style={{ display: 'flex', gap: 12, marginTop: 20, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 14, marginTop: 24, flexWrap: 'wrap' }}>
           <button
             onClick={() => { setHasCompletedSlip(true); markLevel3Section('paper_slip'); setShowVerifyModal(true); }}
             className="btn-primary"
-            style={{ flex: 1, padding: '18px 32px', fontSize: 17, fontWeight: 900, borderRadius: 14 }}
+            style={{ flex: 1, padding: '20px 28px', fontSize: 18, fontWeight: 900, borderRadius: 16 }}
           >
             📋 REVIEW & PRINT FILLED FORM PDF {paperSlipDone ? '✅' : ''}
           </button>
@@ -1843,52 +1841,52 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
 
       {/* ─── DIGITAL BANKING & CYBER SAFETY ARENA ─── */}
       {activeTab === 'digital_safety' && (
-        <div className="anim-scale glass-card-deep" style={{ padding: '32px', marginBottom: 24, background: isLight ? '#ffffff' : 'var(--bg-card-deep, #12100c)', border: '2px solid #ea580c', color: isLight ? '#0f172a' : '#ffffff' }}>
-          <div style={{ textAlign: 'center', marginBottom: 24 }}>
-            <div className="sticker-badge sticker-yellow" style={{ marginBottom: 10 }}>
+        <div className="anim-scale glass-card-deep" style={{ padding: '36px', marginBottom: 28, background: isLight ? '#ffffff' : 'var(--bg-card-deep, #12100c)', border: '2.5px solid #ea580c', color: isLight ? '#0f172a' : '#ffffff' }}>
+          <div style={{ textAlign: 'center', marginBottom: 28 }}>
+            <div className="sticker-badge sticker-yellow" style={{ marginBottom: 12, fontSize: 16, padding: '8px 24px', fontWeight: 900 }}>
               🌐 CABIN 2 • DIGITAL BANKING & CYBER SAFETY
             </div>
-            <h2 className="font-display" style={{ fontSize: 34, color: isLight ? '#0f172a' : 'var(--heading-color, #ffffff)', marginBottom: 4 }}>
+            <h2 className="font-display" style={{ fontSize: 44, color: isLight ? '#0f172a' : 'var(--heading-color, #ffffff)', marginBottom: 8, fontWeight: 900 }}>
               DIGITAL BANKING & SAFETY 🛡️
             </h2>
-            <p style={{ color: isLight ? '#475569' : 'var(--text-sub, #d1d5db)', fontSize: 13, fontWeight: 600 }}>
+            <p style={{ color: isLight ? '#334155' : 'var(--text-sub, #d1d5db)', fontSize: 18, fontWeight: 700, lineHeight: 1.6, maxWidth: 900, margin: '0 auto' }}>
               Step 1: Watch the Digital Banking YouTube tutorial first. Step 2: Defend your bank account against phishing traps & SMS scams!
             </p>
           </div>
 
           {/* ─── STEP 1: YOUTUBE VIDEO TUTORIALS SECTION FIRST ─── */}
           <div style={{
-            marginBottom: 28,
-            padding: 22,
-            borderRadius: 20,
+            marginBottom: 32,
+            padding: 28,
+            borderRadius: 24,
             background: isLight ? '#fff7ed' : 'rgba(234, 88, 12, 0.1)',
-            border: `2px solid ${digitalVideoWatched ? '#10b981' : '#ea580c'}`,
+            border: `2.5px solid ${digitalVideoWatched ? '#10b981' : '#ea580c'}`,
           }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10, marginBottom: 14 }}>
-              <h3 className="font-display" style={{ fontSize: 22, color: isLight ? '#0f172a' : '#ffffff', margin: 0 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, marginBottom: 18 }}>
+              <h3 className="font-display" style={{ fontSize: 26, color: isLight ? '#0f172a' : '#ffffff', margin: 0, fontWeight: 900 }}>
                 🎬 STEP 1: WATCH DIGITAL BANKING YOUTUBE TUTORIAL FIRST
               </h3>
               <span style={{
-                fontSize: 11,
+                fontSize: 15,
                 fontWeight: 900,
-                padding: '4px 12px',
+                padding: '8px 20px',
                 borderRadius: 999,
                 background: digitalVideoWatched ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.2)',
-                border: `1.5px solid ${digitalVideoWatched ? '#10b981' : '#f59e0b'}`,
-                color: digitalVideoWatched ? '#10b981' : '#fbbf24'
+                border: `2px solid ${digitalVideoWatched ? '#10b981' : '#f59e0b'}`,
+                color: digitalVideoWatched ? '#059669' : '#d97706'
               }}>
                 {digitalVideoWatched ? 'Video Watched ✓ • Activities Unlocked' : 'Watch Video to Unlock Activities Below'}
               </span>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12, marginBottom: 16 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 14, marginBottom: 20 }}>
               {Object.keys(VIDEOS_DB).map(vKey => (
                 <button
                   key={vKey}
                   onClick={() => setSelectedVideo(vKey)}
                   className={selectedVideo === vKey ? 'btn-primary' : 'btn-outline'}
                   style={{
-                    fontSize: 12, padding: '12px', fontWeight: 800,
+                    fontSize: 16, padding: '16px 20px', fontWeight: 900, borderRadius: 14,
                     color: selectedVideo === vKey ? '#ffffff' : (isLight ? '#7c2d12' : '#fbbf24'),
                     borderColor: isLight ? '#ea580c' : undefined
                   }}
@@ -1898,7 +1896,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
               ))}
             </div>
 
-            <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden', borderRadius: 16, border: '2px solid #ea580c', marginBottom: 16 }}>
+            <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden', borderRadius: 20, border: '2.5px solid #ea580c', marginBottom: 20 }}>
               <iframe
                 src={VIDEOS_DB[selectedVideo].url}
                 title={VIDEOS_DB[selectedVideo].title}
@@ -1912,12 +1910,12 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
                 onClick={() => setDigitalVideoWatched(true)}
                 style={{
                   width: '100%',
-                  padding: '15px 22px',
-                  borderRadius: 14,
+                  padding: '20px 28px',
+                  borderRadius: 16,
                   border: '2px solid #34d399',
                   background: 'linear-gradient(135deg, #059669, #10b981)',
                   color: '#ffffff',
-                  fontSize: 14,
+                  fontSize: 17,
                   fontWeight: 900,
                   cursor: 'pointer',
                   boxShadow: '0 8px 25px rgba(16, 185, 129, 0.4)'
@@ -1927,12 +1925,12 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
               </button>
             ) : (
               <div style={{
-                padding: '10px 16px',
-                borderRadius: 12,
+                padding: '16px 24px',
+                borderRadius: 16,
                 background: 'rgba(16, 185, 129, 0.16)',
-                border: '1.5px solid #10b981',
-                color: '#34d399',
-                fontSize: 12,
+                border: '2px solid #10b981',
+                color: '#047857',
+                fontSize: 16,
                 fontWeight: 900,
                 textAlign: 'center'
               }}>
@@ -1946,30 +1944,30 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
             <div className="anim-fade">
               {!cyberGameCompleted ? (
                 <div className="glass-card" style={{
-                  padding: 26, borderRadius: 22,
+                  padding: 32, borderRadius: 24,
                   border: '2.5px solid #ea580c',
                   background: isLight ? '#ffffff' : 'var(--bg-card-deep, #12100c)',
                   boxShadow: isLight ? '0 12px 36px rgba(234, 88, 12, 0.12)' : '0 8px 32px rgba(0,0,0,0.5)',
                   color: isLight ? '#0f172a' : '#ffffff'
                 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 10 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 22, flexWrap: 'wrap', gap: 12 }}>
                     <span style={{
-                      fontSize: 12, fontWeight: 900,
+                      fontSize: 15, fontWeight: 900,
                       color: isLight ? '#c2410c' : '#fbbf24',
                       background: isLight ? '#fff7ed' : 'rgba(234, 88, 12, 0.2)',
-                      padding: '6px 16px', borderRadius: 999,
-                      border: '1.5px solid #ea580c',
+                      padding: '8px 20px', borderRadius: 999,
+                      border: '2px solid #ea580c',
                       letterSpacing: '0.5px'
                     }}>
                       🎯 SCENARIO {digitalScenarioIdx + 1} OF {CYBER_SCENARIOS.length}
                     </span>
                     <div style={{
-                      fontSize: 12, fontWeight: 900,
+                      fontSize: 15, fontWeight: 900,
                       background: 'linear-gradient(135deg, #059669, #10b981)',
                       color: '#ffffff',
-                      padding: '6px 16px', borderRadius: 999,
+                      padding: '8px 20px', borderRadius: 999,
                       boxShadow: '0 4px 14px rgba(16, 185, 129, 0.35)',
-                      border: '1.5px solid #34d399'
+                      border: '2px solid #34d399'
                     }}>
                       🛡️ SHIELD HEALTH: {shieldScore}%
                     </div>
@@ -1977,19 +1975,19 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
 
                   <div style={{
                     background: isLight ? 'linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)' : 'rgba(245, 158, 11, 0.14)',
-                    borderRadius: 18, padding: 22,
-                    border: '2px solid #ea580c', marginBottom: 22,
+                    borderRadius: 20, padding: 26,
+                    border: '2px solid #ea580c', marginBottom: 24,
                     boxShadow: isLight ? '0 6px 20px rgba(234, 88, 12, 0.1)' : 'none'
                   }}>
-                    <h3 style={{ fontWeight: 900, fontSize: 18, color: isLight ? '#9a3412' : '#fbbf24', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <h3 style={{ fontWeight: 900, fontSize: 24, color: isLight ? '#9a3412' : '#fbbf24', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 10 }}>
                       {CYBER_SCENARIOS[digitalScenarioIdx].title}
                     </h3>
-                    <p style={{ fontSize: 15, color: isLight ? '#0f172a' : '#f3f4f6', lineHeight: 1.6, fontWeight: 800, margin: 0 }}>
+                    <p style={{ fontSize: 18, color: isLight ? '#0f172a' : '#f3f4f6', lineHeight: 1.6, fontWeight: 800, margin: 0 }}>
                       {CYBER_SCENARIOS[digitalScenarioIdx].scenario}
                     </p>
                   </div>
 
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 20 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 24 }}>
                     {CYBER_SCENARIOS[digitalScenarioIdx].opts.map((opt, i) => {
                       const isSelected = selectedOpt === i
                       const isCorrect = opt.correct
@@ -2008,15 +2006,16 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
                           key={i}
                           onClick={() => handleCyberAnswer(i)}
                           style={{
-                            textAlign: 'left', fontSize: 13, padding: '15px 20px', width: '100%',
-                            fontWeight: 900, borderRadius: 14, cursor: 'pointer',
+                            textAlign: 'left', fontSize: 17, padding: '18px 26px', width: '100%',
+                            fontWeight: 800, borderRadius: 16, cursor: 'pointer',
                             background: btnBg,
                             color: btnColor,
                             border: `2.5px solid ${btnBorder}`,
                             boxShadow: isSelected
                               ? (isCorrect ? '0 6px 20px rgba(16, 185, 129, 0.4)' : '0 6px 20px rgba(225, 29, 72, 0.4)')
                               : (isLight ? '0 2px 8px rgba(234, 88, 12, 0.1)' : 'none'),
-                            transition: 'all 0.2s ease'
+                            transition: 'all 0.2s ease',
+                            lineHeight: 1.5
                           }}
                         >
                           {opt.text}
@@ -2027,26 +2026,26 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
 
                   {digitalFeedback && (
                     <div className="anim-fade" style={{
-                      background: isLight ? '#ffedd5' : 'rgba(245,158,11,0.12)', border: '1.5px solid #f59e0b',
-                      borderRadius: 14, padding: 16, marginBottom: 20, color: isLight ? '#7c2d12' : '#fef3c7', fontSize: 13, lineHeight: 1.5, fontWeight: 700
+                      background: isLight ? '#ffedd5' : 'rgba(245,158,11,0.12)', border: '2px solid #f59e0b',
+                      borderRadius: 16, padding: 20, marginBottom: 22, color: isLight ? '#7c2d12' : '#fef3c7', fontSize: 16, lineHeight: 1.5, fontWeight: 800
                     }}>
                       💡 {digitalFeedback}
                     </div>
                   )}
 
                   {selectedOpt !== null && (
-                    <button className="btn-primary" onClick={handleNextScenario} style={{ width: '100%', fontSize: 14, fontWeight: 900 }}>
+                    <button className="btn-primary" onClick={handleNextScenario} style={{ width: '100%', fontSize: 18, padding: '18px 28px', fontWeight: 900, borderRadius: 16 }}>
                       {digitalScenarioIdx < CYBER_SCENARIOS.length - 1 ? 'NEXT SCENARIO →' : '🏆 FINISH CHALLENGE (+50 XP)'}
                     </button>
                   )}
                 </div>
               ) : (
-                <div style={{ textAlign: 'center', padding: 32, background: isLight ? '#ffffff' : 'var(--bg-card-deep, #12100c)', border: '2px solid #ea580c', borderRadius: 20 }} className="glass-card">
-                  <div style={{ fontSize: 56, marginBottom: 12 }}>🛡️</div>
-                  <h3 className="font-display" style={{ fontSize: 32, color: isLight ? '#ea580c' : '#fbbf24', marginBottom: 8 }}>
+                <div style={{ textAlign: 'center', padding: 40, background: isLight ? '#ffffff' : 'var(--bg-card-deep, #12100c)', border: '2px solid #ea580c', borderRadius: 24 }} className="glass-card">
+                  <div style={{ fontSize: 68, marginBottom: 14 }}>🛡️</div>
+                  <h3 className="font-display" style={{ fontSize: 38, color: isLight ? '#ea580c' : '#fbbf24', marginBottom: 10 }}>
                     CHALLENGE PASSED!
                   </h3>
-                  <p style={{ color: isLight ? '#475569' : '#d1d5db', fontSize: 14, fontWeight: 600, marginBottom: 20 }}>
+                  <p style={{ color: isLight ? '#475569' : '#d1d5db', fontSize: 18, fontWeight: 600, marginBottom: 20 }}>
                     Shield Health: {shieldScore}% • You earned +50 XP and mastered digital bank safety!
                   </p>
                 </div>
@@ -2071,7 +2070,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
             background: isLight ? '#ffffff' : '#12100c',
             border: '3px solid #ea580c',
             borderRadius: 24, padding: 24,
-            maxWidth: 780, width: '100%',
+            maxWidth: 1040, width: '95%',
             maxHeight: '90vh', overflowY: 'auto',
             textAlign: 'center', color: isLight ? '#0f172a' : '#ffffff',
             position: 'relative'

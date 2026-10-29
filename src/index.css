@@ -840,6 +840,12 @@ input:-webkit-autofill:active {
   margin: 0 auto;
 }
 
+[data-bank-screen="true"] .content-area {
+  max-width: 100% !important;
+  width: 100% !important;
+  padding: 16px 24px 60px !important;
+}
+
 .theme-light, .theme-dark {
   background: var(--bg-main);
   color: var(--text-main);
@@ -942,27 +948,27 @@ select::placeholder,
 [data-login-card] input[type="text"],
 [data-login-card] input[type="password"],
 .login-huge-input {
-  font-size: 34px !important;
+  font-size: 42px !important;
   line-height: 1.3 !important;
   font-weight: 800 !important;
   color: #0f172a !important;
   -webkit-text-fill-color: #0f172a !important;
   letter-spacing: 0.02em !important;
-  height: 96px !important;
-  min-height: 96px !important;
-  padding-left: 32px !important;
-  padding-right: 32px !important;
-  border-radius: 26px !important;
+  height: 116px !important;
+  min-height: 116px !important;
+  padding-left: 36px !important;
+  padding-right: 36px !important;
+  border-radius: 30px !important;
 }
 
 [data-login-card] input[type="password"] {
-  padding-right: 100px !important;
+  padding-right: 120px !important;
 }
 
 [data-login-card] input[type="text"]::placeholder,
 [data-login-card] input[type="password"]::placeholder,
 .login-huge-input::placeholder {
-  font-size: 30px !important;
+  font-size: 38px !important;
   font-weight: 700 !important;
   color: #94a3b8 !important;
   -webkit-text-fill-color: #94a3b8 !important;

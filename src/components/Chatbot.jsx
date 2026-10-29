@@ -355,14 +355,14 @@ function StandingCompanionPersonSVG({
 
   return (
     <svg
-      width="135"
-      height="175"
+      width="280"
+      height="360"
       viewBox="-8 -4 126 154"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       style={{
         overflow: 'visible',
-        filter: 'drop-shadow(0 14px 28px rgba(0,0,0,0.65))',
+        filter: 'drop-shadow(0 16px 32px rgba(0,0,0,0.75))',
         transform: isExcited
           ? 'translateY(-8px) scale(1.06)'
           : isDisappointed
@@ -1062,14 +1062,14 @@ Ask me any financial question about investing, Indian savings schemes, or bankin
           position: fixed;
           bottom: 24px;
           right: 28px;
-          width: min(440px, calc(100vw - 32px));
-          height: min(580px, calc(100vh - 48px));
-          max-height: calc(100vh - 48px);
+          width: min(740px, calc(100vw - 32px));
+          height: min(860px, calc(100vh - 44px));
+          max-height: calc(100vh - 44px);
           top: auto;
           background: linear-gradient(165deg, #070D19 0%, #0D172A 100%);
-          border: 2px solid rgba(56, 189, 248, 0.6);
-          border-radius: 20px;
-          box-shadow: 0 24px 70px rgba(0, 0, 0, 0.9);
+          border: 3px solid rgba(56, 189, 248, 0.75);
+          border-radius: 30px;
+          box-shadow: 0 30px 90px rgba(0, 0, 0, 0.95);
           z-index: 99999;
           display: flex;
           flex-direction: column;
@@ -1080,9 +1080,9 @@ Ask me any financial question about investing, Indian savings schemes, or bankin
         }
 
         .l2i-chat-window.expanded {
-          width: min(680px, calc(100vw - 32px));
-          height: min(740px, calc(100vh - 48px));
-          max-height: calc(100vh - 48px);
+          width: min(1100px, calc(100vw - 32px));
+          height: min(940px, calc(100vh - 44px));
+          max-height: calc(100vh - 44px);
         }
 
         @keyframes l2iSlideUp {
@@ -1121,7 +1121,7 @@ Ask me any financial question about investing, Indian savings schemes, or bankin
 
       {/* ═══════════════════════════════════════════════════════════════════════
           NORMAL CHATBOT LAUNCHER (VISIBLE WHEN CLOSED)
-          - Animated boy Leo in blue jacket (135px tall, fully inside viewport)
+          - Animated character in blue/purple jacket (large, clearly visible)
           - Speech bubble tooltip prompting user to ask questions
           - Clicking cleanly opens the chat window at this exact corner
       ═══════════════════════════════════════════════════════════════════════ */}
@@ -1135,9 +1135,9 @@ Ask me any financial question about investing, Indian savings schemes, or bankin
           {/* Dynamic Speech Bubble */}
           <div
             style={{
-              marginBottom: '8px',
-              padding: '8px 16px',
-              borderRadius: '20px',
+              marginBottom: '14px',
+              padding: '16px 28px',
+              borderRadius: '30px',
               background: quizReaction
                 ? quizReaction.type === 'excited'
                   ? 'linear-gradient(135deg, #10B981, #F59E0B)'
@@ -1147,20 +1147,20 @@ Ask me any financial question about investing, Indian savings schemes, or bankin
                   : 'rgba(15, 23, 42, 0.96)',
               color: quizReaction || isExcitedByLogin ? '#020617' : '#F8FAFC',
               border: isCompanionExcited
-                ? '2px solid #FEF08A'
-                : '2px solid rgba(56,189,248,0.7)',
+                ? '3px solid #FEF08A'
+                : '3px solid rgba(56,189,248,0.85)',
               boxShadow: isCompanionExcited
-                ? '0 0 25px rgba(251,191,36,0.9)'
-                : '0 8px 24px rgba(0,0,0,0.5)',
-              fontSize: '14px',
-              fontWeight: 800,
+                ? '0 0 35px rgba(251,191,36,0.95)'
+                : '0 12px 32px rgba(0,0,0,0.65)',
+              fontSize: '22px',
+              fontWeight: 900,
               whiteSpace: 'nowrap',
               display: 'flex',
               alignItems: 'center',
-              gap: '6px',
+              gap: '12px',
             }}
           >
-            <span style={{ fontSize: '16px' }}>💬</span>
+            <span style={{ fontSize: '26px' }}>💬</span>
             <span>
               {quizReaction
                 ? quizReaction.text
@@ -1170,7 +1170,7 @@ Ask me any financial question about investing, Indian savings schemes, or bankin
             </span>
           </div>
 
-          {/* 135px Standing Person SVG */}
+          {/* Standing Person SVG */}
           <div
             style={{
               animation: isCompanionExcited
@@ -1216,7 +1216,7 @@ Ask me any financial question about investing, Indian savings schemes, or bankin
           {/* Header */}
           <div
             style={{
-              padding: '14px 18px',
+              padding: '20px 26px',
               background: 'linear-gradient(135deg, #0F172A 0%, #1E3A8A 50%, #0369A1 100%)',
               display: 'flex',
               alignItems: 'center',
@@ -1225,20 +1225,20 @@ Ask me any financial question about investing, Indian savings schemes, or bankin
               flexShrink: 0,
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
               <div style={{ position: 'relative' }}>
                 <div
                   style={{
-                    width: '42px',
-                    height: '42px',
+                    width: '64px',
+                    height: '64px',
                     borderRadius: '50%',
                     background: 'linear-gradient(135deg, #0284C7, #4F46E5)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: '22px',
-                    border: '2px solid #38BDF8',
-                    boxShadow: '0 4px 14px rgba(0,0,0,0.4)',
+                    fontSize: '34px',
+                    border: '2.5px solid #38BDF8',
+                    boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
                   }}
                 >
                   {aiGuideAvatar === 'female' ? '👧' : '👦'}
@@ -1249,12 +1249,12 @@ Ask me any financial question about investing, Indian savings schemes, or bankin
                     position: 'absolute',
                     bottom: '0',
                     right: '0',
-                    width: '12px',
-                    height: '12px',
+                    width: '16px',
+                    height: '16px',
                     borderRadius: '50%',
                     background: '#10B981',
-                    border: '2px solid #0F172A',
-                    boxShadow: '0 0 8px #10B981',
+                    border: '2.5px solid #0F172A',
+                    boxShadow: '0 0 10px #10B981',
                   }}
                 />
               </div>
@@ -1262,30 +1262,30 @@ Ask me any financial question about investing, Indian savings schemes, or bankin
               <div>
                 <div
                   style={{
-                    fontSize: '17px',
-                    fontWeight: 800,
+                    fontSize: '24px',
+                    fontWeight: 900,
                     color: '#FFFFFF',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '6px',
+                    gap: '10px',
                   }}
                 >
                   <span>{guideName}</span>
                   <span
                     style={{
-                      fontSize: '11px',
+                      fontSize: '13px',
                       background: 'rgba(56,189,248,0.2)',
-                      border: '1px solid #38BDF8',
+                      border: '1.5px solid #38BDF8',
                       color: '#7DD3FC',
-                      padding: '1px 7px',
+                      padding: '3px 10px',
                       borderRadius: '999px',
-                      fontWeight: 700,
+                      fontWeight: 800,
                     }}
                   >
                     AI Mentor
                   </span>
                 </div>
-                <div style={{ fontSize: '12.5px', color: '#93C5FD', fontWeight: 600 }}>
+                <div style={{ fontSize: '15.5px', color: '#93C5FD', fontWeight: 600, marginTop: '2px' }}>
                   {isListeningVoice
                     ? '🎙️ Listening to your voice now...'
                     : '🟢 Online • AI Financial Mentor'}
@@ -1294,7 +1294,7 @@ Ask me any financial question about investing, Indian savings schemes, or bankin
             </div>
 
             {/* Header Control Buttons */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               {/* Reset Chat */}
               <button
                 type="button"
@@ -1303,14 +1303,15 @@ Ask me any financial question about investing, Indian savings schemes, or bankin
                   background: 'rgba(255,255,255,0.1)',
                   border: '1px solid rgba(255,255,255,0.25)',
                   color: '#E2E8F0',
-                  borderRadius: '8px',
-                  width: '32px',
-                  height: '32px',
-                  fontSize: '14px',
+                  borderRadius: '12px',
+                  width: '44px',
+                  height: '44px',
+                  fontSize: '18px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   cursor: 'pointer',
+                  transition: 'all 0.18s ease',
                 }}
                 title="Clear chat and start fresh"
               >
@@ -1325,14 +1326,15 @@ Ask me any financial question about investing, Indian savings schemes, or bankin
                   background: isVoiceMuted ? 'rgba(239,68,68,0.25)' : 'rgba(255,255,255,0.1)',
                   border: isVoiceMuted ? '1px solid #EF4444' : '1px solid rgba(255,255,255,0.25)',
                   color: '#E2E8F0',
-                  borderRadius: '8px',
-                  width: '32px',
-                  height: '32px',
-                  fontSize: '14px',
+                  borderRadius: '12px',
+                  width: '44px',
+                  height: '44px',
+                  fontSize: '18px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   cursor: 'pointer',
+                  transition: 'all 0.18s ease',
                 }}
                 title={isVoiceMuted ? 'Unmute voice' : 'Mute voice'}
               >
@@ -1347,14 +1349,15 @@ Ask me any financial question about investing, Indian savings schemes, or bankin
                   background: isExpanded ? 'rgba(56,189,248,0.25)' : 'rgba(255,255,255,0.1)',
                   border: '1px solid rgba(255,255,255,0.25)',
                   color: '#E2E8F0',
-                  borderRadius: '8px',
-                  width: '32px',
-                  height: '32px',
-                  fontSize: '14px',
+                  borderRadius: '12px',
+                  width: '44px',
+                  height: '44px',
+                  fontSize: '18px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   cursor: 'pointer',
+                  transition: 'all 0.18s ease',
                 }}
                 title={isExpanded ? 'Normal size' : 'Expand window'}
               >
@@ -1369,15 +1372,16 @@ Ask me any financial question about investing, Indian savings schemes, or bankin
                   background: 'rgba(255,255,255,0.1)',
                   border: '1px solid rgba(255,255,255,0.25)',
                   color: '#E2E8F0',
-                  borderRadius: '8px',
-                  width: '32px',
-                  height: '32px',
-                  fontSize: '16px',
+                  borderRadius: '12px',
+                  width: '44px',
+                  height: '44px',
+                  fontSize: '20px',
                   fontWeight: 700,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   cursor: 'pointer',
+                  transition: 'all 0.18s ease',
                 }}
                 title="Close chat window"
               >
@@ -1407,24 +1411,24 @@ Ask me any financial question about investing, Indian savings schemes, or bankin
                   <div
                     style={{
                       alignSelf: isUser ? 'flex-end' : 'flex-start',
-                      maxWidth: '88%',
+                      maxWidth: '92%',
                       background: isUser
                         ? 'linear-gradient(135deg, #0284C7 0%, #2563EB 100%)'
                         : 'rgba(15, 23, 42, 0.88)',
                       border: isUser ? 'none' : '1px solid rgba(56, 189, 248, 0.25)',
-                      borderRadius: isUser ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
-                      padding: '14px 16px',
+                      borderRadius: isUser ? '24px 24px 4px 24px' : '24px 24px 24px 4px',
+                      padding: '22px 28px',
                       color: '#F8FAFC',
-                      fontSize: '15.5px',
-                      lineHeight: 1.55,
-                      boxShadow: '0 4px 18px rgba(0,0,0,0.3)',
+                      fontSize: '19.5px',
+                      lineHeight: 1.65,
+                      boxShadow: '0 6px 20px rgba(0,0,0,0.35)',
                     }}
                   >
                     <FormattedMessage text={m.text} onActionClick={handleActionClick} />
 
                     {/* Read Aloud Button on Bot Messages */}
                     {!isUser && (
-                      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '10px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '12px' }}>
                         <button
                           type="button"
                           onClick={() => handleReadAloud(m.text, idx)}
@@ -1434,17 +1438,17 @@ Ask me any financial question about investing, Indian savings schemes, or bankin
                               ? 'rgba(245, 158, 11, 0.25)'
                               : 'rgba(56, 189, 248, 0.12)',
                             border: isReadingThis
-                              ? '1px solid #F59E0B'
-                              : '1px solid rgba(56, 189, 248, 0.35)',
+                              ? '1.5px solid #F59E0B'
+                              : '1.5px solid rgba(56, 189, 248, 0.35)',
                             color: isVoiceMuted ? '#64748B' : isReadingThis ? '#FDE68A' : '#7DD3FC',
                             borderRadius: '999px',
-                            padding: '4px 12px',
-                            fontSize: '13px',
-                            fontWeight: 700,
+                            padding: '6px 16px',
+                            fontSize: '14px',
+                            fontWeight: 800,
                             cursor: isVoiceMuted ? 'not-allowed' : 'pointer',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '5px',
+                            gap: '6px',
                           }}
                         >
                           <span>{isReadingThis ? '⏹ Stop' : '🔊 Listen'}</span>
@@ -1459,8 +1463,8 @@ Ask me any financial question about investing, Indian savings schemes, or bankin
                       style={{
                         display: 'flex',
                         flexWrap: 'wrap',
-                        gap: '8px',
-                        marginTop: '4px',
+                        gap: '10px',
+                        marginTop: '6px',
                         paddingLeft: '4px',
                       }}
                     >
@@ -1470,24 +1474,24 @@ Ask me any financial question about investing, Indian savings schemes, or bankin
                           type="button"
                           onClick={() => handleSendMessage(prompt)}
                           style={{
-                            background: 'rgba(30, 41, 59, 0.85)',
-                            border: '1px solid rgba(56, 189, 248, 0.4)',
+                            background: 'rgba(30, 41, 59, 0.88)',
+                            border: '1.5px solid rgba(56, 189, 248, 0.45)',
                             color: '#E0F2FE',
                             borderRadius: '999px',
-                            padding: '7px 14px',
-                            fontSize: '13.5px',
-                            fontWeight: 700,
+                            padding: '12px 22px',
+                            fontSize: '16.5px',
+                            fontWeight: 800,
                             cursor: 'pointer',
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.25)',
+                            boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
                             transition: 'all 0.15s ease',
                           }}
                           onMouseEnter={(e) => {
                             e.currentTarget.style.borderColor = '#38BDF8'
-                            e.currentTarget.style.background = 'rgba(56, 189, 248, 0.18)'
+                            e.currentTarget.style.background = 'rgba(56, 189, 248, 0.22)'
                           }}
                           onMouseLeave={(e) => {
-                            e.currentTarget.style.borderColor = 'rgba(56, 189, 248, 0.4)'
-                            e.currentTarget.style.background = 'rgba(30, 41, 59, 0.85)'
+                            e.currentTarget.style.borderColor = 'rgba(56, 189, 248, 0.45)'
+                            e.currentTarget.style.background = 'rgba(30, 41, 59, 0.88)'
                           }}
                         >
                           {prompt}
@@ -1559,16 +1563,16 @@ Ask me any financial question about investing, Indian savings schemes, or bankin
               handleSendMessage()
             }}
             style={{
-              padding: '12px 16px 14px',
+              padding: '18px 24px 22px',
               background: 'rgba(15, 23, 42, 0.98)',
               borderTop: '1px solid rgba(148, 163, 184, 0.2)',
               display: 'flex',
               flexDirection: 'column',
-              gap: '8px',
+              gap: '12px',
               flexShrink: 0,
             }}
           >
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
               {/* Voice Microphone Button */}
               <button
                 type="button"
@@ -1579,18 +1583,18 @@ Ask me any financial question about investing, Indian savings schemes, or bankin
                     : 'rgba(30, 41, 59, 0.95)',
                   color: '#FFFFFF',
                   border: isListeningVoice
-                    ? '2px solid #FDE047'
-                    : '1px solid rgba(56, 189, 248, 0.4)',
-                  borderRadius: '12px',
-                  width: '44px',
-                  height: '44px',
-                  fontSize: '20px',
+                    ? '2.5px solid #FDE047'
+                    : '1.5px solid rgba(56, 189, 248, 0.45)',
+                  borderRadius: '18px',
+                  width: '64px',
+                  height: '64px',
+                  fontSize: '28px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   cursor: 'pointer',
                   flexShrink: 0,
-                  boxShadow: isListeningVoice ? '0 0 15px rgba(236,72,153,0.7)' : 'none',
+                  boxShadow: isListeningVoice ? '0 0 18px rgba(236,72,153,0.7)' : 'none',
                   transition: 'all 0.2s ease',
                 }}
                 title={isListeningVoice ? 'Stop listening' : 'Speak using microphone'}
@@ -1612,13 +1616,13 @@ Ask me any financial question about investing, Indian savings schemes, or bankin
                   flex: 1,
                   background: '#1E293B',
                   border: isListeningVoice
-                    ? '1.5px solid #EC4899'
-                    : '1px solid rgba(56, 189, 248, 0.35)',
-                  borderRadius: '12px',
-                  padding: '10px 14px',
+                    ? '2px solid #EC4899'
+                    : '1.5px solid rgba(56, 189, 248, 0.4)',
+                  borderRadius: '18px',
+                  padding: '16px 22px',
                   color: '#FFFFFF',
-                  fontSize: '15px',
-                  height: '44px',
+                  fontSize: '18.5px',
+                  height: '64px',
                   outline: 'none',
                 }}
               />
@@ -1631,21 +1635,21 @@ Ask me any financial question about investing, Indian savings schemes, or bankin
                   background: 'linear-gradient(135deg, #0284C7, #2563EB)',
                   color: '#FFFFFF',
                   border: 'none',
-                  borderRadius: '12px',
-                  padding: '0 18px',
-                  height: '44px',
-                  fontSize: '15px',
+                  borderRadius: '18px',
+                  padding: '0 30px',
+                  height: '64px',
+                  fontSize: '18.5px',
                   fontWeight: 800,
                   cursor: loading || !input.trim() ? 'not-allowed' : 'pointer',
                   opacity: loading || !input.trim() ? 0.45 : 1,
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '6px',
-                  boxShadow: '0 4px 14px rgba(2,132,199,0.3)',
+                  gap: '10px',
+                  boxShadow: '0 4px 16px rgba(2,132,199,0.35)',
                 }}
               >
                 <span>Send</span>
-                <span style={{ fontSize: '13px' }}>➤</span>
+                <span style={{ fontSize: '18px' }}>➤</span>
               </button>
             </div>
           </form>

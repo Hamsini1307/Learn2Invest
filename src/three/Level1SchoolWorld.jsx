@@ -231,7 +231,7 @@ function PlayerCharacter3D({ characterId = 'luna', outfitTheme = null, charState
     groupRef.current.rotation.y += rotDiff * 0.32
 
     if (cs.pose === 'walking') {
-      const cycle = Math.sin(t * 10.5)
+      const cycle = Math.sin(t * 13.8)
       groupRef.current.position.y = cs.y + Math.abs(cycle) * 0.1
       if (leftLegRef.current) leftLegRef.current.rotation.x = cycle * 0.65
       if (rightLegRef.current) rightLegRef.current.rotation.x = -cycle * 0.65
@@ -5251,11 +5251,11 @@ export default function Level1SchoolWorld({
 
           // Smooth 360-degree continuous turning with Left / Right
           if (turnDir !== 0) {
-            cs.rotY -= turnDir * (0.062 * dtFactor)
+            cs.rotY -= turnDir * (0.082 * dtFactor)
           }
 
-          // Walk forward along the character's current 360° facing angle (Normal responsive walking speed)
-          const walkSpeed = (pk.up || pk.down ? 0.36 : 0.15) * dtFactor
+          // Walk forward along the character's current 360° facing angle (Responsive, brisk walking pace)
+          const walkSpeed = (pk.up || pk.down ? 0.52 : 0.22) * dtFactor
           const fX = Math.sin(cs.rotY)
           const fZ = Math.cos(cs.rotY)
           cs.x = Math.max(-52, Math.min(26, cs.x + fX * walkSpeed))
@@ -8897,7 +8897,7 @@ export default function Level1SchoolWorld({
                 pressedKeysRef.current.up = false
                 charStateRef.current.pose = 'idle'
               }}
-              onClick={() => stepCharacterManual(0, 1.4, false)}
+              onClick={() => stepCharacterManual(0, 1.8, false)}
               className="w-9 h-7 rounded-lg bg-slate-800 hover:bg-emerald-500 hover:text-slate-950 text-emerald-300 border border-white/20 text-xs font-black flex items-center justify-center cursor-pointer transition-colors"
               title="Walk Forward in Facing Direction (Up Arrow / W)"
             >
@@ -9218,15 +9218,15 @@ export default function Level1SchoolWorld({
       ═══════════════════════════════════════════════════════════════════ */}
       {computerFeedbackBanner && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/55 backdrop-blur-sm pointer-events-none">
-          <div className="px-10 py-7 rounded-3xl bg-white border-4 border-amber-400 shadow-[0_25px_90px_rgba(251,191,36,0.85)] text-center max-w-lg mx-4 animate-bounce">
-            <div className="text-5xl mb-2">🎉🏆✨</div>
-            <div className="inline-block px-5 py-1.5 rounded-full bg-gradient-to-r from-amber-400 to-yellow-300 border-2 border-amber-600 text-black font-black text-base mb-2 shadow-md">
+          <div className="px-12 py-9 rounded-[32px] bg-white border-4 border-amber-400 shadow-[0_25px_90px_rgba(251,191,36,0.85)] text-center max-w-2xl mx-4 animate-bounce">
+            <div className="text-6xl mb-3">🎉🏆✨</div>
+            <div className="inline-block px-6 py-2 rounded-full bg-gradient-to-r from-amber-400 to-yellow-300 border-2 border-amber-600 text-black font-black text-lg mb-3 shadow-md">
               ⭐ {computerFeedbackBanner.xp}
             </div>
-            <div className="text-2xl sm:text-3xl font-black text-black leading-tight">
+            <div className="text-3xl sm:text-4xl font-black text-black leading-tight">
               {computerFeedbackBanner.title}
             </div>
-            <div className="text-sm sm:text-base font-extrabold text-emerald-800 mt-2">
+            <div className="text-base sm:text-xl font-extrabold text-emerald-800 mt-3">
               {computerFeedbackBanner.sub}
             </div>
           </div>
@@ -9234,12 +9234,16 @@ export default function Level1SchoolWorld({
       )}
 
       {bankSectionFeedbackBanner && (
-        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-50 px-9 py-5 rounded-3xl bg-white/95 backdrop-blur-xl border-3 border-amber-500 shadow-[0_0_55px_rgba(251,191,36,0.85)] text-center pointer-events-none">
-          <div className="inline-block px-4 py-1 rounded-full bg-amber-400 text-black font-black text-sm mb-1.5">
+        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 w-[min(94vw,980px)] px-12 py-8 rounded-[32px] bg-white/98 backdrop-blur-2xl border-4 border-amber-500 shadow-[0_0_80px_rgba(251,191,36,0.95)] text-center pointer-events-none">
+          <div className="inline-block px-7 py-2.5 rounded-full bg-amber-400 text-black font-black text-lg sm:text-xl mb-3 shadow-md">
             ⭐ {bankSectionFeedbackBanner.xp}
           </div>
-          <div className="text-xl sm:text-2xl font-black text-black">{bankSectionFeedbackBanner.title}</div>
-          <div className="text-sm font-bold text-slate-900 mt-1">{bankSectionFeedbackBanner.sub}</div>
+          <div className="text-3xl sm:text-4xl md:text-5xl font-black text-black leading-tight tracking-wide">
+            {bankSectionFeedbackBanner.title}
+          </div>
+          <div className="text-lg sm:text-2xl font-bold text-slate-800 mt-3 leading-relaxed">
+            {bankSectionFeedbackBanner.sub}
+          </div>
         </div>
       )}
 
@@ -9326,37 +9330,37 @@ export default function Level1SchoolWorld({
       ═══════════════════════════════════════════════════════════════════ */}
       {journeyStage === 'bank_employee' && (
         <div
-          className="absolute bottom-7 left-1/2 -translate-x-1/2 z-30 w-[min(94vw,820px)] rounded-3xl bg-white border-2 border-blue-500 shadow-[0_25px_80px_rgba(0,0,0,0.55)] p-6 sm:p-7 text-slate-900"
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 w-[min(96vw,1200px)] rounded-[32px] bg-white border-3 border-blue-500 shadow-[0_30px_90px_rgba(0,0,0,0.65)] p-8 sm:p-10 text-slate-900"
           style={{ backgroundColor: '#ffffff', color: '#0f172a' }}
         >
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-800 border-2 border-amber-400 flex items-center justify-center text-3xl shadow-lg shrink-0 text-white">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 border-b border-slate-200 pb-5">
+            <div className="flex items-center gap-5">
+              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-800 border-2 border-amber-400 flex items-center justify-center text-4xl shadow-lg shrink-0 text-white">
                 👩‍💼
               </div>
               <div>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-400 text-blue-950 text-xs font-black uppercase tracking-wider mb-1">
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 border border-blue-400 text-blue-950 text-sm font-black uppercase tracking-wider mb-1.5">
                   <span>🏛️ Level 3 Bank Lobby</span>
                   <span>•</span>
                   <span>Senior Banking Officer</span>
                 </div>
-                <h2 className="text-xl sm:text-2xl font-black text-slate-900">
+                <h2 className="text-3xl sm:text-4xl font-black text-slate-900">
                   Maya — Your Personal Banking Guide
                 </h2>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 flex-wrap">
-              <div className="px-3.5 py-2 rounded-2xl bg-amber-50 border border-amber-400 text-amber-950 text-xs sm:text-sm font-black">
+            <div className="flex items-center gap-3 flex-wrap">
+              <div className="px-5 py-2.5 rounded-2xl bg-amber-50 border border-amber-400 text-amber-950 text-base sm:text-lg font-black">
                 🏦 Banked XP Vault: {bankedXp} XP
               </div>
-              <div className="px-4 py-2 rounded-2xl bg-emerald-50 border border-emerald-400 text-emerald-950 text-xs sm:text-sm font-black">
+              <div className="px-5 py-2.5 rounded-2xl bg-emerald-50 border border-emerald-400 text-emerald-950 text-base sm:text-lg font-black">
                 Cabins Completed: {completedBankSections.length} / 2
               </div>
             </div>
           </div>
 
-          <p className="mt-4 text-sm sm:text-base text-slate-800 font-bold leading-relaxed">
+          <p className="mt-5 text-lg sm:text-2xl text-slate-800 font-bold leading-relaxed">
             “Welcome to the <span className="text-blue-700 font-black">Learn2Invest Bank</span>,{' '}
             <span className="text-emerald-700 font-black">
               {characterChoice === 'leo' || characterChoice === 'max' ? 'Leo' : 'Luna'}
@@ -9366,15 +9370,15 @@ export default function Level1SchoolWorld({
             <span className="text-emerald-700 font-black">Cabin 2: Digital Banking Safety</span>!”
           </p>
 
-          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-200">
-            <div className="flex items-center gap-2 flex-wrap">
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-4 pt-5 border-t border-slate-200">
+            <div className="flex items-center gap-3 flex-wrap">
               <button
                 type="button"
                 onClick={() => {
                   soundEngine.playClick()
                   setShowXpDepositModal(true)
                 }}
-                className="px-4 py-2.5 rounded-2xl bg-amber-400 hover:bg-amber-300 border-2 border-black/20 text-slate-950 font-black text-xs sm:text-sm shadow-md hover:scale-105 transition-transform cursor-pointer"
+                className="px-6 py-3.5 rounded-2xl bg-amber-400 hover:bg-amber-300 border-2 border-black/20 text-slate-950 font-black text-sm sm:text-base shadow-md hover:scale-105 transition-transform cursor-pointer"
               >
                 🏦 Deposit XP with Maya ({state?.xp || 0} Wallet XP)
               </button>
@@ -9384,7 +9388,7 @@ export default function Level1SchoolWorld({
                   soundEngine.playClick()
                   startAtmQueueExperience()
                 }}
-                className="px-4 py-2.5 rounded-2xl bg-cyan-300 hover:bg-cyan-200 border-2 border-black/20 text-slate-950 font-black text-xs sm:text-sm shadow-md hover:scale-105 transition-transform cursor-pointer"
+                className="px-6 py-3.5 rounded-2xl bg-cyan-300 hover:bg-cyan-200 border-2 border-black/20 text-slate-950 font-black text-sm sm:text-base shadow-md hover:scale-105 transition-transform cursor-pointer"
               >
                 🏧 Walk to 24/7 ATM Queue ({bankedXp} Banked XP)
               </button>
@@ -9393,7 +9397,7 @@ export default function Level1SchoolWorld({
             <button
               onClick={handleEmployeeInteract}
               onMouseEnter={() => soundEngine.playHover()}
-              className="px-7 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 text-slate-950 border-2 border-black/20 font-black text-sm sm:text-base shadow-[0_10px_30px_rgba(16,185,129,0.45)] hover:scale-105 active:scale-95 transition-all cursor-pointer"
+              className="px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 text-slate-950 border-2 border-black/20 font-black text-base sm:text-lg shadow-[0_10px_30px_rgba(16,185,129,0.45)] hover:scale-105 active:scale-95 transition-all cursor-pointer"
             >
               🏛️ Enter Cabin 1: Banking Slip Writing →
             </button>
@@ -9405,7 +9409,7 @@ export default function Level1SchoolWorld({
           LEVEL 3 — ORIGINAL BANK PAPER SLIP WRITER & DIGITAL SAFETY ARENA (2 CABINS)
       ═══════════════════════════════════════════════════════════════════ */}
       {journeyStage === 'bank_section' && !bankSectionFeedbackBanner && (
-        <div style={{ paddingTop: "7.5vh", paddingBottom: "1.5vh", paddingLeft: "1vw", paddingRight: "1vw" }} className="fixed inset-0 z-40 bg-slate-950/80 backdrop-blur-md flex flex-col items-center justify-center pointer-events-auto overflow-hidden">
+        <div style={{ paddingTop: "2vh", paddingBottom: "2vh", paddingLeft: "1.5vw", paddingRight: "1.5vw" }} className="fixed inset-0 z-40 bg-slate-950/85 backdrop-blur-md flex flex-col items-center justify-center pointer-events-auto overflow-hidden">
           <Level3BankSectionScreen
             sectionNumber={activeBankSection}
             completedSections={completedBankSections}
@@ -9715,22 +9719,22 @@ export default function Level1SchoolWorld({
           - High-contrast, easily readable inputs, icons, and action buttons
       ═══════════════════════════════════════════════════════════════════ */}
       {!showLoadingSplash && journeyStage === 'login' && !hasLoggedIn && (
-        <div className="absolute inset-0 z-20 flex items-center justify-center p-4 sm:p-8 overflow-y-auto pointer-events-auto bg-slate-950/35 backdrop-blur-[2px]">
+        <div className="absolute inset-0 z-20 flex items-center justify-center p-3 sm:p-6 overflow-y-auto pointer-events-auto bg-slate-950/40 backdrop-blur-[2px]">
           <div
             ref={loginPanelRef}
             data-login-card="true"
-            className="w-full max-w-[1550px] rounded-[52px] bg-white border-2 border-slate-200/90 shadow-[0_35px_100px_-15px_rgba(0,0,0,0.5)] p-8 sm:p-14 text-black transition-all my-auto"
+            className="w-[min(98vw,1760px)] rounded-[56px] bg-white border-3 border-slate-200/90 shadow-[0_40px_120px_-15px_rgba(0,0,0,0.65)] p-8 sm:p-14 lg:p-18 text-black transition-all my-auto"
           >
             {/* Top Logo & Motto */}
-            <div className="flex flex-col items-center justify-center mb-8 select-none text-center">
-              <div className="inline-flex items-center gap-3 font-black text-6xl sm:text-7xl lg:text-8xl tracking-tight text-[#0B2545]">
+            <div className="flex flex-col items-center justify-center mb-9 select-none text-center">
+              <div className="inline-flex items-center gap-4 font-black text-7xl sm:text-8xl lg:text-9xl tracking-tight text-[#0B2545]">
                 <span>LEARN</span>
                 <span>2</span>
                 <span>INVE</span>
                 <span className="relative inline-flex items-center">
                   ₹
                   <svg
-                    className="absolute -top-6 -right-5 w-11 h-11 text-emerald-500 fill-current"
+                    className="absolute -top-7 -right-6 w-14 h-14 text-emerald-500 fill-current"
                     viewBox="0 0 24 24"
                   >
                     <path d="M5 19L17.59 6.41L15 3.82H21V9.82L18.41 7.23L5.82 19.82L5 19Z" />
@@ -9738,14 +9742,14 @@ export default function Level1SchoolWorld({
                 </span>
                 <span>ST</span>
               </div>
-              <div className="text-base sm:text-xl font-black tracking-[0.25em] text-[#0B2545] mt-3 uppercase">
+              <div className="text-lg sm:text-2xl font-black tracking-[0.28em] text-[#0B2545] mt-3 uppercase">
                 LEARN TODAY &bull; INVEST TOMORROW
               </div>
             </div>
 
             {/* Top Light-Blue Notice Banner */}
-            <div className="mb-8 px-8 py-5 rounded-3xl bg-[#E8F3FF] border-2 border-[#BFDBFE] text-[#1E3A8A] text-xl sm:text-2xl font-bold flex items-center gap-5 shadow-sm">
-              <div className="w-11 h-11 rounded-full bg-[#2563EB] text-white flex items-center justify-center text-xl font-black shrink-0">
+            <div className="mb-9 px-9 py-6 rounded-3xl bg-[#E8F3FF] border-2 border-[#BFDBFE] text-[#1E3A8A] text-2xl sm:text-3xl font-bold flex items-center gap-5 shadow-sm">
+              <div className="w-12 h-12 rounded-full bg-[#2563EB] text-white flex items-center justify-center text-2xl font-black shrink-0">
                 i
               </div>
               <span className="leading-snug">
@@ -9755,7 +9759,7 @@ export default function Level1SchoolWorld({
 
             {/* 1. CHOOSE YOUR 3D AVATAR (Large Luna & Leo) */}
             <div className="mb-8">
-              <div className="text-2xl sm:text-3xl font-black uppercase tracking-wider text-[#0F172A] mb-4">
+              <div className="text-3xl sm:text-4xl font-black uppercase tracking-wider text-[#0F172A] mb-4">
                 1. CHOOSE YOUR 3D AVATAR
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -9767,14 +9771,14 @@ export default function Level1SchoolWorld({
                     setCharacterChoice('luna');
                     if (setAiGuideAvatar) setAiGuideAvatar('female', 'Luna');
                   }}
-                  className={`p-7 rounded-[32px] border-4 text-left flex items-center justify-between transition-all cursor-pointer relative ${
+                  className={`p-8 sm:p-9 rounded-[36px] border-4 text-left flex items-center justify-between transition-all cursor-pointer relative ${
                     characterChoice !== 'leo'
                       ? 'bg-[#E8FAF4] border-[#10B981] shadow-xl ring-4 ring-[#10B981]/25'
                       : 'bg-white border-slate-300 hover:border-slate-400'
                   }`}
                 >
                   <div className="flex items-center gap-6 min-w-0">
-                    <div className="relative w-32 h-32 shrink-0 rounded-3xl overflow-hidden flex items-center justify-center bg-emerald-50">
+                    <div className="relative w-36 h-36 shrink-0 rounded-3xl overflow-hidden flex items-center justify-center bg-emerald-50">
                       <img
                         src="/images/avatar_luna_3d.png"
                         alt="Luna"
@@ -9782,17 +9786,17 @@ export default function Level1SchoolWorld({
                       />
                     </div>
                     <div className="min-w-0">
-                      <div className="text-4xl sm:text-5xl lg:text-6xl font-black text-[#0F172A] leading-tight">Luna</div>
-                      <div className="text-xl sm:text-2xl font-bold text-slate-600 mt-2">Sweater & Jeans</div>
+                      <div className="text-5xl sm:text-6xl lg:text-7xl font-black text-[#0F172A] leading-tight">Luna</div>
+                      <div className="text-2xl sm:text-3xl font-bold text-slate-600 mt-2">Sweater & Jeans</div>
                     </div>
                   </div>
                   <div className="shrink-0 ml-4">
                     {characterChoice !== 'leo' ? (
-                      <div className="w-12 h-12 rounded-full bg-[#059669] text-white flex items-center justify-center text-2xl font-black shadow-md">
+                      <div className="w-14 h-14 rounded-full bg-[#059669] text-white flex items-center justify-center text-3xl font-black shadow-md">
                         ✓
                       </div>
                     ) : (
-                      <div className="w-12 h-12 rounded-full border-4 border-slate-300" />
+                      <div className="w-14 h-14 rounded-full border-4 border-slate-300" />
                     )}
                   </div>
                 </button>
@@ -9805,14 +9809,14 @@ export default function Level1SchoolWorld({
                     setCharacterChoice('leo');
                     if (setAiGuideAvatar) setAiGuideAvatar('male', 'Leo');
                   }}
-                  className={`p-7 rounded-[32px] border-4 text-left flex items-center justify-between transition-all cursor-pointer relative ${
+                  className={`p-8 sm:p-9 rounded-[36px] border-4 text-left flex items-center justify-between transition-all cursor-pointer relative ${
                     characterChoice === 'leo'
                       ? 'bg-[#E8FAF4] border-[#10B981] shadow-xl ring-4 ring-[#10B981]/25'
                       : 'bg-white border-slate-300 hover:border-slate-400'
                   }`}
                 >
                   <div className="flex items-center gap-6 min-w-0">
-                    <div className="relative w-32 h-32 shrink-0 rounded-3xl overflow-hidden flex items-center justify-center bg-slate-50">
+                    <div className="relative w-36 h-36 shrink-0 rounded-3xl overflow-hidden flex items-center justify-center bg-slate-50">
                       <img
                         src="/images/avatar_leo_3d.png"
                         alt="Leo"
@@ -9820,17 +9824,17 @@ export default function Level1SchoolWorld({
                       />
                     </div>
                     <div className="min-w-0">
-                      <div className="text-4xl sm:text-5xl lg:text-6xl font-black text-[#0F172A] leading-tight">Leo</div>
-                      <div className="text-xl sm:text-2xl font-bold text-slate-600 mt-2">Jacket & Cargo</div>
+                      <div className="text-5xl sm:text-6xl lg:text-7xl font-black text-[#0F172A] leading-tight">Leo</div>
+                      <div className="text-2xl sm:text-3xl font-bold text-slate-600 mt-2">Jacket & Cargo</div>
                     </div>
                   </div>
                   <div className="shrink-0 ml-4">
                     {characterChoice === 'leo' ? (
-                      <div className="w-12 h-12 rounded-full bg-[#059669] text-white flex items-center justify-center text-2xl font-black shadow-md">
+                      <div className="w-14 h-14 rounded-full bg-[#059669] text-white flex items-center justify-center text-3xl font-black shadow-md">
                         ✓
                       </div>
                     ) : (
-                      <div className="w-12 h-12 rounded-full border-4 border-slate-300" />
+                      <div className="w-14 h-14 rounded-full border-4 border-slate-300" />
                     )}
                   </div>
                 </button>
@@ -9839,7 +9843,7 @@ export default function Level1SchoolWorld({
 
             {/* 2. SELECT STARTING LEVEL (Large writings) */}
             <div className="mb-8">
-              <div className="text-2xl sm:text-3xl font-black uppercase tracking-wider text-[#0F172A] mb-4">
+              <div className="text-3xl sm:text-4xl font-black uppercase tracking-wider text-[#0F172A] mb-4">
                 2. SELECT STARTING LEVEL (ADVANCED LEVEL LOCKED 🔒 )
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
@@ -9850,7 +9854,7 @@ export default function Level1SchoolWorld({
                     soundEngine.playClick();
                     setLoginLevelChoice('beginner');
                   }}
-                  className={`p-6 rounded-[28px] border-4 text-left flex items-center justify-between transition-all cursor-pointer relative ${
+                  className={`p-7 sm:p-8 rounded-[32px] border-4 text-left flex items-center justify-between transition-all cursor-pointer relative ${
                     loginLevelChoice === 'beginner'
                       ? 'bg-[#E8FAF4] border-[#10B981] shadow-lg ring-4 ring-[#10B981]/25'
                       : 'bg-white border-slate-300 hover:border-slate-400'
@@ -9870,19 +9874,19 @@ export default function Level1SchoolWorld({
                       <span style={{ display: 'none' }} className="text-4xl">🌱</span>
                     </div>
                     <div className="min-w-0">
-                      <div className="text-2xl sm:text-3xl font-black text-[#0F172A] leading-tight">Beginner</div>
-                      <div className="text-sm sm:text-base font-bold text-slate-600 leading-tight mt-1.5 truncate">
+                      <div className="text-3xl sm:text-4xl font-black text-[#0F172A] leading-tight">Beginner</div>
+                      <div className="text-base sm:text-lg font-bold text-slate-600 leading-tight mt-1.5 truncate">
                         Starts at Classroom 101 Videos
                       </div>
                     </div>
                   </div>
                   <div className="shrink-0 ml-3">
                     {loginLevelChoice === 'beginner' ? (
-                      <div className="w-10 h-10 rounded-full bg-[#059669] text-white flex items-center justify-center text-lg font-black shadow-md">
+                      <div className="w-11 h-11 rounded-full bg-[#059669] text-white flex items-center justify-center text-xl font-black shadow-md">
                         ✓
                       </div>
                     ) : (
-                      <div className="w-10 h-10 rounded-full border-4 border-slate-300" />
+                      <div className="w-11 h-11 rounded-full border-4 border-slate-300" />
                     )}
                   </div>
                 </button>
@@ -9894,7 +9898,7 @@ export default function Level1SchoolWorld({
                     soundEngine.playClick();
                     setLoginLevelChoice('intermediate');
                   }}
-                  className={`p-6 rounded-[28px] border-4 text-left flex items-center justify-between transition-all cursor-pointer relative ${
+                  className={`p-7 sm:p-8 rounded-[32px] border-4 text-left flex items-center justify-between transition-all cursor-pointer relative ${
                     loginLevelChoice === 'intermediate'
                       ? 'bg-[#E8FAF4] border-[#10B981] shadow-lg ring-4 ring-[#10B981]/25'
                       : 'bg-white border-slate-300 hover:border-slate-400'
@@ -9903,19 +9907,19 @@ export default function Level1SchoolWorld({
                   <div className="flex items-center gap-4 min-w-0">
                     <span className="text-5xl text-amber-500 shrink-0 select-none">⚡</span>
                     <div className="min-w-0">
-                      <div className="text-2xl sm:text-3xl font-black text-[#0F172A] leading-tight">Intermediate</div>
-                      <div className="text-sm sm:text-base font-bold text-slate-600 leading-tight mt-1.5 truncate">
+                      <div className="text-3xl sm:text-4xl font-black text-[#0F172A] leading-tight">Intermediate</div>
+                      <div className="text-base sm:text-lg font-bold text-slate-600 leading-tight mt-1.5 truncate">
                         Starts directly from the Quiz!
                       </div>
                     </div>
                   </div>
                   <div className="shrink-0 ml-3">
                     {loginLevelChoice === 'intermediate' ? (
-                      <div className="w-10 h-10 rounded-full bg-[#059669] text-white flex items-center justify-center text-lg font-black shadow-md">
+                      <div className="w-11 h-11 rounded-full bg-[#059669] text-white flex items-center justify-center text-xl font-black shadow-md">
                         ✓
                       </div>
                     ) : (
-                      <div className="w-10 h-10 rounded-full border-4 border-slate-300" />
+                      <div className="w-11 h-11 rounded-full border-4 border-slate-300" />
                     )}
                   </div>
                 </button>
@@ -9924,14 +9928,14 @@ export default function Level1SchoolWorld({
                 <button
                   type="button"
                   disabled
-                  className="p-6 rounded-[28px] border-4 border-slate-300 bg-[#F1F5F9] text-left opacity-90 cursor-not-allowed flex items-center justify-between relative"
+                  className="p-7 sm:p-8 rounded-[32px] border-4 border-slate-300 bg-[#F1F5F9] text-left opacity-90 cursor-not-allowed flex items-center justify-between relative"
                   title="Complete Beginner & Intermediate levels to unlock Advanced Banking!"
                 >
                   <div className="flex items-center gap-4 min-w-0">
                     <span className="text-4xl shrink-0 select-none">🔒</span>
                     <div className="min-w-0">
-                      <div className="text-2xl sm:text-3xl font-black text-slate-700 leading-tight">Advanced</div>
-                      <div className="text-sm sm:text-base font-bold text-slate-500 leading-tight mt-1.5 truncate">
+                      <div className="text-3xl sm:text-4xl font-black text-slate-700 leading-tight">Advanced</div>
+                      <div className="text-base sm:text-lg font-bold text-slate-500 leading-tight mt-1.5 truncate">
                         Locked - Unlock via Level 2
                       </div>
                     </div>
@@ -9944,10 +9948,10 @@ export default function Level1SchoolWorld({
             </div>
 
             {/* 3. INPUT DETAILS & FORM (Large Username, Email, Password) */}
-            <form onSubmit={handleLoginSubmit} noValidate className="space-y-7">
+            <form onSubmit={handleLoginSubmit} noValidate className="space-y-8">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-xl sm:text-2xl font-black uppercase tracking-wider text-[#0F172A] mb-3">
+                  <label className="block text-2xl sm:text-3xl font-black uppercase tracking-wider text-[#0F172A] mb-3">
                     USERNAME OR LEARNER ID
                   </label>
                   <div className="relative flex items-center">
@@ -9959,13 +9963,13 @@ export default function Level1SchoolWorld({
                         setUsernameInput(e.target.value);
                         if (authError) setAuthError('');
                       }}
-                      className="login-huge-input w-full h-24 px-8 py-5 rounded-[26px] border-3 border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-3xl font-extrabold focus:outline-none focus:border-[#10B981] focus:ring-4 focus:ring-[#10B981]/20 transition-all shadow-sm"
+                      className="login-huge-input w-full h-28 px-8 py-5 rounded-[30px] border-3 border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-4xl font-extrabold focus:outline-none focus:border-[#10B981] focus:ring-4 focus:ring-[#10B981]/20 transition-all shadow-sm"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xl sm:text-2xl font-black uppercase tracking-wider text-[#0F172A] mb-3">
+                  <label className="block text-2xl sm:text-3xl font-black uppercase tracking-wider text-[#0F172A] mb-3">
                     EMAIL ADDRESS
                   </label>
                   <div className="relative flex items-center">
@@ -9977,14 +9981,14 @@ export default function Level1SchoolWorld({
                         setEmailInput(e.target.value);
                         if (authError) setAuthError('');
                       }}
-                      className="login-huge-input w-full h-24 px-8 py-5 rounded-[26px] border-3 border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-3xl font-extrabold focus:outline-none focus:border-[#10B981] focus:ring-4 focus:ring-[#10B981]/20 transition-all shadow-sm"
+                      className="login-huge-input w-full h-28 px-8 py-5 rounded-[30px] border-3 border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-4xl font-extrabold focus:outline-none focus:border-[#10B981] focus:ring-4 focus:ring-[#10B981]/20 transition-all shadow-sm"
                     />
                   </div>
                 </div>
               </div>
 
               <div>
-                <label className="block text-xl sm:text-2xl font-black uppercase tracking-wider text-[#0F172A] mb-3">
+                <label className="block text-2xl sm:text-3xl font-black uppercase tracking-wider text-[#0F172A] mb-3">
                   PASSWORD
                 </label>
                 <div className="relative flex items-center">
@@ -9996,7 +10000,7 @@ export default function Level1SchoolWorld({
                       setPasswordInput(e.target.value);
                       if (authError) setAuthError('');
                     }}
-                    className="login-huge-input w-full h-24 pl-8 pr-28 py-5 rounded-[26px] border-3 border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-3xl font-extrabold focus:outline-none focus:border-[#10B981] focus:ring-4 focus:ring-[#10B981]/20 transition-all shadow-sm"
+                    className="login-huge-input w-full h-28 pl-8 pr-28 py-5 rounded-[30px] border-3 border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-4xl font-extrabold focus:outline-none focus:border-[#10B981] focus:ring-4 focus:ring-[#10B981]/20 transition-all shadow-sm"
                   />
                   <button
                     type="button"
@@ -10023,11 +10027,11 @@ export default function Level1SchoolWorld({
                   type="button"
                   onClick={() => executeSignInOrLogIn('signin')}
                   onMouseEnter={() => soundEngine.playHover()}
-                  className={`w-full h-22 sm:h-24 py-5 px-8 rounded-[28px] bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#06B6D4] text-white font-black text-xl sm:text-2xl lg:text-3xl tracking-wide flex items-center justify-center gap-4 shadow-xl shadow-cyan-500/25 hover:shadow-cyan-500/40 hover:scale-[1.01] active:scale-95 transition-all cursor-pointer ${
+                  className={`w-full h-26 sm:h-28 py-6 px-10 rounded-[34px] bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#06B6D4] text-white font-black text-2xl sm:text-3xl lg:text-4xl tracking-wide flex items-center justify-center gap-4 shadow-xl shadow-cyan-500/25 hover:shadow-cyan-500/40 hover:scale-[1.01] active:scale-95 transition-all cursor-pointer ${
                     loginBtnPressed && authMode === 'signin' ? 'scale-95 opacity-80' : ''
                   }`}
                 >
-                  <span className="text-4xl sm:text-5xl">🔑</span>
+                  <span className="text-5xl sm:text-6xl">🔑</span>
                   <span>Sign In & Create Account →</span>
                 </button>
 
@@ -10035,11 +10039,11 @@ export default function Level1SchoolWorld({
                   type="button"
                   onClick={() => executeSignInOrLogIn('login')}
                   onMouseEnter={() => soundEngine.playHover()}
-                  className={`w-full h-22 sm:h-24 py-5 px-8 rounded-[28px] bg-gradient-to-r from-[#059669] via-[#10B981] to-[#22C55E] text-white font-black text-xl sm:text-2xl lg:text-3xl tracking-wide flex items-center justify-center gap-4 shadow-xl shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:scale-[1.01] active:scale-95 transition-all cursor-pointer ${
+                  className={`w-full h-26 sm:h-28 py-6 px-10 rounded-[34px] bg-gradient-to-r from-[#059669] via-[#10B981] to-[#22C55E] text-white font-black text-2xl sm:text-3xl lg:text-4xl tracking-wide flex items-center justify-center gap-4 shadow-xl shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:scale-[1.01] active:scale-95 transition-all cursor-pointer ${
                     loginBtnPressed && authMode === 'login' ? 'scale-95 opacity-80' : ''
                   }`}
                 >
-                  <span className="text-4xl sm:text-5xl">🚀</span>
+                  <span className="text-5xl sm:text-6xl">🚀</span>
                   <span>Log In (Existing Account) →</span>
                 </button>
               </div>

@@ -1100,13 +1100,13 @@ export default function Level3BankZone3D({
                 </group>
               )}
 
-              {/* Physical Interactive Banking Monitor on Cabin Desk */}
-              <group position={[0, 1.82, -0.05]}>
-                <RoundedBox args={[3.4, 1.9, 0.07]} radius={0.03} castShadow>
+              {/* Physical Interactive Banking Monitor on Cabin Desk (Enlarged for Clear Visibility) */}
+              <group position={[0, 1.95, -0.05]}>
+                <RoundedBox args={[4.4, 2.45, 0.08]} radius={0.04} castShadow>
                   <meshStandardMaterial color="#0f172a" roughness={0.3} />
                 </RoundedBox>
-                <mesh position={[0, 0, 0.04]}>
-                  <planeGeometry args={[3.22, 1.74]} />
+                <mesh position={[0, 0, 0.042]}>
+                  <planeGeometry args={[4.22, 2.3]} />
                   <meshBasicMaterial color={isCurrent ? '#0f172a' : '#020617'} />
                 </mesh>
 
@@ -1114,12 +1114,12 @@ export default function Level3BankZone3D({
                 {isBankLobbyActive && !activeBankSection && (
                   <Html
                     transform
-                    distanceFactor={1.85}
-                    position={[0, 0, 0.048]}
+                    distanceFactor={2.25}
+                    position={[0, 0, 0.05]}
                     zIndexRange={[15, 0]}
                     style={{
-                      width: '620px',
-                      height: '345px',
+                      width: '840px',
+                      height: '460px',
                       pointerEvents: 'auto',
                       userSelect: 'none',
                     }}
@@ -1135,9 +1135,9 @@ export default function Level3BankZone3D({
                           counter.num === 1
                             ? 'linear-gradient(145deg, #0f172a, #1e1b4b)'
                             : 'linear-gradient(145deg, #0f172a, #042f2e)',
-                        border: `3px solid ${isDone ? '#10b981' : counter.accent}`,
-                        borderRadius: '18px',
-                        padding: '20px',
+                        border: `3.5px solid ${isDone ? '#10b981' : counter.accent}`,
+                        borderRadius: '22px',
+                        padding: '26px 28px',
                         boxSizing: 'border-box',
                         color: '#fff',
                         display: 'flex',
@@ -1153,23 +1153,23 @@ export default function Level3BankZone3D({
                             background: counter.accent,
                             color: '#020617',
                             fontWeight: 900,
-                            fontSize: '14px',
-                            padding: '5px 12px',
+                            fontSize: '17px',
+                            padding: '7px 16px',
                             borderRadius: '999px',
                           }}
                         >
                           {counter.cabinName} • SECTION {counter.num} OF 2
                         </span>
-                        <span style={{ fontSize: '14px', fontWeight: 900, color: isDone ? '#4ade80' : '#fbbf24' }}>
+                        <span style={{ fontSize: '17px', fontWeight: 900, color: isDone ? '#4ade80' : '#fbbf24' }}>
                           {isDone ? '✓ Completed' : 'Click to Enter'}
                         </span>
                       </div>
 
                       <div>
-                        <div style={{ fontSize: '26px', fontWeight: 900, marginBottom: '8px' }}>
+                        <div style={{ fontSize: '32px', fontWeight: 900, marginBottom: '10px' }}>
                           {counter.icon} {counter.title}
                         </div>
-                        <div style={{ fontSize: '15px', color: '#cbd5e1', lineHeight: 1.45 }}>
+                        <div style={{ fontSize: '18px', color: '#cbd5e1', lineHeight: 1.5 }}>
                           {counter.num === 1
                             ? 'Practice filling Indian Bank Deposit Slips, Withdrawal Forms & Cheques with exact Branch IFSC search.'
                             : 'Watch the Digital Banking YouTube Tutorial first, then defend against UPI traps & SMS scams.'}
@@ -1178,12 +1178,12 @@ export default function Level3BankZone3D({
 
                       <div
                         style={{
-                          background: 'rgba(255,255,255,0.12)',
-                          borderRadius: '12px',
-                          padding: '10px 14px',
+                          background: 'rgba(255,255,255,0.14)',
+                          borderRadius: '14px',
+                          padding: '14px 20px',
                           textAlign: 'center',
                           fontWeight: 900,
-                          fontSize: '15px',
+                          fontSize: '18px',
                           color: '#38bdf8',
                         }}
                       >
