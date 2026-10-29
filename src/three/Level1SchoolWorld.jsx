@@ -4165,6 +4165,7 @@ function Floor2ComputerLabScene3D({
                     pointerEvents: 'auto',
                     userSelect: 'none',
                     overflow: 'hidden',
+                    borderRadius: '6px',
                   }}
                 >
                   {ws.content}

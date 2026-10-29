@@ -425,10 +425,11 @@ export function Computer1SimulatorScreen({
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '24px 36px',
+          padding: isFullscreen ? '24px 36px' : '12px 18px',
           boxSizing: 'border-box',
           textAlign: 'center',
           position: 'relative',
+          overflowY: 'auto',
         }}
       >
         {onToggleFullscreen && (
@@ -436,14 +437,14 @@ export function Computer1SimulatorScreen({
             onClick={onToggleFullscreen}
             style={{
               position: 'absolute',
-              top: '12px',
-              right: '16px',
+              top: '10px',
+              right: '12px',
               background: 'rgba(14,165,233,0.22)',
               border: '1.5px solid #38BDF8',
               color: '#E0F2FE',
-              borderRadius: '8px',
-              padding: '5px 12px',
-              fontSize: '11px',
+              borderRadius: '7px',
+              padding: isFullscreen ? '5px 12px' : '3px 8px',
+              fontSize: isFullscreen ? '11px' : '10px',
               fontWeight: 900,
               cursor: 'pointer',
             }}
@@ -451,31 +452,31 @@ export function Computer1SimulatorScreen({
             {isFullscreen ? '🗗 Exit Full Screen' : '⛶ Full Screen'}
           </button>
         )}
-        <div style={{ fontSize: '38px', marginBottom: '6px' }}>🎉🖥️🏆</div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '8px' }}>
-          <div style={{ background: 'rgba(16,185,129,0.22)', border: '1.5px solid #10B981', color: '#6EE7B7', fontSize: '11px', fontWeight: 900, padding: '4px 12px', borderRadius: '999px' }}>
+        <div style={{ fontSize: isFullscreen ? '38px' : '28px', marginBottom: '4px' }}>🎉🖥️🏆</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '6px' }}>
+          <div style={{ background: 'rgba(16,185,129,0.22)', border: '1.5px solid #10B981', color: '#6EE7B7', fontSize: isFullscreen ? '11px' : '10px', fontWeight: 900, padding: '3px 10px', borderRadius: '999px' }}>
             ✅ COMPUTER 1 COMPLETED • 6 / 6 SCHEMES MASTERED
           </div>
-          <div style={{ background: 'linear-gradient(135deg, #F59E0B, #D97706)', color: '#FFF', fontSize: '11px', fontWeight: 900, padding: '4px 12px', borderRadius: '999px', boxShadow: '0 4px 14px rgba(245,158,11,0.45)' }}>
+          <div style={{ background: 'linear-gradient(135deg, #F59E0B, #D97706)', color: '#FFF', fontSize: isFullscreen ? '11px' : '10px', fontWeight: 900, padding: '3px 10px', borderRadius: '999px', boxShadow: '0 4px 14px rgba(245,158,11,0.45)' }}>
             ⭐ +50 XP Bonus Claimed!
           </div>
         </div>
-        <h2 style={{ fontSize: '19px', fontWeight: 900, margin: '0 0 6px 0', color: '#FFFFFF' }}>
+        <h2 style={{ fontSize: isFullscreen ? '19px' : '15px', fontWeight: 900, margin: '0 0 4px 0', color: '#FFFFFF' }}>
           All 6 Government Investment Simulators Mastered!
         </h2>
-        <p style={{ fontSize: '12px', color: '#CBD5E1', maxWidth: '500px', margin: '0 0 14px 0', lineHeight: 1.45 }}>
+        <p style={{ fontSize: isFullscreen ? '12px' : '10.5px', color: '#CBD5E1', maxWidth: '500px', margin: '0 0 10px 0', lineHeight: 1.35 }}>
           You have manually explored <strong>PPF Simulator (7.1%)</strong>, <strong>Fixed Deposit (7.25%)</strong>, <strong>NSC Calculator (7.7%)</strong>, <strong>Sukanya Samriddhi (8.2%)</strong>, <strong>Recurring Deposit (7.0%)</strong>, and <strong>Post Office MIS (7.4%)</strong>.
         </p>
-        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center' }}>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
           <button
             onClick={() => setShowCompletedPage(false)}
             style={{
               background: 'rgba(30,41,59,0.9)',
               color: '#E2E8F0',
               border: '1px solid rgba(148,163,184,0.35)',
-              borderRadius: '10px',
-              padding: '9px 16px',
-              fontSize: '12px',
+              borderRadius: '8px',
+              padding: isFullscreen ? '9px 16px' : '6px 12px',
+              fontSize: isFullscreen ? '12px' : '10.5px',
               fontWeight: 800,
               cursor: 'pointer',
             }}
@@ -489,9 +490,9 @@ export function Computer1SimulatorScreen({
                 background: 'linear-gradient(135deg, #10B981, #059669)',
                 color: '#FFFFFF',
                 border: 'none',
-                borderRadius: '10px',
-                padding: '9px 20px',
-                fontSize: '12.5px',
+                borderRadius: '8px',
+                padding: isFullscreen ? '9px 20px' : '6px 14px',
+                fontSize: isFullscreen ? '12.5px' : '11px',
                 fontWeight: 900,
                 cursor: 'pointer',
                 boxShadow: '0 6px 20px rgba(16,185,129,0.45)',
@@ -516,24 +517,24 @@ export function Computer1SimulatorScreen({
         fontFamily: "'Inter', 'Segoe UI', sans-serif",
         display: 'flex',
         flexDirection: 'column',
-        padding: isFullscreen ? '14px 20px' : '10px 14px',
+        padding: isFullscreen ? '14px 20px' : '8px 10px',
         boxSizing: 'border-box',
         overflow: 'hidden',
         userSelect: 'none',
       }}
     >
       {/* Top Header Bar */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(56,189,248,0.22)', paddingBottom: '6px', marginBottom: '7px', flexShrink: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(56,189,248,0.22)', paddingBottom: isFullscreen ? '6px' : '4px', marginBottom: isFullscreen ? '7px' : '5px', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ background: '#0284C7', color: '#fff', fontWeight: 900, fontSize: '12px', padding: '4px 10px', borderRadius: '6px', letterSpacing: '0.6px' }}>
+          <span style={{ background: '#0284C7', color: '#fff', fontWeight: 900, fontSize: isFullscreen ? '12px' : '11px', padding: isFullscreen ? '4px 10px' : '2px 8px', borderRadius: '5px', letterSpacing: '0.5px' }}>
             🖥️ COMPUTER 1 • ALL 6 SIMULATORS
           </span>
-          <span style={{ fontSize: '13.5px', fontWeight: 800, color: '#E2E8F0' }}>
+          <span style={{ fontSize: isFullscreen ? '13.5px' : '11.5px', fontWeight: 800, color: '#E2E8F0' }}>
             Explore all 6 schemes manually to unlock Computer 1 Completion
           </span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span style={{ fontSize: '12px', color: allSixExplored ? '#4ADE80' : '#38BDF8', fontWeight: 800, background: allSixExplored ? 'rgba(16,185,129,0.18)' : 'rgba(56,189,248,0.12)', padding: '4px 11px', borderRadius: '999px', border: `1px solid ${allSixExplored ? '#10B981' : 'rgba(56,189,248,0.3)'}` }}>
+          <span style={{ fontSize: isFullscreen ? '12px' : '11px', color: allSixExplored ? '#4ADE80' : '#38BDF8', fontWeight: 800, background: allSixExplored ? 'rgba(16,185,129,0.18)' : 'rgba(56,189,248,0.12)', padding: isFullscreen ? '4px 11px' : '2px 9px', borderRadius: '999px', border: `1px solid ${allSixExplored ? '#10B981' : 'rgba(56,189,248,0.3)'}` }}>
             ✓ Explored {Math.min(6, completedMods.length)}/6 Schemes
           </span>
           {allSixExplored && (
@@ -543,9 +544,9 @@ export function Computer1SimulatorScreen({
                 background: 'linear-gradient(135deg, #10B981, #059669)',
                 color: '#fff',
                 border: 'none',
-                borderRadius: '7px',
-                padding: '5px 12px',
-                fontSize: '12.5px',
+                borderRadius: '6px',
+                padding: isFullscreen ? '5px 12px' : '3px 9px',
+                fontSize: isFullscreen ? '12.5px' : '11px',
                 fontWeight: 900,
                 cursor: 'pointer',
               }}
@@ -560,9 +561,9 @@ export function Computer1SimulatorScreen({
                 background: isFullscreen ? 'linear-gradient(135deg, #F59E0B, #D97706)' : 'rgba(14,165,233,0.22)',
                 color: '#fff',
                 border: isFullscreen ? 'none' : '1.5px solid #38BDF8',
-                borderRadius: '7px',
-                padding: '5px 11px',
-                fontSize: '12px',
+                borderRadius: '6px',
+                padding: isFullscreen ? '5px 11px' : '3px 8px',
+                fontSize: isFullscreen ? '12px' : '11px',
                 fontWeight: 900,
                 cursor: 'pointer',
               }}
@@ -574,7 +575,7 @@ export function Computer1SimulatorScreen({
       </div>
 
       {/* 6 Scheme Tabs with FULL Names */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '6px', marginBottom: '8px', flexShrink: 0 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: isFullscreen ? '6px' : '4px', marginBottom: isFullscreen ? '8px' : '5px', flexShrink: 0 }}>
         {SIMULATOR_MODULES.map((m) => {
           const active = m.id === selectedId
           const done = completedMods.includes(m.id)
@@ -585,26 +586,26 @@ export function Computer1SimulatorScreen({
               style={{
                 background: active ? `${m.color}28` : 'rgba(30,41,59,0.75)',
                 border: active ? `2px solid ${m.color}` : '1px solid rgba(148,163,184,0.22)',
-                borderRadius: '8px',
-                padding: '6px 5px',
+                borderRadius: '6px',
+                padding: isFullscreen ? '6px 5px' : '3px 3px',
                 color: active ? '#FFFFFF' : '#CBD5E1',
-                fontSize: '12.5px',
+                fontSize: isFullscreen ? '12.5px' : '10.5px',
                 fontWeight: active ? 900 : 800,
                 cursor: 'pointer',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '2px',
+                gap: '1px',
                 transition: 'all 0.15s',
                 textAlign: 'center',
                 lineHeight: 1.15,
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <span style={{ fontSize: '14px' }}>{m.icon}</span>
-                <span style={{ fontSize: '11.5px', color: active ? '#38BDF8' : '#94A3B8', fontWeight: 900 }}>{m.rate}%</span>
-                {done && <span style={{ color: '#4ADE80', fontSize: '11.5px' }}>✓</span>}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                <span style={{ fontSize: isFullscreen ? '14px' : '12px' }}>{m.icon}</span>
+                <span style={{ fontSize: isFullscreen ? '11.5px' : '10px', color: active ? '#38BDF8' : '#94A3B8', fontWeight: 900 }}>{m.rate}%</span>
+                {done && <span style={{ color: '#4ADE80', fontSize: isFullscreen ? '11.5px' : '10px' }}>✓</span>}
               </div>
               <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }}>
                 {m.name}
@@ -615,32 +616,32 @@ export function Computer1SimulatorScreen({
       </div>
 
       {/* Main Content Split */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.18fr 1fr', gap: '10px', flex: 1, minHeight: 0 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1.18fr 1fr', gap: isFullscreen ? '10px' : '6px', flex: 1, minHeight: 0 }}>
         {/* Left Column: Sliders & Results */}
-        <div style={{ background: 'rgba(15,23,42,0.85)', border: '1px solid rgba(148,163,184,0.18)', borderRadius: '11px', padding: '12px 14px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+        <div style={{ background: 'rgba(15,23,42,0.85)', border: '1px solid rgba(148,163,184,0.18)', borderRadius: '9px', padding: isFullscreen ? '12px 14px' : '7px 9px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: 0, overflowY: 'auto' }}>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '26px' }}>{mod.icon}</span>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: isFullscreen ? '6px' : '3px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span style={{ fontSize: isFullscreen ? '26px' : '18px' }}>{mod.icon}</span>
                 <div>
-                  <div style={{ fontSize: '17px', fontWeight: 900, color: '#F8FAFC' }}>{mod.fullName}</div>
-                  <div style={{ fontSize: '12.5px', color: '#94A3B8', fontWeight: 600 }}>{mod.name} • Govt / RBI Regulated</div>
+                  <div style={{ fontSize: isFullscreen ? '17px' : '13px', fontWeight: 900, color: '#F8FAFC' }}>{mod.fullName}</div>
+                  <div style={{ fontSize: isFullscreen ? '12.5px' : '10px', color: '#94A3B8', fontWeight: 600 }}>{mod.name} • Govt / RBI Regulated</div>
                 </div>
               </div>
-              <span style={{ background: `${mod.color}25`, border: `1.5px solid ${mod.color}`, color: '#F8FAFC', fontWeight: 900, fontSize: '14px', padding: '3px 10px', borderRadius: '999px' }}>
+              <span style={{ background: `${mod.color}25`, border: `1.5px solid ${mod.color}`, color: '#F8FAFC', fontWeight: 900, fontSize: isFullscreen ? '14px' : '11.5px', padding: isFullscreen ? '3px 10px' : '2px 7px', borderRadius: '999px' }}>
                 {mod.rate}% p.a.
               </span>
             </div>
 
-            <p style={{ fontSize: '13px', color: '#E2E8F0', lineHeight: 1.42, margin: '0 0 9px 0', fontWeight: 500 }}>
+            <p style={{ fontSize: isFullscreen ? '13px' : '10.5px', color: '#E2E8F0', lineHeight: 1.32, margin: isFullscreen ? '0 0 9px 0' : '0 0 4px 0', fontWeight: 500 }}>
               {mod.description}
             </p>
 
             {/* Amount Slider */}
-            <div style={{ marginBottom: '8px', background: 'rgba(30,41,59,0.55)', padding: '8px 11px', borderRadius: '8px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13.5px', marginBottom: '4px' }}>
+            <div style={{ marginBottom: isFullscreen ? '8px' : '4px', background: 'rgba(30,41,59,0.55)', padding: isFullscreen ? '8px 11px' : '5px 7px', borderRadius: '6px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: isFullscreen ? '13.5px' : '11px', marginBottom: '2px' }}>
                 <span style={{ color: '#CBD5E1', fontWeight: 800 }}>{mod.amountLabel}</span>
-                <span style={{ color: '#38BDF8', fontWeight: 900, fontSize: '16px' }}>{fmtINR(amount)}</span>
+                <span style={{ color: '#38BDF8', fontWeight: 900, fontSize: isFullscreen ? '16px' : '13px' }}>{fmtINR(amount)}</span>
               </div>
               <input
                 type="range"
@@ -649,24 +650,24 @@ export function Computer1SimulatorScreen({
                 step={mod.stepAmount}
                 value={amount}
                 onChange={(e) => setAmount(Number(e.target.value))}
-                style={{ width: '100%', accentColor: mod.color, cursor: 'pointer', height: '6px' }}
+                style={{ width: '100%', accentColor: mod.color, cursor: 'pointer', height: '4px' }}
               />
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11.5px', color: '#94A3B8', fontWeight: 700, marginTop: '3px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: isFullscreen ? '11.5px' : '9.5px', color: '#94A3B8', fontWeight: 700, marginTop: '2px' }}>
                 <span>Min: {fmtINR(mod.minAmount)}</span>
                 <span>Max: {fmtINR(mod.maxAmount)}</span>
               </div>
             </div>
 
             {/* Duration Slider */}
-            <div style={{ background: 'rgba(30,41,59,0.55)', padding: '8px 11px', borderRadius: '8px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13.5px', marginBottom: '4px' }}>
+            <div style={{ background: 'rgba(30,41,59,0.55)', padding: isFullscreen ? '8px 11px' : '5px 7px', borderRadius: '6px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: isFullscreen ? '13.5px' : '11px', marginBottom: '2px' }}>
                 <span style={{ color: '#CBD5E1', fontWeight: 800 }}>Duration ({mod.durationUnit})</span>
-                <span style={{ color: '#FBBF24', fontWeight: 900, fontSize: '16px' }}>
+                <span style={{ color: '#FBBF24', fontWeight: 900, fontSize: isFullscreen ? '16px' : '13px' }}>
                   {duration} {mod.durationUnit}
                 </span>
               </div>
               {mod.durationFixed ? (
-                <div style={{ fontSize: '13px', color: '#FBBF24', fontWeight: 800, padding: '2px 0' }}>
+                <div style={{ fontSize: isFullscreen ? '13px' : '10.5px', color: '#FBBF24', fontWeight: 800, padding: '1px 0' }}>
                   🔒 Fixed Statutory Tenure: {mod.defaultDuration} Years
                 </div>
               ) : (
@@ -677,54 +678,54 @@ export function Computer1SimulatorScreen({
                   step={1}
                   value={duration}
                   onChange={(e) => setDuration(Number(e.target.value))}
-                  style={{ width: '100%', accentColor: '#F59E0B', cursor: 'pointer', height: '6px' }}
+                  style={{ width: '100%', accentColor: '#F59E0B', cursor: 'pointer', height: '4px' }}
                 />
               )}
             </div>
           </div>
 
           {/* Calculated Output Boxes */}
-          <div style={{ display: 'grid', gridTemplateColumns: stats.extraLabel ? 'repeat(4, 1fr)' : 'repeat(3, 1fr)', gap: '7px', marginTop: '7px' }}>
-            <div style={{ background: 'rgba(15,23,42,0.9)', border: '1px solid rgba(148,163,184,0.25)', borderRadius: '8px', padding: '7px 9px' }}>
-              <div style={{ fontSize: '11.5px', color: '#CBD5E1', fontWeight: 800 }}>Total Invested</div>
-              <div style={{ fontSize: '16px', fontWeight: 900, color: '#F8FAFC', marginTop: '2px' }}>{fmtINR(stats.totalInvested)}</div>
+          <div style={{ display: 'grid', gridTemplateColumns: stats.extraLabel ? 'repeat(4, 1fr)' : 'repeat(3, 1fr)', gap: isFullscreen ? '7px' : '4px', marginTop: isFullscreen ? '7px' : '4px' }}>
+            <div style={{ background: 'rgba(15,23,42,0.9)', border: '1px solid rgba(148,163,184,0.25)', borderRadius: '6px', padding: isFullscreen ? '7px 9px' : '4px 6px' }}>
+              <div style={{ fontSize: isFullscreen ? '11.5px' : '9.5px', color: '#CBD5E1', fontWeight: 800 }}>Total Invested</div>
+              <div style={{ fontSize: isFullscreen ? '16px' : '12.5px', fontWeight: 900, color: '#F8FAFC', marginTop: '1px' }}>{fmtINR(stats.totalInvested)}</div>
             </div>
-            <div style={{ background: 'rgba(16,185,129,0.14)', border: '1px solid rgba(16,185,129,0.4)', borderRadius: '8px', padding: '7px 9px' }}>
-              <div style={{ fontSize: '11.5px', color: '#6EE7B7', fontWeight: 800 }}>Interest Earned</div>
-              <div style={{ fontSize: '16px', fontWeight: 900, color: '#34D399', marginTop: '2px' }}>+{fmtINR(stats.totalInterest)}</div>
+            <div style={{ background: 'rgba(16,185,129,0.14)', border: '1px solid rgba(16,185,129,0.4)', borderRadius: '6px', padding: isFullscreen ? '7px 9px' : '4px 6px' }}>
+              <div style={{ fontSize: isFullscreen ? '11.5px' : '9.5px', color: '#6EE7B7', fontWeight: 800 }}>Interest Earned</div>
+              <div style={{ fontSize: isFullscreen ? '16px' : '12.5px', fontWeight: 900, color: '#34D399', marginTop: '1px' }}>+{fmtINR(stats.totalInterest)}</div>
             </div>
-            <div style={{ background: 'rgba(99,102,241,0.18)', border: '1px solid rgba(99,102,241,0.5)', borderRadius: '8px', padding: '7px 9px' }}>
-              <div style={{ fontSize: '11.5px', color: '#A5B4FC', fontWeight: 800 }}>Maturity Value</div>
-              <div style={{ fontSize: '16.5px', fontWeight: 900, color: '#818CF8', marginTop: '2px' }}>{fmtINR(stats.maturityValue)}</div>
+            <div style={{ background: 'rgba(99,102,241,0.18)', border: '1px solid rgba(99,102,241,0.5)', borderRadius: '6px', padding: isFullscreen ? '7px 9px' : '4px 6px' }}>
+              <div style={{ fontSize: isFullscreen ? '11.5px' : '9.5px', color: '#A5B4FC', fontWeight: 800 }}>Maturity Value</div>
+              <div style={{ fontSize: isFullscreen ? '16.5px' : '12.5px', fontWeight: 900, color: '#818CF8', marginTop: '1px' }}>{fmtINR(stats.maturityValue)}</div>
             </div>
             {stats.extraLabel && (
-              <div style={{ background: 'rgba(245,158,11,0.16)', border: '1px solid rgba(245,158,11,0.45)', borderRadius: '8px', padding: '7px 9px' }}>
-                <div style={{ fontSize: '11.5px', color: '#FDE68A', fontWeight: 800 }}>{stats.extraLabel}</div>
-                <div style={{ fontSize: '16px', fontWeight: 900, color: '#FBBF24', marginTop: '2px' }}>{stats.extraVal}</div>
+              <div style={{ background: 'rgba(245,158,11,0.16)', border: '1px solid rgba(245,158,11,0.45)', borderRadius: '6px', padding: isFullscreen ? '7px 9px' : '4px 6px' }}>
+                <div style={{ fontSize: isFullscreen ? '11.5px' : '9.5px', color: '#FDE68A', fontWeight: 800 }}>{stats.extraLabel}</div>
+                <div style={{ fontSize: isFullscreen ? '16px' : '12.5px', fontWeight: 900, color: '#FBBF24', marginTop: '1px' }}>{stats.extraVal}</div>
               </div>
             )}
           </div>
         </div>
 
         {/* Right Column: Key Facts & Action */}
-        <div style={{ background: 'rgba(15,23,42,0.85)', border: '1px solid rgba(148,163,184,0.18)', borderRadius: '11px', padding: '12px 14px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+        <div style={{ background: 'rgba(15,23,42,0.85)', border: '1px solid rgba(148,163,184,0.18)', borderRadius: '9px', padding: isFullscreen ? '12px 14px' : '7px 9px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: 0, overflowY: 'auto' }}>
           <div>
-            <div style={{ fontSize: '13.5px', fontWeight: 900, color: '#38BDF8', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: '8px' }}>
+            <div style={{ fontSize: isFullscreen ? '13.5px' : '11px', fontWeight: 900, color: '#38BDF8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: isFullscreen ? '8px' : '4px' }}>
               📋 Scheme Key Takeaways & Rules
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: isFullscreen ? '7px' : '3px' }}>
               {(mod.keyFacts || []).map((fact, idx) => (
                 <div
                   key={idx}
                   style={{
                     background: 'rgba(30,41,59,0.75)',
-                    borderLeft: `4px solid ${mod.color}`,
-                    borderRadius: '7px',
-                    padding: '7px 10px',
-                    fontSize: '13px',
+                    borderLeft: `3px solid ${mod.color}`,
+                    borderRadius: '6px',
+                    padding: isFullscreen ? '7px 10px' : '3px 6px',
+                    fontSize: isFullscreen ? '13px' : '10.5px',
                     fontWeight: 600,
                     color: '#F1F5F9',
-                    lineHeight: 1.38,
+                    lineHeight: 1.28,
                   }}
                 >
                   {fact}
@@ -734,17 +735,17 @@ export function Computer1SimulatorScreen({
           </div>
 
           {/* Visual Principal vs Interest Bar */}
-          <div style={{ marginTop: '8px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#CBD5E1', marginBottom: '4px', fontWeight: 800 }}>
+          <div style={{ marginTop: isFullscreen ? '8px' : '4px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: isFullscreen ? '12px' : '10px', color: '#CBD5E1', marginBottom: '2px', fontWeight: 800 }}>
               <span>Principal ({Math.round((stats.totalInvested / Math.max(1, stats.maturityValue)) * 100)}%)</span>
               <span>Interest ({Math.round((stats.totalInterest / Math.max(1, stats.maturityValue)) * 100)}%)</span>
             </div>
-            <div style={{ height: '10px', borderRadius: '999px', background: '#1E293B', overflow: 'hidden', display: 'flex' }}>
+            <div style={{ height: isFullscreen ? '10px' : '6px', borderRadius: '999px', background: '#1E293B', overflow: 'hidden', display: 'flex' }}>
               <div style={{ width: `${(stats.totalInvested / Math.max(1, stats.maturityValue)) * 100}%`, background: '#38BDF8' }} />
               <div style={{ flex: 1, background: '#10B981' }} />
             </div>
 
-            <div style={{ display: 'flex', gap: '8px', marginTop: '9px' }}>
+            <div style={{ display: 'flex', gap: '6px', marginTop: isFullscreen ? '9px' : '5px' }}>
               <button
                 onClick={handleMarkComplete}
                 style={{
@@ -754,11 +755,12 @@ export function Computer1SimulatorScreen({
                     : `linear-gradient(135deg, ${mod.color}, #4F46E5)`,
                   color: '#fff',
                   border: 'none',
-                  borderRadius: '8px',
-                  padding: '9px 12px',
-                  fontSize: '13.5px',
+                  borderRadius: '7px',
+                  padding: isFullscreen ? '9px 12px' : '6px 10px',
+                  fontSize: isFullscreen ? '13.5px' : '11.5px',
                   fontWeight: 900,
                   cursor: 'pointer',
+                  boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
                 }}
               >
                 {allSixExplored
@@ -1056,19 +1058,19 @@ export function Computer2SavingsMixerScreen({
         fontFamily: "'Inter', 'Segoe UI', sans-serif",
         display: 'flex',
         flexDirection: 'column',
-        padding: isFullscreen ? '14px 20px' : '10px 14px',
+        padding: isFullscreen ? '14px 20px' : '8px 10px',
         boxSizing: 'border-box',
         overflow: 'hidden',
         userSelect: 'none',
       }}
     >
       {/* Top Neon Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(16,185,129,0.28)', paddingBottom: '6px', marginBottom: '6px', flexShrink: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(16,185,129,0.28)', paddingBottom: isFullscreen ? '6px' : '4px', marginBottom: isFullscreen ? '6px' : '4px', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ background: 'linear-gradient(135deg, #10B981, #059669)', color: '#042F2E', fontWeight: 900, fontSize: '12px', padding: '4px 10px', borderRadius: '6px', letterSpacing: '0.6px' }}>
+          <span style={{ background: 'linear-gradient(135deg, #10B981, #059669)', color: '#042F2E', fontWeight: 900, fontSize: isFullscreen ? '12px' : '11px', padding: isFullscreen ? '4px 10px' : '2px 8px', borderRadius: '5px', letterSpacing: '0.5px' }}>
             🎛️ COMPUTER 2 • SAVINGS MIXER STUDIO
           </span>
-          <span style={{ fontSize: '13.5px', fontWeight: 800, color: '#ECFDF5' }}>
+          <span style={{ fontSize: isFullscreen ? '13.5px' : '11.5px', fontWeight: 800, color: '#ECFDF5' }}>
             Explore all 7 Mixer tabs below to complete Computer 2
           </span>
         </div>
@@ -1881,19 +1883,19 @@ export function Computer3PortfolioSimulatorScreen({
         fontFamily: "'Inter', 'Segoe UI', sans-serif",
         display: 'flex',
         flexDirection: 'column',
-        padding: isFullscreen ? '14px 20px' : '10px 14px',
+        padding: isFullscreen ? '14px 20px' : '8px 10px',
         boxSizing: 'border-box',
         overflow: 'hidden',
         userSelect: 'none',
       }}
     >
       {/* Top Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(245,158,11,0.28)', paddingBottom: '6px', marginBottom: '6px', flexShrink: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(245,158,11,0.28)', paddingBottom: isFullscreen ? '6px' : '4px', marginBottom: isFullscreen ? '6px' : '4px', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ background: 'linear-gradient(135deg, #F59E0B, #D97706)', color: '#fff', fontWeight: 900, fontSize: '12px', padding: '4px 10px', borderRadius: '6px' }}>
+          <span style={{ background: 'linear-gradient(135deg, #F59E0B, #D97706)', color: '#fff', fontWeight: 900, fontSize: isFullscreen ? '12px' : '11px', padding: isFullscreen ? '4px 10px' : '2px 8px', borderRadius: '5px' }}>
             📊 COMPUTER 3 • PORTFOLIO SIMULATION & INVESTMENT PLAN
           </span>
-          <span style={{ fontSize: '13.5px', fontWeight: 800, color: '#FEF3C7' }}>
+          <span style={{ fontSize: isFullscreen ? '13.5px' : '11.5px', fontWeight: 800, color: '#FEF3C7' }}>
             Customize your schemes, test &ldquo;When Can I Buy?&rdquo;, and save to History to finish Level 2
           </span>
         </div>
