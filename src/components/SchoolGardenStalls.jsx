@@ -843,6 +843,11 @@ export function SchoolGardenStallModal({
   const [statusToast, setStatusToast] = useState(null)
   const tickTimerRef = useRef(null)
 
+  const [localEquippedId, setLocalEquippedId] = useState(currentOutfitId)
+  useEffect(() => {
+    if (currentOutfitId) setLocalEquippedId(currentOutfitId)
+  }, [currentOutfitId])
+
   const [localOwnedClothes, setLocalOwnedClothes] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem('l2i_owned_clothes') || '[]')
@@ -878,6 +883,7 @@ export function SchoolGardenStallModal({
   }
 
   const handleEquipItem = (item) => {
+    setLocalEquippedId(item.id)
     if (onEquipColor) onEquipColor(item.color)
     if (onEquipStallOutfit) {
       onEquipStallOutfit({
@@ -900,13 +906,13 @@ export function SchoolGardenStallModal({
     if (availableXp < item.cost) return
     playStallSfx('buy')
     if (onSpendXp) onSpendXp(item.cost)
-    if (onBuyCloth) onBuyCloth(item.id, item)
     const updated = Array.from(new Set([...ownedClothes, item.id]))
     setLocalOwnedClothes(updated)
     try {
       localStorage.setItem('l2i_owned_clothes', JSON.stringify(updated))
     } catch {}
     handleEquipItem(item)
+    if (onBuyCloth) onBuyCloth(item.id, item)
     showMessage(`👕 Purchased & automatically wearing ${item.name} for ${item.cost} XP!`)
   }
 
@@ -1115,7 +1121,7 @@ export function SchoolGardenStallModal({
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(420px, 1fr))', gap: '28px' }}>
               {CLOTHING_ITEMS.map((item) => {
                 const isOwned = ownedClothes.includes(item.id)
-                const isEquipped = equippedColor === item.color || currentOutfitId === item.id
+                const isEquipped = localEquippedId === item.id || currentOutfitId === item.id || equippedColor === item.color
                 const canAfford = availableXp >= item.cost
                 return (
                   <div
