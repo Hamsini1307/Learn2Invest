@@ -969,9 +969,10 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
   }
 
   return (
-    <div className="content-area" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+    <div className="content-area" style={{ fontFamily: "'Space Grotesk', sans-serif", padding: lockedTab ? '8px 12px 40px' : undefined, maxWidth: '100%' }}>
       
       {/* Navigation Header */}
+      {!lockedTab && (
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 12 }}>
         <button
           onClick={goBack || (() => go('landing'))}
@@ -994,8 +995,10 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
         </button>
 
       </div>
+      )}
 
       {/* Level 3 Overall Status Banner */}
+      {!lockedTab && (
       <div className="glass-card-sm anim-fade" style={{
         padding: '16px 22px',
         marginBottom: 18,
@@ -1032,6 +1035,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
           </div>
         </div>
       </div>
+      )}
 
       {/* Level 3 High Contrast Tab Switcher Bar (hidden when inside a dedicated 3D Cabin) */}
       {!lockedTab && (
@@ -1126,7 +1130,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
 
       {/* ─── SECTION 1: BANK SELECTION TABS ─── */}
       <div className="glass-card-deep" style={{ padding: 20, borderRadius: 20, marginBottom: 20, background: isLight ? '#ffffff' : '#12100c', border: '1.5px solid #ea580c' }}>
-        <div style={{ fontSize: 11, fontWeight: 900, color: '#ea580c', textTransform: 'uppercase', marginBottom: 12 }}>
+        <div style={{ fontSize: 13, fontWeight: 900, color: '#ea580c', textTransform: 'uppercase', marginBottom: 12 }}>
           🏛️ SELECT FINANCIAL INSTITUTION (5 BANKS)
         </div>
 
@@ -1150,8 +1154,8 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 80, width: '100%' }}>
                 <BankLogo id={inst.id} />
               </div>
-              <div style={{ fontSize: 15, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff', textAlign: 'center' }}>{inst.name}</div>
-              <div style={{ fontSize: 12, color: '#ea580c', fontWeight: 900 }}>IFSC: {inst.code}</div>
+              <div style={{ fontSize: 16, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff', textAlign: 'center' }}>{inst.name}</div>
+              <div style={{ fontSize: 13, color: '#ea580c', fontWeight: 900 }}>IFSC: {inst.code}</div>
             </div>
           ))}
         </div>
@@ -1376,7 +1380,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
 
       {/* ─── SECTION 3: SELECT FORM CATEGORY TABS ─── */}
       <div className="glass-card-deep" style={{ padding: 20, borderRadius: 20, marginBottom: 20, background: isLight ? '#ffffff' : '#12100c', border: '1.5px solid #ea580c' }}>
-        <div style={{ fontSize: 11, fontWeight: 900, color: '#ea580c', textTransform: 'uppercase', marginBottom: 12 }}>
+        <div style={{ fontSize: 13, fontWeight: 900, color: '#ea580c', textTransform: 'uppercase', marginBottom: 12 }}>
           📜 SELECT FORM CATEGORY
         </div>
 
@@ -1386,7 +1390,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
               key={cat.id}
               onClick={() => setDocType(cat.id)}
               style={{
-                padding: '10px 22px', borderRadius: 999, fontSize: 13, fontWeight: 900, cursor: 'pointer',
+                padding: '11px 24px', borderRadius: 999, fontSize: 14, fontWeight: 900, cursor: 'pointer',
                 background: docType === cat.id ? '#ea580c' : (isLight ? '#ffedd5' : 'rgba(255,255,255,0.06)'),
                 color: docType === cat.id ? '#ffffff' : (isLight ? '#7c2d12' : '#fbbf24'),
                 border: `2px solid ${docType === cat.id ? '#c2410c' : 'rgba(234, 88, 12, 0.3)'}`,
@@ -1415,7 +1419,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12 }}>
           <div>
-            <label style={{ fontSize: 10, fontWeight: 800, color: isLight ? '#475569' : '#9ca3af', display: 'block', marginBottom: 4 }}>
+            <label style={{ fontSize: 12, fontWeight: 800, color: isLight ? '#1e293b' : '#cbd5e1', display: 'block', marginBottom: 4 }}>
               {docType === 'cheque' ? 'PAY TO (PAYEE NAME / SELF)' : 'ACCOUNT HOLDER / PAYEE NAME'}
             </label>
             <input
@@ -1424,24 +1428,24 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
               onChange={e => setUserData({ ...userData, name: e.target.value })}
               placeholder={docType === 'cheque' ? "e.g. Self or Hamsini" : "e.g. Hamsini"}
               className="input-light"
-              style={{ padding: '9px 12px', fontSize: 12, fontWeight: 800 }}
+              style={{ padding: '10px 14px', fontSize: 14, fontWeight: 800 }}
             />
           </div>
 
           <div>
-            <label style={{ fontSize: 10, fontWeight: 800, color: isLight ? '#475569' : '#9ca3af', display: 'block', marginBottom: 4 }}>ACCOUNT NUMBER</label>
+            <label style={{ fontSize: 12, fontWeight: 800, color: isLight ? '#1e293b' : '#cbd5e1', display: 'block', marginBottom: 4 }}>ACCOUNT NUMBER</label>
             <input
               type="text"
               value={userData.accountNumber}
               onChange={e => setUserData({ ...userData, accountNumber: e.target.value })}
               placeholder="e.g. 10984523910"
               className="input-light"
-              style={{ padding: '9px 12px', fontSize: 12, fontWeight: 800 }}
+              style={{ padding: '10px 14px', fontSize: 14, fontWeight: 800 }}
             />
           </div>
 
           <div>
-            <label style={{ fontSize: 10, fontWeight: 800, color: isLight ? '#475569' : '#9ca3af', display: 'block', marginBottom: 4 }}>IFSC CODE</label>
+            <label style={{ fontSize: 12, fontWeight: 800, color: isLight ? '#1e293b' : '#cbd5e1', display: 'block', marginBottom: 4 }}>IFSC CODE</label>
             <input
               type="text"
               value={userData.ifsc}
@@ -1449,7 +1453,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
               placeholder="e.g. CNRB0001001"
               className="input-light"
               style={{
-                padding: '9px 12px', fontSize: 12, fontWeight: 800, textTransform: 'uppercase',
+                padding: '10px 14px', fontSize: 14, fontWeight: 800, textTransform: 'uppercase',
                 border: highlightForm ? '2.5px solid #10b981' : undefined,
                 background: highlightForm ? (isLight ? '#ecfdf5' : 'rgba(16, 185, 129, 0.2)') : undefined,
                 transition: 'all 0.3s'
@@ -1458,7 +1462,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
           </div>
 
           <div>
-            <label style={{ fontSize: 10, fontWeight: 800, color: isLight ? '#475569' : '#9ca3af', display: 'block', marginBottom: 4 }}>BRANCH NAME (EXACT BRANCH)</label>
+            <label style={{ fontSize: 12, fontWeight: 800, color: isLight ? '#1e293b' : '#cbd5e1', display: 'block', marginBottom: 4 }}>BRANCH NAME (EXACT BRANCH)</label>
             <input
               type="text"
               value={userData.branch}
@@ -1477,7 +1481,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
               placeholder="e.g. Pandeshwar, Mangaluru"
               className="input-light"
               style={{
-                padding: '9px 12px', fontSize: 12, fontWeight: 800,
+                padding: '10px 14px', fontSize: 14, fontWeight: 800,
                 border: highlightForm ? '2.5px solid #10b981' : undefined,
                 background: highlightForm ? (isLight ? '#ecfdf5' : 'rgba(16, 185, 129, 0.2)') : undefined,
                 transition: 'all 0.3s'
@@ -1487,43 +1491,43 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
 
           {docType === 'cheque' ? (
             <div>
-              <label style={{ fontSize: 10, fontWeight: 800, color: isLight ? '#475569' : '#9ca3af', display: 'block', marginBottom: 4 }}>CHEQUE NUMBER (6 DIGITS)</label>
+              <label style={{ fontSize: 12, fontWeight: 800, color: isLight ? '#1e293b' : '#cbd5e1', display: 'block', marginBottom: 4 }}>CHEQUE NUMBER (6 DIGITS)</label>
               <input
                 type="text"
                 value={userData.chequeNumber}
                 onChange={e => setUserData({ ...userData, chequeNumber: e.target.value })}
                 placeholder="e.g. 104502"
                 className="input-light"
-                style={{ padding: '9px 12px', fontSize: 12, fontWeight: 800 }}
+                style={{ padding: '10px 14px', fontSize: 14, fontWeight: 800 }}
               />
             </div>
           ) : (
             <div>
-              <label style={{ fontSize: 10, fontWeight: 800, color: isLight ? '#475569' : '#9ca3af', display: 'block', marginBottom: 4 }}>MOBILE / PHONE NO.</label>
+              <label style={{ fontSize: 12, fontWeight: 800, color: isLight ? '#1e293b' : '#cbd5e1', display: 'block', marginBottom: 4 }}>MOBILE / PHONE NO.</label>
               <input
                 type="text"
                 value={userData.mobileNumber}
                 onChange={e => setUserData({ ...userData, mobileNumber: e.target.value })}
                 placeholder="e.g. 9876543210"
                 className="input-light"
-                style={{ padding: '9px 12px', fontSize: 12, fontWeight: 800 }}
+                style={{ padding: '10px 14px', fontSize: 14, fontWeight: 800 }}
               />
             </div>
           )}
 
           <div>
-            <label style={{ fontSize: 10, fontWeight: 800, color: isLight ? '#475569' : '#9ca3af', display: 'block', marginBottom: 4 }}>DATE</label>
+            <label style={{ fontSize: 12, fontWeight: 800, color: isLight ? '#1e293b' : '#cbd5e1', display: 'block', marginBottom: 4 }}>DATE</label>
             <input
               type="date"
               value={userData.date}
               onChange={e => setUserData({ ...userData, date: e.target.value })}
               className="input-light"
-              style={{ padding: '9px 12px', fontSize: 12, fontWeight: 800 }}
+              style={{ padding: '10px 14px', fontSize: 14, fontWeight: 800 }}
             />
           </div>
 
           <div>
-            <label style={{ fontSize: 10, fontWeight: 800, color: isLight ? '#475569' : '#9ca3af', display: 'block', marginBottom: 4 }}>
+            <label style={{ fontSize: 12, fontWeight: 800, color: isLight ? '#1e293b' : '#cbd5e1', display: 'block', marginBottom: 4 }}>
               {docType === 'deposit' ? 'TOTAL DEPOSIT AMOUNT (₹)' : docType === 'withdrawal' ? 'CASH WITHDRAWAL AMOUNT (₹)' : 'CHEQUE AMOUNT (₹)'}
             </label>
             <input
@@ -1532,7 +1536,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
               onChange={e => setUserData({ ...userData, amount: e.target.value })}
               placeholder="e.g. 5000"
               className="input-light"
-              style={{ padding: '9px 12px', fontSize: 12, fontWeight: 800 }}
+              style={{ padding: '10px 14px', fontSize: 14, fontWeight: 800 }}
             />
 
           </div>
@@ -1603,7 +1607,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
         <div className="printable-slip-area" style={{
           position: 'relative',
           width: '100%',
-          maxWidth: 860,
+          maxWidth: 1160,
           margin: '0 auto',
           borderRadius: 16,
           overflow: 'hidden',
@@ -1629,7 +1633,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
           <button
             onClick={() => { setHasCompletedSlip(true); markLevel3Section('paper_slip'); setShowVerifyModal(true); }}
             className="btn-primary"
-            style={{ flex: 1, padding: 14, fontSize: 13, fontWeight: 900 }}
+            style={{ flex: 1, padding: 16, fontSize: 15, fontWeight: 900 }}
           >
             📋 REVIEW & PRINT FILLED FORM PDF {paperSlipDone ? '✅' : ''}
           </button>

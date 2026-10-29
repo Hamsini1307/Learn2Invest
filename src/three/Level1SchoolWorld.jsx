@@ -9226,7 +9226,7 @@ export default function Level1SchoolWorld({
           LEVEL 3 — ORIGINAL BANK PAPER SLIP WRITER & DIGITAL SAFETY ARENA (2 CABINS)
       ═══════════════════════════════════════════════════════════════════ */}
       {journeyStage === 'bank_section' && !bankSectionFeedbackBanner && (
-        <div className="absolute inset-0 z-20 flex items-center justify-center p-3 sm:p-5 pt-16 pointer-events-none">
+        <div style={{ paddingTop: "10.5vh", paddingBottom: "2vh", paddingLeft: "1.5vw", paddingRight: "1.5vw" }} className="fixed inset-0 z-40 bg-slate-950/80 backdrop-blur-md flex flex-col items-center justify-center pointer-events-auto overflow-hidden">
           <Level3BankSectionScreen
             sectionNumber={activeBankSection}
             completedSections={completedBankSections}

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Advanced from '../screens/Advanced.jsx'
 import soundEngine from '../utils/soundEngine.js'
 
@@ -47,9 +47,32 @@ export default function Level3BankSectionScreen({
   const handleBack = onBackSection || onBackOneStep
   const secMeta = LEVEL3_BANK_SECTIONS[currentSec - 1] || LEVEL3_BANK_SECTIONS[0]
   const cabin1Done = completedSections.includes(1) || (state?.completedModules || []).includes('paper_slip')
+  const [isFullscreen, setIsFullscreen] = useState(false)
 
   return (
-    <div className="pointer-events-auto w-[min(96vw,1120px)] max-h-[86vh] flex flex-col rounded-3xl bg-white backdrop-blur-2xl border-2 border-amber-500/80 shadow-[0_25px_90px_rgba(0,0,0,0.85)] text-slate-900 overflow-hidden">
+    <div
+      className="pointer-events-auto flex flex-col rounded-2xl sm:rounded-3xl bg-white border-2 border-amber-500 shadow-[0_25px_90px_rgba(0,0,0,0.85)] text-slate-900 overflow-hidden"
+      style={
+        isFullscreen
+          ? {
+              position: 'fixed',
+              inset: 0,
+              width: '100vw',
+              height: '100vh',
+              maxHeight: '100vh',
+              zIndex: 9999,
+              backgroundColor: '#ffffff',
+              borderRadius: 0,
+            }
+          : {
+              width: '100%',
+              maxWidth: '1500px',
+              height: '100%',
+              maxHeight: '100%',
+              backgroundColor: '#ffffff',
+            }
+      }
+    >
       {/* Top 3D Bank Cabin Bar */}
       <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-3 bg-amber-500/10 border-b border-amber-500/40 shrink-0">
         <div className="flex items-center gap-3">
@@ -90,6 +113,18 @@ export default function Level3BankSectionScreen({
           )}
 
           <button
+            type="button"
+            onClick={() => {
+              soundEngine.playClick()
+              setIsFullscreen(!isFullscreen)
+            }}
+            className="px-3.5 py-2 rounded-full bg-amber-100 hover:bg-amber-200 border border-amber-400 text-amber-900 font-black text-xs transition-all cursor-pointer flex items-center gap-1.5"
+            title={isFullscreen ? 'Exit Full Screen' : 'Full Screen Expanded View'}
+          >
+            <span>{isFullscreen ? '🗗 Normal View' : '⛶ Fullscreen'}</span>
+          </button>
+
+          <button
             onClick={() => {
               soundEngine.playClick()
               if (onCompleteSection) {
@@ -119,7 +154,7 @@ export default function Level3BankSectionScreen({
       </div>
 
       {/* Cabin 1 = Bank Paper Slip Writer ONLY | Cabin 2 = Digital Banking Safety ONLY */}
-      <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-50">
+      <div className="flex-1 overflow-y-auto p-2 sm:p-4 bg-slate-50">
         <Advanced
           key={`cabin_${currentSec}_${secMeta.tab}`}
           state={state}
