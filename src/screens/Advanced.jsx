@@ -1928,20 +1928,48 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
             background: isLight ? '#fff7ed' : 'rgba(234, 88, 12, 0.1)',
             border: `3.5px solid ${digitalVideoWatched ? '#10b981' : '#ea580c'}`,
           }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16, marginBottom: 24 }}>
-              <h3 className="font-display" style={{ fontSize: 34, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff', margin: 0 }}>
-                🎬 STEP 1: WATCH DIGITAL BANKING YOUTUBE TUTORIAL FIRST
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: 20,
+              marginBottom: 28,
+              padding: '26px 36px',
+              borderRadius: 24,
+              background: isLight ? '#ffffff' : 'rgba(255, 255, 255, 0.05)',
+              border: `3.5px solid ${digitalVideoWatched ? '#10b981' : '#ea580c'}`,
+              boxShadow: isLight ? '0 8px 24px rgba(234, 88, 12, 0.14)' : 'none',
+            }}>
+              <h3 style={{
+                fontSize: 'clamp(32px, 3.4vw, 46px)',
+                fontWeight: 900,
+                color: isLight ? '#0f172a' : '#ffffff',
+                margin: 0,
+                fontFamily: "'Space Grotesk', 'Outfit', sans-serif",
+                display: 'flex',
+                alignItems: 'center',
+                gap: 18,
+                letterSpacing: '-0.01em',
+              }}>
+                <span style={{ fontSize: 50, filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.2))' }}>🎬</span>
+                <span>STEP 1: WATCH DIGITAL BANKING YOUTUBE TUTORIAL FIRST</span>
               </h3>
               <span style={{
                 fontSize: 22,
                 fontWeight: 900,
-                padding: '12px 28px',
+                padding: '14px 32px',
                 borderRadius: 999,
-                background: digitalVideoWatched ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.2)',
-                border: `3px solid ${digitalVideoWatched ? '#10b981' : '#f59e0b'}`,
-                color: digitalVideoWatched ? '#10b981' : '#fbbf24'
+                background: digitalVideoWatched ? (isLight ? '#ecfdf5' : 'rgba(16,185,129,0.25)') : (isLight ? '#fff7ed' : 'rgba(245,158,11,0.25)'),
+                border: `3.5px solid ${digitalVideoWatched ? '#10b981' : '#ea580c'}`,
+                color: digitalVideoWatched ? (isLight ? '#047857' : '#34d399') : (isLight ? '#c2410c' : '#fbbf24'),
+                boxShadow: isLight ? '0 4px 14px rgba(0,0,0,0.08)' : 'none',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 12,
               }}>
-                {digitalVideoWatched ? 'Video Watched ✓ • Activities Unlocked' : 'Watch Video to Unlock Activities Below'}
+                <span style={{ fontSize: 26 }}>{digitalVideoWatched ? '✓' : '🔒'}</span>
+                <span>{digitalVideoWatched ? 'Video Watched ✓ • Activities Unlocked' : 'Watch Video to Unlock Activities Below'}</span>
               </span>
             </div>
 
