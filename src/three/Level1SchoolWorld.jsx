@@ -2048,12 +2048,20 @@ function SchoolVeranda3D({ charStateRef }) {
     const now = clock.getElapsedTime()
 
     doors.forEach((door, idx) => {
-      // Proximity detection: open when character approaches the door from hallway or classroom
+      // Door 102 (idx === 1, Classroom 102) is a closed classroom: its oak double doors remain closed!
+      if (idx === 1) {
+        doorOpenStates.current[idx] = 0.0
+        if (leftDoorRefs.current[idx]) leftDoorRefs.current[idx].position.z = 0.78
+        if (rightDoorRefs.current[idx]) rightDoorRefs.current[idx].position.z = -0.78
+        return
+      }
+
+      // Proximity detection for Door 101 & 103: open when character directly approaches that doorway
       const dx = charX - (-5.1)
       const dz = charZ - door.z
       const dist = Math.hypot(dx, dz)
-      // Opens reliably when approaching from hallway (centered at x=0) or entering from room
-      const isNear = dist < 7.2 || (Math.abs(dz) < 4.2 && charX > -9.5 && charX < 3.8)
+      // Opens reliably when approaching the door
+      const isNear = (Math.abs(dz) < 2.6 && Math.abs(dx) < 3.8) || (dist < 3.8)
       const target = isNear ? 1.0 : 0.0
 
       if (target === 1.0 && doorOpenStates.current[idx] < 0.05 && now - lastSoundTimes.current[idx] > 2.0) {
@@ -2373,6 +2381,21 @@ function SchoolVeranda3D({ charStateRef }) {
           <RoundedBox args={[0.5, 0.35, 3.4]} position={[0, 3.75, 0]} radius={0.02}>
             <meshStandardMaterial color="#c08248" />
           </RoundedBox>
+
+          {/* Closed Classroom 102 Interior Backing Wall (Ensures No Empty Grey Void Behind Door 102) */}
+          {idx === 1 && (
+            <group position={[-0.28, 1.9, 0]}>
+              <mesh receiveShadow>
+                <boxGeometry args={[0.15, 3.8, 3.3]} />
+                <meshStandardMaterial color="#f6ede2" roughness={0.7} />
+              </mesh>
+              {/* Cozy Classroom Blackboard behind Door 102 window */}
+              <mesh position={[0.08, 0.45, 0]}>
+                <boxGeometry args={[0.02, 1.5, 2.4]} />
+                <meshStandardMaterial color="#14532d" roughness={0.5} />
+              </mesh>
+            </group>
+          )}
 
           {/* ─── AUTOMATIC SLIDING DOUBLE DOORS (OPENS AUTOMATICALLY WHEN WALKING NEAR) ─── */}
           {/* Top Sliding Door Track / Header Runner Bar */}
@@ -6722,7 +6745,7 @@ export default function Level1SchoolWorld({
     setTimeout(() => {
       setComputerFeedbackBanner(null)
       focusCameraOnComputer(2, true)
-    }, 1750)
+    }, 2600)
   }
 
   // Complete Computer 2 (Savings Mixer) -> Stand up & walk to Computer 3
@@ -6742,7 +6765,7 @@ export default function Level1SchoolWorld({
     setTimeout(() => {
       setComputerFeedbackBanner(null)
       focusCameraOnComputer(3, true)
-    }, 1750)
+    }, 2600)
   }
 
   // Complete Computer 3 (Combined Metrics) -> Show "Level 2 Completed" -> Walk outside through the Veranda ("EXIT") -> Continue to Level 3 Bank!
@@ -6761,7 +6784,7 @@ export default function Level1SchoolWorld({
     setTimeout(() => {
       setComputerFeedbackBanner(null)
       beginWalkToExit(true)
-    }, 2200)
+    }, 3000)
   }
 
   // ───────────────────────────────────────────────────────────────────────────
@@ -9113,16 +9136,18 @@ export default function Level1SchoolWorld({
           (z-50 + Centered Celebration Overlay so it NEVER hides behind 3D screens!)
       ═══════════════════════════════════════════════════════════════════ */}
       {computerFeedbackBanner && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/55 backdrop-blur-sm pointer-events-none">
-          <div className="px-10 py-7 rounded-3xl bg-white border-4 border-amber-400 shadow-[0_25px_90px_rgba(251,191,36,0.85)] text-center max-w-lg mx-4 animate-bounce">
-            <div className="text-5xl mb-2">🎉🏆✨</div>
-            <div className="inline-block px-5 py-1.5 rounded-full bg-gradient-to-r from-amber-400 to-yellow-300 border-2 border-amber-600 text-black font-black text-base mb-2 shadow-md">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/75 backdrop-blur-md pointer-events-none p-4 sm:p-8">
+          <div className="w-[min(92vw,920px)] min-h-[50vh] sm:min-h-[56vh] px-8 py-10 sm:px-14 sm:py-14 rounded-[32px] sm:rounded-[48px] bg-white border-4 sm:border-8 border-amber-400 shadow-[0_0_120px_rgba(251,191,36,0.95),0_30px_90px_rgba(0,0,0,0.85)] flex flex-col items-center justify-center text-center mx-4 animate-bounce">
+            <div className="text-6xl sm:text-8xl md:text-9xl mb-4 sm:mb-6 drop-shadow-md select-none">
+              🎉 🏆 ✨
+            </div>
+            <div className="inline-flex items-center gap-2 px-8 py-2.5 sm:px-12 sm:py-3.5 rounded-full bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 border-2 sm:border-4 border-amber-600 text-black font-black text-lg sm:text-2xl md:text-3xl mb-5 sm:mb-7 shadow-[0_8px_25px_rgba(245,158,11,0.5)]">
               ⭐ {computerFeedbackBanner.xp}
             </div>
-            <div className="text-2xl sm:text-3xl font-black text-black leading-tight">
+            <div className="text-3xl sm:text-5xl md:text-6xl font-black text-slate-950 leading-tight tracking-tight mb-4 sm:mb-6">
               {computerFeedbackBanner.title}
             </div>
-            <div className="text-sm sm:text-base font-extrabold text-emerald-800 mt-2">
+            <div className="text-base sm:text-2xl md:text-3xl font-extrabold text-emerald-700 leading-relaxed max-w-3xl">
               {computerFeedbackBanner.sub}
             </div>
           </div>
