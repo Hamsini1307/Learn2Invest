@@ -9115,10 +9115,7 @@ export default function Level1SchoolWorld({
           SCHOOL EXIT & ROAD TO BANK BANNER (Crisp Black Font on Frosted Blurred Card)
       ═══════════════════════════════════════════════════════════════════ */}
       {journeyStage === 'reached_exit' && (
-        <div
-          className="absolute bottom-7 left-1/2 -translate-x-1/2 z-30 w-[min(94vw,840px)] px-7 py-5 rounded-3xl bg-white border-2 border-emerald-500 shadow-[0_20px_60px_rgba(0,0,0,0.45)] text-slate-900 flex flex-col sm:flex-row items-center justify-between gap-5"
-          style={{ backgroundColor: '#ffffff', color: '#0f172a' }}
-        >
+        <div className="absolute bottom-7 left-1/2 -translate-x-1/2 z-30 w-[min(94vw,840px)] px-7 py-5 rounded-3xl bg-white/92 backdrop-blur-xl border-2 border-emerald-500 shadow-[0_15px_55px_rgba(16,185,129,0.45)] text-black flex flex-col sm:flex-row items-center justify-between gap-5">
           <div className="flex items-center gap-4">
             <div className="text-4xl animate-bounce">🎓🛣️🏛️</div>
             <div>
