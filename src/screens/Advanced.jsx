@@ -1843,14 +1843,79 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
       {/* ─── DIGITAL BANKING & CYBER SAFETY ARENA ─── */}
       {activeTab === 'digital_safety' && (
         <div className="anim-scale glass-card-deep" style={{ padding: '36px 40px', marginBottom: 28, background: isLight ? '#ffffff' : 'var(--bg-card-deep, #12100c)', border: '3px solid #ea580c', color: isLight ? '#0f172a' : '#ffffff', width: '100%', borderRadius: 28 }}>
-          <div style={{ textAlign: 'center', marginBottom: 36 }}>
-            <div className="sticker-badge sticker-yellow" style={{ marginBottom: 16, fontSize: 24, fontWeight: 900, padding: '12px 34px', borderRadius: 999 }}>
-              🌐 CABIN 2 • DIGITAL BANKING & CYBER SAFETY
+          {/* ─── CABIN 2 HERO BANNER (MASSIVE PROMINENT CARD MATCHING USER GREEN BOX) ─── */}
+          <div
+            style={{
+              textAlign: 'center',
+              marginBottom: 44,
+              padding: '48px 36px',
+              borderRadius: 32,
+              background: isLight
+                ? 'linear-gradient(135deg, #fff7ed 0%, #ffedd5 45%, #fed7aa 100%)'
+                : 'linear-gradient(135deg, rgba(234, 88, 12, 0.22) 0%, rgba(245, 158, 11, 0.12) 100%)',
+              border: '4.5px solid #ea580c',
+              boxShadow: isLight
+                ? '0 20px 60px rgba(234, 88, 12, 0.22), 0 4px 16px rgba(234, 88, 12, 0.15)'
+                : '0 20px 60px rgba(0,0,0,0.6)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 16,
+            }}
+          >
+            <div
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 14,
+                marginBottom: 4,
+                fontSize: 26,
+                fontWeight: 900,
+                padding: '14px 42px',
+                borderRadius: 999,
+                background: isLight ? '#ffffff' : 'rgba(234, 88, 12, 0.3)',
+                color: isLight ? '#c2410c' : '#fbbf24',
+                border: '3.5px solid #ea580c',
+                letterSpacing: '1px',
+                textTransform: 'uppercase',
+                boxShadow: isLight ? '0 6px 18px rgba(234, 88, 12, 0.2)' : 'none',
+              }}
+            >
+              <span style={{ fontSize: 32 }}>🌐</span>
+              <span>CABIN 2 • DIGITAL BANKING & CYBER SAFETY</span>
             </div>
-            <h2 className="font-display" style={{ fontSize: 54, fontWeight: 900, color: isLight ? '#0f172a' : 'var(--heading-color, #ffffff)', marginBottom: 12, letterSpacing: '-0.02em' }}>
-              DIGITAL BANKING & SAFETY 🛡️
+
+            <h2
+              className="font-display"
+              style={{
+                fontSize: 'clamp(44px, 5.5vw, 68px)',
+                fontWeight: 900,
+                color: isLight ? '#0f172a' : '#ffffff',
+                margin: 0,
+                letterSpacing: '-0.02em',
+                lineHeight: 1.2,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 18,
+                flexWrap: 'wrap',
+              }}
+            >
+              <span>DIGITAL BANKING & SAFETY</span>
+              <span style={{ fontSize: '1.1em', filter: 'drop-shadow(0 4px 10px rgba(234, 88, 12, 0.35))' }}>🛡️</span>
             </h2>
-            <p style={{ color: isLight ? '#334155' : 'var(--text-sub, #d1d5db)', fontSize: 26, fontWeight: 800, maxWidth: 1100, margin: '0 auto', lineHeight: 1.55 }}>
+
+            <p
+              style={{
+                color: isLight ? '#334155' : '#e2e8f0',
+                fontSize: 'clamp(22px, 2.4vw, 30px)',
+                fontWeight: 800,
+                maxWidth: 1300,
+                margin: 0,
+                lineHeight: 1.55,
+              }}
+            >
               Step 1: Watch the Digital Banking YouTube tutorial first. Step 2: Defend your bank account against phishing traps & SMS scams!
             </p>
           </div>
