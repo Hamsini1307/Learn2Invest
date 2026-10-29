@@ -1037,3 +1037,26 @@ select::placeholder,
   font-weight: 900 !important;
   letter-spacing: 0.01em !important;
 }
+
+/* ─── MESSAGE SCAM ANALYZER (FORCE LARGE TEXTAREA & PLACEHOLDER) ─── */
+.message-scam-analyzer textarea {
+  font-size: 26px !important;
+  line-height: 1.5 !important;
+  font-weight: 800 !important;
+  padding: 24px 28px !important;
+  border: 3.5px solid #ea580c !important;
+  border-radius: 22px !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+.message-scam-analyzer textarea::placeholder,
+.message-scam-analyzer textarea::-webkit-input-placeholder,
+.message-scam-analyzer textarea::-moz-placeholder,
+.message-scam-analyzer textarea:-ms-input-placeholder {
+  font-size: 24px !important;
+  font-weight: 800 !important;
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+  opacity: 0.9 !important;
+}

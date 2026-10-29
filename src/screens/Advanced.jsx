@@ -1974,22 +1974,23 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
                 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, flexWrap: 'wrap', gap: 14 }}>
                     <span style={{
-                      fontSize: 18, fontWeight: 900,
+                      fontSize: 24, fontWeight: 900,
                       color: isLight ? '#c2410c' : '#fbbf24',
                       background: isLight ? '#fff7ed' : 'rgba(234, 88, 12, 0.2)',
-                      padding: '10px 24px', borderRadius: 999,
-                      border: '2px solid #ea580c',
-                      letterSpacing: '0.5px'
+                      padding: '14px 32px', borderRadius: 999,
+                      border: '3px solid #ea580c',
+                      letterSpacing: '0.5px',
+                      boxShadow: '0 4px 14px rgba(234, 88, 12, 0.15)'
                     }}>
                       🎯 SCENARIO {digitalScenarioIdx + 1} OF {CYBER_SCENARIOS.length}
                     </span>
                     <div style={{
-                      fontSize: 18, fontWeight: 900,
+                      fontSize: 24, fontWeight: 900,
                       background: 'linear-gradient(135deg, #059669, #10b981)',
                       color: '#ffffff',
-                      padding: '10px 24px', borderRadius: 999,
-                      boxShadow: '0 6px 20px rgba(16, 185, 129, 0.4)',
-                      border: '2px solid #34d399'
+                      padding: '14px 32px', borderRadius: 999,
+                      boxShadow: '0 8px 24px rgba(16, 185, 129, 0.45)',
+                      border: '3px solid #34d399'
                     }}>
                       🛡️ SHIELD HEALTH: {shieldScore}%
                     </div>
@@ -2001,10 +2002,10 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
                     border: '2.5px solid #ea580c', marginBottom: 24,
                     boxShadow: isLight ? '0 8px 24px rgba(234, 88, 12, 0.12)' : 'none'
                   }}>
-                    <h3 style={{ fontWeight: 900, fontSize: 26, color: isLight ? '#9a3412' : '#fbbf24', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <h3 style={{ fontWeight: 900, fontSize: 34, color: isLight ? '#9a3412' : '#fbbf24', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 12 }}>
                       {CYBER_SCENARIOS[digitalScenarioIdx].title}
                     </h3>
-                    <p style={{ fontSize: 22, color: isLight ? '#0f172a' : '#f3f4f6', lineHeight: 1.6, fontWeight: 800, margin: 0 }}>
+                    <p style={{ fontSize: 26, color: isLight ? '#0f172a' : '#f3f4f6', lineHeight: 1.6, fontWeight: 800, margin: 0 }}>
                       {CYBER_SCENARIOS[digitalScenarioIdx].scenario}
                     </p>
                   </div>
@@ -2028,14 +2029,15 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
                           key={i}
                           onClick={() => handleCyberAnswer(i)}
                           style={{
-                            textAlign: 'left', fontSize: 20, padding: '20px 26px', width: '100%',
-                            fontWeight: 800, borderRadius: 18, cursor: 'pointer',
+                            textAlign: 'left', fontSize: 26, padding: '26px 34px', width: '100%',
+                            minHeight: 88,
+                            fontWeight: 800, borderRadius: 22, cursor: 'pointer',
                             background: btnBg,
                             color: btnColor,
-                            border: `3px solid ${btnBorder}`,
+                            border: `3.5px solid ${btnBorder}`,
                             boxShadow: isSelected
-                              ? (isCorrect ? '0 8px 25px rgba(16, 185, 129, 0.45)' : '0 8px 25px rgba(225, 29, 72, 0.45)')
-                              : (isLight ? '0 3px 10px rgba(234, 88, 12, 0.1)' : 'none'),
+                              ? (isCorrect ? '0 12px 30px rgba(16, 185, 129, 0.5)' : '0 12px 30px rgba(225, 29, 72, 0.5)')
+                              : (isLight ? '0 6px 16px rgba(234, 88, 12, 0.12)' : 'none'),
                             transition: 'all 0.2s ease',
                             lineHeight: 1.45
                           }}
