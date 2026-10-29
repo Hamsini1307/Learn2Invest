@@ -976,7 +976,6 @@ export const PORTFOLIO_OPTIONS_CATALOG = [
   { typeKey: 'SSY', shortName: 'SSY', fullName: 'Sukanya Samriddhi', emoji: '👧', defaultRate: 8.2, defaultYears: 15, defaultMonthly: 2000, color: '#ec4899' },
   { typeKey: 'RD', shortName: 'RD', fullName: 'Recurring Deposit', emoji: '📅', defaultRate: 6.5, defaultYears: 3, defaultMonthly: 2000, color: '#8b5cf6' },
   { typeKey: 'MIS', shortName: 'MIS', fullName: 'Post Office MIS', emoji: '🏤', defaultRate: 7.4, defaultYears: 5, defaultMonthly: 5000, color: '#6366f1' },
-  { typeKey: 'GOLD', shortName: 'GOLD', fullName: 'Sovereign Gold Bond', emoji: '🪙', defaultRate: 9.5, defaultYears: 8, defaultMonthly: 3000, color: '#eab308' },
 ]
 
 export function fmtINR(num) {
@@ -1163,7 +1162,7 @@ export function calculatePortfolioSimulation(rows = [], allocationMode = 'manual
       const analysisText = `${item.name} matures in ${item.years} year${item.years > 1 ? 's' : ''} with a total payout of ${fmtINR(item.returns)} (Invested: ${fmtINR(item.invested)}, Profit: +${fmtINR(item.profit)}), while your longest investment (${longestNames}) runs for ${maxHorizon} years — leaving a ${gapYears}-year gap period.`
       let smartTip = ''
       if (gapYears >= 10) {
-        smartTip = `You have a long ${gapYears}-year gap period (Year ${item.years} to Year ${maxHorizon}). You can reinvest the matured amount of ${fmtINR(item.returns)} into long-term instruments like Sovereign Gold Bonds, NSC, or another Fixed Deposit to earn additional compounding returns, or use it for major life goals.`
+        smartTip = `You have a long ${gapYears}-year gap period (Year ${item.years} to Year ${maxHorizon}). You can reinvest the matured amount of ${fmtINR(item.returns)} into long-term instruments like PPF, NSC, or another Fixed Deposit to earn additional compounding returns, or use it for major life goals.`
       } else if (gapYears >= 5) {
         smartTip = `You have a ${gapYears}-year gap period (Year ${item.years} to Year ${maxHorizon}) after ${item.name} matures. You can redeploy the matured ${fmtINR(item.returns)} into a ${gapYears}-year FD, NSC, or Post Office MIS for extra returns while waiting for ${longestNames} to mature, or utilize it for planned medium-term expenses.`
       } else {
