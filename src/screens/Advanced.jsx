@@ -1136,7 +1136,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
   }
 
   return (
-    <div className="content-area" style={{ fontFamily: "'Space Grotesk', sans-serif", padding: lockedTab ? '16px 20px 60px' : undefined, maxWidth: '100%', margin: '0 auto' }}>
+    <div className="content-area" style={{ fontFamily: "'Space Grotesk', sans-serif", padding: lockedTab ? '16px 20px 80px' : undefined, maxWidth: '100%', width: '100%', margin: '0 auto' }}>
       
       {/* Navigation Header */}
       {!lockedTab && (
@@ -1297,7 +1297,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
 
       {/* ─── SECTION 1: BANK SELECTION TABS ─── */}
       <div className="glass-card-deep" style={{ padding: 20, borderRadius: 20, marginBottom: 20, background: isLight ? '#ffffff' : '#12100c', border: '1.5px solid #ea580c' }}>
-        <div style={{ fontSize: 18, fontWeight: 900, color: '#ea580c', textTransform: 'uppercase', marginBottom: 14 }}>
+        <div style={{ fontSize: 24, fontWeight: 900, color: '#ea580c', textTransform: 'uppercase', marginBottom: 18, letterSpacing: '0.01em' }}>
           🏛️ SELECT FINANCIAL INSTITUTION (5 BANKS)
         </div>
 
@@ -1321,8 +1321,8 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 80, width: '100%' }}>
                 <BankLogo id={inst.id} />
               </div>
-              <div style={{ fontSize: 22, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff', textAlign: 'center' }}>{inst.name}</div>
-              <div style={{ fontSize: 16, color: '#ea580c', fontWeight: 900, background: 'rgba(234, 88, 12, 0.12)', padding: '5px 14px', borderRadius: 8 }}>IFSC: {inst.code}</div>
+              <div style={{ fontSize: 26, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff', textAlign: 'center' }}>{inst.name}</div>
+              <div style={{ fontSize: 20, color: '#ea580c', fontWeight: 900, background: 'rgba(234, 88, 12, 0.15)', padding: '7px 18px', borderRadius: 10 }}>IFSC: {inst.code}</div>
             </div>
           ))}
         </div>
@@ -1330,7 +1330,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
 
       {/* ─── SECTION 2: LIVE BANK & POST OFFICE LOCATOR + DEPOSIT SLIP GENERATOR ─── */}
       <div className="glass-card-deep" style={{ padding: 20, borderRadius: 20, marginBottom: 20, background: isLight ? '#ffffff' : '#12100c', border: '1.5px solid #ea580c' }}>
-        <div style={{ fontSize: 18, fontWeight: 900, color: '#ea580c', textTransform: 'uppercase', marginBottom: 14 }}>
+        <div style={{ fontSize: 24, fontWeight: 900, color: '#ea580c', textTransform: 'uppercase', marginBottom: 18 }}>
           🏦 LIVE BANK & POST OFFICE LOCATOR (SEARCH BY IFSC, PIN CODE OR BRANCH) 📮
         </div>
 
@@ -1547,7 +1547,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
 
       {/* ─── SECTION 3: SELECT FORM CATEGORY TABS ─── */}
       <div className="glass-card-deep" style={{ padding: 20, borderRadius: 20, marginBottom: 20, background: isLight ? '#ffffff' : '#12100c', border: '1.5px solid #ea580c' }}>
-        <div style={{ fontSize: 18, fontWeight: 900, color: '#ea580c', textTransform: 'uppercase', marginBottom: 14 }}>
+        <div style={{ fontSize: 24, fontWeight: 900, color: '#ea580c', textTransform: 'uppercase', marginBottom: 18 }}>
           📜 SELECT FORM CATEGORY
         </div>
 
@@ -1557,7 +1557,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
               key={cat.id}
               onClick={() => setDocType(cat.id)}
               style={{
-                padding: '16px 34px', borderRadius: 999, fontSize: 19, fontWeight: 900, cursor: 'pointer',
+                padding: '20px 44px', borderRadius: 999, fontSize: 24, fontWeight: 900, cursor: 'pointer',
                 background: docType === cat.id ? '#ea580c' : (isLight ? '#ffedd5' : 'rgba(255,255,255,0.06)'),
                 color: docType === cat.id ? '#ffffff' : (isLight ? '#7c2d12' : '#fbbf24'),
                 border: `2px solid ${docType === cat.id ? '#c2410c' : 'rgba(234, 88, 12, 0.3)'}`,
@@ -1578,7 +1578,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
         boxShadow: highlightForm ? '0 0 30px rgba(16, 185, 129, 0.4)' : 'none',
         transition: 'all 0.4s'
       }}>
-        <div style={{ fontSize: 18, fontWeight: 900, color: highlightForm ? '#10b981' : '#ea580c', textTransform: 'uppercase', marginBottom: 16 }}>
+        <div style={{ fontSize: 24, fontWeight: 900, color: highlightForm ? '#10b981' : '#ea580c', textTransform: 'uppercase', marginBottom: 20 }}>
           ✍️ ENTER YOUR INFORMATION ONCE ({docType === 'deposit' ? 'SYSTEM RENDERS IT ON CASH DEPOSIT SLIP' : docType === 'withdrawal' ? 'SYSTEM RENDERS IT ON WITHDRAWAL SLIP' : 'SYSTEM RENDERS IT ON CHEQUE LEAF'})
         </div>
 
@@ -1586,7 +1586,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 18 }}>
           <div>
-            <label style={{ fontSize: 16, fontWeight: 900, color: isLight ? '#0f172a' : '#f8fafc', display: 'block', marginBottom: 8, letterSpacing: '0.02em' }}>
+            <label style={{ fontSize: 20, fontWeight: 900, color: isLight ? '#0f172a' : '#f8fafc', display: 'block', marginBottom: 10, letterSpacing: '0.02em' }}>
               {docType === 'cheque' ? 'PAY TO (PAYEE NAME / SELF)' : 'ACCOUNT HOLDER / PAYEE NAME'}
             </label>
             <input
@@ -1595,24 +1595,24 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
               onChange={e => setUserData({ ...userData, name: e.target.value })}
               placeholder={docType === 'cheque' ? "e.g. Self or Hamsini" : "e.g. Hamsini"}
               className="input-light"
-              style={{ padding: '15px 18px', fontSize: 18, fontWeight: 800, borderRadius: 14 }}
+              style={{ padding: '18px 24px', fontSize: 22, fontWeight: 800, borderRadius: 16 }}
             />
           </div>
 
           <div>
-            <label style={{ fontSize: 16, fontWeight: 900, color: isLight ? '#0f172a' : '#f8fafc', display: 'block', marginBottom: 8, letterSpacing: '0.02em' }}>ACCOUNT NUMBER</label>
+            <label style={{ fontSize: 20, fontWeight: 900, color: isLight ? '#0f172a' : '#f8fafc', display: 'block', marginBottom: 10, letterSpacing: '0.02em' }}>ACCOUNT NUMBER</label>
             <input
               type="text"
               value={userData.accountNumber}
               onChange={e => setUserData({ ...userData, accountNumber: e.target.value })}
               placeholder="e.g. 10984523910"
               className="input-light"
-              style={{ padding: '15px 18px', fontSize: 18, fontWeight: 800, borderRadius: 14 }}
+              style={{ padding: '18px 24px', fontSize: 22, fontWeight: 800, borderRadius: 16 }}
             />
           </div>
 
           <div>
-            <label style={{ fontSize: 16, fontWeight: 900, color: isLight ? '#0f172a' : '#f8fafc', display: 'block', marginBottom: 8, letterSpacing: '0.02em' }}>IFSC CODE</label>
+            <label style={{ fontSize: 20, fontWeight: 900, color: isLight ? '#0f172a' : '#f8fafc', display: 'block', marginBottom: 10, letterSpacing: '0.02em' }}>IFSC CODE</label>
             <input
               type="text"
               value={userData.ifsc}
@@ -1620,7 +1620,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
               placeholder="e.g. CNRB0001001"
               className="input-light"
               style={{
-                padding: '15px 18px', fontSize: 18, fontWeight: 800, borderRadius: 14, textTransform: 'uppercase',
+                padding: '18px 24px', fontSize: 22, fontWeight: 800, borderRadius: 16, textTransform: 'uppercase',
                 border: highlightForm ? '2.5px solid #10b981' : undefined,
                 background: highlightForm ? (isLight ? '#ecfdf5' : 'rgba(16, 185, 129, 0.2)') : undefined,
                 transition: 'all 0.3s'
@@ -1629,7 +1629,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
           </div>
 
           <div>
-            <label style={{ fontSize: 16, fontWeight: 900, color: isLight ? '#0f172a' : '#f8fafc', display: 'block', marginBottom: 8, letterSpacing: '0.02em' }}>BRANCH NAME (EXACT BRANCH)</label>
+            <label style={{ fontSize: 20, fontWeight: 900, color: isLight ? '#0f172a' : '#f8fafc', display: 'block', marginBottom: 10, letterSpacing: '0.02em' }}>BRANCH NAME (EXACT BRANCH)</label>
             <input
               type="text"
               value={userData.branch}
@@ -1648,7 +1648,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
               placeholder="e.g. Pandeshwar, Mangaluru"
               className="input-light"
               style={{
-                padding: '15px 18px', fontSize: 18, fontWeight: 800, borderRadius: 14,
+                padding: '18px 24px', fontSize: 22, fontWeight: 800, borderRadius: 16,
                 border: highlightForm ? '2.5px solid #10b981' : undefined,
                 background: highlightForm ? (isLight ? '#ecfdf5' : 'rgba(16, 185, 129, 0.2)') : undefined,
                 transition: 'all 0.3s'
@@ -1658,43 +1658,43 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
 
           {docType === 'cheque' ? (
             <div>
-              <label style={{ fontSize: 16, fontWeight: 900, color: isLight ? '#0f172a' : '#f8fafc', display: 'block', marginBottom: 8, letterSpacing: '0.02em' }}>CHEQUE NUMBER (6 DIGITS)</label>
+              <label style={{ fontSize: 20, fontWeight: 900, color: isLight ? '#0f172a' : '#f8fafc', display: 'block', marginBottom: 10, letterSpacing: '0.02em' }}>CHEQUE NUMBER (6 DIGITS)</label>
               <input
                 type="text"
                 value={userData.chequeNumber}
                 onChange={e => setUserData({ ...userData, chequeNumber: e.target.value })}
                 placeholder="e.g. 104502"
                 className="input-light"
-                style={{ padding: '15px 18px', fontSize: 18, fontWeight: 800, borderRadius: 14 }}
+                style={{ padding: '18px 24px', fontSize: 22, fontWeight: 800, borderRadius: 16 }}
               />
             </div>
           ) : (
             <div>
-              <label style={{ fontSize: 16, fontWeight: 900, color: isLight ? '#0f172a' : '#f8fafc', display: 'block', marginBottom: 8, letterSpacing: '0.02em' }}>MOBILE / PHONE NO.</label>
+              <label style={{ fontSize: 20, fontWeight: 900, color: isLight ? '#0f172a' : '#f8fafc', display: 'block', marginBottom: 10, letterSpacing: '0.02em' }}>MOBILE / PHONE NO.</label>
               <input
                 type="text"
                 value={userData.mobileNumber}
                 onChange={e => setUserData({ ...userData, mobileNumber: e.target.value })}
                 placeholder="e.g. 9876543210"
                 className="input-light"
-                style={{ padding: '15px 18px', fontSize: 18, fontWeight: 800, borderRadius: 14 }}
+                style={{ padding: '18px 24px', fontSize: 22, fontWeight: 800, borderRadius: 16 }}
               />
             </div>
           )}
 
           <div>
-            <label style={{ fontSize: 16, fontWeight: 900, color: isLight ? '#0f172a' : '#f8fafc', display: 'block', marginBottom: 8, letterSpacing: '0.02em' }}>DATE</label>
+            <label style={{ fontSize: 20, fontWeight: 900, color: isLight ? '#0f172a' : '#f8fafc', display: 'block', marginBottom: 10, letterSpacing: '0.02em' }}>DATE</label>
             <input
               type="date"
               value={userData.date}
               onChange={e => setUserData({ ...userData, date: e.target.value })}
               className="input-light"
-              style={{ padding: '15px 18px', fontSize: 18, fontWeight: 800, borderRadius: 14 }}
+              style={{ padding: '18px 24px', fontSize: 22, fontWeight: 800, borderRadius: 16 }}
             />
           </div>
 
           <div>
-            <label style={{ fontSize: 16, fontWeight: 900, color: isLight ? '#0f172a' : '#f8fafc', display: 'block', marginBottom: 8, letterSpacing: '0.02em' }}>
+            <label style={{ fontSize: 20, fontWeight: 900, color: isLight ? '#0f172a' : '#f8fafc', display: 'block', marginBottom: 10, letterSpacing: '0.02em' }}>
               {docType === 'deposit' ? 'TOTAL DEPOSIT AMOUNT (₹)' : docType === 'withdrawal' ? 'CASH WITHDRAWAL AMOUNT (₹)' : 'CHEQUE AMOUNT (₹)'}
             </label>
             <input
@@ -1703,7 +1703,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
               onChange={e => setUserData({ ...userData, amount: e.target.value })}
               placeholder="e.g. 5000"
               className="input-light"
-              style={{ padding: '15px 18px', fontSize: 18, fontWeight: 800, borderRadius: 14 }}
+              style={{ padding: '18px 24px', fontSize: 22, fontWeight: 800, borderRadius: 16 }}
             />
 
           </div>
@@ -1765,14 +1765,14 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
       {/* ─── SECTION 3: LIVE ORIGINAL IMAGE VISUAL PREVIEW ─── */}
       <div className="glass-card-deep" style={{ padding: 24, borderRadius: 20, marginBottom: 20, background: isLight ? '#ffffff' : '#12100c', border: '2.5px solid #ea580c' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, flexWrap: 'wrap', gap: 10 }}>
-          <div style={{ fontSize: 18, fontWeight: 900, color: '#ea580c', textTransform: 'uppercase' }}>
+          <div style={{ fontSize: 24, fontWeight: 900, color: '#ea580c', textTransform: 'uppercase' }}>
             📸 ORIGINAL TEMPLATE PREVIEW ({currentTemplate.institution} • {docType.toUpperCase()})
           </div>
         </div>
 
         {/* Slip Display Zoom Controls */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 14, flexWrap: 'wrap', padding: '10px 14px', background: isLight ? '#fff7ed' : 'rgba(234, 88, 12, 0.08)', borderRadius: 14, border: '1.5px solid rgba(234, 88, 12, 0.25)' }}>
-          <div style={{ fontSize: 17, fontWeight: 900, color: '#ea580c', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ fontSize: 22, fontWeight: 900, color: '#ea580c', display: 'flex', alignItems: 'center', gap: 10 }}>
             <span>🔍</span>
             <span>SLIP DISPLAY SIZE (ZOOM):</span>
           </div>
@@ -1787,7 +1787,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
                 type="button"
                 onClick={() => setSlipScale(z.s)}
                 style={{
-                  padding: '10px 22px', borderRadius: 999, fontSize: 16, fontWeight: 900, cursor: 'pointer',
+                  padding: '14px 28px', borderRadius: 999, fontSize: 20, fontWeight: 900, cursor: 'pointer',
                   background: slipScale === z.s ? '#ea580c' : (isLight ? '#ffffff' : 'rgba(255,255,255,0.08)'),
                   color: slipScale === z.s ? '#ffffff' : (isLight ? '#0f172a' : '#cbd5e1'),
                   border: `1.5px solid ${slipScale === z.s ? '#c2410c' : 'rgba(203, 213, 225, 0.5)'}`,
@@ -1832,7 +1832,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
           <button
             onClick={() => { setHasCompletedSlip(true); markLevel3Section('paper_slip'); setShowVerifyModal(true); }}
             className="btn-primary"
-            style={{ flex: 1, padding: '18px 32px', fontSize: 17, fontWeight: 900, borderRadius: 14 }}
+            style={{ flex: 1, padding: '22px 40px', fontSize: 24, fontWeight: 900, borderRadius: 18 }}
           >
             📋 REVIEW & PRINT FILLED FORM PDF {paperSlipDone ? '✅' : ''}
           </button>

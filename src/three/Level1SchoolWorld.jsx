@@ -9607,7 +9607,7 @@ export default function Level1SchoolWorld({
       ═══════════════════════════════════════════════════════════════════ */}
       {journeyStage === 'bank_employee' && (
         <div
-          className="absolute bottom-5 sm:bottom-7 left-1/2 -translate-x-1/2 z-30 w-[min(97vw,1440px)] rounded-[36px] sm:rounded-[48px] bg-white border-4 sm:border-6 border-blue-500 shadow-[0_30px_120px_rgba(0,0,0,0.75)] p-8 sm:p-12 text-slate-900"
+          className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-30 w-[min(98vw,1600px)] rounded-[36px] sm:rounded-[48px] bg-white border-4 sm:border-6 border-blue-500 shadow-[0_30px_120px_rgba(0,0,0,0.85)] p-8 sm:p-12 text-slate-900"
           style={{ backgroundColor: '#ffffff', color: '#0f172a' }}
         >
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5 border-b-2 border-slate-200 pb-5">
@@ -9647,17 +9647,17 @@ export default function Level1SchoolWorld({
             <span className="text-emerald-700 font-black">Cabin 2: Digital Banking Safety</span>!”
           </p>
 
-          <div className="mt-8 flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-5 sm:gap-6 pt-6 sm:pt-8 border-t-4 border-slate-200">
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 sm:gap-6 flex-wrap">
+          <div className="mt-8 flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-6 pt-6 sm:pt-8 border-t-4 border-slate-200">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-5 sm:gap-6 flex-wrap">
               <button
                 type="button"
                 onClick={() => {
                   soundEngine.playClick()
                   setShowXpDepositModal(true)
                 }}
-                className="px-8 py-5 sm:px-10 sm:py-6 rounded-3xl bg-amber-400 hover:bg-amber-300 border-3 sm:border-4 border-amber-600 text-slate-950 font-black text-lg sm:text-2xl lg:text-3xl shadow-[0_12px_30px_rgba(245,158,11,0.45)] hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-3.5 text-center"
+                className="px-10 py-6 sm:px-12 sm:py-7 rounded-3xl bg-amber-400 hover:bg-amber-300 border-4 border-amber-600 text-slate-950 font-black text-xl sm:text-3xl shadow-[0_16px_36px_rgba(245,158,11,0.5)] hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-4 text-center"
               >
-                <span className="text-3xl sm:text-4xl">🏦</span>
+                <span className="text-4xl sm:text-5xl">🏦</span>
                 <span>Deposit XP with Maya ({state?.xp || 0} Wallet XP)</span>
               </button>
               <button
@@ -9666,9 +9666,9 @@ export default function Level1SchoolWorld({
                   soundEngine.playClick()
                   startAtmQueueExperience()
                 }}
-                className="px-8 py-5 sm:px-10 sm:py-6 rounded-3xl bg-cyan-300 hover:bg-cyan-200 border-3 sm:border-4 border-cyan-500 text-slate-950 font-black text-lg sm:text-2xl lg:text-3xl shadow-[0_12px_30px_rgba(6,182,212,0.45)] hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-3.5 text-center"
+                className="px-10 py-6 sm:px-12 sm:py-7 rounded-3xl bg-cyan-300 hover:bg-cyan-200 border-4 border-cyan-500 text-slate-950 font-black text-xl sm:text-3xl shadow-[0_16px_36px_rgba(6,182,212,0.5)] hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-4 text-center"
               >
-                <span className="text-3xl sm:text-4xl">🏧</span>
+                <span className="text-4xl sm:text-5xl">🏧</span>
                 <span>Walk to 24/7 ATM Queue ({bankedXp} Banked XP)</span>
               </button>
             </div>
@@ -9676,9 +9676,9 @@ export default function Level1SchoolWorld({
             <button
               onClick={handleEmployeeInteract}
               onMouseEnter={() => soundEngine.playHover()}
-              className="px-10 py-5 sm:px-14 sm:py-7 rounded-3xl bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 text-slate-950 border-3 sm:border-4 border-emerald-600 font-black text-xl sm:text-3xl lg:text-4xl shadow-[0_16px_45px_rgba(16,185,129,0.55)] hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-4 text-center shrink-0"
+              className="px-12 py-6 sm:px-16 sm:py-8 rounded-3xl bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 text-slate-950 border-4 border-emerald-600 font-black text-2xl sm:text-3xl lg:text-4xl shadow-[0_20px_50px_rgba(16,185,129,0.6)] hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-5 text-center shrink-0"
             >
-              <span className="text-3xl sm:text-5xl">🏛️</span>
+              <span className="text-4xl sm:text-6xl">🏛️</span>
               <span>Enter Cabin 1: Banking Slip Writing →</span>
             </button>
           </div>
