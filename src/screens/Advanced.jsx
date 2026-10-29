@@ -1910,35 +1910,52 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
 
             {!digitalVideoWatched ? (
               <button
+                type="button"
                 onClick={() => setDigitalVideoWatched(true)}
                 style={{
                   width: '100%',
-                  padding: '22px 36px',
-                  borderRadius: 20,
-                  border: '3px solid #34d399',
-                  background: 'linear-gradient(135deg, #059669, #10b981)',
+                  minHeight: 110,
+                  padding: '30px 44px',
+                  borderRadius: 26,
+                  border: '4px solid #6ee7b7',
+                  background: 'linear-gradient(135deg, #059669 0%, #10b981 50%, #0d9488 100%)',
                   color: '#ffffff',
-                  fontSize: 22,
+                  fontSize: 28,
                   fontWeight: 900,
                   cursor: 'pointer',
-                  boxShadow: '0 10px 30px rgba(16, 185, 129, 0.45)',
-                  transition: 'all 0.2s'
+                  boxShadow: '0 20px 50px rgba(16, 185, 129, 0.65), 0 0 35px rgba(52, 211, 153, 0.5)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 18,
+                  textAlign: 'center',
+                  lineHeight: 1.35,
+                  transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
                 }}
+                className="hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
               >
-                ✅ I Have Watched the YouTube Video — Display Digital Banking Safety Challenges & SMS Analyzer →
+                <span style={{ fontSize: 42, filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.3))' }}>✅</span>
+                <span>I Have Watched the YouTube Video — Display Digital Banking Safety Challenges & SMS Analyzer →</span>
               </button>
             ) : (
               <div style={{
-                padding: '16px 24px',
-                borderRadius: 16,
-                background: 'rgba(16, 185, 129, 0.16)',
-                border: '2px solid #10b981',
-                color: '#059669',
-                fontSize: 18,
+                minHeight: 96,
+                padding: '26px 40px',
+                borderRadius: 24,
+                background: isLight ? '#ecfdf5' : 'rgba(16, 185, 129, 0.22)',
+                border: '3.5px solid #10b981',
+                color: isLight ? '#047857' : '#34d399',
+                fontSize: 26,
                 fontWeight: 900,
-                textAlign: 'center'
+                textAlign: 'center',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 16,
+                boxShadow: isLight ? '0 8px 24px rgba(16, 185, 129, 0.2)' : 'none'
               }}>
-                ✓ Video Completed! Complete the Cyber Safety Scenarios & SMS Phishing Analyzer below.
+                <span style={{ fontSize: 38 }}>✓</span>
+                <span>Video Completed! Complete the Cyber Safety Scenarios & SMS Phishing Analyzer below.</span>
               </div>
             )}
           </div>

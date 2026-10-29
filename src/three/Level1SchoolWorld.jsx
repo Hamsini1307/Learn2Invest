@@ -9529,26 +9529,26 @@ export default function Level1SchoolWorld({
           Extra-Large Ultra-Crisp Kiosk Card (Matching User Green Sketch with Huge Width & Big Typography)
       ═══════════════════════════════════════════════════════════════════ */}
       {isPlayerInAtmQueue && (
-        <div className="fixed bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 z-40 w-[min(97vw,1360px)] px-8 py-6 sm:px-12 sm:py-8 rounded-[36px] sm:rounded-[44px] bg-slate-950/96 backdrop-blur-2xl border-4 sm:border-5 border-cyan-400 shadow-[0_30px_90px_rgba(34,211,238,0.65)] text-white flex flex-col md:flex-row items-center justify-between gap-6 sm:gap-8 pointer-events-auto">
-          <div className="flex items-center gap-5 sm:gap-7">
-            <div className="w-20 h-20 sm:w-26 sm:h-26 rounded-3xl bg-gradient-to-br from-cyan-400 via-sky-500 to-blue-600 text-slate-950 font-black text-4xl sm:text-6xl flex items-center justify-center shadow-2xl shrink-0 animate-pulse border-4 border-cyan-300">
+        <div className="fixed bottom-4 sm:bottom-7 left-1/2 -translate-x-1/2 z-40 w-[min(98vw,1680px)] px-8 py-7 sm:px-16 sm:py-10 rounded-[38px] sm:rounded-[52px] bg-slate-950/98 backdrop-blur-2xl border-5 sm:border-6 border-cyan-400 shadow-[0_35px_120px_rgba(34,211,238,0.75)] text-white flex flex-col xl:flex-row items-center justify-between gap-6 sm:gap-10 pointer-events-auto">
+          <div className="flex items-center gap-6 sm:gap-9">
+            <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-3xl bg-gradient-to-br from-cyan-400 via-sky-500 to-blue-600 text-slate-950 font-black text-5xl sm:text-7xl flex items-center justify-center shadow-2xl shrink-0 animate-pulse border-4 border-cyan-300">
               🏧
             </div>
             <div>
-              <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
-                <span className="px-4 py-1.5 rounded-full bg-amber-400 text-slate-950 text-xs sm:text-base font-black uppercase tracking-wider shadow-sm">
-                  {atmQueuePosition > 0 ? `Waiting in ATM Queue • Position #${atmQueuePosition + 1}` : 'Your Turn at ATM!'}
+              <div className="flex items-center gap-4 sm:gap-5 flex-wrap">
+                <span className="px-5 py-2 sm:px-6 sm:py-2.5 rounded-full bg-amber-400 text-slate-950 text-sm sm:text-xl font-black uppercase tracking-wider shadow-md">
+                  {atmQueuePosition > 0 ? `Waiting in ATM Queue • Position #${atmQueuePosition + 1}` : 'YOUR TURN AT ATM!'}
                 </span>
-                <span className="text-sm sm:text-xl font-extrabold text-cyan-300">
+                <span className="text-base sm:text-2xl font-black text-cyan-300">
                   24/7 Cash & XP Dispenser
                 </span>
               </div>
-              <div className="text-xl sm:text-3xl lg:text-4xl font-black text-white mt-2 leading-tight">
+              <div className="text-2xl sm:text-4xl lg:text-5xl font-black text-white mt-3 leading-tight tracking-tight">
                 {atmQueuePosition === 2 && '💵 Customer #1 is withdrawing ₹500 notes... (2 people ahead)'}
                 {atmQueuePosition === 1 && '💵 Customer #2 stepped up to withdraw cash... (1 person ahead)'}
                 {atmQueuePosition === 0 && '✅ Queue cleared! You are now at the ATM counter!'}
               </div>
-              <div className="text-sm sm:text-lg lg:text-xl font-bold text-slate-300 mt-1.5">
+              <div className="text-base sm:text-2xl lg:text-3xl font-bold text-slate-200 mt-2">
                 Watch the 3D ATM pavilion as each person collects their cash notes and steps away!
               </div>
             </div>
@@ -9565,7 +9565,7 @@ export default function Level1SchoolWorld({
               setAtmQueuePosition(0)
               setShowAtmModal(true)
             }}
-            className="px-8 py-5 sm:px-12 sm:py-6 rounded-3xl bg-gradient-to-r from-cyan-400 via-teal-300 to-emerald-400 text-slate-950 border-3 sm:border-4 border-cyan-200 font-black text-lg sm:text-2xl lg:text-3xl shadow-[0_16px_45px_rgba(34,211,238,0.6)] hover:scale-105 active:scale-95 transition-all cursor-pointer shrink-0 text-center"
+            className="px-10 py-6 sm:px-16 sm:py-8 rounded-3xl bg-gradient-to-r from-cyan-400 via-teal-300 to-emerald-400 text-slate-950 border-4 sm:border-5 border-cyan-100 font-black text-xl sm:text-3xl lg:text-4xl shadow-[0_20px_60px_rgba(34,211,238,0.7)] hover:scale-105 active:scale-95 transition-all cursor-pointer shrink-0 text-center tracking-wide"
           >
             ⚡ Open ATM Now →
           </button>

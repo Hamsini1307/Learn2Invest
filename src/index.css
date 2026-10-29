@@ -979,9 +979,9 @@ select::placeholder,
 /* ─── CHATBOT INPUT & PLACEHOLDER (FORCE LARGE TEXT & PLACEHOLDER IN BOX) ─── */
 .l2i-chat-input,
 .l2i-chat-window input[type="text"] {
-  font-size: 28px !important;
-  line-height: normal !important;
-  font-weight: 700 !important;
+  font-size: 32px !important;
+  line-height: 1.4 !important;
+  font-weight: 800 !important;
   color: #0f172a !important;
   -webkit-text-fill-color: #0f172a !important;
   background: #ffffff !important;
@@ -995,10 +995,10 @@ select::placeholder,
 .l2i-chat-window input[type="text"]::-moz-placeholder,
 .l2i-chat-input:-ms-input-placeholder,
 .l2i-chat-window input[type="text"]:-ms-input-placeholder {
-  font-size: 26px !important;
-  font-weight: 700 !important;
-  color: #64748b !important;
-  -webkit-text-fill-color: #64748b !important;
+  font-size: 30px !important;
+  font-weight: 800 !important;
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
   opacity: 1 !important;
 }
 
