@@ -911,16 +911,17 @@ export function SchoolGardenStallModal({
   }
 
   const handleBuyIceCreamItem = (ice) => {
-    if (availableXp < ice.cost) return
     playStallSfx('buy')
-    if (onSpendXp) onSpendXp(ice.cost)
+    if (availableXp >= ice.cost && onSpendXp) {
+      onSpendXp(ice.cost)
+      const updated = { ...iceCreamsBought, [ice.id]: (iceCreamsBought[ice.id] || 0) + 1 }
+      setLocalIceCreams(updated)
+      try {
+        localStorage.setItem('l2i_icecreams_bought', JSON.stringify(updated))
+      } catch {}
+    }
     if (onBuyIceCream) onBuyIceCream(ice)
-    const updated = { ...iceCreamsBought, [ice.id]: (iceCreamsBought[ice.id] || 0) + 1 }
-    setLocalIceCreams(updated)
-    try {
-      localStorage.setItem('l2i_icecreams_bought', JSON.stringify(updated))
-    } catch {}
-    showMessage(`🍦 Holding & enjoying delicious ${ice.name} for 20 seconds!`)
+    showMessage(`🍦 Holding & enjoying delicious ${ice.name} near mouth for 30 seconds!`)
   }
 
   const handleSpinWheel = () => {

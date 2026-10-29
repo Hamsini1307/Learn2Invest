@@ -200,7 +200,7 @@ const LEVEL1_QUIZ_QUESTIONS = LEVEL1_QUESTION_BANK.slice(0, 10)
 // ═══════════════════════════════════════════════════════════════════════════════
 // 1. 3D CHARACTERS: LUNA (IMAGE 2) & LEO (IMAGE 3) WITH WALKING & SEATED ANIMATION
 // ═══════════════════════════════════════════════════════════════════════════════
-function PlayerCharacter3D({ characterId = 'luna', outfitTheme = null, charStateRef }) {
+function PlayerCharacter3D({ characterId = 'luna', outfitTheme = null, charStateRef, activeIceCream = null }) {
   const groupRef = useRef()
   const leftLegRef = useRef()
   const rightLegRef = useRef()
@@ -236,7 +236,15 @@ function PlayerCharacter3D({ characterId = 'luna', outfitTheme = null, charState
       if (leftLegRef.current) leftLegRef.current.rotation.x = cycle * 0.65
       if (rightLegRef.current) rightLegRef.current.rotation.x = -cycle * 0.65
       if (leftArmRef.current) leftArmRef.current.rotation.x = isLuna ? -0.35 + cycle * 0.15 : -cycle * 0.55
-      if (rightArmRef.current) rightArmRef.current.rotation.x = cycle * 0.55
+      if (rightArmRef.current) {
+        if (activeIceCream) {
+          rightArmRef.current.rotation.x = -1.35
+          rightArmRef.current.rotation.y = -0.22
+          rightArmRef.current.rotation.z = -0.32
+        } else {
+          rightArmRef.current.rotation.x = cycle * 0.55
+        }
+      }
       if (headRef.current) {
         headRef.current.rotation.z = Math.sin(t * 5.2) * 0.04
         headRef.current.rotation.y = Math.sin(t * 2.6) * 0.06
@@ -257,7 +265,15 @@ function PlayerCharacter3D({ characterId = 'luna', outfitTheme = null, charState
       if (leftLegRef.current) leftLegRef.current.rotation.x = THREE.MathUtils.lerp(leftLegRef.current.rotation.x, 0, 0.15)
       if (rightLegRef.current) rightLegRef.current.rotation.x = THREE.MathUtils.lerp(rightLegRef.current.rotation.x, 0, 0.15)
       if (leftArmRef.current) leftArmRef.current.rotation.x = THREE.MathUtils.lerp(leftArmRef.current.rotation.x, isLuna ? -0.4 : 0, 0.15)
-      if (rightArmRef.current) rightArmRef.current.rotation.x = THREE.MathUtils.lerp(rightArmRef.current.rotation.x, 0, 0.15)
+      if (rightArmRef.current) {
+        if (activeIceCream) {
+          rightArmRef.current.rotation.x = -1.35
+          rightArmRef.current.rotation.y = -0.22
+          rightArmRef.current.rotation.z = -0.32
+        } else {
+          rightArmRef.current.rotation.x = THREE.MathUtils.lerp(rightArmRef.current.rotation.x, 0, 0.15)
+        }
+      }
       if (headRef.current) {
         headRef.current.rotation.y = Math.sin(t * 1.8) * 0.08
       }
@@ -1579,7 +1595,7 @@ function CourtyardTree3D({ position, scale = 1, pink = false }) {
   )
 }
 
-function SchoolYardAndFacade3D({ frontDoorOpenRef, charStateRef, isNightMode = false }) {
+function SchoolYardAndFacade3D({ frontDoorOpenRef, charStateRef, isNightMode = false, onEnterSchool }) {
   const leftDoorRef = useRef()
   const rightDoorRef = useRef()
 
@@ -1965,7 +1981,45 @@ function SchoolYardAndFacade3D({ frontDoorOpenRef, charStateRef, isNightMode = f
           FINANCIAL ACADEMY & SCHOOL
         </Text>
 
-        {/* Animated Warm Glass Double Entrance Doors (Extended Upwards to Portico Beam) */}
+        {/* Animated Warm Glass Double Entrance Doors (Click to Enter School) */}
+        <group
+          onClick={(e) => {
+            e.stopPropagation()
+            if (onEnterSchool) onEnterSchool()
+          }}
+        >
+          <mesh position={[0, 1.8, 1.6]}>
+            <boxGeometry args={[5.2, 3.8, 3.4]} />
+            <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+          </mesh>
+          <Html position={[0, 3.4, 2.0]} center distanceFactor={14} zIndexRange={[20, 0]}>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation()
+                if (onEnterSchool) onEnterSchool()
+              }}
+              style={{
+                background: 'linear-gradient(135deg, #10B981, #059669)',
+                color: '#FFFFFF',
+                border: '2px solid #FFFFFF',
+                borderRadius: '999px',
+                padding: '8px 18px',
+                fontWeight: 900,
+                fontSize: '13px',
+                cursor: 'pointer',
+                boxShadow: '0 8px 24px rgba(16,185,129,0.75)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              <span>🚪</span>
+              <span>Click to Enter School (Level 1) →</span>
+            </button>
+          </Html>
+        </group>
         <group ref={leftDoorRef} position={[-1.88, 0.28, 0.2]}>
           <RoundedBox args={[1.86, 3.56, 0.1]} position={[0.93, 1.78, 0]} radius={0.02}>
             <meshStandardMaterial
@@ -4813,7 +4867,26 @@ export default function Level1SchoolWorld({
   const [isNightMode, setIsNightMode] = useState(false) // Daylight default, Night Mode toggle in top bar
   const [authMode, setAuthMode] = useState('signin') // 'signin' | 'login' on Login Card
   const [activeGardenStall, setActiveGardenStall] = useState(null) // 1 | 2 | 3 | null
-  const [customStallOutfit, setCustomStallOutfit] = useState(null)
+  const [customStallOutfit, setCustomStallOutfit] = useState(() => {
+    try {
+      const saved = localStorage.getItem('l2i_custom_stall_outfit')
+      return saved ? JSON.parse(saved) : null
+    } catch {
+      return null
+    }
+  })
+  const [activeIceCream, setActiveIceCream] = useState(null)
+  const iceCreamTimerRef = useRef(null)
+  const [atmTab, setAtmTab] = useState('withdraw') // 'withdraw' | 'deposit'
+
+  const handleHoldIceCream = (ice) => {
+    if (iceCreamTimerRef.current) clearTimeout(iceCreamTimerRef.current)
+    setActiveIceCream(ice)
+    soundEngine.playSuccessTone()
+    iceCreamTimerRef.current = setTimeout(() => {
+      setActiveIceCream(null)
+    }, 30000)
+  }
   const [showXpDepositModal, setShowXpDepositModal] = useState(false)
   const [showAtmModal, setShowAtmModal] = useState(false)
   const [bankedXp, setBankedXp] = useState(() => {
@@ -4839,8 +4912,10 @@ export default function Level1SchoolWorld({
     if (customStallOutfit) {
       return {
         ...base,
-        top: customStallOutfit.shirtColor || base.top,
-        ring: customStallOutfit.hatColor || base.ring,
+        top: customStallOutfit.shirtColor || customStallOutfit.top || customStallOutfit.color || base.top,
+        pants: customStallOutfit.pantsColor || customStallOutfit.pants || base.pants,
+        bag: customStallOutfit.bag || base.bag,
+        ring: customStallOutfit.ring || customStallOutfit.color || base.ring,
       }
     }
     return base
@@ -7099,6 +7174,57 @@ export default function Level1SchoolWorld({
   // walks into the queue at Spot #3 -> advances to Spot #2 -> steps up to Spot #1
   // as the people ahead finish taking their ₹500 cash notes!
   // ───────────────────────────────────────────────────────────────────────────
+  const handleWalkToAtmFromAnywhere = () => {
+    soundEngine.playClick()
+    if (timelineRef.current) timelineRef.current.kill()
+    if (atmQueueTimerRef.current) clearInterval(atmQueueTimerRef.current)
+
+    setShowCampusMapModal(false)
+    setShowRankModal(false)
+    setActiveGardenStall(null)
+    setIsComputerFullscreen(false)
+    setIsVideoFullscreen(false)
+    setShowLessonCompletedBanner(false)
+    setShowLevel2ArrivalBanner(false)
+    setShowLevel3ArrivalBanner(false)
+    setComputerFeedbackBanner(null)
+    setBankSectionFeedbackBanner(null)
+
+    const cs = charStateRef.current
+    const cam = camStateRef.current
+
+    // Character stands up immediately and walks!
+    cs.visible = true
+    cs.pose = 'walking'
+
+    gsap.to(cs, {
+      x: -23.4,
+      y: 0,
+      z: 7.15,
+      rotY: Math.PI,
+      duration: 1.35,
+      ease: 'power2.inOut',
+      onComplete: () => {
+        cs.pose = 'idle'
+        cs.rotY = Math.PI
+        setShowAtmModal(true)
+        setShowXpDepositModal(false)
+        soundEngine.playSuccessTone()
+      },
+    })
+
+    gsap.to(cam, {
+      x: -23.4,
+      y: 2.3,
+      z: 11.2,
+      lookX: -23.4,
+      lookY: 1.8,
+      lookZ: 4.5,
+      duration: 1.35,
+      ease: 'power2.inOut',
+    })
+  }
+
   const startAtmQueueExperience = () => {
     soundEngine.playClick()
     if (timelineRef.current) timelineRef.current.kill()
@@ -8399,13 +8525,6 @@ export default function Level1SchoolWorld({
         dpr={1}
         shadows={journeyStage !== 'classroom_projector'}
         camera={{ position: [0, 3.3, 27.2], fov: 46, near: 0.1, far: 290 }}
-        onPointerDown={(e) => {
-          // When user clicks the mouse anywhere on the 3D scene while in school yard:
-          if (hasLoggedIn && journeyStage === 'school_yard') {
-            soundEngine.playClick()
-            beginSchoolEntrySequence()
-          }
-        }}
         gl={{
           antialias: true,
           powerPreference: 'high-performance',
@@ -8549,11 +8668,12 @@ export default function Level1SchoolWorld({
             />
           </group>
 
-          {/* 9. Consistent 3D Player Character with Customized Outfit */}
+          {/* 9. Consistent 3D Player Character with Customized Outfit & Ice Cream */}
           <PlayerCharacter3D
             characterId={characterChoice}
             outfitTheme={selectedOutfitTheme}
             charStateRef={charStateRef}
+            activeIceCream={activeIceCream}
           />
 
           {journeyStage !== 'classroom_projector' && (
