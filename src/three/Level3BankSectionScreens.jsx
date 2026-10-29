@@ -75,39 +75,39 @@ export default function Level3BankSectionScreen({
       }
     >
       {/* Top 3D Bank Cabin Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-4 px-6 py-4 bg-amber-500/10 border-b-2 border-amber-500/40 shrink-0">
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-600 to-amber-500 flex items-center justify-center text-3xl shadow-md text-white">
+      <div className="flex flex-wrap items-center justify-between gap-5 px-8 py-6 bg-amber-500/10 border-b-4 border-amber-500/40 shrink-0">
+        <div className="flex items-center gap-5">
+          <div className="w-18 h-18 sm:w-20 sm:h-20 rounded-3xl bg-gradient-to-br from-orange-600 via-amber-500 to-yellow-400 flex items-center justify-center text-4xl sm:text-5xl shadow-xl text-white border-2 border-amber-300 shrink-0">
             {secMeta.icon}
           </div>
           <div>
-            <div className="text-base sm:text-lg font-black uppercase tracking-widest text-amber-700">
+            <div className="text-base sm:text-xl font-black uppercase tracking-widest text-amber-800">
               Learn2Invest Bank • {secMeta.badge}
             </div>
-            <div className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 leading-tight">
+            <div className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-950 leading-tight">
               {secMeta.cabinLabel}: {secMeta.title}
             </div>
           </div>
         </div>
 
-        {/* Active Cabin Status Badge (Cabin 1 only shows Bank Slip Writing; Digital Banking is exclusively in Cabin 2) */}
-        <div className="flex items-center gap-3 bg-slate-100 px-5 py-2.5 rounded-2xl border-2 border-slate-300 shadow-sm">
-          <span className="text-2xl">{secMeta.icon}</span>
-          <span className="font-black text-lg sm:text-xl text-amber-900">
+        {/* Active Cabin Status Badge */}
+        <div className="flex items-center gap-3.5 bg-slate-100 px-6 py-3 rounded-2xl border-3 border-slate-300 shadow-sm">
+          <span className="text-3xl">{secMeta.icon}</span>
+          <span className="font-black text-lg sm:text-2xl text-amber-900 tracking-wide">
             {currentSec === 1
               ? 'CABIN 1 • BANK SLIP WRITING ONLY'
               : 'CABIN 2 • DIGITAL BANKING & SAFETY ONLY'}
           </span>
         </div>
 
-        <div className="flex items-center gap-3 flex-wrap">
+        <div className="flex items-center gap-4 flex-wrap">
           {handleBack && (
             <button
               onClick={() => {
                 soundEngine.playClick()
                 handleBack()
               }}
-              className="px-6 py-3.5 rounded-full bg-slate-100 hover:bg-slate-200 border-2 border-slate-300 text-amber-900 font-black text-lg transition-all cursor-pointer shadow-sm hover:scale-105 active:scale-95"
+              className="px-7 py-4 rounded-full bg-slate-100 hover:bg-slate-200 border-3 border-slate-300 text-amber-950 font-black text-lg sm:text-xl transition-all cursor-pointer shadow-sm hover:scale-105 active:scale-95"
             >
               ⬅ Back to Bank Lobby
             </button>
@@ -119,7 +119,7 @@ export default function Level3BankSectionScreen({
               soundEngine.playClick()
               setIsFullscreen(!isFullscreen)
             }}
-            className="px-6 py-3.5 rounded-full bg-amber-100 hover:bg-amber-200 border-2 border-amber-400 text-amber-950 font-black text-lg transition-all cursor-pointer flex items-center gap-2 shadow-sm hover:scale-105 active:scale-95"
+            className="px-7 py-4 rounded-full bg-amber-100 hover:bg-amber-200 border-3 border-amber-400 text-amber-950 font-black text-lg sm:text-xl transition-all cursor-pointer flex items-center gap-2.5 shadow-sm hover:scale-105 active:scale-95"
             title={isFullscreen ? 'Exit Full Screen' : 'Full Screen Expanded View'}
           >
             <span>{isFullscreen ? '🗗 Normal View' : '⛶ Fullscreen'}</span>
@@ -132,7 +132,7 @@ export default function Level3BankSectionScreen({
                 onCompleteSection(currentSec, secMeta.xpReward)
               }
             }}
-            className="px-8 py-3.5 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-black text-lg sm:text-xl shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer"
+            className="px-9 py-4 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-black text-lg sm:text-2xl shadow-xl hover:scale-105 active:scale-95 transition-all cursor-pointer"
           >
             {currentSec < 2
               ? `✓ Complete Cabin 1 & Walk to Cabin 2 (+${secMeta.xpReward} XP) →`
@@ -145,7 +145,7 @@ export default function Level3BankSectionScreen({
                 soundEngine.playClick()
                 onFinishAllLevel3()
               }}
-              className="px-5 py-3 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-white font-black text-base shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer"
+              className="px-6 py-4 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-white font-black text-lg shadow-xl hover:scale-105 active:scale-95 transition-all cursor-pointer"
               title="Complete all 3 levels and view the School-to-Bank Map"
             >
               🗺️ Complete & View Map

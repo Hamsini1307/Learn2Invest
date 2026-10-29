@@ -1264,582 +1264,581 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
       )}
 
       {activeTab === 'paper_slip' && (
-        <div className="anim-fade" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+        <div className="anim-fade" style={{ display: 'flex', flexDirection: 'column', gap: 26, width: '100%' }}>
           {/* Title Banner */}
           <div className="glass-card-deep anim-scale" style={{
-            padding: '24px',
-            borderRadius: 24,
-            marginBottom: 20,
+            padding: '32px 36px',
+            borderRadius: 28,
+            marginBottom: 24,
             background: isLight ? '#ffffff' : 'var(--bg-card-deep, #12100c)',
-            border: '2px solid #ea580c',
-            boxShadow: isLight ? '0 10px 30px rgba(234, 88, 12, 0.12)' : '0 0 40px rgba(245, 158, 11, 0.25)'
+            border: '3px solid #ea580c',
+            boxShadow: isLight ? '0 12px 36px rgba(234, 88, 12, 0.16)' : '0 0 50px rgba(245, 158, 11, 0.3)'
           }}>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
-          <div style={{
-            width: 68, height: 68, borderRadius: 20,
-            background: 'linear-gradient(135deg, #ea580c, #f59e0b)',
-            color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 36, fontWeight: 900
-          }}>
-            🏛️
-          </div>
-          <div>
-            <div className="sticker-badge sticker-yellow" style={{ marginBottom: 4 }}>
-              LEVEL 3
-            </div>
-            <h1 className="font-display" style={{ fontSize: 32, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff', margin: 0 }}>
-              REAL INDIAN BANK PAPER SLIP WRITER
-            </h1>
-          </div>
-        </div>
-      </div>
-
-      {/* ─── SECTION 1: BANK SELECTION TABS ─── */}
-      <div className="glass-card-deep" style={{ padding: 20, borderRadius: 20, marginBottom: 20, background: isLight ? '#ffffff' : '#12100c', border: '1.5px solid #ea580c' }}>
-        <div style={{ fontSize: 24, fontWeight: 900, color: '#ea580c', textTransform: 'uppercase', marginBottom: 18, letterSpacing: '0.01em' }}>
-          🏛️ SELECT FINANCIAL INSTITUTION (5 BANKS)
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
-          {INSTITUTIONS.map(inst => (
-            <div
-              key={inst.id}
-              onClick={() => {
-                setSelectedBankId(inst.id)
-                setUserData(prev => ({ ...prev, ifsc: inst.code }))
-              }}
-              style={{
-                background: selectedBankId === inst.id ? (isLight ? '#fff7ed' : 'rgba(245, 158, 11, 0.2)') : (isLight ? '#f8fafc' : 'rgba(255,255,255,0.04)'),
-                border: `2.5px solid ${selectedBankId === inst.id ? '#ea580c' : (isLight ? '#cbd5e1' : 'rgba(255,255,255,0.1)')}`,
-                borderRadius: 18, padding: '18px 16px', cursor: 'pointer',
-                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                gap: 10, transition: 'all 0.2s',
-                boxShadow: selectedBankId === inst.id ? '0 8px 24px rgba(234, 88, 12, 0.35)' : 'none'
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 80, width: '100%' }}>
-                <BankLogo id={inst.id} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 24, flexWrap: 'wrap' }}>
+              <div style={{
+                width: 90, height: 90, borderRadius: 26,
+                background: 'linear-gradient(135deg, #ea580c, #f59e0b)',
+                color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 48, fontWeight: 900, boxShadow: '0 8px 24px rgba(234, 88, 12, 0.4)'
+              }}>
+                🏛️
               </div>
-              <div style={{ fontSize: 26, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff', textAlign: 'center' }}>{inst.name}</div>
-              <div style={{ fontSize: 20, color: '#ea580c', fontWeight: 900, background: 'rgba(234, 88, 12, 0.15)', padding: '7px 18px', borderRadius: 10 }}>IFSC: {inst.code}</div>
+              <div>
+                <div className="sticker-badge sticker-yellow" style={{ marginBottom: 6, fontSize: 16, fontWeight: 900, padding: '5px 16px' }}>
+                  LEVEL 3
+                </div>
+                <h1 className="font-display" style={{ fontSize: 42, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff', margin: 0, letterSpacing: '-0.02em', lineHeight: 1.2 }}>
+                  REAL INDIAN BANK PAPER SLIP WRITER
+                </h1>
+              </div>
             </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ─── SECTION 2: LIVE BANK & POST OFFICE LOCATOR + DEPOSIT SLIP GENERATOR ─── */}
-      <div className="glass-card-deep" style={{ padding: 20, borderRadius: 20, marginBottom: 20, background: isLight ? '#ffffff' : '#12100c', border: '1.5px solid #ea580c' }}>
-        <div style={{ fontSize: 24, fontWeight: 900, color: '#ea580c', textTransform: 'uppercase', marginBottom: 18 }}>
-          🏦 LIVE BANK & POST OFFICE LOCATOR (SEARCH BY IFSC, PIN CODE OR BRANCH) 📮
-        </div>
-
-        <div style={{ display: 'flex', gap: 10, marginBottom: 14, flexWrap: 'wrap' }}>
-          <button
-            onClick={() => setSearchMode('ifsc')}
-            style={{
-              padding: '13px 24px', borderRadius: 999, fontSize: 16, fontWeight: 900, cursor: 'pointer',
-              background: searchMode === 'ifsc' ? '#ea580c' : (isLight ? '#ffedd5' : 'rgba(255,255,255,0.06)'),
-              color: searchMode === 'ifsc' ? '#ffffff' : (isLight ? '#7c2d12' : '#fbbf24'),
-              border: `1.5px solid ${searchMode === 'ifsc' ? '#c2410c' : 'rgba(234, 88, 12, 0.3)'}`
-            }}
-          >
-            ⚡ SEARCH BY IFSC CODE (e.g. SBIN0000840)
-          </button>
-
-          <button
-            onClick={() => setSearchMode('pincode')}
-            style={{
-              padding: '13px 24px', borderRadius: 999, fontSize: 16, fontWeight: 900, cursor: 'pointer',
-              background: searchMode === 'pincode' ? '#ea580c' : (isLight ? '#ffedd5' : 'rgba(255,255,255,0.06)'),
-              color: searchMode === 'pincode' ? '#ffffff' : (isLight ? '#7c2d12' : '#fbbf24'),
-              border: `1.5px solid ${searchMode === 'pincode' ? '#c2410c' : 'rgba(234, 88, 12, 0.3)'}`
-            }}
-          >
-            📍 SEARCH BY PIN CODE (e.g. 560001)
-          </button>
-
-          <button
-            onClick={() => setSearchMode('city_branch')}
-            style={{
-              padding: '13px 24px', borderRadius: 999, fontSize: 16, fontWeight: 900, cursor: 'pointer',
-              background: searchMode === 'city_branch' ? '#ea580c' : (isLight ? '#ffedd5' : 'rgba(255,255,255,0.06)'),
-              color: searchMode === 'city_branch' ? '#ffffff' : (isLight ? '#7c2d12' : '#fbbf24'),
-              border: `1.5px solid ${searchMode === 'city_branch' ? '#c2410c' : 'rgba(234, 88, 12, 0.3)'}`
-            }}
-          >
-            🔍 SEARCH BY CITY & BRANCH NAME
-          </button>
-        </div>
-
-        {searchMode === 'pincode' ? (
-          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
-            <input
-              type="text"
-              value={pincodeInput}
-              onChange={e => setPincodeInput(e.target.value)}
-              placeholder="Enter 6-Digit PIN Code (e.g. 560001 or 110001)"
-              className="input-light"
-              style={{ flex: 1, minWidth: 220, padding: '14px 18px', fontSize: 16, fontWeight: 700 }}
-            />
-            <button
-              onClick={handlePerformSearch}
-              disabled={searchLoading}
-              className="btn-primary"
-              style={{ padding: '14px 24px', fontSize: 16, fontWeight: 900 }}
-            >
-              {searchLoading ? 'FETCHING...' : 'FETCH POST OFFICE & BRANCH DETAILS'}
-            </button>
           </div>
-        ) : searchMode === 'ifsc' ? (
-          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
-            <input
-              type="text"
-              value={ifscInput}
-              onChange={e => setIfscInput(e.target.value)}
-              placeholder="Enter 11-Digit IFSC Code (e.g. CNRB0001001 or SBIN0000840)"
-              className="input-light"
-              style={{ flex: 1, minWidth: 220, padding: '14px 18px', fontSize: 16, fontWeight: 700, textTransform: 'uppercase' }}
-            />
-            <button
-              onClick={handlePerformSearch}
-              disabled={searchLoading}
-              className="btn-primary"
-              style={{ padding: '14px 24px', fontSize: 16, fontWeight: 900 }}
-            >
-              {searchLoading ? 'SEARCHING...' : 'FIND BANK BRANCH DETAILS'}
-            </button>
-          </div>
-        ) : (
-          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
-            <input
-              type="text"
-              value={cityInput}
-              onChange={e => setCityInput(e.target.value)}
-              placeholder="Enter City Name (e.g. Mangaluru)"
-              className="input-light"
-              style={{ flex: 1, minWidth: 160, padding: '14px 18px', fontSize: 16, fontWeight: 700 }}
-            />
-            <input
-              type="text"
-              value={branchInput}
-              onChange={e => setBranchInput(e.target.value)}
-              placeholder="Enter Branch Name (e.g. Pandeshwar)"
-              className="input-light"
-              style={{ flex: 1, minWidth: 160, padding: '14px 18px', fontSize: 16, fontWeight: 700 }}
-            />
-            <button
-              onClick={handlePerformSearch}
-              disabled={searchLoading}
-              className="btn-primary"
-              style={{ padding: '14px 24px', fontSize: 16, fontWeight: 900 }}
-            >
-              {searchLoading ? 'SEARCHING...' : 'FIND IFSC CODE'}
-            </button>
-          </div>
-        )}
 
-        {searchResultsList.length > 1 && (
-          <div className="anim-fade" style={{
-            marginTop: 16,
-            padding: 12,
-            borderRadius: 14,
-            background: isLight ? '#f1f5f9' : 'rgba(0,0,0,0.4)',
-            border: '1.5px solid #ea580c'
-          }}>
-            <div style={{ fontSize: 11, fontWeight: 900, color: isLight ? '#c2410c' : '#fbbf24', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span>🔍</span>
-              <span>FOUND {searchResultsList.length} VERIFIED BRANCHES IN LIVE RBI DATABASE:</span>
+          {/* ─── SECTION 1: BANK SELECTION TABS ─── */}
+          <div className="glass-card-deep" style={{ padding: '30px 32px', borderRadius: 28, marginBottom: 24, background: isLight ? '#ffffff' : '#12100c', border: '3px solid #ea580c' }}>
+            <div style={{ fontSize: 28, fontWeight: 900, color: '#ea580c', textTransform: 'uppercase', marginBottom: 22, letterSpacing: '0.01em' }}>
+              🏛️ SELECT FINANCIAL INSTITUTION (5 BANKS)
             </div>
-            <select
-              value={searchResult?.ifsc}
-              onChange={(e) => {
-                const selected = searchResultsList.find(m => m.ifsc === e.target.value)
-                if (selected) setSearchResult(selected)
-              }}
-              style={{
-                width: '100%',
-                padding: '8px 12px',
-                borderRadius: 8,
-                fontSize: 12,
-                fontWeight: 800,
-                background: isLight ? '#ffffff' : '#12100c',
-                color: isLight ? '#0f172a' : '#ffffff',
-                border: '1.5px solid #ea580c',
-                cursor: 'pointer'
-              }}
-            >
-              {searchResultsList.map(m => (
-                <option key={m.ifsc} value={m.ifsc}>
-                  {m.branchName} — IFSC: {m.ifsc} | {m.address}
-                </option>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 22 }}>
+              {INSTITUTIONS.map(inst => (
+                <div
+                  key={inst.id}
+                  onClick={() => {
+                    setSelectedBankId(inst.id)
+                    setUserData(prev => ({ ...prev, ifsc: inst.code }))
+                  }}
+                  style={{
+                    background: selectedBankId === inst.id ? (isLight ? '#fff7ed' : 'rgba(245, 158, 11, 0.25)') : (isLight ? '#f8fafc' : 'rgba(255,255,255,0.04)'),
+                    border: `3.5px solid ${selectedBankId === inst.id ? '#ea580c' : (isLight ? '#cbd5e1' : 'rgba(255,255,255,0.12)')}`,
+                    borderRadius: 24, padding: '26px 20px', cursor: 'pointer',
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                    gap: 14, transition: 'all 0.2s', minHeight: 220,
+                    boxShadow: selectedBankId === inst.id ? '0 12px 32px rgba(234, 88, 12, 0.4)' : 'none'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 95, width: '100%' }}>
+                    <BankLogo id={inst.id} />
+                  </div>
+                  <div style={{ fontSize: 28, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff', textAlign: 'center', lineHeight: 1.25 }}>{inst.name}</div>
+                  <div style={{ fontSize: 20, color: '#ea580c', fontWeight: 900, background: 'rgba(234, 88, 12, 0.16)', padding: '8px 22px', borderRadius: 12 }}>IFSC: {inst.code}</div>
+                </div>
               ))}
-            </select>
+            </div>
           </div>
-        )}
 
-        {searchResult && (
-          <div className="anim-fade" style={{
-            marginTop: 16,
-            background: isLight ? 'linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)' : 'rgba(234, 88, 12, 0.18)',
-            padding: 18, borderRadius: 16,
-            border: '2px solid #ea580c',
-            boxShadow: isLight ? '0 8px 24px rgba(234, 88, 12, 0.15)' : '0 4px 20px rgba(0,0,0,0.4)',
-            display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 14
-          }}>
-            <div style={{ flex: 1, minWidth: 260 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, flexWrap: 'wrap' }}>
-                <span style={{
-                  fontSize: 10, fontWeight: 900,
-                  background: searchResult.isLiveVerified ? '#10b981' : '#0284c7', color: '#ffffff',
-                  padding: '3px 10px', borderRadius: 999,
-                  letterSpacing: '0.5px'
-                }}>
-                  {searchResult.isLiveVerified ? 'LIVE RBI API VERIFIED ✅' : 'OFFICIAL BANK CODE 🏛️'}
-                </span>
-                {searchResult.micr && searchResult.micr !== 'N/A' && (
-                  <span style={{ fontSize: 10, fontWeight: 800, color: '#ea580c', background: isLight ? '#ffffff' : 'rgba(0,0,0,0.3)', padding: '3px 8px', borderRadius: 6, border: '1px solid #ea580c' }}>
-                    MICR: {searchResult.micr}
-                  </span>
-                )}
-              </div>
-
-              <div style={{ fontSize: 15, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff' }}>
-                🏛️ {searchResult.bankName} — {searchResult.branchName} ({searchResult.city})
-              </div>
-
-              <div style={{ fontSize: 13, fontWeight: 900, color: '#ea580c', marginTop: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span>IFSC CODE:</span>
-                <span style={{ fontFamily: 'monospace', fontSize: 15, fontWeight: 900, background: isLight ? '#ffffff' : '#000000', padding: '2px 8px', borderRadius: 6, border: '1px solid #ea580c', color: isLight ? '#9a3412' : '#fbbf24' }}>
-                  {searchResult.ifsc}
-                </span>
-              </div>
-
-              <div style={{ fontSize: 12, color: isLight ? '#334155' : '#cbd5e1', marginTop: 6, fontWeight: 700 }}>
-                📍 {searchResult.address}
-              </div>
+          {/* ─── SECTION 2: LIVE BANK & POST OFFICE LOCATOR + DEPOSIT SLIP GENERATOR ─── */}
+          <div className="glass-card-deep" style={{ padding: '30px 32px', borderRadius: 28, marginBottom: 24, background: isLight ? '#ffffff' : '#12100c', border: '3px solid #ea580c' }}>
+            <div style={{ fontSize: 28, fontWeight: 900, color: '#ea580c', textTransform: 'uppercase', marginBottom: 20 }}>
+              🏦 LIVE BANK & POST OFFICE LOCATOR (SEARCH BY IFSC, PIN CODE OR BRANCH) 📮
             </div>
 
-            <button
-              onClick={applySearchResultToForm}
-              style={{
-                padding: '12px 22px', borderRadius: 12, background: 'linear-gradient(135deg, #059669, #10b981)', color: '#ffffff',
-                border: '1.5px solid #34d399', fontWeight: 900, fontSize: 13, cursor: 'pointer', boxShadow: '0 6px 20px rgba(16, 185, 129, 0.4)',
-                transition: 'all 0.2s ease', whiteSpace: 'nowrap'
-              }}
-            >
-              ✓ APPLY IFSC & BRANCH TO FORM
-            </button>
-          </div>
-        )}
+            <div style={{ display: 'flex', gap: 14, marginBottom: 20, flexWrap: 'wrap' }}>
+              <button
+                onClick={() => setSearchMode('ifsc')}
+                style={{
+                  padding: '18px 36px', borderRadius: 999, fontSize: 20, fontWeight: 900, cursor: 'pointer',
+                  background: searchMode === 'ifsc' ? '#ea580c' : (isLight ? '#ffedd5' : 'rgba(255,255,255,0.06)'),
+                  color: searchMode === 'ifsc' ? '#ffffff' : (isLight ? '#7c2d12' : '#fbbf24'),
+                  border: `2.5px solid ${searchMode === 'ifsc' ? '#c2410c' : 'rgba(234, 88, 12, 0.3)'}`,
+                  boxShadow: searchMode === 'ifsc' ? '0 6px 18px rgba(234, 88, 12, 0.35)' : 'none'
+                }}
+              >
+                ⚡ SEARCH BY IFSC CODE (e.g. SBIN0000840)
+              </button>
 
-        {toastMsg && (
-          <div className="anim-scale" style={{
-            marginTop: 12, padding: '12px 18px', borderRadius: 12,
-            background: '#10b981', color: '#ffffff', fontWeight: 900, fontSize: 12,
-            display: 'flex', alignItems: 'center', gap: 8, boxShadow: '0 6px 20px rgba(16, 185, 129, 0.4)'
-          }}>
-            <span>✅</span>
-            <span>{toastMsg}</span>
-          </div>
-        )}
-      </div>
+              <button
+                onClick={() => setSearchMode('pincode')}
+                style={{
+                  padding: '18px 36px', borderRadius: 999, fontSize: 20, fontWeight: 900, cursor: 'pointer',
+                  background: searchMode === 'pincode' ? '#ea580c' : (isLight ? '#ffedd5' : 'rgba(255,255,255,0.06)'),
+                  color: searchMode === 'pincode' ? '#ffffff' : (isLight ? '#7c2d12' : '#fbbf24'),
+                  border: `2.5px solid ${searchMode === 'pincode' ? '#c2410c' : 'rgba(234, 88, 12, 0.3)'}`,
+                  boxShadow: searchMode === 'pincode' ? '0 6px 18px rgba(234, 88, 12, 0.35)' : 'none'
+                }}
+              >
+                📍 SEARCH BY PIN CODE (e.g. 560001)
+              </button>
 
-      {/* ─── SECTION 3: SELECT FORM CATEGORY TABS ─── */}
-      <div className="glass-card-deep" style={{ padding: 20, borderRadius: 20, marginBottom: 20, background: isLight ? '#ffffff' : '#12100c', border: '1.5px solid #ea580c' }}>
-        <div style={{ fontSize: 24, fontWeight: 900, color: '#ea580c', textTransform: 'uppercase', marginBottom: 18 }}>
-          📜 SELECT FORM CATEGORY
-        </div>
-
-        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-          {FORM_CATEGORIES.map(cat => (
-            <button
-              key={cat.id}
-              onClick={() => setDocType(cat.id)}
-              style={{
-                padding: '20px 44px', borderRadius: 999, fontSize: 24, fontWeight: 900, cursor: 'pointer',
-                background: docType === cat.id ? '#ea580c' : (isLight ? '#ffedd5' : 'rgba(255,255,255,0.06)'),
-                color: docType === cat.id ? '#ffffff' : (isLight ? '#7c2d12' : '#fbbf24'),
-                border: `2px solid ${docType === cat.id ? '#c2410c' : 'rgba(234, 88, 12, 0.3)'}`,
-                boxShadow: docType === cat.id ? '0 4px 14px rgba(234, 88, 12, 0.3)' : 'none'
-              }}
-            >
-              {cat.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* ─── SECTION 4: SINGLE MASTER USER INPUT FORM ─── */}
-      <div id="user-info-form-section" className="glass-card-deep" style={{
-        padding: 24, borderRadius: 20, marginBottom: 20,
-        background: isLight ? '#ffffff' : '#12100c',
-        border: highlightForm ? '3px solid #10b981' : '1.5px solid #ea580c',
-        boxShadow: highlightForm ? '0 0 30px rgba(16, 185, 129, 0.4)' : 'none',
-        transition: 'all 0.4s'
-      }}>
-        <div style={{ fontSize: 24, fontWeight: 900, color: highlightForm ? '#10b981' : '#ea580c', textTransform: 'uppercase', marginBottom: 20 }}>
-          ✍️ ENTER YOUR INFORMATION ONCE ({docType === 'deposit' ? 'SYSTEM RENDERS IT ON CASH DEPOSIT SLIP' : docType === 'withdrawal' ? 'SYSTEM RENDERS IT ON WITHDRAWAL SLIP' : 'SYSTEM RENDERS IT ON CHEQUE LEAF'})
-        </div>
-
-
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 18 }}>
-          <div>
-            <label style={{ fontSize: 20, fontWeight: 900, color: isLight ? '#0f172a' : '#f8fafc', display: 'block', marginBottom: 10, letterSpacing: '0.02em' }}>
-              {docType === 'cheque' ? 'PAY TO (PAYEE NAME / SELF)' : 'ACCOUNT HOLDER / PAYEE NAME'}
-            </label>
-            <input
-              type="text"
-              value={userData.name}
-              onChange={e => setUserData({ ...userData, name: e.target.value })}
-              placeholder={docType === 'cheque' ? "e.g. Self or Hamsini" : "e.g. Hamsini"}
-              className="input-light"
-              style={{ padding: '18px 24px', fontSize: 22, fontWeight: 800, borderRadius: 16 }}
-            />
-          </div>
-
-          <div>
-            <label style={{ fontSize: 20, fontWeight: 900, color: isLight ? '#0f172a' : '#f8fafc', display: 'block', marginBottom: 10, letterSpacing: '0.02em' }}>ACCOUNT NUMBER</label>
-            <input
-              type="text"
-              value={userData.accountNumber}
-              onChange={e => setUserData({ ...userData, accountNumber: e.target.value })}
-              placeholder="e.g. 10984523910"
-              className="input-light"
-              style={{ padding: '18px 24px', fontSize: 22, fontWeight: 800, borderRadius: 16 }}
-            />
-          </div>
-
-          <div>
-            <label style={{ fontSize: 20, fontWeight: 900, color: isLight ? '#0f172a' : '#f8fafc', display: 'block', marginBottom: 10, letterSpacing: '0.02em' }}>IFSC CODE</label>
-            <input
-              type="text"
-              value={userData.ifsc}
-              onChange={e => setUserData({ ...userData, ifsc: e.target.value })}
-              placeholder="e.g. CNRB0001001"
-              className="input-light"
-              style={{
-                padding: '18px 24px', fontSize: 22, fontWeight: 800, borderRadius: 16, textTransform: 'uppercase',
-                border: highlightForm ? '2.5px solid #10b981' : undefined,
-                background: highlightForm ? (isLight ? '#ecfdf5' : 'rgba(16, 185, 129, 0.2)') : undefined,
-                transition: 'all 0.3s'
-              }}
-            />
-          </div>
-
-          <div>
-            <label style={{ fontSize: 20, fontWeight: 900, color: isLight ? '#0f172a' : '#f8fafc', display: 'block', marginBottom: 10, letterSpacing: '0.02em' }}>BRANCH NAME (EXACT BRANCH)</label>
-            <input
-              type="text"
-              value={userData.branch}
-              onChange={e => {
-                const nextBranch = e.target.value
-                const parts = nextBranch.split(',').map(s => s.trim()).filter(Boolean)
-                const bPart = parts[0] || nextBranch
-                const cPart = parts[1] || ''
-                const { code: autoIfsc } = getAuthenticIfscCode(selectedBankId, bPart, cPart)
-                setUserData(prev => ({
-                  ...prev,
-                  branch: nextBranch,
-                  ...(nextBranch.trim() ? { ifsc: autoIfsc } : {})
-                }))
-              }}
-              placeholder="e.g. Pandeshwar, Mangaluru"
-              className="input-light"
-              style={{
-                padding: '18px 24px', fontSize: 22, fontWeight: 800, borderRadius: 16,
-                border: highlightForm ? '2.5px solid #10b981' : undefined,
-                background: highlightForm ? (isLight ? '#ecfdf5' : 'rgba(16, 185, 129, 0.2)') : undefined,
-                transition: 'all 0.3s'
-              }}
-            />
-          </div>
-
-          {docType === 'cheque' ? (
-            <div>
-              <label style={{ fontSize: 20, fontWeight: 900, color: isLight ? '#0f172a' : '#f8fafc', display: 'block', marginBottom: 10, letterSpacing: '0.02em' }}>CHEQUE NUMBER (6 DIGITS)</label>
-              <input
-                type="text"
-                value={userData.chequeNumber}
-                onChange={e => setUserData({ ...userData, chequeNumber: e.target.value })}
-                placeholder="e.g. 104502"
-                className="input-light"
-                style={{ padding: '18px 24px', fontSize: 22, fontWeight: 800, borderRadius: 16 }}
-              />
+              <button
+                onClick={() => setSearchMode('city_branch')}
+                style={{
+                  padding: '18px 36px', borderRadius: 999, fontSize: 20, fontWeight: 900, cursor: 'pointer',
+                  background: searchMode === 'city_branch' ? '#ea580c' : (isLight ? '#ffedd5' : 'rgba(255,255,255,0.06)'),
+                  color: searchMode === 'city_branch' ? '#ffffff' : (isLight ? '#7c2d12' : '#fbbf24'),
+                  border: `2.5px solid ${searchMode === 'city_branch' ? '#c2410c' : 'rgba(234, 88, 12, 0.3)'}`,
+                  boxShadow: searchMode === 'city_branch' ? '0 6px 18px rgba(234, 88, 12, 0.35)' : 'none'
+                }}
+              >
+                🔍 SEARCH BY CITY & BRANCH NAME
+              </button>
             </div>
-          ) : (
-            <div>
-              <label style={{ fontSize: 20, fontWeight: 900, color: isLight ? '#0f172a' : '#f8fafc', display: 'block', marginBottom: 10, letterSpacing: '0.02em' }}>MOBILE / PHONE NO.</label>
-              <input
-                type="text"
-                value={userData.mobileNumber}
-                onChange={e => setUserData({ ...userData, mobileNumber: e.target.value })}
-                placeholder="e.g. 9876543210"
-                className="input-light"
-                style={{ padding: '18px 24px', fontSize: 22, fontWeight: 800, borderRadius: 16 }}
-              />
+
+            {searchMode === 'pincode' ? (
+              <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'center' }}>
+                <input
+                  type="text"
+                  value={pincodeInput}
+                  onChange={e => setPincodeInput(e.target.value)}
+                  placeholder="Enter 6-Digit PIN Code (e.g. 560001 or 110001)"
+                  className="input-light"
+                  style={{ flex: 1, minWidth: 260, padding: '20px 26px', fontSize: 22, fontWeight: 700, borderRadius: 18 }}
+                />
+                <button
+                  onClick={handlePerformSearch}
+                  disabled={searchLoading}
+                  className="btn-primary"
+                  style={{ padding: '20px 36px', fontSize: 22, fontWeight: 900, borderRadius: 18 }}
+                >
+                  {searchLoading ? 'FETCHING...' : 'FETCH POST OFFICE & BRANCH DETAILS'}
+                </button>
+              </div>
+            ) : searchMode === 'ifsc' ? (
+              <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'center' }}>
+                <input
+                  type="text"
+                  value={ifscInput}
+                  onChange={e => setIfscInput(e.target.value)}
+                  placeholder="Enter 11-Digit IFSC Code (e.g. CNRB0001001 or SBIN0000840)"
+                  className="input-light"
+                  style={{ flex: 1, minWidth: 260, padding: '20px 26px', fontSize: 22, fontWeight: 700, textTransform: 'uppercase', borderRadius: 18 }}
+                />
+                <button
+                  onClick={handlePerformSearch}
+                  disabled={searchLoading}
+                  className="btn-primary"
+                  style={{ padding: '20px 36px', fontSize: 22, fontWeight: 900, borderRadius: 18 }}
+                >
+                  {searchLoading ? 'SEARCHING...' : 'FIND BANK BRANCH DETAILS'}
+                </button>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'center' }}>
+                <input
+                  type="text"
+                  value={cityInput}
+                  onChange={e => setCityInput(e.target.value)}
+                  placeholder="Enter City Name (e.g. Mangaluru)"
+                  className="input-light"
+                  style={{ flex: 1, minWidth: 200, padding: '20px 26px', fontSize: 22, fontWeight: 700, borderRadius: 18 }}
+                />
+                <input
+                  type="text"
+                  value={branchInput}
+                  onChange={e => setBranchInput(e.target.value)}
+                  placeholder="Enter Branch Name (e.g. Pandeshwar)"
+                  className="input-light"
+                  style={{ flex: 1, minWidth: 200, padding: '20px 26px', fontSize: 22, fontWeight: 700, borderRadius: 18 }}
+                />
+                <button
+                  onClick={handlePerformSearch}
+                  disabled={searchLoading}
+                  className="btn-primary"
+                  style={{ padding: '20px 36px', fontSize: 22, fontWeight: 900, borderRadius: 18 }}
+                >
+                  {searchLoading ? 'SEARCHING...' : 'FIND IFSC CODE'}
+                </button>
+              </div>
+            )}
+
+            {searchResultsList.length > 1 && (
+              <div className="anim-fade" style={{
+                marginTop: 20,
+                padding: 18,
+                borderRadius: 18,
+                background: isLight ? '#f1f5f9' : 'rgba(0,0,0,0.4)',
+                border: '2px solid #ea580c'
+              }}>
+                <div style={{ fontSize: 16, fontWeight: 900, color: isLight ? '#c2410c' : '#fbbf24', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span>🔍</span>
+                  <span>FOUND {searchResultsList.length} VERIFIED BRANCHES IN LIVE RBI DATABASE:</span>
+                </div>
+                <select
+                  value={searchResult?.ifsc}
+                  onChange={(e) => {
+                    const selected = searchResultsList.find(m => m.ifsc === e.target.value)
+                    if (selected) setSearchResult(selected)
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '14px 18px',
+                    borderRadius: 12,
+                    fontSize: 18,
+                    fontWeight: 800,
+                    background: isLight ? '#ffffff' : '#12100c',
+                    color: isLight ? '#0f172a' : '#ffffff',
+                    border: '2px solid #ea580c',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {searchResultsList.map(m => (
+                    <option key={m.ifsc} value={m.ifsc}>
+                      {m.branchName} — IFSC: {m.ifsc} | {m.address}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {searchResult && (
+              <div className="anim-fade" style={{
+                marginTop: 20,
+                background: isLight ? 'linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)' : 'rgba(234, 88, 12, 0.18)',
+                padding: '24px 28px', borderRadius: 20,
+                border: '2.5px solid #ea580c',
+                boxShadow: isLight ? '0 10px 28px rgba(234, 88, 12, 0.18)' : '0 4px 20px rgba(0,0,0,0.4)',
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 18
+              }}>
+                <div style={{ flex: 1, minWidth: 280 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8, flexWrap: 'wrap' }}>
+                    <span style={{
+                      fontSize: 14, fontWeight: 900,
+                      background: searchResult.isLiveVerified ? '#10b981' : '#0284c7', color: '#ffffff',
+                      padding: '5px 14px', borderRadius: 999,
+                      letterSpacing: '0.5px'
+                    }}>
+                      {searchResult.isLiveVerified ? 'LIVE RBI API VERIFIED ✅' : 'OFFICIAL BANK CODE 🏛️'}
+                    </span>
+                    {searchResult.micr && searchResult.micr !== 'N/A' && (
+                      <span style={{ fontSize: 14, fontWeight: 800, color: '#ea580c', background: isLight ? '#ffffff' : 'rgba(0,0,0,0.3)', padding: '5px 12px', borderRadius: 8, border: '1.5px solid #ea580c' }}>
+                        MICR: {searchResult.micr}
+                      </span>
+                    )}
+                  </div>
+
+                  <div style={{ fontSize: 24, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff', lineHeight: 1.3 }}>
+                    🏛️ {searchResult.bankName} — {searchResult.branchName} ({searchResult.city})
+                  </div>
+
+                  <div style={{ fontSize: 20, fontWeight: 900, color: '#ea580c', marginTop: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span>IFSC CODE:</span>
+                    <span style={{ fontFamily: 'monospace', fontSize: 22, fontWeight: 900, background: isLight ? '#ffffff' : '#000000', padding: '4px 12px', borderRadius: 8, border: '1.5px solid #ea580c', color: isLight ? '#9a3412' : '#fbbf24' }}>
+                      {searchResult.ifsc}
+                    </span>
+                  </div>
+
+                  <div style={{ fontSize: 18, color: isLight ? '#334155' : '#cbd5e1', marginTop: 8, fontWeight: 700 }}>
+                    📍 {searchResult.address}
+                  </div>
+                </div>
+
+                <button
+                  onClick={applySearchResultToForm}
+                  style={{
+                    padding: '18px 32px', borderRadius: 16, background: 'linear-gradient(135deg, #059669, #10b981)', color: '#ffffff',
+                    border: '2px solid #34d399', fontWeight: 900, fontSize: 18, cursor: 'pointer', boxShadow: '0 8px 24px rgba(16, 185, 129, 0.45)',
+                    transition: 'all 0.2s ease', whiteSpace: 'nowrap'
+                  }}
+                >
+                  ✓ APPLY IFSC & BRANCH TO FORM
+                </button>
+              </div>
+            )}
+
+            {toastMsg && (
+              <div className="anim-scale" style={{
+                marginTop: 16, padding: '16px 24px', borderRadius: 16,
+                background: '#10b981', color: '#ffffff', fontWeight: 900, fontSize: 18,
+                display: 'flex', alignItems: 'center', gap: 10, boxShadow: '0 8px 24px rgba(16, 185, 129, 0.45)'
+              }}>
+                <span style={{ fontSize: 24 }}>✅</span>
+                <span>{toastMsg}</span>
+              </div>
+            )}
+          </div>
+
+          {/* ─── SECTION 3: SELECT FORM CATEGORY TABS ─── */}
+          <div className="glass-card-deep" style={{ padding: '30px 32px', borderRadius: 28, marginBottom: 24, background: isLight ? '#ffffff' : '#12100c', border: '3px solid #ea580c' }}>
+            <div style={{ fontSize: 28, fontWeight: 900, color: '#ea580c', textTransform: 'uppercase', marginBottom: 20 }}>
+              📜 SELECT FORM CATEGORY
+            </div>
+
+            <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+              {FORM_CATEGORIES.map(cat => (
+                <button
+                  key={cat.id}
+                  onClick={() => setDocType(cat.id)}
+                  style={{
+                    padding: '22px 52px', borderRadius: 999, fontSize: 26, fontWeight: 900, cursor: 'pointer',
+                    background: docType === cat.id ? '#ea580c' : (isLight ? '#ffedd5' : 'rgba(255,255,255,0.06)'),
+                    color: docType === cat.id ? '#ffffff' : (isLight ? '#7c2d12' : '#fbbf24'),
+                    border: `3px solid ${docType === cat.id ? '#c2410c' : 'rgba(234, 88, 12, 0.3)'}`,
+                    boxShadow: docType === cat.id ? '0 8px 22px rgba(234, 88, 12, 0.4)' : 'none'
+                  }}
+                >
+                  {cat.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* ─── SECTION 4: SINGLE MASTER USER INPUT FORM ─── */}
+          <div id="user-info-form-section" className="glass-card-deep" style={{
+            padding: '34px 36px', borderRadius: 28, marginBottom: 24,
+            background: isLight ? '#ffffff' : '#12100c',
+            border: highlightForm ? '4px solid #10b981' : '3px solid #ea580c',
+            boxShadow: highlightForm ? '0 0 35px rgba(16, 185, 129, 0.45)' : 'none',
+            transition: 'all 0.4s'
+          }}>
+            <div style={{ fontSize: 28, fontWeight: 900, color: highlightForm ? '#10b981' : '#ea580c', textTransform: 'uppercase', marginBottom: 24, lineHeight: 1.3 }}>
+              ✍️ ENTER YOUR INFORMATION ONCE ({docType === 'deposit' ? 'SYSTEM RENDERS IT ON CASH DEPOSIT SLIP' : docType === 'withdrawal' ? 'SYSTEM RENDERS IT ON WITHDRAWAL SLIP' : 'SYSTEM RENDERS IT ON CHEQUE LEAF'})
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: 26 }}>
+              <div>
+                <label style={{ fontSize: 22, fontWeight: 900, color: isLight ? '#0f172a' : '#f8fafc', display: 'block', marginBottom: 12, letterSpacing: '0.02em' }}>
+                  {docType === 'cheque' ? 'PAY TO (PAYEE NAME / SELF)' : 'ACCOUNT HOLDER / PAYEE NAME'}
+                </label>
+                <input
+                  type="text"
+                  value={userData.name}
+                  onChange={e => setUserData({ ...userData, name: e.target.value })}
+                  placeholder={docType === 'cheque' ? "e.g. Self or Hamsini" : "e.g. Hamsini"}
+                  className="input-light"
+                  style={{ padding: '20px 26px', fontSize: 24, fontWeight: 800, borderRadius: 18 }}
+                />
+              </div>
+
+              <div>
+                <label style={{ fontSize: 22, fontWeight: 900, color: isLight ? '#0f172a' : '#f8fafc', display: 'block', marginBottom: 12, letterSpacing: '0.02em' }}>ACCOUNT NUMBER</label>
+                <input
+                  type="text"
+                  value={userData.accountNumber}
+                  onChange={e => setUserData({ ...userData, accountNumber: e.target.value })}
+                  placeholder="e.g. 10984523910"
+                  className="input-light"
+                  style={{ padding: '20px 26px', fontSize: 24, fontWeight: 800, borderRadius: 18 }}
+                />
+              </div>
+
+              <div>
+                <label style={{ fontSize: 22, fontWeight: 900, color: isLight ? '#0f172a' : '#f8fafc', display: 'block', marginBottom: 12, letterSpacing: '0.02em' }}>IFSC CODE</label>
+                <input
+                  type="text"
+                  value={userData.ifsc}
+                  onChange={e => setUserData({ ...userData, ifsc: e.target.value })}
+                  placeholder="e.g. CNRB0001001"
+                  className="input-light"
+                  style={{
+                    padding: '20px 26px', fontSize: 24, fontWeight: 800, borderRadius: 18, textTransform: 'uppercase',
+                    border: highlightForm ? '3.5px solid #10b981' : undefined,
+                    background: highlightForm ? (isLight ? '#ecfdf5' : 'rgba(16, 185, 129, 0.2)') : undefined,
+                    transition: 'all 0.3s'
+                  }}
+                />
+              </div>
+
+              <div>
+                <label style={{ fontSize: 22, fontWeight: 900, color: isLight ? '#0f172a' : '#f8fafc', display: 'block', marginBottom: 12, letterSpacing: '0.02em' }}>BRANCH NAME (EXACT BRANCH)</label>
+                <input
+                  type="text"
+                  value={userData.branch}
+                  onChange={e => {
+                    const nextBranch = e.target.value
+                    const parts = nextBranch.split(',').map(s => s.trim()).filter(Boolean)
+                    const bPart = parts[0] || nextBranch
+                    const cPart = parts[1] || ''
+                    const { code: autoIfsc } = getAuthenticIfscCode(selectedBankId, bPart, cPart)
+                    setUserData(prev => ({
+                      ...prev,
+                      branch: nextBranch,
+                      ...(nextBranch.trim() ? { ifsc: autoIfsc } : {})
+                    }))
+                  }}
+                  placeholder="e.g. Pandeshwar, Mangaluru"
+                  className="input-light"
+                  style={{
+                    padding: '20px 26px', fontSize: 24, fontWeight: 800, borderRadius: 18,
+                    border: highlightForm ? '3.5px solid #10b981' : undefined,
+                    background: highlightForm ? (isLight ? '#ecfdf5' : 'rgba(16, 185, 129, 0.2)') : undefined,
+                    transition: 'all 0.3s'
+                  }}
+                />
+              </div>
+
+              {docType === 'cheque' ? (
+                <div>
+                  <label style={{ fontSize: 22, fontWeight: 900, color: isLight ? '#0f172a' : '#f8fafc', display: 'block', marginBottom: 12, letterSpacing: '0.02em' }}>CHEQUE NUMBER (6 DIGITS)</label>
+                  <input
+                    type="text"
+                    value={userData.chequeNumber}
+                    onChange={e => setUserData({ ...userData, chequeNumber: e.target.value })}
+                    placeholder="e.g. 104502"
+                    className="input-light"
+                    style={{ padding: '20px 26px', fontSize: 24, fontWeight: 800, borderRadius: 18 }}
+                  />
+                </div>
+              ) : (
+                <div>
+                  <label style={{ fontSize: 22, fontWeight: 900, color: isLight ? '#0f172a' : '#f8fafc', display: 'block', marginBottom: 12, letterSpacing: '0.02em' }}>MOBILE / PHONE NO.</label>
+                  <input
+                    type="text"
+                    value={userData.mobileNumber}
+                    onChange={e => setUserData({ ...userData, mobileNumber: e.target.value })}
+                    placeholder="e.g. 9876543210"
+                    className="input-light"
+                    style={{ padding: '20px 26px', fontSize: 24, fontWeight: 800, borderRadius: 18 }}
+                  />
+                </div>
+              )}
+
+              <div>
+                <label style={{ fontSize: 22, fontWeight: 900, color: isLight ? '#0f172a' : '#f8fafc', display: 'block', marginBottom: 12, letterSpacing: '0.02em' }}>DATE</label>
+                <input
+                  type="date"
+                  value={userData.date}
+                  onChange={e => setUserData({ ...userData, date: e.target.value })}
+                  className="input-light"
+                  style={{ padding: '20px 26px', fontSize: 24, fontWeight: 800, borderRadius: 18 }}
+                />
+              </div>
+
+              <div>
+                <label style={{ fontSize: 22, fontWeight: 900, color: isLight ? '#0f172a' : '#f8fafc', display: 'block', marginBottom: 12, letterSpacing: '0.02em' }}>
+                  {docType === 'deposit' ? 'TOTAL DEPOSIT AMOUNT (₹)' : docType === 'withdrawal' ? 'CASH WITHDRAWAL AMOUNT (₹)' : 'CHEQUE AMOUNT (₹)'}
+                </label>
+                <input
+                  type="number"
+                  value={userData.amount}
+                  onChange={e => setUserData({ ...userData, amount: e.target.value })}
+                  placeholder="e.g. 5000"
+                  className="input-light"
+                  style={{ padding: '20px 26px', fontSize: 24, fontWeight: 800, borderRadius: 18 }}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* ─── DEVELOPER CALIBRATION PANEL ─── */}
+          {calibrationMode && (
+            <div style={{ background: '#7c2d12', color: '#ffffff', padding: 20, borderRadius: 20, marginBottom: 24 }}>
+              <div style={{ fontSize: 14, fontWeight: 900, letterSpacing: '1px', marginBottom: 10, textTransform: 'uppercase' }}>
+                🛠️ DEVELOPER COORDINATE CALIBRATOR ({currentTemplate.institution} — {docType.toUpperCase()})
+              </div>
+              <p style={{ fontSize: 13, opacity: 0.9, marginBottom: 14 }}>
+                Select a field below and adjust its X, Y, width, or font size to position it with pixel accuracy on top of the original image!
+              </p>
+
+              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 14 }}>
+                {currentTemplate.fields.map(f => (
+                  <button
+                    key={f.id}
+                    onClick={() => setActiveFieldId(f.id)}
+                    style={{
+                      padding: '6px 14px', borderRadius: 8, fontSize: 13, fontWeight: 800, cursor: 'pointer',
+                      background: activeFieldId === f.id ? '#ea580c' : '#451a03', color: '#ffffff', border: 'none'
+                    }}
+                  >
+                    {f.label} ({f.id})
+                  </button>
+                ))}
+              </div>
+
+              {activeFieldId && (() => {
+                const fieldObj = currentTemplate.fields.find(f => f.id === activeFieldId)
+                if (!fieldObj) return null
+                return (
+                  <div style={{ background: 'rgba(0,0,0,0.3)', padding: 14, borderRadius: 14, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12 }}>
+                    <div>
+                      <label style={{ fontSize: 12 }}>X POSITION (%): {fieldObj.x || 0}</label>
+                      <input type="range" min="0" max="100" step="0.5" value={fieldObj.x || 0} onChange={e => updateFieldCoord(activeFieldId, 'x', parseFloat(e.target.value))} style={{ width: '100%' }} />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: 12 }}>Y POSITION (%): {fieldObj.y || 0}</label>
+                      <input type="range" min="0" max="100" step="0.5" value={fieldObj.y || 0} onChange={e => updateFieldCoord(activeFieldId, 'y', parseFloat(e.target.value))} style={{ width: '100%' }} />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: 12 }}>FONT SIZE: {fieldObj.fontSize}</label>
+                      <input type="text" value={fieldObj.fontSize || '0.85rem'} onChange={e => updateFieldCoord(activeFieldId, 'fontSize', e.target.value)} style={{ width: '100%', padding: 4, color: '#000' }} />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: 12 }}>LETTER SPACING: {fieldObj.letterSpacing || 'normal'}</label>
+                      <input type="text" value={fieldObj.letterSpacing || 'normal'} onChange={e => updateFieldCoord(activeFieldId, 'letterSpacing', e.target.value)} style={{ width: '100%', padding: 4, color: '#000' }} />
+                    </div>
+                  </div>
+                )
+              })()}
             </div>
           )}
 
-          <div>
-            <label style={{ fontSize: 20, fontWeight: 900, color: isLight ? '#0f172a' : '#f8fafc', display: 'block', marginBottom: 10, letterSpacing: '0.02em' }}>DATE</label>
-            <input
-              type="date"
-              value={userData.date}
-              onChange={e => setUserData({ ...userData, date: e.target.value })}
-              className="input-light"
-              style={{ padding: '18px 24px', fontSize: 22, fontWeight: 800, borderRadius: 16 }}
-            />
-          </div>
+          {/* ─── SECTION 3: LIVE ORIGINAL IMAGE VISUAL PREVIEW ─── */}
+          <div className="glass-card-deep" style={{ padding: '30px 32px', borderRadius: 28, marginBottom: 24, background: isLight ? '#ffffff' : '#12100c', border: '3px solid #ea580c' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18, flexWrap: 'wrap', gap: 14 }}>
+              <div style={{ fontSize: 28, fontWeight: 900, color: '#ea580c', textTransform: 'uppercase' }}>
+                📸 ORIGINAL TEMPLATE PREVIEW ({currentTemplate.institution} • {docType.toUpperCase()})
+              </div>
+            </div>
 
-          <div>
-            <label style={{ fontSize: 20, fontWeight: 900, color: isLight ? '#0f172a' : '#f8fafc', display: 'block', marginBottom: 10, letterSpacing: '0.02em' }}>
-              {docType === 'deposit' ? 'TOTAL DEPOSIT AMOUNT (₹)' : docType === 'withdrawal' ? 'CASH WITHDRAWAL AMOUNT (₹)' : 'CHEQUE AMOUNT (₹)'}
-            </label>
-            <input
-              type="number"
-              value={userData.amount}
-              onChange={e => setUserData({ ...userData, amount: e.target.value })}
-              placeholder="e.g. 5000"
-              className="input-light"
-              style={{ padding: '18px 24px', fontSize: 22, fontWeight: 800, borderRadius: 16 }}
-            />
+            {/* Slip Display Zoom Controls */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, marginBottom: 20, flexWrap: 'wrap', padding: '16px 24px', background: isLight ? '#fff7ed' : 'rgba(234, 88, 12, 0.08)', borderRadius: 18, border: '2.5px solid rgba(234, 88, 12, 0.25)' }}>
+              <div style={{ fontSize: 24, fontWeight: 900, color: '#ea580c', display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span style={{ fontSize: 30 }}>🔍</span>
+                <span>SLIP DISPLAY SIZE (ZOOM):</span>
+              </div>
+              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                {[
+                  { s: 1, l: 'Normal (100%)' },
+                  { s: 1.15, l: '🔎 Large (115%)' },
+                  { s: 1.35, l: '🔍 Extra Large (135%)' }
+                ].map(z => (
+                  <button
+                    key={z.s}
+                    type="button"
+                    onClick={() => setSlipScale(z.s)}
+                    style={{
+                      padding: '16px 36px', borderRadius: 999, fontSize: 22, fontWeight: 900, cursor: 'pointer',
+                      background: slipScale === z.s ? '#ea580c' : (isLight ? '#ffffff' : 'rgba(255,255,255,0.08)'),
+                      color: slipScale === z.s ? '#ffffff' : (isLight ? '#0f172a' : '#cbd5e1'),
+                      border: `2.5px solid ${slipScale === z.s ? '#c2410c' : 'rgba(203, 213, 225, 0.5)'}`,
+                      boxShadow: slipScale === z.s ? '0 6px 18px rgba(234, 88, 12, 0.4)' : 'none'
+                    }}
+                  >
+                    {z.l}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-          </div>
-        </div>
-      </div>
+            {/* Dynamic Image Container with Zoom & Scroll wrapper */}
+            <div style={{ width: '100%', overflowX: 'auto', paddingBottom: 14 }}>
+              <div className="printable-slip-area" style={{
+                position: 'relative',
+                width: `${Math.round(slipScale * 100)}%`,
+                maxWidth: '100%',
+                margin: '0 auto',
+                borderRadius: 20,
+                overflow: 'hidden',
+                border: '4px solid #d97706',
+                boxShadow: '0 16px 45px rgba(0,0,0,0.4)',
+                background: '#ffffff'
+              }}>
+                {/* Authentic Untouched Original Background Image */}
+                <img
+                  src={currentTemplate.image}
+                  alt={`${currentTemplate.institution} ${docType}`}
+                  style={{ width: '100%', height: 'auto', display: 'block', opacity: 0.94 }}
+                />
 
-      {/* ─── DEVELOPER CALIBRATION PANEL ─── */}
-      {calibrationMode && (
-        <div style={{ background: '#7c2d12', color: '#ffffff', padding: 18, borderRadius: 18, marginBottom: 20 }}>
-          <div style={{ fontSize: 12, fontWeight: 900, letterSpacing: '1px', marginBottom: 8, textTransform: 'uppercase' }}>
-            🛠️ DEVELOPER COORDINATE CALIBRATOR ({currentTemplate.institution} — {docType.toUpperCase()})
-          </div>
-          <p style={{ fontSize: 11, opacity: 0.9, marginBottom: 12 }}>
-            Select a field below and adjust its X, Y, width, or font size to position it with pixel accuracy on top of the original image!
-          </p>
-
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
-            {currentTemplate.fields.map(f => (
-              <button
-                key={f.id}
-                onClick={() => setActiveFieldId(f.id)}
-                style={{
-                  padding: '4px 10px', borderRadius: 6, fontSize: 11, fontWeight: 800, cursor: 'pointer',
-                  background: activeFieldId === f.id ? '#ea580c' : '#451a03', color: '#ffffff', border: 'none'
-                }}
-              >
-                {f.label} ({f.id})
-              </button>
-            ))}
-          </div>
-
-          {activeFieldId && (() => {
-            const fieldObj = currentTemplate.fields.find(f => f.id === activeFieldId)
-            if (!fieldObj) return null
-            return (
-              <div style={{ background: 'rgba(0,0,0,0.3)', padding: 12, borderRadius: 12, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10 }}>
-                <div>
-                  <label style={{ fontSize: 10 }}>X POSITION (%): {fieldObj.x || 0}</label>
-                  <input type="range" min="0" max="100" step="0.5" value={fieldObj.x || 0} onChange={e => updateFieldCoord(activeFieldId, 'x', parseFloat(e.target.value))} style={{ width: '100%' }} />
-                </div>
-                <div>
-                  <label style={{ fontSize: 10 }}>Y POSITION (%): {fieldObj.y || 0}</label>
-                  <input type="range" min="0" max="100" step="0.5" value={fieldObj.y || 0} onChange={e => updateFieldCoord(activeFieldId, 'y', parseFloat(e.target.value))} style={{ width: '100%' }} />
-                </div>
-                <div>
-                  <label style={{ fontSize: 10 }}>FONT SIZE: {fieldObj.fontSize}</label>
-                  <input type="text" value={fieldObj.fontSize || '0.85rem'} onChange={e => updateFieldCoord(activeFieldId, 'fontSize', e.target.value)} style={{ width: '100%', padding: 2, color: '#000' }} />
-                </div>
-                <div>
-                  <label style={{ fontSize: 10 }}>LETTER SPACING: {fieldObj.letterSpacing || 'normal'}</label>
-                  <input type="text" value={fieldObj.letterSpacing || 'normal'} onChange={e => updateFieldCoord(activeFieldId, 'letterSpacing', e.target.value)} style={{ width: '100%', padding: 2, color: '#000' }} />
+                {/* OVERLAY RENDERER: Renders user inputs onto exact field coordinates */}
+                <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+                  {currentTemplate.fields.map(field => renderFieldValue(field))}
                 </div>
               </div>
-            )
-          })()}
+            </div>
+
+            {/* Print / Export Action Bar */}
+            <div style={{ display: 'flex', gap: 16, marginTop: 26, flexWrap: 'wrap' }}>
+              <button
+                onClick={() => { setHasCompletedSlip(true); markLevel3Section('paper_slip'); setShowVerifyModal(true); }}
+                className="btn-primary"
+                style={{ flex: 1, padding: '24px 48px', fontSize: 26, fontWeight: 900, borderRadius: 20, boxShadow: '0 10px 30px rgba(234, 88, 12, 0.45)' }}
+              >
+                📋 REVIEW & PRINT FILLED FORM PDF {paperSlipDone ? '✅' : ''}
+              </button>
+            </div>
+          </div>
         </div>
       )}
-
-      {/* ─── SECTION 3: LIVE ORIGINAL IMAGE VISUAL PREVIEW ─── */}
-      <div className="glass-card-deep" style={{ padding: 24, borderRadius: 20, marginBottom: 20, background: isLight ? '#ffffff' : '#12100c', border: '2.5px solid #ea580c' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, flexWrap: 'wrap', gap: 10 }}>
-          <div style={{ fontSize: 24, fontWeight: 900, color: '#ea580c', textTransform: 'uppercase' }}>
-            📸 ORIGINAL TEMPLATE PREVIEW ({currentTemplate.institution} • {docType.toUpperCase()})
-          </div>
-        </div>
-
-        {/* Slip Display Zoom Controls */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 14, flexWrap: 'wrap', padding: '10px 14px', background: isLight ? '#fff7ed' : 'rgba(234, 88, 12, 0.08)', borderRadius: 14, border: '1.5px solid rgba(234, 88, 12, 0.25)' }}>
-          <div style={{ fontSize: 22, fontWeight: 900, color: '#ea580c', display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span>🔍</span>
-            <span>SLIP DISPLAY SIZE (ZOOM):</span>
-          </div>
-          <div style={{ display: 'flex', gap: 8 }}>
-            {[
-              { s: 1, l: 'Normal (100%)' },
-              { s: 1.15, l: '🔎 Large (115%)' },
-              { s: 1.35, l: '🔍 Extra Large (135%)' }
-            ].map(z => (
-              <button
-                key={z.s}
-                type="button"
-                onClick={() => setSlipScale(z.s)}
-                style={{
-                  padding: '14px 28px', borderRadius: 999, fontSize: 20, fontWeight: 900, cursor: 'pointer',
-                  background: slipScale === z.s ? '#ea580c' : (isLight ? '#ffffff' : 'rgba(255,255,255,0.08)'),
-                  color: slipScale === z.s ? '#ffffff' : (isLight ? '#0f172a' : '#cbd5e1'),
-                  border: `1.5px solid ${slipScale === z.s ? '#c2410c' : 'rgba(203, 213, 225, 0.5)'}`,
-                  boxShadow: slipScale === z.s ? '0 4px 12px rgba(234, 88, 12, 0.35)' : 'none'
-                }}
-              >
-                {z.l}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Dynamic Image Container with Zoom & Scroll wrapper */}
-        <div style={{ width: '100%', overflowX: 'auto', paddingBottom: 10 }}>
-        <div className="printable-slip-area" style={{
-          position: 'relative',
-          width: `${Math.round(slipScale * 100)}%`,
-          maxWidth: slipScale > 1.2 ? '1600px' : slipScale > 1.05 ? '1450px' : '1320px',
-          margin: '0 auto',
-          borderRadius: 16,
-          overflow: 'hidden',
-          border: '3px solid #d97706',
-          boxShadow: '0 12px 36px rgba(0,0,0,0.4)',
-          background: '#ffffff'
-        }}>
-          {/* Authentic Untouched Original Background Image */}
-          <img
-            src={currentTemplate.image}
-            alt={`${currentTemplate.institution} ${docType}`}
-            style={{ width: '100%', height: 'auto', display: 'block', opacity: 0.94 }}
-          />
-
-          {/* OVERLAY RENDERER: Renders user inputs onto exact field coordinates */}
-          <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
-            {currentTemplate.fields.map(field => renderFieldValue(field))}
-          </div>
-        </div>
-        </div>
-
-        {/* Print / Export Action Bar */}
-        <div style={{ display: 'flex', gap: 12, marginTop: 20, flexWrap: 'wrap' }}>
-          <button
-            onClick={() => { setHasCompletedSlip(true); markLevel3Section('paper_slip'); setShowVerifyModal(true); }}
-            className="btn-primary"
-            style={{ flex: 1, padding: '22px 40px', fontSize: 24, fontWeight: 900, borderRadius: 18 }}
-          >
-            📋 REVIEW & PRINT FILLED FORM PDF {paperSlipDone ? '✅' : ''}
-          </button>
-        </div>
-      </div>
-    </div>
-  )}
 
       {/* ─── DIGITAL BANKING & CYBER SAFETY ARENA ─── */}
       {activeTab === 'digital_safety' && (
