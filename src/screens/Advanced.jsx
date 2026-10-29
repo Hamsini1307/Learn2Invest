@@ -1843,60 +1843,82 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
       {/* ─── DIGITAL BANKING & CYBER SAFETY ARENA ─── */}
       {activeTab === 'digital_safety' && (
         <div className="anim-scale glass-card-deep" style={{ padding: '36px 40px', marginBottom: 28, background: isLight ? '#ffffff' : 'var(--bg-card-deep, #12100c)', border: '3px solid #ea580c', color: isLight ? '#0f172a' : '#ffffff', width: '100%', borderRadius: 28 }}>
-          <div style={{ textAlign: 'center', marginBottom: 28 }}>
-            <div className="sticker-badge sticker-yellow" style={{ marginBottom: 12, fontSize: 18, fontWeight: 900, padding: '8px 24px' }}>
+          <div style={{ textAlign: 'center', marginBottom: 36 }}>
+            <div className="sticker-badge sticker-yellow" style={{ marginBottom: 16, fontSize: 24, fontWeight: 900, padding: '12px 34px', borderRadius: 999 }}>
               🌐 CABIN 2 • DIGITAL BANKING & CYBER SAFETY
             </div>
-            <h2 className="font-display" style={{ fontSize: 44, fontWeight: 900, color: isLight ? '#0f172a' : 'var(--heading-color, #ffffff)', marginBottom: 8, letterSpacing: '-0.02em' }}>
+            <h2 className="font-display" style={{ fontSize: 54, fontWeight: 900, color: isLight ? '#0f172a' : 'var(--heading-color, #ffffff)', marginBottom: 12, letterSpacing: '-0.02em' }}>
               DIGITAL BANKING & SAFETY 🛡️
             </h2>
-            <p style={{ color: isLight ? '#334155' : 'var(--text-sub, #d1d5db)', fontSize: 20, fontWeight: 700, maxWidth: 900, margin: '0 auto', lineHeight: 1.5 }}>
+            <p style={{ color: isLight ? '#334155' : 'var(--text-sub, #d1d5db)', fontSize: 26, fontWeight: 800, maxWidth: 1100, margin: '0 auto', lineHeight: 1.55 }}>
               Step 1: Watch the Digital Banking YouTube tutorial first. Step 2: Defend your bank account against phishing traps & SMS scams!
             </p>
           </div>
 
           {/* ─── STEP 1: YOUTUBE VIDEO TUTORIALS SECTION FIRST ─── */}
           <div style={{
-            marginBottom: 32,
-            padding: '28px 32px',
-            borderRadius: 24,
+            marginBottom: 36,
+            padding: '32px 36px',
+            borderRadius: 28,
             background: isLight ? '#fff7ed' : 'rgba(234, 88, 12, 0.1)',
-            border: `3px solid ${digitalVideoWatched ? '#10b981' : '#ea580c'}`,
+            border: `3.5px solid ${digitalVideoWatched ? '#10b981' : '#ea580c'}`,
           }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 14, marginBottom: 18 }}>
-              <h3 className="font-display" style={{ fontSize: 28, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff', margin: 0 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16, marginBottom: 24 }}>
+              <h3 className="font-display" style={{ fontSize: 34, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff', margin: 0 }}>
                 🎬 STEP 1: WATCH DIGITAL BANKING YOUTUBE TUTORIAL FIRST
               </h3>
               <span style={{
-                fontSize: 16,
+                fontSize: 22,
                 fontWeight: 900,
-                padding: '8px 20px',
+                padding: '12px 28px',
                 borderRadius: 999,
                 background: digitalVideoWatched ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.2)',
-                border: `2px solid ${digitalVideoWatched ? '#10b981' : '#f59e0b'}`,
+                border: `3px solid ${digitalVideoWatched ? '#10b981' : '#f59e0b'}`,
                 color: digitalVideoWatched ? '#10b981' : '#fbbf24'
               }}>
                 {digitalVideoWatched ? 'Video Watched ✓ • Activities Unlocked' : 'Watch Video to Unlock Activities Below'}
               </span>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 14, marginBottom: 20 }}>
-              {Object.keys(VIDEOS_DB).map(vKey => (
-                <button
-                  key={vKey}
-                  onClick={() => setSelectedVideo(vKey)}
-                  className={selectedVideo === vKey ? 'btn-primary' : 'btn-outline'}
-                  style={{
-                    fontSize: 20, padding: '18px 22px', fontWeight: 900, borderRadius: 16, cursor: 'pointer',
-                    color: selectedVideo === vKey ? '#ffffff' : (isLight ? '#7c2d12' : '#fbbf24'),
-                    borderColor: isLight ? '#ea580c' : undefined,
-                    borderWidth: '2.5px',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  {VIDEOS_DB[vKey].title}
-                </button>
-              ))}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 16, marginBottom: 24 }}>
+              {Object.keys(VIDEOS_DB).map(vKey => {
+                const isSelected = selectedVideo === vKey
+                return (
+                  <button
+                    key={vKey}
+                    type="button"
+                    onClick={() => setSelectedVideo(vKey)}
+                    style={{
+                      fontSize: 24,
+                      padding: '22px 28px',
+                      minHeight: 88,
+                      fontWeight: 900,
+                      borderRadius: 20,
+                      cursor: 'pointer',
+                      background: isSelected
+                        ? 'linear-gradient(135deg, #ea580c 0%, #f97316 100%)'
+                        : (isLight ? '#fff7ed' : 'rgba(255,255,255,0.08)'),
+                      color: isSelected
+                        ? '#ffffff'
+                        : (isLight ? '#7c2d12' : '#fbbf24'),
+                      border: isSelected
+                        ? '3.5px solid #c2410c'
+                        : (isLight ? '3.5px solid #ea580c' : '3.5px solid rgba(251, 191, 36, 0.4)'),
+                      boxShadow: isSelected
+                        ? '0 10px 30px rgba(234, 88, 12, 0.5)'
+                        : (isLight ? '0 4px 14px rgba(234, 88, 12, 0.12)' : 'none'),
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      textAlign: 'center',
+                      lineHeight: 1.3,
+                      transition: 'all 0.2s ease',
+                    }}
+                  >
+                    {VIDEOS_DB[vKey].title}
+                  </button>
+                )
+              })}
             </div>
 
             <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden', borderRadius: 20, border: '3px solid #ea580c', marginBottom: 20 }}>
