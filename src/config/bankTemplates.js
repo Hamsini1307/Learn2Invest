@@ -3,7 +3,7 @@
 
 export const INSTITUTIONS = [
   { id: 'canara', name: 'Canara Bank', code: 'CNRB0001001', emoji: '🏦' },
-  { id: 'karnataka', name: 'Karnataka Bank Ltd.', code: 'KARB0000501', emoji: '🏛️' },
+  { id: 'karnataka', name: 'Karnataka Bank Ltd.', code: 'KARB0000471', emoji: '🏛️' },
   { id: 'postoffice', name: 'Post Office Savings Bank', code: 'IPOS0000001', emoji: '📮' },
   { id: 'pnb', name: 'Punjab National Bank', code: 'PUNB0034200', emoji: '🏢' },
   { id: 'sbi', name: 'State Bank of India', code: 'SBIN0000840', emoji: '🏬' }

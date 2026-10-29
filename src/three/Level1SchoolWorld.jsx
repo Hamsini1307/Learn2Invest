@@ -5337,7 +5337,7 @@ export default function Level1SchoolWorld({
     mixerCompleted && 2,
     metricsCompleted && 3,
   ].filter(Boolean)
-  const isLevel3Unlocked = metricsCompleted || completedBankSections.length > 0
+  const isLevel3Unlocked = metricsCompleted || completedBankSections.length > 0 || Boolean(state?.advancedUnlocked) || Boolean(state?.level2Completed) || Boolean(state?.level3Unlocked) || (typeof localStorage !== 'undefined' && (localStorage.getItem('l2i_level2Completed') === 'true' || localStorage.getItem('l2i_advancedUnlocked') === 'true'))
   const isBankSec2Unlocked = completedBankSections.includes(1) || completedBankSections.includes(2)
   const isJourneyCompleteUnlocked = completedBankSections.includes(2)
 
@@ -6838,6 +6838,19 @@ export default function Level1SchoolWorld({
     if (!metricsCompleted) {
       setMetricsCompleted(true)
       if (addXP) addXP(100)
+    }
+    try {
+      localStorage.setItem('l2i_level2Completed', 'true')
+      localStorage.setItem('l2i_advancedUnlocked', 'true')
+    } catch {}
+    if (update) {
+      update({
+        level2Completed: true,
+        advancedUnlocked: true,
+        intermediateUnlocked: true,
+        level3Unlocked: true,
+        completedModules: ['simulators', 'mixer', 'portfolio']
+      })
     }
     setComputerFeedbackBanner({
       title: 'Level 2 Completed!',
@@ -9493,18 +9506,14 @@ export default function Level1SchoolWorld({
               <div
                 onClick={() => {
                   setShowCampusMapModal(false)
-                  if (isLevel3Unlocked) {
-                    focusCameraOnBankSection(1, false)
-                  } else {
-                    setShowXpDepositModal(true)
-                  }
+                  focusCameraOnBankSection(1, false)
                 }}
                 className="absolute top-[26%] right-[5%] sm:right-[7%] px-3.5 py-2 rounded-2xl bg-slate-950/90 border-2 border-amber-400 text-white shadow-xl cursor-pointer hover:scale-105 transition-transform"
               >
                 <div className="text-[10px] font-black uppercase tracking-wider text-amber-400">
                   📍 LEVEL 3 FINANCIAL CENTER (SIDE OF SCHOOL)
                 </div>
-                <div className="text-xs sm:text-sm font-black">🏛️ Learn2Invest Bank & Maya XP Deposit</div>
+                <div className="text-xs sm:text-sm font-black">🏛️ Learn2Invest Bank • Click to Enter →</div>
               </div>
 
               {/* Interactive Badge Over 24/7 ATM Machine Location (Beside the Bank!) */}
@@ -9552,11 +9561,17 @@ export default function Level1SchoolWorld({
                 <span className="text-2xl">💻</span>
               </div>
 
-              <div className="p-3.5 rounded-2xl border border-amber-400/50 bg-amber-950/40 flex items-center justify-between">
+              <div
+                onClick={() => {
+                  setShowCampusMapModal(false)
+                  focusCameraOnBankSection(1, false)
+                }}
+                className="p-3.5 rounded-2xl border-2 border-amber-400 bg-amber-950/70 flex items-center justify-between cursor-pointer hover:bg-amber-900/70 transition-all shadow-lg hover:scale-105"
+              >
                 <div>
-                  <div className="text-xs font-black text-amber-300 uppercase">LEVEL 3</div>
-                  <div className="text-sm font-black text-white">Side Bank & Maya Vault</div>
-                  <div className="text-xs text-slate-300">2 Cabins • Deposit XP with Maya</div>
+                  <div className="text-xs font-black text-amber-300 uppercase">LEVEL 3 • CLICK TO ENTER</div>
+                  <div className="text-sm font-black text-white">Side Bank & 2 Cabins</div>
+                  <div className="text-xs text-amber-200">Click to Walk to Level 3 Bank →</div>
                 </div>
                 <span className="text-2xl">🏛️</span>
               </div>

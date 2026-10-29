@@ -35,7 +35,17 @@ export default function LevelMap({ go, goBack, state, showLockMessage, aiGuideAv
       else go('intermediate')
       return
     }
-    if (locId === 'advanced' && !isAdvUnlocked) {
+    const canEnterAdv = isAdvUnlocked || lvl2Done || Boolean(state?.level2Completed) || Boolean(state?.advancedUnlocked) || (typeof localStorage !== 'undefined' && (localStorage.getItem('l2i_level2Completed') === 'true' || localStorage.getItem('l2i_advancedUnlocked') === 'true'));
+    if (locId === 'advanced' && !canEnterAdv) {
+      if (showLockMessage) showLockMessage('Complete Level 2 to Unlock')
+      else go('advanced')
+      return
+    }
+    if (locId === 'advanced' && update) {
+      update({ advancedUnlocked: true, level2Completed: true });
+      try { localStorage.setItem('l2i_level2Completed', 'true'); localStorage.setItem('l2i_advancedUnlocked', 'true'); } catch {}
+    }
+    if (false) {
       if (showLockMessage) showLockMessage('Complete Level 2 to Unlock')
       else go('advanced')
       return

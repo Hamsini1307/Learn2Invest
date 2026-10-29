@@ -80,10 +80,10 @@ export default function Level3BankSectionScreen({
             {secMeta.icon}
           </div>
           <div>
-            <div className="text-[11px] font-black uppercase tracking-widest text-amber-700">
+            <div className="text-xs sm:text-sm font-black uppercase tracking-widest text-amber-700">
               Learn2Invest Bank • {secMeta.badge}
             </div>
-            <div className="text-base sm:text-lg font-black text-slate-900 leading-tight">
+            <div className="text-lg sm:text-xl font-black text-slate-900 leading-tight">
               {secMeta.cabinLabel}: {secMeta.title}
             </div>
           </div>
@@ -92,7 +92,7 @@ export default function Level3BankSectionScreen({
         {/* Active Cabin Status Badge (Cabin 1 only shows Bank Slip Writing; Digital Banking is exclusively in Cabin 2) */}
         <div className="flex items-center gap-2 bg-slate-100 px-3.5 py-1.5 rounded-2xl border border-slate-300">
           <span className="text-base">{secMeta.icon}</span>
-          <span className="font-black text-xs text-amber-800">
+          <span className="font-black text-sm text-amber-800">
             {currentSec === 1
               ? 'CABIN 1 • BANK SLIP WRITING ONLY'
               : 'CABIN 2 • DIGITAL BANKING & SAFETY ONLY'}
@@ -106,7 +106,7 @@ export default function Level3BankSectionScreen({
                 soundEngine.playClick()
                 handleBack()
               }}
-              className="px-3.5 py-2 rounded-full bg-slate-100 hover:bg-slate-200 border border-slate-300 text-amber-800 font-black text-xs transition-all cursor-pointer"
+              className="px-4 py-2.5 rounded-full bg-slate-100 hover:bg-slate-200 border border-slate-300 text-amber-800 font-black text-sm transition-all cursor-pointer"
             >
               ⬅ Back to Bank Lobby
             </button>
@@ -118,7 +118,7 @@ export default function Level3BankSectionScreen({
               soundEngine.playClick()
               setIsFullscreen(!isFullscreen)
             }}
-            className="px-3.5 py-2 rounded-full bg-amber-100 hover:bg-amber-200 border border-amber-400 text-amber-900 font-black text-xs transition-all cursor-pointer flex items-center gap-1.5"
+            className="px-4 py-2.5 rounded-full bg-amber-100 hover:bg-amber-200 border border-amber-400 text-amber-900 font-black text-sm transition-all cursor-pointer flex items-center gap-1.5"
             title={isFullscreen ? 'Exit Full Screen' : 'Full Screen Expanded View'}
           >
             <span>{isFullscreen ? '🗗 Normal View' : '⛶ Fullscreen'}</span>
