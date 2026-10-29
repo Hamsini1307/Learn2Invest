@@ -1842,54 +1842,56 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
 
       {/* ─── DIGITAL BANKING & CYBER SAFETY ARENA ─── */}
       {activeTab === 'digital_safety' && (
-        <div className="anim-scale glass-card-deep" style={{ padding: '32px', marginBottom: 24, background: isLight ? '#ffffff' : 'var(--bg-card-deep, #12100c)', border: '2px solid #ea580c', color: isLight ? '#0f172a' : '#ffffff' }}>
-          <div style={{ textAlign: 'center', marginBottom: 24 }}>
-            <div className="sticker-badge sticker-yellow" style={{ marginBottom: 10 }}>
+        <div className="anim-scale glass-card-deep" style={{ padding: '36px 40px', marginBottom: 28, background: isLight ? '#ffffff' : 'var(--bg-card-deep, #12100c)', border: '3px solid #ea580c', color: isLight ? '#0f172a' : '#ffffff', width: '100%', borderRadius: 28 }}>
+          <div style={{ textAlign: 'center', marginBottom: 28 }}>
+            <div className="sticker-badge sticker-yellow" style={{ marginBottom: 12, fontSize: 18, fontWeight: 900, padding: '8px 24px' }}>
               🌐 CABIN 2 • DIGITAL BANKING & CYBER SAFETY
             </div>
-            <h2 className="font-display" style={{ fontSize: 34, color: isLight ? '#0f172a' : 'var(--heading-color, #ffffff)', marginBottom: 4 }}>
+            <h2 className="font-display" style={{ fontSize: 44, fontWeight: 900, color: isLight ? '#0f172a' : 'var(--heading-color, #ffffff)', marginBottom: 8, letterSpacing: '-0.02em' }}>
               DIGITAL BANKING & SAFETY 🛡️
             </h2>
-            <p style={{ color: isLight ? '#475569' : 'var(--text-sub, #d1d5db)', fontSize: 13, fontWeight: 600 }}>
+            <p style={{ color: isLight ? '#334155' : 'var(--text-sub, #d1d5db)', fontSize: 20, fontWeight: 700, maxWidth: 900, margin: '0 auto', lineHeight: 1.5 }}>
               Step 1: Watch the Digital Banking YouTube tutorial first. Step 2: Defend your bank account against phishing traps & SMS scams!
             </p>
           </div>
 
           {/* ─── STEP 1: YOUTUBE VIDEO TUTORIALS SECTION FIRST ─── */}
           <div style={{
-            marginBottom: 28,
-            padding: 22,
-            borderRadius: 20,
+            marginBottom: 32,
+            padding: '28px 32px',
+            borderRadius: 24,
             background: isLight ? '#fff7ed' : 'rgba(234, 88, 12, 0.1)',
-            border: `2px solid ${digitalVideoWatched ? '#10b981' : '#ea580c'}`,
+            border: `3px solid ${digitalVideoWatched ? '#10b981' : '#ea580c'}`,
           }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10, marginBottom: 14 }}>
-              <h3 className="font-display" style={{ fontSize: 22, color: isLight ? '#0f172a' : '#ffffff', margin: 0 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 14, marginBottom: 18 }}>
+              <h3 className="font-display" style={{ fontSize: 28, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff', margin: 0 }}>
                 🎬 STEP 1: WATCH DIGITAL BANKING YOUTUBE TUTORIAL FIRST
               </h3>
               <span style={{
-                fontSize: 11,
+                fontSize: 16,
                 fontWeight: 900,
-                padding: '4px 12px',
+                padding: '8px 20px',
                 borderRadius: 999,
                 background: digitalVideoWatched ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.2)',
-                border: `1.5px solid ${digitalVideoWatched ? '#10b981' : '#f59e0b'}`,
+                border: `2px solid ${digitalVideoWatched ? '#10b981' : '#f59e0b'}`,
                 color: digitalVideoWatched ? '#10b981' : '#fbbf24'
               }}>
                 {digitalVideoWatched ? 'Video Watched ✓ • Activities Unlocked' : 'Watch Video to Unlock Activities Below'}
               </span>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12, marginBottom: 16 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 14, marginBottom: 20 }}>
               {Object.keys(VIDEOS_DB).map(vKey => (
                 <button
                   key={vKey}
                   onClick={() => setSelectedVideo(vKey)}
                   className={selectedVideo === vKey ? 'btn-primary' : 'btn-outline'}
                   style={{
-                    fontSize: 12, padding: '12px', fontWeight: 800,
+                    fontSize: 20, padding: '18px 22px', fontWeight: 900, borderRadius: 16, cursor: 'pointer',
                     color: selectedVideo === vKey ? '#ffffff' : (isLight ? '#7c2d12' : '#fbbf24'),
-                    borderColor: isLight ? '#ea580c' : undefined
+                    borderColor: isLight ? '#ea580c' : undefined,
+                    borderWidth: '2.5px',
+                    transition: 'all 0.2s'
                   }}
                 >
                   {VIDEOS_DB[vKey].title}
@@ -1897,7 +1899,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
               ))}
             </div>
 
-            <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden', borderRadius: 16, border: '2px solid #ea580c', marginBottom: 16 }}>
+            <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden', borderRadius: 20, border: '3px solid #ea580c', marginBottom: 20 }}>
               <iframe
                 src={VIDEOS_DB[selectedVideo].url}
                 title={VIDEOS_DB[selectedVideo].title}
@@ -1911,27 +1913,28 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
                 onClick={() => setDigitalVideoWatched(true)}
                 style={{
                   width: '100%',
-                  padding: '15px 22px',
-                  borderRadius: 14,
-                  border: '2px solid #34d399',
+                  padding: '22px 36px',
+                  borderRadius: 20,
+                  border: '3px solid #34d399',
                   background: 'linear-gradient(135deg, #059669, #10b981)',
                   color: '#ffffff',
-                  fontSize: 14,
+                  fontSize: 22,
                   fontWeight: 900,
                   cursor: 'pointer',
-                  boxShadow: '0 8px 25px rgba(16, 185, 129, 0.4)'
+                  boxShadow: '0 10px 30px rgba(16, 185, 129, 0.45)',
+                  transition: 'all 0.2s'
                 }}
               >
                 ✅ I Have Watched the YouTube Video — Display Digital Banking Safety Challenges & SMS Analyzer →
               </button>
             ) : (
               <div style={{
-                padding: '10px 16px',
-                borderRadius: 12,
+                padding: '16px 24px',
+                borderRadius: 16,
                 background: 'rgba(16, 185, 129, 0.16)',
-                border: '1.5px solid #10b981',
-                color: '#34d399',
-                fontSize: 12,
+                border: '2px solid #10b981',
+                color: '#059669',
+                fontSize: 18,
                 fontWeight: 900,
                 textAlign: 'center'
               }}>
@@ -1945,30 +1948,31 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
             <div className="anim-fade">
               {!cyberGameCompleted ? (
                 <div className="glass-card" style={{
-                  padding: 26, borderRadius: 22,
-                  border: '2.5px solid #ea580c',
+                  padding: '32px 36px', borderRadius: 26,
+                  border: '3px solid #ea580c',
                   background: isLight ? '#ffffff' : 'var(--bg-card-deep, #12100c)',
-                  boxShadow: isLight ? '0 12px 36px rgba(234, 88, 12, 0.12)' : '0 8px 32px rgba(0,0,0,0.5)',
-                  color: isLight ? '#0f172a' : '#ffffff'
+                  boxShadow: isLight ? '0 14px 40px rgba(234, 88, 12, 0.15)' : '0 8px 32px rgba(0,0,0,0.5)',
+                  color: isLight ? '#0f172a' : '#ffffff',
+                  marginBottom: 28
                 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 10 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, flexWrap: 'wrap', gap: 14 }}>
                     <span style={{
-                      fontSize: 12, fontWeight: 900,
+                      fontSize: 18, fontWeight: 900,
                       color: isLight ? '#c2410c' : '#fbbf24',
                       background: isLight ? '#fff7ed' : 'rgba(234, 88, 12, 0.2)',
-                      padding: '6px 16px', borderRadius: 999,
-                      border: '1.5px solid #ea580c',
+                      padding: '10px 24px', borderRadius: 999,
+                      border: '2px solid #ea580c',
                       letterSpacing: '0.5px'
                     }}>
                       🎯 SCENARIO {digitalScenarioIdx + 1} OF {CYBER_SCENARIOS.length}
                     </span>
                     <div style={{
-                      fontSize: 12, fontWeight: 900,
+                      fontSize: 18, fontWeight: 900,
                       background: 'linear-gradient(135deg, #059669, #10b981)',
                       color: '#ffffff',
-                      padding: '6px 16px', borderRadius: 999,
-                      boxShadow: '0 4px 14px rgba(16, 185, 129, 0.35)',
-                      border: '1.5px solid #34d399'
+                      padding: '10px 24px', borderRadius: 999,
+                      boxShadow: '0 6px 20px rgba(16, 185, 129, 0.4)',
+                      border: '2px solid #34d399'
                     }}>
                       🛡️ SHIELD HEALTH: {shieldScore}%
                     </div>
@@ -1976,19 +1980,19 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
 
                   <div style={{
                     background: isLight ? 'linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)' : 'rgba(245, 158, 11, 0.14)',
-                    borderRadius: 18, padding: 22,
-                    border: '2px solid #ea580c', marginBottom: 22,
-                    boxShadow: isLight ? '0 6px 20px rgba(234, 88, 12, 0.1)' : 'none'
+                    borderRadius: 22, padding: '26px 30px',
+                    border: '2.5px solid #ea580c', marginBottom: 24,
+                    boxShadow: isLight ? '0 8px 24px rgba(234, 88, 12, 0.12)' : 'none'
                   }}>
-                    <h3 style={{ fontWeight: 900, fontSize: 18, color: isLight ? '#9a3412' : '#fbbf24', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <h3 style={{ fontWeight: 900, fontSize: 26, color: isLight ? '#9a3412' : '#fbbf24', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 10 }}>
                       {CYBER_SCENARIOS[digitalScenarioIdx].title}
                     </h3>
-                    <p style={{ fontSize: 15, color: isLight ? '#0f172a' : '#f3f4f6', lineHeight: 1.6, fontWeight: 800, margin: 0 }}>
+                    <p style={{ fontSize: 22, color: isLight ? '#0f172a' : '#f3f4f6', lineHeight: 1.6, fontWeight: 800, margin: 0 }}>
                       {CYBER_SCENARIOS[digitalScenarioIdx].scenario}
                     </p>
                   </div>
 
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 20 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 24 }}>
                     {CYBER_SCENARIOS[digitalScenarioIdx].opts.map((opt, i) => {
                       const isSelected = selectedOpt === i
                       const isCorrect = opt.correct
@@ -2007,15 +2011,16 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
                           key={i}
                           onClick={() => handleCyberAnswer(i)}
                           style={{
-                            textAlign: 'left', fontSize: 13, padding: '15px 20px', width: '100%',
-                            fontWeight: 900, borderRadius: 14, cursor: 'pointer',
+                            textAlign: 'left', fontSize: 20, padding: '20px 26px', width: '100%',
+                            fontWeight: 800, borderRadius: 18, cursor: 'pointer',
                             background: btnBg,
                             color: btnColor,
-                            border: `2.5px solid ${btnBorder}`,
+                            border: `3px solid ${btnBorder}`,
                             boxShadow: isSelected
-                              ? (isCorrect ? '0 6px 20px rgba(16, 185, 129, 0.4)' : '0 6px 20px rgba(225, 29, 72, 0.4)')
-                              : (isLight ? '0 2px 8px rgba(234, 88, 12, 0.1)' : 'none'),
-                            transition: 'all 0.2s ease'
+                              ? (isCorrect ? '0 8px 25px rgba(16, 185, 129, 0.45)' : '0 8px 25px rgba(225, 29, 72, 0.45)')
+                              : (isLight ? '0 3px 10px rgba(234, 88, 12, 0.1)' : 'none'),
+                            transition: 'all 0.2s ease',
+                            lineHeight: 1.45
                           }}
                         >
                           {opt.text}
@@ -2026,26 +2031,26 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
 
                   {digitalFeedback && (
                     <div className="anim-fade" style={{
-                      background: isLight ? '#ffedd5' : 'rgba(245,158,11,0.12)', border: '1.5px solid #f59e0b',
-                      borderRadius: 14, padding: 16, marginBottom: 20, color: isLight ? '#7c2d12' : '#fef3c7', fontSize: 13, lineHeight: 1.5, fontWeight: 700
+                      background: isLight ? '#ffedd5' : 'rgba(245,158,11,0.12)', border: '2px solid #f59e0b',
+                      borderRadius: 18, padding: '20px 26px', marginBottom: 24, color: isLight ? '#7c2d12' : '#fef3c7', fontSize: 20, lineHeight: 1.5, fontWeight: 700
                     }}>
                       💡 {digitalFeedback}
                     </div>
                   )}
 
                   {selectedOpt !== null && (
-                    <button className="btn-primary" onClick={handleNextScenario} style={{ width: '100%', fontSize: 14, fontWeight: 900 }}>
+                    <button className="btn-primary" onClick={handleNextScenario} style={{ width: '100%', fontSize: 22, fontWeight: 900, padding: '22px 36px', borderRadius: 18 }}>
                       {digitalScenarioIdx < CYBER_SCENARIOS.length - 1 ? 'NEXT SCENARIO →' : '🏆 FINISH CHALLENGE (+50 XP)'}
                     </button>
                   )}
                 </div>
               ) : (
-                <div style={{ textAlign: 'center', padding: 32, background: isLight ? '#ffffff' : 'var(--bg-card-deep, #12100c)', border: '2px solid #ea580c', borderRadius: 20 }} className="glass-card">
-                  <div style={{ fontSize: 56, marginBottom: 12 }}>🛡️</div>
-                  <h3 className="font-display" style={{ fontSize: 32, color: isLight ? '#ea580c' : '#fbbf24', marginBottom: 8 }}>
+                <div style={{ textAlign: 'center', padding: '40px 32px', background: isLight ? '#ffffff' : 'var(--bg-card-deep, #12100c)', border: '3px solid #ea580c', borderRadius: 26, marginBottom: 28 }} className="glass-card">
+                  <div style={{ fontSize: 68, marginBottom: 16 }}>🛡️</div>
+                  <h3 className="font-display" style={{ fontSize: 40, fontWeight: 900, color: isLight ? '#ea580c' : '#fbbf24', marginBottom: 12 }}>
                     CHALLENGE PASSED!
                   </h3>
-                  <p style={{ color: isLight ? '#475569' : '#d1d5db', fontSize: 14, fontWeight: 600, marginBottom: 20 }}>
+                  <p style={{ color: isLight ? '#334155' : '#d1d5db', fontSize: 22, fontWeight: 700, marginBottom: 24 }}>
                     Shield Health: {shieldScore}% • You earned +50 XP and mastered digital bank safety!
                   </p>
                 </div>
