@@ -9587,25 +9587,6 @@ export default function Level1SchoolWorld({
         </div>
       )}
 
-      {/* ═══════════════════════════════════════════════════════════════════
-          🍦 30-SECOND ICE CREAM COUNTDOWN HUD BANNER
-      ═══════════════════════════════════════════════════════════════════ */}
-      {activeIceCream && iceCreamSecondsLeft > 0 && (
-        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-40 px-8 py-4 sm:px-10 sm:py-5 rounded-full bg-slate-950/95 backdrop-blur-xl border-4 border-cyan-400 text-white flex items-center gap-5 shadow-[0_15px_50px_rgba(6,182,212,0.6)] pointer-events-auto animate-pulse">
-          <span className="text-4xl sm:text-5xl animate-bounce">🍦</span>
-          <div>
-            <div className="text-xl sm:text-2xl font-black text-white">
-              Holding & Enjoying <span className="text-cyan-300">{activeIceCream.name}</span>!
-            </div>
-            <div className="text-sm sm:text-base font-bold text-slate-300">
-              Your 3D character is holding this treat in hand for 30 seconds
-            </div>
-          </div>
-          <span className="px-5 py-2 sm:px-6 sm:py-2.5 rounded-full bg-gradient-to-r from-cyan-400 to-teal-300 text-slate-950 font-black text-lg sm:text-2xl shrink-0 shadow-md">
-            ⏱️ {iceCreamSecondsLeft}s
-          </span>
-        </div>
-      )}
 
       {/* ═══════════════════════════════════════════════════════════════════
           🏧 24/7 ATM LIVE QUEUE BANNER (Character waits behind 2 customers withdrawing cash!)
