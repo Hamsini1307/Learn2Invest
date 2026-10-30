@@ -9315,51 +9315,53 @@ export default function Level1SchoolWorld({
           🏆 TOP LEARNERS RANK LIST MODAL (Opened from Top Bar)
       ═══════════════════════════════════════════════════════════════════ */}
       {showRankModal && hasLoggedIn && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md pointer-events-auto">
-          <div className="w-[min(94vw,640px)] max-h-[86vh] rounded-3xl bg-slate-900 border-2 border-amber-400 shadow-[0_25px_90px_rgba(0,0,0,0.9)] overflow-hidden flex flex-col text-white">
-            <div className="px-6 py-4 bg-gradient-to-r from-amber-500 via-yellow-400 to-emerald-400 text-slate-950 flex items-center justify-between shrink-0">
-              <div className="flex items-center gap-3">
-                <span className="text-3xl">🏆</span>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/85 backdrop-blur-md pointer-events-auto">
+          <div className="w-[min(96vw,1440px)] max-h-[92vh] rounded-[36px] bg-slate-900 border-4 border-amber-400 shadow-[0_30px_120px_rgba(0,0,0,0.95)] overflow-hidden flex flex-col text-white">
+            {/* Grand Header */}
+            <div className="px-8 py-6 sm:px-12 sm:py-8 bg-gradient-to-r from-amber-500 via-yellow-400 to-emerald-400 text-slate-950 flex items-center justify-between shrink-0 shadow-lg">
+              <div className="flex items-center gap-5 sm:gap-7">
+                <span className="text-5xl sm:text-7xl drop-shadow-md">🏆</span>
                 <div>
-                  <div className="text-[11px] font-black uppercase tracking-widest text-slate-900/80">
+                  <div className="text-sm sm:text-xl font-black uppercase tracking-widest text-slate-950/80">
                     Learn2Invest Live Hall of Fame
                   </div>
-                  <h2 className="text-xl font-black text-slate-950 leading-tight">
+                  <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black text-slate-950 leading-tight">
                     All Users Rank List & XP Leaderboard
                   </h2>
                 </div>
               </div>
               <button
                 onClick={() => setShowRankModal(false)}
-                className="w-9 h-9 rounded-full bg-slate-950 text-amber-300 font-black text-sm flex items-center justify-center cursor-pointer hover:scale-105 transition-transform"
+                className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-slate-950 text-amber-300 font-black text-2xl sm:text-3xl flex items-center justify-center cursor-pointer hover:scale-110 active:scale-95 transition-all shadow-xl"
+                title="Close Leaderboard"
               >
                 ✕
               </button>
             </div>
 
             {/* Top 3 Podium Cards */}
-            <div className="p-5 overflow-y-auto space-y-4 bg-amber-50/50">
-              <div className="grid grid-cols-3 gap-3">
+            <div className="p-6 sm:p-10 overflow-y-auto space-y-6 sm:space-y-8 bg-amber-50/65">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-7">
                 {sortedRankList.slice(0, 3).map((u, idx) => {
-                  const medals = ['👑 #1 TOP', '🥇 #2', '🥉 #3']
+                  const medals = ['👑 #1 TOP CHAMPION', '🥇 #2 RUNNER-UP', '🥉 #3 THIRD PLACE']
                   const borderCols = [
-                    'border-amber-400 bg-amber-100/90 shadow-[0_0_25px_rgba(251,191,36,0.3)] text-slate-950',
-                    'border-slate-300 bg-slate-100/90 text-slate-950',
-                    'border-amber-400 bg-amber-50/90 text-slate-950',
+                    'border-amber-400 bg-amber-100/95 shadow-[0_12px_35px_rgba(251,191,36,0.4)] text-slate-950',
+                    'border-slate-300 bg-slate-100/95 shadow-md text-slate-950',
+                    'border-amber-400 bg-amber-50/95 shadow-md text-slate-950',
                   ]
                   return (
                     <div
                       key={u.name + idx}
-                      className={`p-3.5 rounded-2xl border-2 text-center flex flex-col items-center ${borderCols[idx]}`}
+                      className={`p-6 sm:p-8 rounded-3xl border-4 text-center flex flex-col items-center justify-between min-h-[220px] transition-all hover:scale-[1.02] ${borderCols[idx]}`}
                     >
-                      <div className="text-2xl mb-1">{u.avatar || '🎓'}</div>
-                      <div className="px-2.5 py-0.5 rounded-full bg-slate-950 text-amber-300 text-[10px] font-black mb-1">
+                      <div className="text-5xl sm:text-6xl mb-2.5">{u.avatar || '🎓'}</div>
+                      <div className="px-5 py-1.5 rounded-full bg-slate-950 text-amber-300 text-xs sm:text-sm font-black mb-2 tracking-wide shadow-md">
                         {medals[idx]}
                       </div>
-                      <div className="text-xs sm:text-sm font-black text-slate-950 truncate max-w-full">
+                      <div className="text-xl sm:text-2xl font-black text-slate-950 truncate max-w-full leading-tight">
                         {u.name} {u.isCurrentUser ? '(You)' : ''}
                       </div>
-                      <div className="text-[11px] font-black text-emerald-800 mt-0.5">
+                      <div className="text-lg sm:text-xl font-black text-emerald-800 mt-2 bg-emerald-500/15 px-5 py-1.5 rounded-full border border-emerald-500/30">
                         ⭐ {u.xp || 0} XP
                       </div>
                     </div>
@@ -9368,39 +9370,41 @@ export default function Level1SchoolWorld({
               </div>
 
               {/* Full Ranked List */}
-              <div className="space-y-2">
+              <div className="space-y-4">
                 {sortedRankList.map((u, idx) => {
                   const rankIcon =
                     idx === 0 ? '👑' : idx === 1 ? '🥇' : idx === 2 ? '🥈' : idx === 3 ? '🥉' : u.badge || '🌟'
                   return (
                     <div
                       key={u.name + idx}
-                      className={`px-4 py-3 rounded-2xl border flex items-center justify-between gap-3 ${
+                      className={`px-6 py-5 sm:px-8 sm:py-6 rounded-3xl border-3 flex items-center justify-between gap-5 transition-all hover:scale-[1.008] shadow-md ${
                         u.isCurrentUser
-                          ? 'bg-emerald-100/90 border-2 border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.25)] text-slate-950'
-                          : 'bg-white/90 border-amber-200/80 text-slate-950'
+                          ? 'bg-emerald-100/95 border-3 border-emerald-500 shadow-[0_0_30px_rgba(16,185,129,0.35)] text-slate-950 ring-2 ring-emerald-400/40'
+                          : 'bg-white/95 border-amber-200 text-slate-950'
                       }`}
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-amber-100 border border-amber-300 flex items-center justify-center font-black text-sm text-amber-900">
+                      <div className="flex items-center gap-4 sm:gap-6">
+                        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-amber-100 border-2 border-amber-300 flex items-center justify-center font-black text-xl sm:text-2xl text-amber-900 shrink-0 shadow-sm">
                           #{idx + 1}
                         </div>
-                        <span className="text-2xl">{u.avatar || '🎓'}</span>
+                        <span className="text-4xl sm:text-5xl shrink-0">{u.avatar || '🎓'}</span>
                         <div>
-                          <div className="text-sm font-black text-slate-950 flex items-center gap-1.5">
-                            <span>{rankIcon}</span>
+                          <div className="text-xl sm:text-2xl font-black text-slate-950 flex items-center gap-2.5 flex-wrap">
+                            <span className="text-2xl sm:text-3xl">{rankIcon}</span>
                             <span className="text-slate-950 font-black">{u.name}</span>
                             {u.isCurrentUser && (
-                              <span className="px-2 py-0.5 rounded-full bg-emerald-600 text-white text-[10px] font-black">
+                              <span className="px-3.5 py-1 rounded-full bg-emerald-600 text-white text-xs sm:text-sm font-black tracking-wider shadow-sm">
                                 YOU
                               </span>
                             )}
                           </div>
-                          <div className="text-[11px] font-bold text-slate-700">{u.level || 'Learn2Invest Scholar'}</div>
+                          <div className="text-base sm:text-lg font-extrabold text-slate-600 mt-1">
+                            {u.level || 'Learn2Invest Scholar'}
+                          </div>
                         </div>
                       </div>
 
-                      <div className="px-3.5 py-1.5 rounded-xl bg-amber-400/30 border border-amber-500/60 text-amber-950 font-black text-xs sm:text-sm">
+                      <div className="px-6 py-3 sm:px-8 sm:py-3.5 rounded-2xl bg-gradient-to-r from-amber-400/30 to-yellow-400/30 border-2 border-amber-500/60 text-amber-950 font-black text-lg sm:text-2xl shrink-0 shadow-sm">
                         ⭐ {u.xp || 0} XP
                       </div>
                     </div>
