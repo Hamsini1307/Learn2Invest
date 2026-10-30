@@ -1036,26 +1036,41 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
     // 2. CHARACTER BOXES RENDERING (Account Number / PAN per printed box)
     if (field.renderingMode === 'characterBoxes') {
       const chars = String(value || '').split('')
+      const hasPercentWidth = field.width !== undefined
       return (
         <div key={field.id} style={{
           position: 'absolute',
           top: `${field.y}%`,
           left: `${field.x}%`,
+          width: hasPercentWidth ? `${field.width}%` : 'auto',
           display: 'flex',
-          gap: `${field.gap || 6}px`,
+          justifyContent: hasPercentWidth ? 'space-between' : 'flex-start',
+          alignItems: 'center',
+          gap: hasPercentWidth ? 0 : `${field.gap || 6}px`,
           letterSpacing: field.letterSpacing || 'normal',
-          fontSize: field.fontSize || '1.02rem',
+          fontSize: field.fontSize || '1.30rem',
           color: field.color || '#1d4ed8',
           fontWeight: field.fontWeight || 900,
           fontFamily: "'Courier New', monospace"
         }}>
           {chars.map((ch, i) => (
-            <span key={i} style={{ display: 'inline-block', width: field.boxWidth || '14px', textAlign: 'center' }}>{ch}</span>
+            <span
+              key={i}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flex: hasPercentWidth ? '1 1 0' : 'none',
+                width: hasPercentWidth ? 'auto' : (field.boxWidth || '14px'),
+                textAlign: 'center'
+              }}
+            >
+              {ch}
+            </span>
           ))}
         </div>
       )
     }
-
     // 3. CHECKBOX RENDERING (Checkmark inside selected box)
     if (field.renderingMode === 'checkbox') {
       if (userData.accountType === field.bindValue) {

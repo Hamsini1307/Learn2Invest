@@ -157,13 +157,13 @@ export const BANK_TEMPLATES_CONFIG = {
     formType: 'withdrawal',
     image: '/slips/canara_withdrawal.jpg',
     fields: [
-      { id: 'mainBranch', bindKey: 'branch', label: 'Branch Name', x: 13.5, y: 12.5, fontSize: '0.90rem', renderingMode: 'text' },
-      { id: 'mainDate', bindKey: 'date', label: 'Date', x: 84.5, y: 18.5, fontSize: '0.88rem', renderingMode: 'text' },
-      { id: 'mainWords', bindKey: 'amountInWords', label: 'Amount in Words', x: 46.0, y: 24.5, width: 28, fontSize: '0.90rem', renderingMode: 'amountInWords' },
-      { id: 'mainAmount', bindKey: 'amount', label: 'Numeric Amount', x: 81.5, y: 25.5, fontSize: '1.05rem', renderingMode: 'amount' },
-      { id: 'mainAccNo', bindKey: 'accountNumber', label: 'Account Number', x: 8.2, y: 46.0, gap: 9, boxWidth: '14px', fontSize: '0.92rem', renderingMode: 'characterBoxes' },
-      { id: 'mainSig', bindKey: 'signature', label: 'Account Holder Signature', x: 80.0, y: 36.0, width: 18, height: 8, renderingMode: 'signature' },
-      { id: 'mainName', bindKey: 'name', label: 'Account Holder Name', x: 79.0, y: 47.5, fontSize: '0.88rem', renderingMode: 'text' }
+      { id: 'mainBranch', bindKey: 'branch', label: 'Branch Name', x: 9.5, y: 17.0, fontSize: '1.25rem', fontWeight: 900, renderingMode: 'text' },
+      { id: 'mainDate', bindKey: 'date', label: 'Date', x: 74.0, y: 20.8, fontSize: '1.22rem', fontWeight: 900, renderingMode: 'text' },
+      { id: 'mainWords', bindKey: 'amountInWords', label: 'Amount in Words', x: 38.0, y: 28.5, width: 36, fontSize: '1.20rem', fontWeight: 900, renderingMode: 'amountInWords' },
+      { id: 'mainAmount', bindKey: 'amount', label: 'Numeric Amount', x: 78.5, y: 27.2, fontSize: '1.40rem', fontWeight: 900, renderingMode: 'amount' },
+      { id: 'mainAccNo', bindKey: 'accountNumber', label: 'Account Number', x: 8.63, y: 64.8, width: 45.93, boxWidth: '3.533%', fontSize: '1.35rem', fontWeight: 900, renderingMode: 'characterBoxes' },
+      { id: 'mainSig', bindKey: 'signature', label: 'Account Holder Signature', x: 68.0, y: 43.0, width: 24, height: 9.5, fontSize: '1.35rem', renderingMode: 'signature' },
+      { id: 'mainName', bindKey: 'name', label: 'Account Holder Name', x: 68.0, y: 59.5, width: 28, fontSize: '1.30rem', fontWeight: 900, renderingMode: 'text' }
     ]
   },
 
