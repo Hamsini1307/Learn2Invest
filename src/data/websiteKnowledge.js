@@ -79,7 +79,7 @@ export const SCREEN_KNOWLEDGE = {
     features: [
       'Workstation 1 — 6 Scheme Simulators: PPF (7.1%), FD (7.25%), NSC (7.7%), SSY (8.2%), RD (6.5%), and Post Office MIS (7.4%) with real-time compound interest calculation and interactive charts.',
       'Workstation 2 — Savings Mixer Studio: Sliders to allocate percentages across 5 schemes (must sum to 100%) and calculate blended interest return over 1 to 15 years.',
-      'Workstation 3 — Multi-Asset Portfolio Simulation: Combine Fixed Income, Equity, Index Funds, and Gold ETFs. Features Manual Mode and Smart Allocation Mode with Gap Period maturity analysis.',
+      'Workstation 3 — Portfolio Simulation: Combine the 6 Indian Government & Bank Schemes (PPF, FD, NSC, SSY, RD, MIS). Features Manual Allocation Mode and Smart Allocation Mode (algorithmic profit maximization) with Gap Period maturity analysis.',
       'Save Simulations: Save your custom lab calculations and portfolio mixes to revisit or edit later in the Saved Simulations manager.',
     ],
     howToUse: [

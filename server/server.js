@@ -6,6 +6,7 @@ import jwt from 'jsonwebtoken'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { GoogleGenAI } from '@google/genai'
+import { getFinancialKnowledgeAnswer } from './financialKnowledge.js'
 import { initDb } from './db.js'
 import { User, UserState } from './models.js'
 import { localUser, localUserState } from './localDb.js'
@@ -300,7 +301,7 @@ WEBSITE ARCHITECTURE & GROUND TRUTH:
    - Level 2: Government District Investment Lab (/government-district or /simulation):
      * Computer 1 (6 Scheme Simulators): PPF (7.1%), FD (7.25%), NSC (7.7%), Sukanya Samriddhi Yojana (8.2%), Recurring Deposit (6.5%), and Post Office Monthly Income Scheme (7.4%). Math formula: Monthly compounding M * (((1 + r/12)^(years*12) - 1) / (r/12)) * (1 + r/12).
      * Computer 2 (Savings Mixer Studio): Custom allocation sliders across 5 schemes summing to 100% to calculate blended interest returns.
-     * Computer 3 (Portfolio Simulation & Smart Allocation): Combines Fixed Income, Equity, Index Funds, and Gold ETFs. Features Manual Allocation and Smart Allocation (educational algorithmic allocation that maximizes profit while keeping chosen assets active, plus gap period analysis for schemes maturing at different horizons).
+     * Computer 3 (Portfolio Simulation & Smart Allocation): Multi-scheme portfolio simulator combining the 6 Indian Government & Bank Savings Schemes: PPF (7.1%), FD (7.25%), NSC (7.7%), SSY (8.2%), RD (6.5%), and Post Office MIS (7.4%). NOTE: There is NO gold, stocks, or equity in this workstation. Features: (1) Add/remove scheme rows and customize labels and tenures; (2) Manual Allocation vs Smart Allocation (algorithmic profit maximization allocating from a total monthly budget pool across chosen schemes to maximize compound interest profit while keeping all schemes active); (3) Gap Period Analysis showing when shorter schemes like 5-yr FD finish before 15-yr PPF so learners can plan reinvestment; (4) Save simulations to vault and award +100 XP to complete Level 2 and proceed to Level 3 Bank.
      * Saved Simulations: Users can save customized lab calculations and portfolio mixes to revisit or edit later.
    - Level 3: Futuristic City Banking Hub & Tower (/futuristic-city):
      * Realistic Indian Bank Slips practice for 5 institutions: State Bank of India (SBIN0000840), Punjab National Bank (PUNB0034200), Canara Bank (CNRB0001001), Karnataka Bank (KARB0000501), and Post Office Savings Bank (IPOS0000001).
@@ -361,7 +362,12 @@ CURRENT USER LIVE SNAPSHOT:
   // 1. Google Gemini API Direct REST Engine (Powered by GEMINI_API_KEY)
   const activeKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY
   if (activeKey) {
-    const geminiModels = ['gemini-3.5-flash-lite', 'gemini-2.5-flash', 'gemini-2.0-flash']
+    const geminiModels = [
+      'gemini-3.5-flash',
+      'gemini-3.5-flash-lite',
+      'gemini-3.1-flash-lite',
+      'gemini-flash-latest'
+    ]
     const geminiContents = (Array.isArray(contents) && contents.length > 0)
       ? contents.slice(-10).map((c) => ({
           role: c.role === 'model' || c.role === 'assistant' ? 'model' : 'user',
@@ -442,148 +448,29 @@ CURRENT USER LIVE SNAPSHOT:
     console.warn('Live LLM fetch warning:', err?.message || err)
   }
 
-  // 3. Resilient Deterministic Offline Knowledge Fallback
-  const qLower = latestUserMessage.toLowerCase()
-  let fallbackReply = ''
+  // 3. Resilient Deterministic Offline Knowledge Engine
+  const knowledgeAnswer = getFinancialKnowledgeAnswer(latestUserMessage, userContext?.currentScreen)
+  if (knowledgeAnswer) {
+    return res.json({
+      reply: knowledgeAnswer,
+      model: 'learn2invest-knowledge-engine',
+      provider: 'Learn2Invest Financial Knowledge Engine',
+    })
+  }
 
-  const numMatch = latestUserMessage.replace(/,/g, '').match(/\b(\d{3,9})\b/)
-  if (numMatch && (qLower.includes('invest') || qLower.includes('put') || qLower.includes('have') || qLower.includes('allocate') || qLower.includes('money') || qLower.includes('rupee'))) {
-    const total = parseFloat(numMatch[1])
-    if (total > 0) {
-      const eq = Math.round(total * 0.5)
-      const debt = Math.round(total * 0.3)
-      const liq = total - eq - debt
-      fallbackReply = `Here is your smart asset allocation for **₹${total.toLocaleString('en-IN')}**:
-
-* **50% (~₹${eq.toLocaleString('en-IN')})** — Index Mutual Funds (e.g. Nifty 50) for long-term growth and beating inflation.
-* **30% (~₹${debt.toLocaleString('en-IN')})** — Safe Fixed Income (PPF at 7.1% or FD at 7.25%) for capital protection.
-* **20% (~₹${liq.toLocaleString('en-IN')})** — Emergency Savings / Liquid Cash for quick liquidity.`
-    }
-  } else if (qLower.includes('about') || qLower.includes('website') || qLower.includes('what is this') || qLower.includes('explain this website')) {
-    fallbackReply = `**Welcome to Learn2Invest!** 🎓
-Learn2Invest is an interactive 3D gamified learning simulator designed to teach practical Indian financial literacy.
-
-Here is what you can do on the platform:
-1. **Level 1 (School Classroom)**: Watch 5 bite-sized financial literacy video lessons on PPF, FD, NSC, and Sukanya Samriddhi, then pass the 10-Question Examination Center (+100 XP).
-2. **Level 2 (Government District Lab)**: Test 6 government investment scheme simulators, mix savings allocations in the Mixer Studio, and run multi-asset portfolio simulations with Smart Allocation.
-3. **Level 3 (Futuristic City Banking Hub)**: Practice filling realistic Indian bank deposit slips, withdrawal forms, and cheques with dual counterfoils, and learn digital cyber safety against OTP and phishing scams.
-4. **Campus Map & Saved Simulations**: Navigate between districts, earn milestone badges, and save your custom portfolio calculations.
-
-*Note: All money and investments used in Learn2Invest are 100% educational virtual money.*`
-  } else if (qLower.includes('navigate') || qLower.includes('where to go') || qLower.includes('help me navigate') || qLower.includes('roadmap')) {
-    fallbackReply = `**Campus Navigation Guide** 🗺️
-You can easily jump between different areas of Learn2Invest:
-- **3D Garden / Courtyard**: The campus entrance where you choose your character and sign in.
-- **Level 1 School Classroom**: Click [Level 1 School] to watch video lessons and take the exam quiz.
-- **Level 2 Investment Lab**: Click [Level 2 Lab] to test government schemes, the Savings Mixer, and Portfolio Simulator.
-- **Level 3 Banking Hub**: Click [Level 3 Banking] to practice filling bank deposit slips and cyber safety.
-- **Campus Route Map**: Click [Campus Map] to see your character's progression roadmap.
-- **Saved Vault**: Click [Saved Simulations] to view your saved investment plans.
-- **Top HUD**: Check [Leaderboard] for XP rankings or [Badges] for your achievement trophies!`
-  } else if (qLower.includes('ppf') || qLower.includes('public provident')) {
-    fallbackReply = `**Public Provident Fund (PPF)** 🏦
-- **Interest Rate**: 7.1% per annum (compounded annually).
-- **Lock-in Period**: 15 years (extendable in 5-year blocks).
-- **Deposit Limits**: Minimum ₹500/year, Maximum ₹1.5 Lakh/year.
-- **Tax Benefit**: Triple Tax-Free (EEE) under Section 80C — no tax on deposit, interest, or withdrawal.
-- **Safety**: 100% Sovereign Guarantee backed by the Government of India.
-You can simulate PPF returns in [Level 2 Lab] on Computer 1!`
-  } else if (qLower.includes('fd') || qLower.includes('fixed deposit')) {
-    fallbackReply = `**Fixed Deposit (Bank FD)** 💳
-- **Interest Rate**: 6.5% to 7.5% depending on bank and tenure.
-- **Tenure**: Flexible from 7 days up to 10 years.
-- **Senior Citizens**: Typically receive an extra 0.5% interest rate.
-- **Safety**: Insured up to ₹5 Lakh per bank by DICGC (RBI subsidiary).
-- **Tax**: Interest is taxable as per your income tax slab; 5-year tax-saving FDs qualify for Section 80C.`
-  } else if (qLower.includes('ssy') || qLower.includes('sukanya')) {
-    fallbackReply = `**Sukanya Samriddhi Yojana (SSY)** 👧
-- **Interest Rate**: 8.2% per annum — the highest rate among government small savings schemes!
-- **Eligibility**: Can be opened for a girl child below 10 years of age.
-- **Maturity**: Matures when the child reaches 21 years of age.
-- **Tax Benefit**: Fully tax-free (EEE category) under Section 80C.
-- **Deposit**: Minimum ₹250/year, Maximum ₹1.5 Lakh/year.`
-  } else if (qLower.includes('slip') || qLower.includes('counterfoil') || qLower.includes('bank form') || qLower.includes('deposit')) {
-    fallbackReply = `**How to Fill an Indian Bank Deposit Slip** 🏛️
-1. **Left Counterfoil (Customer Copy)**: Always keep this! The teller stamps and signs it as your official legal receipt that the bank received your money.
-2. **Right Bank Copy**: Retained by the bank teller to process the transaction.
-3. **Key Fields to Complete**:
-   - **Date**: Top right corner (DD/MM/YYYY).
-   - **Account Number**: Write clearly inside the account number box grid.
-   - **Account Holder Name**: Enter the exact name registered with the bank.
-   - **Amount in Figures & Words**: e.g., "₹5,000/-" and "Five Thousand Rupees Only".
-   - **Cash Denominations**: Specify the count of ₹500, ₹200, or ₹100 notes.
-   - **Depositor Signature**: Sign at the bottom.
-You can practice filling realistic slips for SBI, PNB, Canara Bank, and Karnataka Bank in [Level 3 Banking]!`
-  } else if (qLower.includes('otp') || qLower.includes('scam') || qLower.includes('cyber') || qLower.includes('safety')) {
-    fallbackReply = `**Digital Banking Cyber Safety Rules** 🛡️
-1. **NEVER share your 6-digit OTP or UPI PIN** with anyone, even if someone claims to be a bank manager or police officer.
-2. **UPI PIN is ONLY for SENDING money**. You NEVER need to enter your UPI PIN or scan a QR code to RECEIVE money.
-3. **Beware of Suspicious Links**: Banks will never send SMS asking you to click short links to update KYC or stop SIM blockage.
-4. Always verify bank URLs start with **https://** and have a lock icon.`
-  } else if (qLower.includes('admin') || qLower.includes('password') || qLower.includes('token') || qLower.includes('secret')) {
-    fallbackReply = `**Security & Role Notice** 🔒
-Administrator features and user databases are restricted to authorized administrators (accessible at [Admin Panel] for authorized admin emails).
-To protect learner privacy, system credentials, passwords, and private records are never displayed through chat. How can I assist you with Learn2Invest's learning features today?`
-  } else if (qLower.includes('mixer') || qLower.includes('savings mix')) {
-    fallbackReply = `**Savings Mixer Studio (Computer 2)** 🎛️
-The Savings Mixer is located in the [Level 2 Lab]. It lets you:
-1. Adjust percentage sliders across 5 Indian schemes: PPF, FD, NSC, Sukanya Samriddhi (SSY), and RD.
-2. The total allocation across all schemes must equal exactly **100%**.
-3. It computes the blended interest rate and projects your returns over 1 to 15 years.`
-  } else if (qLower.includes('quiz') || qLower.includes('exam') || qLower.includes('test') || qLower.includes('score')) {
-    fallbackReply = `**Level 1 Examination Center** 📝
-- **Format**: 10 multiple-choice questions covering savings, compounding, and Indian schemes.
-- **Passing Score**: At least **60% (6 out of 10)** is required to pass.
-- **Rewards**: Passing awards **+100 XP** and permanently unlocks the [Level 2 Lab]!
-- **Hints & Explanations**: Every question provides a helpful hint and a concept explanation.`
-  } else if (qLower.includes('unlock') || qLower.includes('how to reach') || qLower.includes('next level')) {
-    fallbackReply = `**How to Unlock Levels in Learn2Invest** 🚀
-1. **Level 1 (School Classroom)**: Unlocked by default. Watch lessons and pass the Examination Quiz with 60%+ score.
-2. **Level 2 (Government District Lab)**: Unlocks automatically after passing the Level 1 Quiz. Complete the 3 computer workstations to master investing.
-3. **Level 3 (Futuristic Banking Hub)**: Unlocks after completing all workstations in Level 2.
-You can view your progression roadmap anytime at [Campus Map]!`
-  } else if (qLower.includes('withdraw') || qLower.includes('real money') || qLower.includes('cash out') || qLower.includes('bank account') || qLower.includes('sbi account')) {
-    fallbackReply = `**Virtual Educational Simulator Disclaimer** ⚠️
-All money, returns, portfolio values, and bank balances in Learn2Invest are **100% educational virtual money**.
-- No real money is deposited, earned, or withdrawn.
-- You cannot transfer funds to real bank accounts (like SBI, PNB, or HDFC).
-- The platform is designed purely as a risk-free learning tool for students and beginners.`
-  } else if (qLower.includes('smart allocation') || qLower.includes('gap period')) {
-    fallbackReply = `**Smart Allocation & Gap Period Analysis** 💡
-- **Smart Allocation**: On Computer 3 in the [Level 2 Lab], it educational algorithmically weights your monthly budget toward higher interest options while keeping every selected asset active.
-- **Gap Periods**: Different investments mature at different horizons (e.g. FD in 5 years, PPF in 15 years). The gap period analysis shows what happens when short-term schemes mature while long-term investments continue compounding.`
-  } else if (qLower.includes('nsc')) {
-    fallbackReply = `**National Savings Certificate (NSC)** 📮
-- **Interest Rate**: 7.7% per annum (compounded annually).
-- **Tenure**: Fixed 5-year lock-in period.
-- **Tax Benefit**: Qualifies for Section 80C deduction up to ₹1.5 Lakh.
-- **Safety**: 100% Sovereign Guarantee backed by the Government of India.`
-  } else if (qLower.includes('rd') || qLower.includes('recurring')) {
-    fallbackReply = `**Recurring Deposit (RD)** 📅
-- **Interest Rate**: 6.5% – 7.0% per annum.
-- **Deposit**: Fixed monthly installments starting from ₹100/month.
-- **Best For**: Disciplined regular monthly savings from salary or pocket money.`
-  } else if (qLower.includes('leaderboard') || qLower.includes('rank') || qLower.includes('badge')) {
-    fallbackReply = `**Campus Achievements & Rankings** 🏆
-- Click [Leaderboard] to see the top learners ranked by XP across the campus.
-- Click [Badges] to view your earned achievement badges (First Step, School Master, Lab Wizard, etc.).
-- Click [Performance Report] to review your comprehensive financial score card.`
-  } else {
-    fallbackReply = `I am here to help you navigate and master Learn2Invest! 🎓
+  // 4. Default contextual guidance fallback if completely unmatched
+  res.json({
+    reply: `I am here to help you navigate and master Learn2Invest! 🎓
 You are currently in **${userContext?.currentScreen || 'Campus'}**.
 Here are some things you can ask me:
-- *"Explain this page."*
-- *"How do I unlock Level 2?"*
+- *"What is ELSS or SIP?"*
 - *"What is the difference between PPF and FD?"*
 - *"How does the Savings Mixer work?"*
 - *"How do I fill out a bank deposit slip?"*
-- *"Help me navigate."*
+- *"Golden rules of digital banking safety?"*
+- *"How do I unlock Level 2?"*
 
-What would you like to explore next?`
-  }
-
-  res.json({
-    reply: fallbackReply,
+What would you like to explore next?`,
     model: 'learn2invest-knowledge-engine',
   })
 })

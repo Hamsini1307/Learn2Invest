@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import soundEngine from '../utils/soundEngine.js'
+import { getFinancialKnowledgeAnswer } from '../data/financialKnowledge.js'
 import {
   WEBSITE_INFO,
   SCREEN_KNOWLEDGE,
@@ -217,6 +218,8 @@ async function fetchDynamicBotAnswer(
 ) {
   const progress = getLiveProgressSnapshot(state, currentScreen)
 
+  // Primary: Google Gemini API Engine via /api/chat Proxy (Grounding & Reasoning)
+
   const contents = [
     ...history
       .filter((m) => !m.isGreeting)
@@ -253,7 +256,11 @@ async function fetchDynamicBotAnswer(
         previousInteractionIdRef.current = data.interactionId
       }
       const text = data?.reply || data?.candidates?.[0]?.content?.parts?.[0]?.text
-      if (text && text.trim()) {
+      if (
+        text &&
+        text.trim() &&
+        !text.includes('I am here to help you navigate and master Learn2Invest')
+      ) {
         return text.trim()
       }
     }
@@ -278,6 +285,43 @@ CRITICAL CHATBOT GUIDELINES:
 - Keep general responses short (under 120 words), clear, using bullet points, bold key terms, and Indian Rupee formatting (₹).
 - DO NOT mention [Level 2 Lab] or [Campus Map] unless the user specifically asks how to navigate there.`
 
+    // A. Direct Client-Side Gemini Engine (Powered by user's key)
+    const clientKey = import.meta.env?.VITE_GEMINI_API_KEY
+    if (clientKey) {
+      const directModels = ['gemini-3.5-flash', 'gemini-3.5-flash-lite', 'gemini-3.1-flash-lite', 'gemini-flash-latest']
+      for (const m of directModels) {
+        try {
+          const gemRes = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${clientKey}`,
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              signal: AbortSignal.timeout(7000),
+              body: JSON.stringify({
+                systemInstruction: { parts: [{ text: directSystemInstruction }] },
+                contents: contents.map((c) => ({
+                  role: c.role === 'model' || c.role === 'assistant' ? 'model' : 'user',
+                  parts: [{ text: c?.parts?.[0]?.text || '' }],
+                })),
+                generationConfig: {
+                  temperature: 0.65,
+                  maxOutputTokens: 1000,
+                },
+              }),
+            }
+          )
+          if (gemRes.ok) {
+            const gemData = await gemRes.json()
+            const gemText = gemData?.candidates?.[0]?.content?.parts?.[0]?.text
+            if (gemText && gemText.trim()) {
+              return gemText.trim()
+            }
+          }
+        } catch {}
+      }
+    }
+
+    // B. Fast Open Fallback
     const openAiMessages = [
       { role: 'system', content: directSystemInstruction },
       ...contents.map((c) => ({
@@ -304,44 +348,21 @@ CRITICAL CHATBOT GUIDELINES:
     }
   } catch {}
 
-  // 3. Client-Side Deterministic Fallback grounded in website knowledge
-  const qLower = message.toLowerCase()
-  const numMatch = message.replace(/,/g, '').match(/\b(\d{3,9})\b/)
-  if (numMatch && (qLower.includes('invest') || qLower.includes('put') || qLower.includes('have') || qLower.includes('allocate') || qLower.includes('money') || qLower.includes('rupee'))) {
-    const total = parseFloat(numMatch[1])
-    if (total > 0) {
-      const eq = Math.round(total * 0.5)
-      const debt = Math.round(total * 0.3)
-      const liq = total - eq - debt
-      return `Here is your smart asset allocation for **₹${total.toLocaleString('en-IN')}**:
-
-* **50% (~₹${eq.toLocaleString('en-IN')})** — Index Mutual Funds (e.g. Nifty 50) for long-term growth and beating inflation.
-* **30% (~₹${debt.toLocaleString('en-IN')})** — Safe Fixed Income (PPF at 7.1% or FD at 7.25%) for guaranteed capital protection.
-* **20% (~₹${liq.toLocaleString('en-IN')})** — Emergency Savings / Liquid Cash for quick liquidity.`
-    }
-  }
-
-  if (qLower.includes('about') || qLower.includes('website') || qLower.includes('what is this') || qLower.includes('explain this website')) {
-    return `**Welcome to Learn2Invest!** 🎓
-Learn2Invest is an interactive 3D gamified learning simulator designed to teach practical Indian financial literacy.
-
-Here is what you can do on the platform:
-1. **Level 1 (School Classroom)**: Watch 5 bite-sized financial literacy video lessons on PPF, FD, NSC, and Sukanya Samriddhi, then pass the 10-Question Examination Center (+100 XP).
-2. **Level 2 (Government District Lab)**: Test 6 government investment scheme simulators, mix savings allocations in the Mixer Studio, and run multi-asset portfolio simulations with Smart Allocation.
-3. **Level 3 (Futuristic City Banking Hub)**: Practice filling realistic Indian bank deposit slips, withdrawal forms, and cheques with dual counterfoils, and learn digital cyber safety against OTP and phishing scams.
-4. **Campus Map & Saved Simulations**: Navigate between districts, earn milestone badges, and save your custom portfolio calculations.
-
-*Note: All money and investments used in Learn2Invest are 100% educational virtual money.*`
+  // 3. Client-Side Comprehensive Financial Knowledge Engine
+  const localKnowledgeAnswer = getFinancialKnowledgeAnswer(message, currentScreen)
+  if (localKnowledgeAnswer) {
+    return localKnowledgeAnswer
   }
 
   return `I am your Learn2Invest Website Assistant! 🎓
 You are currently viewing **${SCREEN_KNOWLEDGE[currentScreen]?.title || 'Campus Entrance'}**.
 You can ask me:
-- *"Explain this page."*
-- *"Help me navigate."*
-- *"How do I unlock Level 2?"*
-- *"What is PPF and FD?"*
+- *"What is ELSS or SIP?"*
+- *"What is the difference between PPF and FD?"*
+- *"How does the Savings Mixer work?"*
 - *"How do I fill out a bank deposit slip?"*
+- *"Golden rules of digital banking safety?"*
+- *"How do I unlock Level 2?"*
 
 How can I assist you right now?`
 }
@@ -1162,7 +1183,7 @@ Ask me any financial question about investing, Indian savings schemes, or bankin
                   <span
                     style={{
                       fontSize: '20px',
-                      background: 'rgba(56,189,248,0.25)',
+                      background: 'linear-gradient(135deg, rgba(56,189,248,0.25), rgba(99,102,241,0.25))',
                       border: '2px solid #38BDF8',
                       color: '#7DD3FC',
                       padding: '6px 18px',
@@ -1170,13 +1191,13 @@ Ask me any financial question about investing, Indian savings schemes, or bankin
                       fontWeight: 900,
                     }}
                   >
-                    AI Mentor
+                    ✨ Gemini AI Mentor
                   </span>
                 </div>
                 <div style={{ fontSize: '22px', color: '#93C5FD', fontWeight: 800, marginTop: '8px', lineHeight: '1.25' }}>
                   {isListeningVoice
                     ? '🎙️ Listening to your voice now...'
-                    : '🟢 Online • AI Financial Mentor'}
+                    : '🟢 Online • Powered by Google Gemini AI'}
                 </div>
               </div>
             </div>

@@ -7286,6 +7286,7 @@ export default function Level1SchoolWorld({
   }
 
   const focusCameraOnBankSection = (secNum, animateWalk = true) => {
+    if (!hasLoggedIn) return
     const clampedSec = secNum >= 2 ? 2 : 1
     if (timelineRef.current) timelineRef.current.kill()
     setIsPlayerInAtmQueue(false)
@@ -7440,6 +7441,7 @@ export default function Level1SchoolWorld({
   }
 
   const startAtmQueueExperience = () => {
+    if (!hasLoggedIn) return
     soundEngine.playClick()
     if (timelineRef.current) timelineRef.current.kill()
     if (atmQueueTimerRef.current) clearInterval(atmQueueTimerRef.current)
@@ -7830,6 +7832,7 @@ export default function Level1SchoolWorld({
   }
 
   const handleGlobalHome = () => {
+    if (!hasLoggedIn) return
     soundEngine.playClick()
     if (timelineRef.current) timelineRef.current.kill()
     frontDoorOpenRef.current = 0
@@ -8940,8 +8943,9 @@ export default function Level1SchoolWorld({
           }}
           className="absolute z-30 flex items-start justify-between pointer-events-none flex-wrap max-w-full"
         >
-        {/* Left: BACK, HOME, Rank List, MAP & Stage Pill */}
-        <div style={{ gap: '1.0vh' }} className="flex items-center pointer-events-auto flex-wrap">
+        {/* Left: BACK, HOME, Rank List, MAP & Stage Pill (Strictly hidden until logged in) */}
+        {hasLoggedIn && (
+          <div style={{ gap: '1.0vh' }} className="flex items-center pointer-events-auto flex-wrap">
           {journeyStage !== 'login' && journeyStage !== 'school_yard' && (
             <button
               onClick={handleGlobalBackOneStep}
@@ -9038,6 +9042,7 @@ export default function Level1SchoolWorld({
             </span>
           </div>
         </div>
+        )}
 
         {/* Right: Daylight / Night Mode, XP tab, music button, Logout */}
         <div style={{ gap: '1.0vh' }} className="flex items-center pointer-events-auto flex-wrap">
@@ -9081,26 +9086,28 @@ export default function Level1SchoolWorld({
             </button>
           )}
 
-          {/* XP Tab */}
-          <button
-            type="button"
-            onClick={() => {
-              startAtmQueueExperience()
-            }}
-            style={{ width: '10.6vh', minWidth: '10.6vh', height: '9.4vh', minHeight: '9.4vh', padding: '0.8vh', borderRadius: '1.8vh', gap: '0.35vh' }}
-            className="bg-slate-900 hover:bg-slate-800 border-2 border-amber-400 text-amber-300 shadow-xl flex flex-col items-center justify-center cursor-pointer transition-transform hover:scale-105 text-center"
-            title="Wallet XP & Banked XP Vault"
-          >
-            <span style={{ fontSize: '2.7vh', lineHeight: 1 }}>⭐</span>
-            <span style={{ fontSize: '1.5vh', lineHeight: 1.1 }} className="font-black tracking-wide">{state?.xp || 0} XP</span>
-            {bankedXp > 0 ? (
-              <span style={{ fontSize: '1.05vh', lineHeight: 1.1, padding: '0.2vh 0.6vh' }} className="font-black rounded bg-emerald-500/30 text-emerald-300 border border-emerald-400">
-                🏦 {bankedXp}
-              </span>
-            ) : (
-              <span style={{ fontSize: '1.05vh', lineHeight: 1.1 }} className="text-slate-200 font-bold">ATM & Vault</span>
-            )}
-          </button>
+          {/* XP Tab (Strictly hidden until logged in) */}
+          {hasLoggedIn && (
+            <button
+              type="button"
+              onClick={() => {
+                startAtmQueueExperience()
+              }}
+              style={{ width: '10.6vh', minWidth: '10.6vh', height: '9.4vh', minHeight: '9.4vh', padding: '0.8vh', borderRadius: '1.8vh', gap: '0.35vh' }}
+              className="bg-slate-900 hover:bg-slate-800 border-2 border-amber-400 text-amber-300 shadow-xl flex flex-col items-center justify-center cursor-pointer transition-transform hover:scale-105 text-center"
+              title="Wallet XP & Banked XP Vault"
+            >
+              <span style={{ fontSize: '2.7vh', lineHeight: 1 }}>⭐</span>
+              <span style={{ fontSize: '1.5vh', lineHeight: 1.1 }} className="font-black tracking-wide">{state?.xp || 0} XP</span>
+              {bankedXp > 0 ? (
+                <span style={{ fontSize: '1.05vh', lineHeight: 1.1, padding: '0.2vh 0.6vh' }} className="font-black rounded bg-emerald-500/30 text-emerald-300 border border-emerald-400">
+                  🏦 {bankedXp}
+                </span>
+              ) : (
+                <span style={{ fontSize: '1.05vh', lineHeight: 1.1 }} className="text-slate-200 font-bold">ATM & Vault</span>
+              )}
+            </button>
+          )}
 
           {/* Music Button & Volume Slider */}
           <div
@@ -9251,7 +9258,7 @@ export default function Level1SchoolWorld({
       {/* ═══════════════════════════════════════════════════════════════════
           🏆 TOP LEARNERS RANK LIST MODAL (Opened from Top Bar)
       ═══════════════════════════════════════════════════════════════════ */}
-      {showRankModal && (
+      {showRankModal && hasLoggedIn && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md pointer-events-auto">
           <div className="w-[min(94vw,640px)] max-h-[86vh] rounded-3xl bg-slate-900 border-2 border-amber-400 shadow-[0_25px_90px_rgba(0,0,0,0.9)] overflow-hidden flex flex-col text-white">
             <div className="px-6 py-4 bg-gradient-to-r from-amber-500 via-yellow-400 to-emerald-400 text-slate-950 flex items-center justify-between shrink-0">
@@ -9709,7 +9716,7 @@ export default function Level1SchoolWorld({
           FINAL COMPLETION UI & ATTACHED SCHOOL-TO-BANK CAMPUS MAP
           Includes: School Pin, 3 Garden Stalls Pin, Road Path, Bank Pin & 24/7 ATM Pin!
       ═══════════════════════════════════════════════════════════════════ */}
-      {(journeyStage === 'journey_complete' || showCampusMapModal) && (
+      {(journeyStage === 'journey_complete' || (showCampusMapModal && hasLoggedIn)) && (
         <div className="absolute inset-0 z-40 flex items-center justify-center p-2 sm:p-5 pt-3 sm:pt-6 bg-slate-950/85 backdrop-blur-md pointer-events-auto">
           <div className="w-[min(98vw,1560px)] min-h-[90vh] max-h-[96vh] overflow-y-auto rounded-[36px] sm:rounded-[52px] bg-slate-950/98 border-4 sm:border-6 border-amber-400 shadow-[0_30px_140px_rgba(251,191,36,0.45),0_30px_100px_rgba(0,0,0,0.95)] p-6 sm:p-10 lg:p-12 text-white flex flex-col justify-between">
             {/* Header */}
