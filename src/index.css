@@ -931,16 +931,21 @@ select::placeholder,
 /* ─── VIBRANT BLUE BALLPOINT PEN INK HANDWRITING OVERLAY (EXACT SAMPLE MATCH) ─── */
 .printable-slip-area div,
 .printable-slip-area span {
-  color: #0033aa !important;
-  -webkit-text-fill-color: #0033aa !important;
-  font-family: 'Edu NSW ACT Foundation', 'Caveat', 'Architects Daughter', 'Patrick Hand', cursive !important;
+  color: #002b9e !important;
+  -webkit-text-fill-color: #002b9e !important;
+  font-family: 'Space Grotesk', 'Outfit', 'Nunito', -apple-system, sans-serif !important;
   font-weight: 800 !important;
   font-style: normal !important;
   text-transform: none !important;
   opacity: 1 !important;
-  letter-spacing: 0.4px !important;
-  font-size: 1.15em !important;
-  text-shadow: 0.1px 0.1px 0.3px rgba(0, 51, 170, 0.4) !important;
+  letter-spacing: 0.3px !important;
+  text-shadow: 0.2px 0.2px 0.4px rgba(0, 43, 158, 0.35) !important;
+}
+
+.printable-slip-area [data-signature-text],
+.printable-slip-area [data-signature-text] * {
+  font-family: 'Caveat', 'Brush Script MT', 'Dancing Script', cursive !important;
+  font-weight: 800 !important;
 }
 
 

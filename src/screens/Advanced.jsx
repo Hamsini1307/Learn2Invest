@@ -984,7 +984,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
           digits = `${day.padStart(2, '0')}${month.padStart(2, '0')}${year}`.split('')
         }
       }
-      const hasPercentWidth = field.width !== undefined
+      const hasPercentWidth = typeof field.width === 'number' && field.width > 0
       return (
         <div key={field.id} style={{
           position: 'absolute',
@@ -995,11 +995,13 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
           display: 'flex',
           justifyContent: hasPercentWidth ? 'space-between' : 'flex-start',
           alignItems: 'center',
-          gap: hasPercentWidth ? 0 : `${field.gap || 6}px`,
-          fontSize: field.fontSize || '1.20rem',
-          color: field.color || '#1d4ed8',
+          gap: hasPercentWidth ? 0 : (typeof field.gap === 'number' ? `${field.gap}px` : (field.gap || '0px')),
+          fontSize: field.fontSize || '2.05rem',
+          lineHeight: 1,
+          color: field.color || '#002b9e',
           fontWeight: field.fontWeight || 900,
-          fontFamily: "'Courier New', monospace"
+          fontFamily: "'Space Grotesk', 'Outfit', monospace",
+          letterSpacing: '0px'
         }}>
           {digits.map((d, i) => (
             <span
@@ -1009,7 +1011,8 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
                 alignItems: 'center',
                 justifyContent: 'center',
                 flex: hasPercentWidth ? '1 1 0' : 'none',
-                width: hasPercentWidth ? 'auto' : (field.boxWidth || '14px'),
+                width: hasPercentWidth ? 'auto' : (field.boxWidth || '26px'),
+                minWidth: hasPercentWidth ? 0 : (field.boxWidth || '26px'),
                 textAlign: 'center'
               }}
             >
@@ -1037,8 +1040,8 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
           position: 'absolute',
           top: `${field.y}%`,
           left: `${field.x}%`,
-          fontSize: field.fontSize || '0.92rem',
-          color: field.color || '#1d4ed8',
+          fontSize: field.fontSize || '2.05rem',
+          color: field.color || '#002b9e',
           fontWeight: field.fontWeight || 900,
           fontFamily: "'Courier New', monospace",
           whiteSpace: 'nowrap'
@@ -1051,7 +1054,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
     // 2. CHARACTER BOXES RENDERING (Account Number / PAN per printed box)
     if (field.renderingMode === 'characterBoxes') {
       const chars = String(value || '').split('')
-      const hasPercentWidth = field.width !== undefined
+      const hasPercentWidth = typeof field.width === 'number' && field.width > 0
       return (
         <div key={field.id} style={{
           position: 'absolute',
@@ -1061,12 +1064,13 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
           display: 'flex',
           justifyContent: hasPercentWidth ? 'space-between' : 'flex-start',
           alignItems: 'center',
-          gap: hasPercentWidth ? 0 : `${field.gap || 6}px`,
+          gap: hasPercentWidth ? 0 : (typeof field.gap === 'number' ? `${field.gap}px` : (field.gap || '0px')),
           letterSpacing: field.letterSpacing || 'normal',
-          fontSize: field.fontSize || '1.30rem',
-          color: field.color || '#1d4ed8',
+          fontSize: field.fontSize || '2.15rem',
+          lineHeight: 1,
+          color: field.color || '#002b9e',
           fontWeight: field.fontWeight || 900,
-          fontFamily: "'Courier New', monospace"
+          fontFamily: "'Space Grotesk', 'Outfit', monospace"
         }}>
           {chars.map((ch, i) => (
             <span
@@ -1076,7 +1080,8 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
                 alignItems: 'center',
                 justifyContent: 'center',
                 flex: hasPercentWidth ? '1 1 0' : 'none',
-                width: hasPercentWidth ? 'auto' : (field.boxWidth || '14px'),
+                width: hasPercentWidth ? 'auto' : (field.boxWidth || '26px'),
+                minWidth: hasPercentWidth ? 0 : (field.boxWidth || '26px'),
                 textAlign: 'center'
               }}
             >
@@ -1086,6 +1091,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
         </div>
       )
     }
+
     // 3. CHECKBOX RENDERING (Checkmark inside selected box)
     if (field.renderingMode === 'checkbox') {
       if (userData.accountType === field.bindValue) {
@@ -1095,7 +1101,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
             top: `${field.y}%`,
             left: `${field.x}%`,
             fontSize: field.fontSize || '1.1rem',
-            color: '#1d4ed8',
+            color: '#002b9e',
             fontWeight: 900
           }}>
             ✓
@@ -1122,7 +1128,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
           {userData.signature ? (
             <img src={userData.signature} alt="User Signature" style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }} />
           ) : (
-            <div style={{ fontSize: '1.05rem', color: '#1d4ed8', fontWeight: 800, fontFamily: "'Caveat', 'Brush Script MT', 'Dancing Script', cursive", transform: 'rotate(-2deg)' }}>
+            <div data-signature-text="true" style={{ fontSize: field.fontSize || '2.35rem', color: '#002b9e', fontWeight: 800, fontFamily: "'Caveat', 'Brush Script MT', 'Dancing Script', cursive", transform: 'rotate(-2deg)' }}>
               {userData.name ? userData.name : ''}
             </div>
           )}
@@ -1140,16 +1146,16 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
         width: field.width ? `${field.width}%` : 'auto',
         height: field.height ? `${field.height}%` : 'auto',
         maxWidth: field.width ? `${field.width}%` : 'none',
-        maxHeight: field.height ? `${field.height}%` : 'none',
-        fontSize: field.fontSize || '0.98rem',
+        
+        fontSize: field.fontSize || '2.05rem',
         letterSpacing: field.letterSpacing || 'normal',
-        color: field.color || '#1d4ed8',
+        color: field.color || '#002b9e',
         fontWeight: field.fontWeight || 900,
         fontFamily: field.fontFamily || "'Courier New', monospace",
         lineHeight: 1.25,
         wordBreak: 'break-word',
         whiteSpace: field.width ? 'normal' : 'nowrap',
-        overflow: 'hidden',
+        
         textOverflow: 'ellipsis',
         display: field.height ? 'flex' : 'block',
         alignItems: field.height ? 'center' : 'initial',
@@ -1351,7 +1357,6 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
                     <BankLogo id={inst.id} />
                   </div>
                   <div style={{ fontSize: 32, fontWeight: 900, color: isLight ? '#0f172a' : '#ffffff', textAlign: 'center', lineHeight: 1.25 }}>{inst.name}</div>
-                  <div style={{ fontSize: 24, color: '#ea580c', fontWeight: 900, background: 'rgba(234, 88, 12, 0.16)', padding: '10px 24px', borderRadius: 14 }}>IFSC: {inst.code}</div>
                 </div>
               ))}
             </div>
@@ -1833,14 +1838,14 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
             <div style={{ width: '100%', overflowX: 'auto', paddingBottom: 14 }}>
               <div className="printable-slip-area" style={{
                 position: 'relative',
-                width: `${Math.round(slipScale * 100)}%`,
-                maxWidth: '100%',
+                width: `${Math.round(slipScale * 100)}%`, minWidth: `${Math.round(slipScale * 100)}%`,
                 margin: '0 auto',
                 borderRadius: 20,
                 overflow: 'hidden',
                 border: '4px solid #d97706',
                 boxShadow: '0 16px 45px rgba(0,0,0,0.4)',
-                background: '#ffffff'
+                background: '#ffffff',
+                containerType: 'inline-size'
               }}>
                 {/* Authentic Untouched Original Background Image */}
                 <img
