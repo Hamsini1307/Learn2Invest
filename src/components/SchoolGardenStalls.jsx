@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { Html, RoundedBox } from '@react-three/drei'
 
@@ -843,6 +843,11 @@ export function SchoolGardenStallModal({
   const [statusToast, setStatusToast] = useState(null)
   const tickTimerRef = useRef(null)
 
+  const [localEquippedId, setLocalEquippedId] = useState(currentOutfitId)
+  useEffect(() => {
+    if (currentOutfitId) setLocalEquippedId(currentOutfitId)
+  }, [currentOutfitId])
+
   const [localOwnedClothes, setLocalOwnedClothes] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem('l2i_owned_clothes') || '[]')
@@ -878,6 +883,7 @@ export function SchoolGardenStallModal({
   }
 
   const handleEquipItem = (item) => {
+    setLocalEquippedId(item.id)
     if (onEquipColor) onEquipColor(item.color)
     if (onEquipStallOutfit) {
       onEquipStallOutfit({
@@ -900,13 +906,13 @@ export function SchoolGardenStallModal({
     if (availableXp < item.cost) return
     playStallSfx('buy')
     if (onSpendXp) onSpendXp(item.cost)
-    if (onBuyCloth) onBuyCloth(item.id, item)
     const updated = Array.from(new Set([...ownedClothes, item.id]))
     setLocalOwnedClothes(updated)
     try {
       localStorage.setItem('l2i_owned_clothes', JSON.stringify(updated))
     } catch {}
     handleEquipItem(item)
+    if (onBuyCloth) onBuyCloth(item.id, item)
     showMessage(`👕 Purchased & automatically wearing ${item.name} for ${item.cost} XP!`)
   }
 
@@ -988,16 +994,16 @@ export function SchoolGardenStallModal({
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          width: 'min(1440px, 96vw)',
-          minHeight: '84vh',
-          maxHeight: '90vh',
+          width: 'min(1760px, 98vw)',
+          minHeight: '88vh',
+          maxHeight: '95vh',
           overflowY: 'auto',
           background: 'linear-gradient(160deg, #0F172A 0%, #1E293B 100%)',
-          border: '2px solid rgba(56, 189, 248, 0.5)',
-          padding: '30px 36px',
-          borderRadius: '32px',
+          border: '3.5px solid rgba(56, 189, 248, 0.6)',
+          padding: '38px 46px',
+          borderRadius: '36px',
           color: '#F8FAFC',
-          boxShadow: '0 25px 75px rgba(0,0,0,0.8)',
+          boxShadow: '0 30px 90px rgba(0,0,0,0.85)',
         }}
       >
         {/* Top Header + Quick Stall Switcher Tabs */}
@@ -1013,21 +1019,21 @@ export function SchoolGardenStallModal({
             marginBottom: '14px',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <span style={{ fontSize: '52px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '18px' }}>
+            <span style={{ fontSize: '70px' }}>
               {normalizedStall === 'clothes' ? '👕' : normalizedStall === 'icecream' ? '🍦' : '🎡'}
             </span>
             <div>
-              <h2 style={{ margin: 0, fontSize: '34px', fontWeight: 900, color: '#FFFFFF', letterSpacing: '-0.02em' }}>
+              <h2 style={{ margin: 0, fontSize: '44px', fontWeight: 900, color: '#FFFFFF', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
                 {normalizedStall === 'clothes'
                   ? 'Stall 1: Campus Clothes & Style Boutique (Min 20 XP)'
                   : normalizedStall === 'icecream'
                     ? 'Stall 2: Scoops & Smiles Ice Cream Parlour (< 10 XP)'
                     : 'Stall 3: Spin the Finance Wheel Mini-Game'}
               </h2>
-              <div style={{ fontSize: '16.5px', color: '#94A3B8', marginTop: '6px' }}>
+              <div style={{ fontSize: '22px', color: '#94A3B8', marginTop: '8px', fontWeight: 700 }}>
                 School Yard Garden Bazaar • Your Wallet Balance:{' '}
-                <strong style={{ color: '#FBBF24', fontSize: '19px' }}>⭐ {availableXp} XP</strong>
+                <strong style={{ color: '#FBBF24', fontSize: '28px', fontWeight: 900 }}>⭐ {availableXp} XP</strong>
               </div>
             </div>
           </div>
@@ -1036,13 +1042,16 @@ export function SchoolGardenStallModal({
             type="button"
             onClick={onClose}
             style={{
-              background: 'rgba(239,68,68,0.2)',
+              background: 'rgba(239,68,68,0.22)',
               color: '#FCA5A5',
-              border: '2px solid rgba(239,68,68,0.6)',
-              borderRadius: '16px',
-              padding: '14px 28px', fontSize: '16px',
+              border: '3px solid rgba(239,68,68,0.7)',
+              borderRadius: '20px',
+              padding: '18px 36px',
+              fontSize: '22px',
               fontWeight: 900,
               cursor: 'pointer',
+              boxShadow: '0 6px 18px rgba(239,68,68,0.25)',
+              transition: 'all 0.15s ease',
             }}
           >
             ✕ Close Stall
@@ -1066,13 +1075,15 @@ export function SchoolGardenStallModal({
                   if (onSwitchStall) onSwitchStall(tab.id)
                 }}
                 style={{
-                  flex: '1 1 240px',
-                  padding: '16px 26px',
-                  borderRadius: '18px',
-                  border: active ? `3px solid ${tab.color}` : '2px solid rgba(148,163,184,0.25)',
+                  flex: '1 1 260px',
+                  minHeight: '84px',
+                  padding: '22px 34px',
+                  borderRadius: '22px',
+                  border: active ? `4px solid ${tab.color}` : '3px solid rgba(148,163,184,0.3)',
                   background: active ? `${tab.color}35` : 'rgba(15,23,42,0.65)',
                   color: active ? '#FFFFFF' : '#CBD5E1',
-                  fontSize: '16.5px', fontWeight: 900, cursor: 'pointer',
+                  fontSize: '24px', fontWeight: 900, cursor: 'pointer',
+                  boxShadow: active ? `0 8px 24px ${tab.color}40` : 'none',
                   transition: 'all 0.15s ease',
                 }}
               >
@@ -1103,61 +1114,62 @@ export function SchoolGardenStallModal({
         {/* STALL 1: CLOTHES SHOP (MIN 20 XP) */}
         {normalizedStall === 'clothes' && (
           <div>
-            <p style={{ fontSize: '17.5px', color: '#CBD5E1', marginTop: 0, marginBottom: '22px' }}>
+            <p style={{ fontSize: '24px', color: '#E2E8F0', marginTop: 0, marginBottom: '26px', fontWeight: 600 }}>
               Upgrade your 3D character&apos;s outfit using your earned XP! Every premium campus outfit starts at{' '}
-              <strong style={{ color: '#FBBF24' }}>20 XP minimum</strong>.
+              <strong style={{ color: '#FBBF24', fontSize: '26px' }}>20 XP minimum</strong>.
             </p>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: '24px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(420px, 1fr))', gap: '28px' }}>
               {CLOTHING_ITEMS.map((item) => {
                 const isOwned = ownedClothes.includes(item.id)
-                const isEquipped = equippedColor === item.color || currentOutfitId === item.id
+                const isEquipped = localEquippedId === item.id || currentOutfitId === item.id || equippedColor === item.color
                 const canAfford = availableXp >= item.cost
                 return (
                   <div
                     key={item.id}
                     style={{
                       background: 'rgba(15,23,42,0.88)',
-                      border: isEquipped ? `2px solid ${item.color}` : '1px solid rgba(148,163,184,0.25)',
-                      borderRadius: '24px',
-                      padding: '24px',
+                      border: isEquipped ? `3.5px solid ${item.color}` : '2px solid rgba(148,163,184,0.3)',
+                      borderRadius: '28px',
+                      padding: '30px 28px',
                       display: 'flex',
                       flexDirection: 'column',
                       justifyContent: 'space-between',
-                      gap: '14px',
+                      gap: '16px',
+                      boxShadow: isEquipped ? `0 12px 30px ${item.color}35` : '0 8px 24px rgba(0,0,0,0.4)',
                     }}
                   >
                     <div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
                         <span
                           style={{
-                            width: '66px', height: '66px',
-                            borderRadius: '16px',
+                            width: '88px', height: '88px',
+                            borderRadius: '22px',
                             background: `${item.color}30`,
-                            border: `2.5px solid ${item.color}`,
+                            border: `3px solid ${item.color}`,
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            fontSize: '34px',
+                            fontSize: '46px',
                           }}
                         >
                           {item.icon}
                         </span>
                         <span
                           style={{
-                            background: 'rgba(245,158,11,0.18)',
-                            border: '1px solid rgba(245,158,11,0.45)',
+                            background: 'rgba(245,158,11,0.22)',
+                            border: '2px solid rgba(245,158,11,0.6)',
                             color: '#FBBF24',
                             fontWeight: 900,
-                            fontSize: '14px',
-                            padding: '6px 14px',
+                            fontSize: '20px',
+                            padding: '8px 20px',
                             borderRadius: '999px',
                           }}
                         >
                           ⚡ {item.cost} XP
                         </span>
                       </div>
-                      <div style={{ fontSize: '21px', fontWeight: 900, color: '#F8FAFC' }}>{item.name}</div>
-                      <div style={{ fontSize: '15px', color: '#94A3B8', marginTop: '8px', lineHeight: 1.6 }}>{item.desc}</div>
+                      <div style={{ fontSize: '28px', fontWeight: 900, color: '#F8FAFC' }}>{item.name}</div>
+                      <div style={{ fontSize: '18px', color: '#94A3B8', marginTop: '10px', lineHeight: 1.6, fontWeight: 600 }}>{item.desc}</div>
                     </div>
 
                     {isOwned ? (
@@ -1170,13 +1182,15 @@ export function SchoolGardenStallModal({
                         }}
                         style={{
                           width: '100%',
-                          padding: '16px 24px', borderRadius: '16px',
+                          minHeight: '80px',
+                          padding: '20px 30px', borderRadius: '20px',
                           border: 'none',
                           background: isEquipped ? '#10B981' : '#3B82F6',
                           color: '#fff',
-                          fontWeight: 800,
-                          fontSize: '16.5px',
+                          fontWeight: 900,
+                          fontSize: '22px',
                           cursor: 'pointer',
+                          boxShadow: '0 8px 20px rgba(0,0,0,0.3)',
                         }}
                       >
                         {isEquipped ? '✓ Wearing Now' : '👕 Wear This Outfit'}
@@ -1188,13 +1202,15 @@ export function SchoolGardenStallModal({
                         onClick={() => handleBuyClothItem(item)}
                         style={{
                           width: '100%',
-                          padding: '16px 24px', borderRadius: '16px',
+                          minHeight: '80px',
+                          padding: '20px 30px', borderRadius: '20px',
                           border: 'none',
                           background: canAfford ? `linear-gradient(135deg, ${item.color}, #4F46E5)` : 'rgba(51,65,85,0.7)',
                           color: canAfford ? '#fff' : '#64748B',
-                          fontWeight: 800,
-                          fontSize: '16.5px',
+                          fontWeight: 900,
+                          fontSize: '22px',
                           cursor: canAfford ? 'pointer' : 'not-allowed',
+                          boxShadow: canAfford ? '0 8px 24px rgba(0,0,0,0.35)' : 'none',
                         }}
                       >
                         {canAfford ? `Buy & Wear (${item.cost} XP)` : `Need ${item.cost} XP`}
@@ -1210,10 +1226,10 @@ export function SchoolGardenStallModal({
         {/* STALL 2: ICE CREAM PARLOUR (< 10 XP) */}
         {normalizedStall === 'icecream' && (
           <div>
-            <p style={{ fontSize: '16px', color: '#CBD5E1', marginTop: 0, marginBottom: '18px' }}>
-              Enjoy a refreshing campus treat! Every single cone & sundae here costs <strong style={{ color: '#38BDF8' }}>less than 10 XP</strong> so you can treat yourself while keeping your savings intact.
+            <p style={{ fontSize: '24px', color: '#E2E8F0', marginTop: 0, marginBottom: '26px', fontWeight: 600 }}>
+              Enjoy a refreshing campus treat! Every single cone & sundae here costs <strong style={{ color: '#38BDF8', fontSize: '26px' }}>less than 10 XP</strong> so you can treat yourself while keeping your savings intact.
             </p>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: '24px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(420px, 1fr))', gap: '28px' }}>
               {ICE_CREAM_ITEMS.map((ice) => {
                 const canAfford = availableXp >= ice.cost
                 const count = iceCreamsBought[ice.id] || 0
@@ -1222,37 +1238,37 @@ export function SchoolGardenStallModal({
                     key={ice.id}
                     style={{
                       background: 'rgba(15,23,42,0.88)',
-                      border: '2px solid rgba(56,189,248,0.4)',
-                      borderRadius: '24px',
-                      padding: '24px',
-                      boxShadow: '0 12px 30px rgba(0,0,0,0.45)',
+                      border: '3px solid rgba(56,189,248,0.5)',
+                      borderRadius: '28px',
+                      padding: '30px 28px',
+                      boxShadow: '0 14px 35px rgba(0,0,0,0.5)',
                       display: 'flex',
                       flexDirection: 'column',
                       justifyContent: 'space-between',
-                      gap: '10px',
+                      gap: '14px',
                     }}
                   >
                     <div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                        <span style={{ fontSize: '48px' }}>{ice.icon}</span>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                        <span style={{ fontSize: '64px' }}>{ice.icon}</span>
                         <span
                           style={{
-                            background: 'rgba(6,182,212,0.2)',
-                            border: '1px solid #06B6D4',
+                            background: 'rgba(6,182,212,0.22)',
+                            border: '2px solid #06B6D4',
                             color: '#67E8F9',
                             fontWeight: 900,
-                            fontSize: '14.5px',
-                            padding: '6px 14px',
+                            fontSize: '20px',
+                            padding: '8px 20px',
                             borderRadius: '999px',
                           }}
                         >
                           ⚡ {ice.cost} XP
                         </span>
                       </div>
-                      <div style={{ fontSize: '21px', fontWeight: 900, color: '#F8FAFC' }}>{ice.name}</div>
-                      <div style={{ fontSize: '15px', color: '#94A3B8', marginTop: '8px', lineHeight: 1.6 }}>{ice.desc}</div>
+                      <div style={{ fontSize: '28px', fontWeight: 900, color: '#F8FAFC' }}>{ice.name}</div>
+                      <div style={{ fontSize: '18px', color: '#94A3B8', marginTop: '10px', lineHeight: 1.6, fontWeight: 600 }}>{ice.desc}</div>
                       {count > 0 && (
-                        <div style={{ marginTop: '6px', fontSize: '13.5px', color: '#4ADE80', fontWeight: 800 }}>
+                        <div style={{ marginTop: '10px', fontSize: '18px', color: '#4ADE80', fontWeight: 800 }}>
                           🍦 Enjoyed {count} time{count > 1 ? 's' : ''}!
                         </div>
                       )}
@@ -1264,13 +1280,15 @@ export function SchoolGardenStallModal({
                       onClick={() => handleBuyIceCreamItem(ice)}
                       style={{
                         width: '100%',
-                        padding: '16px 24px', borderRadius: '16px',
+                        minHeight: '80px',
+                        padding: '20px 30px', borderRadius: '20px',
                         border: 'none',
                         background: canAfford ? 'linear-gradient(135deg, #06B6D4, #2563EB)' : 'rgba(51,65,85,0.7)',
                         color: canAfford ? '#fff' : '#64748B',
-                        fontWeight: 800,
-                        fontSize: '16.5px',
+                        fontWeight: 900,
+                        fontSize: '22px',
                         cursor: canAfford ? 'pointer' : 'not-allowed',
+                        boxShadow: canAfford ? '0 8px 24px rgba(6,182,212,0.4)' : 'none',
                       }}
                     >
                       {canAfford ? `🍦 Buy Scoop (${ice.cost} XP)` : `Need ${ice.cost} XP`}
@@ -1296,10 +1314,10 @@ export function SchoolGardenStallModal({
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <div
                 style={{
-                  fontSize: activeScenario ? '32px' : '40px',
-                  marginBottom: activeScenario ? '-12px' : '-16px',
+                  fontSize: activeScenario ? '46px' : '56px',
+                  marginBottom: activeScenario ? '-14px' : '-20px',
                   zIndex: 5,
-                  filter: 'drop-shadow(0 6px 10px rgba(0,0,0,0.7))',
+                  filter: 'drop-shadow(0 8px 12px rgba(0,0,0,0.8))',
                 }}
               >
                 🔻
@@ -1308,13 +1326,13 @@ export function SchoolGardenStallModal({
               {/* Giant Responsive Interactive Finance Wheel */}
               <div
                 style={{
-                  width: activeScenario ? '380px' : '460px',
-                  height: activeScenario ? '380px' : '460px',
-                  maxWidth: '85vw',
-                  maxHeight: '85vw',
+                  width: activeScenario ? '480px' : '560px',
+                  height: activeScenario ? '480px' : '560px',
+                  maxWidth: '88vw',
+                  maxHeight: '88vw',
                   borderRadius: '50%',
-                  border: '10px solid #FBBF24',
-                  boxShadow: '0 0 55px rgba(251,191,36,0.55), inset 0 0 25px rgba(0,0,0,0.6)',
+                  border: '14px solid #FBBF24',
+                  boxShadow: '0 0 70px rgba(251,191,36,0.65), inset 0 0 35px rgba(0,0,0,0.65)',
                   position: 'relative',
                   overflow: 'hidden',
                   transition: spinning ? 'transform 2.75s cubic-bezier(0.14, 0.85, 0.22, 1)' : 'none',
@@ -1331,7 +1349,7 @@ export function SchoolGardenStallModal({
               >
                 {WHEEL_SLICES.map((s, idx) => {
                   const deg = idx * 60 + 30
-                  const distY = activeScenario ? -122 : -150
+                  const distY = activeScenario ? -155 : -188
                   return (
                     <div
                       key={s.id}
@@ -1342,14 +1360,14 @@ export function SchoolGardenStallModal({
                         transform: `translate(-50%, -50%) rotate(${deg}deg) translateY(${distY}px)`,
                         textAlign: 'center',
                         fontWeight: 900,
-                        fontSize: activeScenario ? '13px' : '15px',
+                        fontSize: activeScenario ? '17px' : '20px',
                         color: '#FFFFFF',
-                        textShadow: '0 2px 6px rgba(0,0,0,0.9)',
+                        textShadow: '0 3px 8px rgba(0,0,0,0.95)',
                         pointerEvents: 'none',
                       }}
                     >
-                      <div style={{ fontSize: activeScenario ? '24px' : '28px' }}>{s.icon}</div>
-                      <div style={{ marginTop: '2px' }}>{s.label}</div>
+                      <div style={{ fontSize: activeScenario ? '34px' : '40px' }}>{s.icon}</div>
+                      <div style={{ marginTop: '4px' }}>{s.label}</div>
                     </div>
                   )
                 })}
@@ -1361,16 +1379,16 @@ export function SchoolGardenStallModal({
                     top: '50%',
                     left: '50%',
                     transform: 'translate(-50%, -50%)',
-                    width: activeScenario ? '72px' : '86px',
-                    height: activeScenario ? '72px' : '86px',
+                    width: activeScenario ? '96px' : '114px',
+                    height: activeScenario ? '96px' : '114px',
                     borderRadius: '50%',
                     background: '#0F172A',
-                    border: '5px solid #FBBF24',
+                    border: '6px solid #FBBF24',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: activeScenario ? '28px' : '34px',
-                    boxShadow: '0 6px 16px rgba(0,0,0,0.7)',
+                    fontSize: activeScenario ? '38px' : '48px',
+                    boxShadow: '0 8px 24px rgba(0,0,0,0.8)',
                   }}
                 >
                   🎡
@@ -1383,18 +1401,18 @@ export function SchoolGardenStallModal({
                 onClick={handleSpinWheel}
                 disabled={spinning}
                 style={{
-                  marginTop: activeScenario ? '20px' : '26px',
+                  marginTop: activeScenario ? '24px' : '32px',
                   background: spinning
                     ? 'rgba(148,163,184,0.3)'
                     : 'linear-gradient(135deg, #F59E0B 0%, #EC4899 100%)',
                   color: '#FFFFFF',
                   border: 'none',
                   borderRadius: '999px',
-                  padding: activeScenario ? '14px 34px' : '18px 48px',
-                  fontSize: activeScenario ? '16px' : '20px',
+                  padding: activeScenario ? '20px 48px' : '26px 64px',
+                  fontSize: activeScenario ? '24px' : '30px',
                   fontWeight: 900,
                   cursor: spinning ? 'wait' : 'pointer',
-                  boxShadow: '0 12px 35px rgba(236,72,153,0.5)',
+                  boxShadow: '0 16px 45px rgba(236,72,153,0.6)',
                   transition: 'all 0.2s ease',
                 }}
               >
@@ -1413,29 +1431,29 @@ export function SchoolGardenStallModal({
                   boxShadow: '0 20px 60px rgba(0,0,0,0.7)',
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
                   <span
                     style={{
                       background: `${selectedSlice?.color}30`,
-                      border: `2px solid ${selectedSlice?.color}`,
+                      border: `2.5px solid ${selectedSlice?.color}`,
                       color: '#FFFFFF',
-                      fontSize: '14px',
+                      fontSize: '18px',
                       fontWeight: 900,
-                      padding: '6px 16px',
+                      padding: '8px 22px',
                       borderRadius: '999px',
                     }}
                   >
                     {selectedSlice?.icon} Category: {selectedSlice?.label}
                   </span>
-                  <span style={{ fontSize: '16px', fontWeight: 900, color: '#FBBF24' }}>
+                  <span style={{ fontSize: '24px', fontWeight: 900, color: '#FBBF24' }}>
                     Reward: +{activeScenario.xpReward} XP
                   </span>
                 </div>
 
-                <h3 style={{ margin: '0 0 10px 0', fontSize: '24px', fontWeight: 900, color: '#F8FAFC', letterSpacing: '-0.02em' }}>
+                <h3 style={{ margin: '0 0 14px 0', fontSize: '32px', fontWeight: 900, color: '#F8FAFC', letterSpacing: '-0.02em', lineHeight: 1.25 }}>
                   {activeScenario.title}
                 </h3>
-                <p style={{ margin: '0 0 18px 0', fontSize: '16px', color: '#E2E8F0', lineHeight: 1.6 }}>
+                <p style={{ margin: '0 0 22px 0', fontSize: '22px', color: '#E2E8F0', lineHeight: 1.6, fontWeight: 600 }}>
                   {activeScenario.situation}
                 </p>
 
@@ -1462,13 +1480,14 @@ export function SchoolGardenStallModal({
                         disabled={chosenIdx !== null}
                         style={{
                           textAlign: 'left',
-                          padding: '16px 20px',
-                          borderRadius: '16px',
-                          border: `2px solid ${borderCol}`,
+                          padding: '22px 28px',
+                          minHeight: '80px',
+                          borderRadius: '20px',
+                          border: `3px solid ${borderCol}`,
                           background: bgCol,
                           color: '#F8FAFC',
-                          fontSize: '15.5px',
-                          fontWeight: 700,
+                          fontSize: '22px',
+                          fontWeight: 800,
                           cursor: chosenIdx === null ? 'pointer' : 'default',
                           lineHeight: 1.45,
                           transition: 'all 0.15s ease',
@@ -1522,16 +1541,16 @@ export function SchoolGardenStallModal({
               <div
                 style={{
                   textAlign: 'center',
-                  color: '#CBD5E1',
-                  fontSize: '17px',
-                  fontWeight: 600,
-                  marginTop: '18px',
-                  maxWidth: '750px',
-                  margin: '18px auto 0',
-                  lineHeight: 1.55,
+                  color: '#E2E8F0',
+                  fontSize: '24px',
+                  fontWeight: 700,
+                  marginTop: '24px',
+                  maxWidth: '880px',
+                  margin: '24px auto 0',
+                  lineHeight: 1.6,
                 }}
               >
-                Click <strong style={{ color: '#FBBF24' }}>&ldquo;🎡 Spin the Finance Wheel!&rdquo;</strong> to land on Saving, Spending, Banking, Budgeting, Investing, or Scams and earn bonus XP with Luna!
+                Click <strong style={{ color: '#FBBF24', fontSize: '26px' }}>&ldquo;🎡 Spin the Finance Wheel!&rdquo;</strong> to land on Saving, Spending, Banking, Budgeting, Investing, or Scams and earn bonus XP with Luna!
               </div>
             )}
           </div>        )}

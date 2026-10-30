@@ -71,17 +71,17 @@ function FormattedMessage({ text, onActionClick }) {
     if (tableRows.length > 0) {
       elements.push(
         <div key={key} style={{ overflowX: 'auto', margin: '22px 0' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '26px', background: 'rgba(15,23,42,0.85)', borderRadius: '16px', overflow: 'hidden' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '28px', background: 'rgba(15,23,42,0.85)', borderRadius: '16px', overflow: 'hidden' }}>
             <tbody>
               {tableRows.map((r, rIdx) => (
                 <tr key={rIdx} style={{ borderBottom: '1px solid rgba(148,163,184,0.35)' }}>
                   {r.map((cell, cIdx) => (
                     rIdx === 0 ? (
-                      <th key={cIdx} style={{ padding: '16px 22px', textAlign: 'left', color: '#38BDF8', fontWeight: 900, background: 'rgba(15,23,42,0.95)', fontSize: '28px' }}>
+                      <th key={cIdx} style={{ padding: '18px 26px', textAlign: 'left', color: '#38BDF8', fontWeight: 900, background: 'rgba(15,23,42,0.95)', fontSize: '32px' }}>
                         {formatInline(cell)}
                       </th>
                     ) : (
-                      <td key={cIdx} style={{ padding: '16px 22px', color: '#F1F5F9', fontSize: '26px' }}>
+                      <td key={cIdx} style={{ padding: '18px 26px', color: '#F1F5F9', fontSize: '28px' }}>
                         {formatInline(cell)}
                       </td>
                     )
@@ -118,19 +118,19 @@ function FormattedMessage({ text, onActionClick }) {
 
     if (trimmed.startsWith('### ')) {
       elements.push(
-        <h4 key={`h3_${idx}`} style={{ fontSize: '34px', fontWeight: 900, color: '#38BDF8', margin: '22px 0 12px', letterSpacing: '-0.01em' }}>
+        <h4 key={`h3_${idx}`} style={{ fontSize: '38px', fontWeight: 900, color: '#38BDF8', margin: '22px 0 12px', letterSpacing: '-0.01em' }}>
           {formatInline(trimmed.replace('### ', ''))}
         </h4>
       )
     } else if (trimmed.startsWith('## ')) {
       elements.push(
-        <h3 key={`h2_${idx}`} style={{ fontSize: '38px', fontWeight: 900, color: '#FBBF24', margin: '24px 0 14px', letterSpacing: '-0.01em' }}>
+        <h3 key={`h2_${idx}`} style={{ fontSize: '42px', fontWeight: 900, color: '#FBBF24', margin: '24px 0 14px', letterSpacing: '-0.01em' }}>
           {formatInline(trimmed.replace('## ', ''))}
         </h3>
       )
     } else if (trimmed.startsWith('# ')) {
       elements.push(
-        <h2 key={`h1_${idx}`} style={{ fontSize: '42px', fontWeight: 900, color: '#34D399', margin: '26px 0 16px', letterSpacing: '-0.01em' }}>
+        <h2 key={`h1_${idx}`} style={{ fontSize: '48px', fontWeight: 900, color: '#34D399', margin: '26px 0 16px', letterSpacing: '-0.01em' }}>
           {formatInline(trimmed.replace('# ', ''))}
         </h2>
       )
@@ -138,21 +138,21 @@ function FormattedMessage({ text, onActionClick }) {
       const cleanText = trimmed.startsWith('• ') ? trimmed.slice(2) : trimmed.slice(2)
       elements.push(
         <div key={`bullet_${idx}`} style={{ display: 'flex', gap: '16px', alignItems: 'flex-start', margin: '14px 0', paddingLeft: '4px' }}>
-          <span style={{ color: '#38BDF8', fontWeight: 900, fontSize: '34px', lineHeight: '1.2' }}>•</span>
-          <div style={{ flex: 1, fontSize: '30px', lineHeight: 1.6, fontWeight: 500 }}>{formatInline(cleanText)}</div>
+          <span style={{ color: '#38BDF8', fontWeight: 900, fontSize: '38px', lineHeight: '1.2' }}>•</span>
+          <div style={{ flex: 1, fontSize: '34px', lineHeight: 1.6, fontWeight: 600 }}>{formatInline(cleanText)}</div>
         </div>
       )
     } else if (/^\d+\.\s/.test(trimmed)) {
       const match = trimmed.match(/^(\d+)\.\s(.*)/)
       elements.push(
         <div key={`num_${idx}`} style={{ display: 'flex', gap: '16px', alignItems: 'flex-start', margin: '14px 0', paddingLeft: '4px' }}>
-          <span style={{ color: '#FBBF24', fontWeight: 900, minWidth: '36px', fontSize: '30px' }}>{match[1]}.</span>
-          <div style={{ flex: 1, fontSize: '30px', lineHeight: 1.6, fontWeight: 500 }}>{formatInline(match[2])}</div>
+          <span style={{ color: '#FBBF24', fontWeight: 900, minWidth: '40px', fontSize: '34px' }}>{match[1]}.</span>
+          <div style={{ flex: 1, fontSize: '34px', lineHeight: 1.6, fontWeight: 600 }}>{formatInline(match[2])}</div>
         </div>
       )
     } else {
       elements.push(
-        <p key={`p_${idx}`} style={{ margin: '14px 0', lineHeight: 1.6, fontSize: '30px', color: '#F8FAFC', fontWeight: 500 }}>
+        <p key={`p_${idx}`} style={{ margin: '16px 0', lineHeight: 1.6, fontSize: '34px', color: '#F8FAFC', fontWeight: 600 }}>
           {formatInline(trimmed)}
         </p>
       )
@@ -928,12 +928,12 @@ Ask me any financial question about investing, Indian savings schemes, or bankin
 
         .l2i-chat-window {
           position: fixed;
-          top: 14px;
-          bottom: 14px;
-          right: 18px;
-          width: min(980px, calc(100vw - 32px));
-          height: calc(100vh - 28px);
-          max-height: calc(100vh - 28px);
+          top: 8px;
+          bottom: 8px;
+          right: 12px;
+          width: min(1080px, calc(100vw - 24px));
+          height: calc(100vh - 16px);
+          max-height: calc(100vh - 16px);
           background: linear-gradient(165deg, #070D19 0%, #0D172A 100%);
           border: 4px solid rgba(56, 189, 248, 0.85);
           border-radius: 36px;
@@ -948,12 +948,12 @@ Ask me any financial question about investing, Indian savings schemes, or bankin
         }
 
         .l2i-chat-window.expanded {
-          width: min(1320px, calc(100vw - 24px));
-          height: calc(100vh - 16px);
-          max-height: calc(100vh - 16px);
-          top: 8px;
-          bottom: 8px;
-          right: 12px;
+          width: calc(100vw - 16px);
+          height: calc(100vh - 12px);
+          max-height: calc(100vh - 12px);
+          top: 6px;
+          bottom: 6px;
+          right: 8px;
         }
 
         @keyframes l2iSlideUp {
@@ -1129,8 +1129,7 @@ Ask me any financial question about investing, Indian savings schemes, or bankin
               <div style={{ position: 'relative' }}>
                 <div
                   style={{
-                    width: '82px',
-                    height: '82px',
+                    width: '94px', height: '94px',
                     borderRadius: '50%',
                     background: 'linear-gradient(135deg, #070D19 0%, #0F172A 100%)',
                     display: 'flex',
@@ -1145,8 +1144,7 @@ Ask me any financial question about investing, Indian savings schemes, or bankin
                     src="/images/ai_robot_chatbot.png"
                     alt="AI Robot Mentor"
                     style={{
-                      width: '74px',
-                      height: '74px',
+                      width: '86px', height: '86px',
                       objectFit: 'contain',
                     }}
                   />
@@ -1170,23 +1168,18 @@ Ask me any financial question about investing, Indian savings schemes, or bankin
               <div>
                 <div
                   style={{
-                    fontSize: '36px',
-                    fontWeight: 900,
-                    color: '#FFFFFF',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '14px',
+                    fontSize: '42px', fontWeight: 900, color: '#FFFFFF', display: 'flex', alignItems: 'center', gap: '16px',
                     lineHeight: '1.25',
                   }}
                 >
                   <span>{guideName}</span>
                   <span
                     style={{
-                      fontSize: '20px',
+                      fontSize: '24px',
                       background: 'linear-gradient(135deg, rgba(56,189,248,0.25), rgba(99,102,241,0.25))',
-                      border: '2px solid #38BDF8',
+                      border: '2.5px solid #38BDF8',
                       color: '#7DD3FC',
-                      padding: '6px 18px',
+                      padding: '8px 24px',
                       borderRadius: '999px',
                       fontWeight: 900,
                     }}
@@ -1194,7 +1187,7 @@ Ask me any financial question about investing, Indian savings schemes, or bankin
                     ✨ Gemini AI Mentor
                   </span>
                 </div>
-                <div style={{ fontSize: '22px', color: '#93C5FD', fontWeight: 800, marginTop: '8px', lineHeight: '1.25' }}>
+                <div style={{ fontSize: '25px', color: '#93C5FD', fontWeight: 800, marginTop: '8px', lineHeight: '1.25' }}>
                   {isListeningVoice
                     ? '🎙️ Listening to your voice now...'
                     : '🟢 Online • Powered by Google Gemini AI'}
@@ -1213,9 +1206,7 @@ Ask me any financial question about investing, Indian savings schemes, or bankin
                   border: '2px solid rgba(255,255,255,0.35)',
                   color: '#E2E8F0',
                   borderRadius: '16px',
-                  width: '58px',
-                  height: '58px',
-                  fontSize: '26px',
+                  width: '68px', height: '68px', fontSize: '32px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -1236,9 +1227,7 @@ Ask me any financial question about investing, Indian savings schemes, or bankin
                   border: isVoiceMuted ? '2px solid #EF4444' : '2px solid rgba(255,255,255,0.35)',
                   color: '#E2E8F0',
                   borderRadius: '16px',
-                  width: '58px',
-                  height: '58px',
-                  fontSize: '26px',
+                  width: '68px', height: '68px', fontSize: '32px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -1259,9 +1248,7 @@ Ask me any financial question about investing, Indian savings schemes, or bankin
                   border: '2px solid rgba(255,255,255,0.35)',
                   color: '#E2E8F0',
                   borderRadius: '16px',
-                  width: '58px',
-                  height: '58px',
-                  fontSize: '26px',
+                  width: '68px', height: '68px', fontSize: '32px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -1282,9 +1269,7 @@ Ask me any financial question about investing, Indian savings schemes, or bankin
                   border: '2px solid rgba(255,255,255,0.35)',
                   color: '#E2E8F0',
                   borderRadius: '16px',
-                  width: '58px',
-                  height: '58px',
-                  fontSize: '28px',
+                  width: '68px', height: '68px', fontSize: '32px',
                   fontWeight: 900,
                   display: 'flex',
                   alignItems: 'center',
@@ -1326,9 +1311,7 @@ Ask me any financial question about investing, Indian savings schemes, or bankin
                         : 'rgba(15, 23, 42, 0.92)',
                       border: isUser ? 'none' : '2.5px solid rgba(56, 189, 248, 0.4)',
                       borderRadius: isUser ? '26px 26px 8px 26px' : '26px 26px 26px 8px',
-                      padding: '26px 32px',
-                      color: '#F8FAFC',
-                      fontSize: '30px',
+                      padding: '28px 36px', color: '#F8FAFC', fontSize: '34px',
                       fontWeight: isUser ? 700 : 500,
                       lineHeight: 1.6,
                       boxShadow: '0 8px 30px rgba(0,0,0,0.4)',
@@ -1352,9 +1335,7 @@ Ask me any financial question about investing, Indian savings schemes, or bankin
                               : '3px solid rgba(56, 189, 248, 0.7)',
                             color: isVoiceMuted ? '#64748B' : isReadingThis ? '#FDE68A' : '#7DD3FC',
                             borderRadius: '999px',
-                            padding: '14px 32px',
-                            fontSize: '24px',
-                            fontWeight: 900,
+                            padding: '16px 38px', fontSize: '28px', fontWeight: 900,
                             cursor: isVoiceMuted ? 'not-allowed' : 'pointer',
                             display: 'flex',
                             alignItems: 'center',
@@ -1362,7 +1343,7 @@ Ask me any financial question about investing, Indian savings schemes, or bankin
                             boxShadow: '0 6px 20px rgba(0,0,0,0.35)',
                           }}
                         >
-                          <span style={{ fontSize: '30px' }}>{isReadingThis ? '⏹' : '🔊'}</span>
+                          <span style={{ fontSize: '36px' }}>{isReadingThis ? '⏹' : '🔊'}</span>
                           <span>{isReadingThis ? 'Stop' : 'Listen'}</span>
                         </button>
                       </div>
@@ -1497,10 +1478,10 @@ Ask me any financial question about investing, Indian savings schemes, or bankin
                   border: isListeningVoice
                     ? '3.5px solid #FDE047'
                     : '3px solid rgba(56, 189, 248, 0.65)',
-                  borderRadius: '22px',
-                  width: '90px',
-                  height: '90px',
-                  fontSize: '40px',
+                  borderRadius: '24px',
+                  width: '98px',
+                  height: '98px',
+                  fontSize: '48px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -1531,12 +1512,12 @@ Ask me any financial question about investing, Indian savings schemes, or bankin
                   border: isListeningVoice
                     ? '3.5px solid #EC4899'
                     : '3.5px solid rgba(56, 189, 248, 0.75)',
-                  borderRadius: '22px',
-                  padding: '18px 30px',
+                  borderRadius: '24px',
+                  padding: '20px 34px',
                   color: '#0F172A',
-                  fontSize: '28px',
-                  fontWeight: 700,
-                  height: '90px',
+                  fontSize: '32px',
+                  fontWeight: 800,
+                  height: '98px',
                   outline: 'none',
                   boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.1)',
                 }}
@@ -1550,10 +1531,10 @@ Ask me any financial question about investing, Indian savings schemes, or bankin
                   background: 'linear-gradient(135deg, #0284C7, #2563EB)',
                   color: '#FFFFFF',
                   border: 'none',
-                  borderRadius: '22px',
-                  padding: '0 44px',
-                  height: '90px',
-                  fontSize: '26px',
+                  borderRadius: '24px',
+                  padding: '0 48px',
+                  height: '98px',
+                  fontSize: '30px',
                   fontWeight: 900,
                   cursor: loading || !input.trim() ? 'not-allowed' : 'pointer',
                   opacity: loading || !input.trim() ? 0.45 : 1,
@@ -1564,7 +1545,7 @@ Ask me any financial question about investing, Indian savings schemes, or bankin
                 }}
               >
                 <span>Send</span>
-                <span style={{ fontSize: '30px' }}>➤</span>
+                <span style={{ fontSize: '36px' }}>➤</span>
               </button>
             </div>
           </form>

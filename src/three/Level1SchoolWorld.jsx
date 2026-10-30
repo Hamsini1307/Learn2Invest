@@ -399,6 +399,44 @@ function PlayerCharacter3D({ characterId = 'luna', outfitTheme = null, charState
           <sphereGeometry args={[0.058, 12, 12]} />
           <meshStandardMaterial color="#f9d5b8" />
         </mesh>
+
+        {/* 🍦 3D DELICIOUS ICE CREAM PROP HELD IN HAND FOR 30 SECONDS */}
+        {activeIceCream && (
+          <group position={[0.08, -0.24, 0.16]} rotation={[0.45, -0.2, 0.1]}>
+            {/* Waffle Cone */}
+            <mesh position={[0, -0.09, 0]} rotation={[Math.PI, 0, 0]} castShadow>
+              <coneGeometry args={[0.085, 0.26, 16]} />
+              <meshStandardMaterial color="#d97706" roughness={0.7} />
+            </mesh>
+            {/* Waffle Rim Collar */}
+            <mesh position={[0, 0.04, 0]}>
+              <torusGeometry args={[0.082, 0.016, 8, 16]} />
+              <meshStandardMaterial color="#b45309" roughness={0.6} />
+            </mesh>
+            {/* Ice Cream Flavor Main Scoop */}
+            <mesh position={[0, 0.11, 0]} castShadow>
+              <sphereGeometry args={[0.095, 16, 16]} />
+              <meshStandardMaterial color={activeIceCream.flavorColor || '#fbcfe8'} roughness={0.3} />
+            </mesh>
+            {/* Ice Cream Top Swirl */}
+            <mesh position={[0, 0.18, 0]} castShadow>
+              <sphereGeometry args={[0.065, 14, 14]} />
+              <meshStandardMaterial color={activeIceCream.flavorColor || '#fbcfe8'} roughness={0.3} />
+            </mesh>
+            {/* Cherry / Strawberry Topping */}
+            <mesh position={[0, 0.24, 0]}>
+              <sphereGeometry args={[0.028, 10, 10]} />
+              <meshStandardMaterial color="#ef4444" roughness={0.2} />
+            </mesh>
+            {/* Sprinkles on Scoop */}
+            {[-0.045, 0.045].map((sx, idx) => (
+              <mesh key={idx} position={[sx, 0.13, 0.07]} rotation={[0, 0, sx * 4]}>
+                <boxGeometry args={[0.014, 0.028, 0.014]} />
+                <meshBasicMaterial color={idx === 0 ? '#38bdf8' : '#f59e0b'} />
+              </mesh>
+            ))}
+          </group>
+        )}
       </group>
 
       {/* ─── PIXAR-STYLE HEAD, EXPRESSIVE WARM BROWN EYES & WAVY BROWN HAIR ─── */}
@@ -4993,15 +5031,33 @@ export default function Level1SchoolWorld({
     }
   })
   const [activeIceCream, setActiveIceCream] = useState(null)
+  const [iceCreamSecondsLeft, setIceCreamSecondsLeft] = useState(0)
   const iceCreamTimerRef = useRef(null)
+  const iceCreamIntervalRef = useRef(null)
   const [atmTab, setAtmTab] = useState('withdraw') // 'withdraw' | 'deposit'
 
   const handleHoldIceCream = (ice) => {
     if (iceCreamTimerRef.current) clearTimeout(iceCreamTimerRef.current)
+    if (iceCreamIntervalRef.current) clearInterval(iceCreamIntervalRef.current)
+
     setActiveIceCream(ice)
+    setIceCreamSecondsLeft(30)
     soundEngine.playSuccessTone()
+
+    iceCreamIntervalRef.current = setInterval(() => {
+      setIceCreamSecondsLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(iceCreamIntervalRef.current)
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+
     iceCreamTimerRef.current = setTimeout(() => {
       setActiveIceCream(null)
+      setIceCreamSecondsLeft(0)
+      if (iceCreamIntervalRef.current) clearInterval(iceCreamIntervalRef.current)
     }, 30000)
   }
   const [showXpDepositModal, setShowXpDepositModal] = useState(false)
@@ -9532,29 +9588,50 @@ export default function Level1SchoolWorld({
       )}
 
       {/* ═══════════════════════════════════════════════════════════════════
+          🍦 30-SECOND ICE CREAM COUNTDOWN HUD BANNER
+      ═══════════════════════════════════════════════════════════════════ */}
+      {activeIceCream && iceCreamSecondsLeft > 0 && (
+        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-40 px-8 py-4 sm:px-10 sm:py-5 rounded-full bg-slate-950/95 backdrop-blur-xl border-4 border-cyan-400 text-white flex items-center gap-5 shadow-[0_15px_50px_rgba(6,182,212,0.6)] pointer-events-auto animate-pulse">
+          <span className="text-4xl sm:text-5xl animate-bounce">🍦</span>
+          <div>
+            <div className="text-xl sm:text-2xl font-black text-white">
+              Holding & Enjoying <span className="text-cyan-300">{activeIceCream.name}</span>!
+            </div>
+            <div className="text-sm sm:text-base font-bold text-slate-300">
+              Your 3D character is holding this treat in hand for 30 seconds
+            </div>
+          </div>
+          <span className="px-5 py-2 sm:px-6 sm:py-2.5 rounded-full bg-gradient-to-r from-cyan-400 to-teal-300 text-slate-950 font-black text-lg sm:text-2xl shrink-0 shadow-md">
+            ⏱️ {iceCreamSecondsLeft}s
+          </span>
+        </div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════════════════
           🏧 24/7 ATM LIVE QUEUE BANNER (Character waits behind 2 customers withdrawing cash!)
+          Extra-Large Ultra-Crisp Kiosk Card (Matching User Green Sketch with Huge Width & Big Typography)
       ═══════════════════════════════════════════════════════════════════ */}
       {isPlayerInAtmQueue && (
-        <div className="fixed bottom-7 left-1/2 -translate-x-1/2 z-40 w-[min(94vw,680px)] px-6 py-5 rounded-3xl bg-slate-950/95 backdrop-blur-xl border-2 border-cyan-400 shadow-[0_20px_70px_rgba(34,211,238,0.55)] text-white flex flex-col sm:flex-row items-center justify-between gap-4 pointer-events-auto">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-600 text-slate-950 font-black text-3xl flex items-center justify-center shadow-lg shrink-0 animate-pulse">
+        <div className="fixed bottom-4 sm:bottom-7 left-1/2 -translate-x-1/2 z-40 w-[min(98vw,1680px)] px-8 py-7 sm:px-16 sm:py-10 rounded-[38px] sm:rounded-[52px] bg-slate-950/98 backdrop-blur-2xl border-5 sm:border-6 border-cyan-400 shadow-[0_35px_120px_rgba(34,211,238,0.75)] text-white flex flex-col xl:flex-row items-center justify-between gap-6 sm:gap-10 pointer-events-auto">
+          <div className="flex items-center gap-6 sm:gap-9">
+            <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-3xl bg-gradient-to-br from-cyan-400 via-sky-500 to-blue-600 text-slate-950 font-black text-6xl sm:text-8xl flex items-center justify-center shadow-2xl shrink-0 animate-pulse border-4 border-cyan-300">
               🏧
             </div>
             <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-black uppercase tracking-wider">
-                  {atmQueuePosition > 0 ? `Waiting in ATM Queue • Position #${atmQueuePosition + 1}` : 'Your Turn at ATM!'}
+              <div className="flex items-center gap-4 sm:gap-5 flex-wrap">
+                <span className="px-6 py-3 sm:px-8 sm:py-3.5 rounded-full bg-amber-400 text-slate-950 text-lg sm:text-2xl font-black uppercase tracking-wider shadow-md">
+                  {atmQueuePosition > 0 ? `Waiting in ATM Queue • Position #${atmQueuePosition + 1}` : 'YOUR TURN AT ATM!'}
                 </span>
-                <span className="text-xs font-extrabold text-cyan-300">
+                <span className="text-xl sm:text-3xl font-black text-cyan-300">
                   24/7 Cash & XP Dispenser
                 </span>
               </div>
-              <div className="text-base sm:text-lg font-black text-white mt-1">
+              <div className="text-3xl sm:text-4xl lg:text-5xl font-black text-white mt-3 leading-tight tracking-tight">
                 {atmQueuePosition === 2 && '💵 Customer #1 is withdrawing ₹500 notes... (2 people ahead)'}
                 {atmQueuePosition === 1 && '💵 Customer #2 stepped up to withdraw cash... (1 person ahead)'}
                 {atmQueuePosition === 0 && '✅ Queue cleared! You are now at the ATM counter!'}
               </div>
-              <div className="text-xs font-bold text-slate-300 mt-0.5">
+              <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-200 mt-2">
                 Watch the 3D ATM pavilion as each person collects their cash notes and steps away!
               </div>
             </div>
@@ -9571,7 +9648,7 @@ export default function Level1SchoolWorld({
               setAtmQueuePosition(0)
               setShowAtmModal(true)
             }}
-            className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-cyan-400 to-emerald-400 text-slate-950 font-black text-xs sm:text-sm shadow-lg hover:scale-105 transition-transform cursor-pointer shrink-0"
+            className="px-12 py-7 sm:px-18 sm:py-9 rounded-3xl bg-gradient-to-r from-cyan-400 via-teal-300 to-emerald-400 text-slate-950 border-4 sm:border-5 border-cyan-100 font-black text-2xl sm:text-3xl lg:text-4xl shadow-[0_20px_60px_rgba(34,211,238,0.7)] hover:scale-105 active:scale-95 transition-all cursor-pointer shrink-0 text-center tracking-wide"
           >
             ⚡ Open ATM Now →
           </button>
@@ -10356,6 +10433,31 @@ export default function Level1SchoolWorld({
         currentOutfitId={customStallOutfit?.id || outfitThemeId}
         onEquipStallOutfit={(outfit) => {
           setCustomStallOutfit(outfit)
+          try {
+            localStorage.setItem('l2i_custom_stall_outfit', JSON.stringify(outfit))
+          } catch {}
+        }}
+        onBuyCloth={(clothId, item) => {
+          const outfitObj = {
+            id: item.id,
+            name: item.name,
+            label: item.name,
+            color: item.color,
+            top: item.top || item.color,
+            shirtColor: item.top || item.color,
+            pants: item.pants || '#1E293B',
+            pantsColor: item.pants || '#1E293B',
+            bag: item.bag || '#F59E0B',
+            ring: item.ring || item.color,
+            hatColor: item.ring || item.color,
+          }
+          setCustomStallOutfit(outfitObj)
+          try {
+            localStorage.setItem('l2i_custom_stall_outfit', JSON.stringify(outfitObj))
+          } catch {}
+        }}
+        onBuyIceCream={(ice) => {
+          handleHoldIceCream(ice)
         }}
       />
 
