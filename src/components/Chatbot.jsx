@@ -288,7 +288,13 @@ CRITICAL CHATBOT GUIDELINES:
     // A. Direct Client-Side Gemini Engine (Powered by user's key)
     const clientKey = import.meta.env?.VITE_GEMINI_API_KEY
     if (clientKey) {
-      const directModels = ['gemini-3.5-flash', 'gemini-3.5-flash-lite', 'gemini-3.1-flash-lite', 'gemini-flash-latest']
+      const directModels = [
+        'gemini-3.8-flash',
+        'gemini-3.5-flash',
+        'gemini-flash-latest',
+        'gemini-3.5-flash-lite',
+        'gemini-3.1-flash-lite',
+      ]
       for (const m of directModels) {
         try {
           const gemRes = await fetch(

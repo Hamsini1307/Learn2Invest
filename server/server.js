@@ -15,8 +15,8 @@ let dbUser = localUser
 let dbUserState = localUserState
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-dotenv.config({ path: path.join(__dirname, '.env') })
-dotenv.config()
+dotenv.config({ path: path.join(__dirname, '.env'), override: true })
+dotenv.config({ override: true })
 
 const app = express()
 app.use(cors())
@@ -363,10 +363,11 @@ CURRENT USER LIVE SNAPSHOT:
   const activeKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY
   if (activeKey) {
     const geminiModels = [
+      'gemini-3.8-flash',
       'gemini-3.5-flash',
+      'gemini-flash-latest',
       'gemini-3.5-flash-lite',
       'gemini-3.1-flash-lite',
-      'gemini-flash-latest'
     ]
     const geminiContents = (Array.isArray(contents) && contents.length > 0)
       ? contents.slice(-10).map((c) => ({
