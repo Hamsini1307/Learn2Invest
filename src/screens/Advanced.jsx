@@ -984,26 +984,41 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
           digits = `${day.padStart(2, '0')}${month.padStart(2, '0')}${year}`.split('')
         }
       }
+      const hasPercentWidth = field.width !== undefined
       return (
         <div key={field.id} style={{
           position: 'absolute',
           top: `${field.y}%`,
           left: field.x ? `${field.x}%` : 'auto',
           right: field.right ? `${field.right}%` : 'auto',
+          width: hasPercentWidth ? `${field.width}%` : 'auto',
           display: 'flex',
-          gap: `${field.gap || 6}px`,
-          fontSize: field.fontSize || '0.98rem',
+          justifyContent: hasPercentWidth ? 'space-between' : 'flex-start',
+          alignItems: 'center',
+          gap: hasPercentWidth ? 0 : `${field.gap || 6}px`,
+          fontSize: field.fontSize || '1.20rem',
           color: field.color || '#1d4ed8',
           fontWeight: field.fontWeight || 900,
           fontFamily: "'Courier New', monospace"
         }}>
           {digits.map((d, i) => (
-            <span key={i} style={{ width: field.boxWidth || '14px', textAlign: 'center', display: 'inline-block' }}>{d}</span>
+            <span
+              key={i}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flex: hasPercentWidth ? '1 1 0' : 'none',
+                width: hasPercentWidth ? 'auto' : (field.boxWidth || '14px'),
+                textAlign: 'center'
+              }}
+            >
+              {d}
+            </span>
           ))}
         </div>
       )
     }
-
     // 1B. DATE SLASHES RENDERING (DD / MM / YYYY formatted text)
     if (field.renderingMode === 'dateSlashes') {
       let formattedDate = ''
