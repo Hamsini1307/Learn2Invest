@@ -154,13 +154,13 @@ export const BANK_TEMPLATES_CONFIG = {
     formType: 'withdrawal',
     image: '/slips/canara_withdrawal.jpg',
     fields: [
-      { id: 'mainBranch', bindKey: 'branch', label: 'Branch Name', x: 14.65, y: 13.0, width: 20, fontSize: 'clamp(20px, 2.6cqi, 32px)', fontWeight: 900, renderingMode: 'text' },
-      { id: 'mainDate', bindKey: 'date', label: 'Date', x: 82.0, y: 18.0, width: 14, fontSize: 'clamp(20px, 2.5cqi, 30px)', fontWeight: 900, renderingMode: 'text' },
-      { id: 'mainWords', bindKey: 'amountInWords', label: 'Amount in Words', x: 35.0, y: 24.5, width: 38, fontSize: 'clamp(18px, 2.3cqi, 28px)', fontWeight: 900, renderingMode: 'amountInWords' },
-      { id: 'mainAmount', bindKey: 'amount', label: 'Numeric Amount', x: 75.0, y: 23.5, width: 18, height: 8.5, fontSize: 'clamp(28px, 3.5cqi, 44px)', fontWeight: 900, renderingMode: 'amount' },
-      { id: 'mainAccNo', bindKey: 'accountNumber', label: 'Account Number', x: 8.51, y: 44.6, width: 45.32, height: 6.5, boxCount: 14, fontSize: 'clamp(22px, 2.8cqi, 36px)', fontWeight: 900, renderingMode: 'characterBoxes' },
-      { id: 'mainSig', bindKey: 'signature', label: 'Account Holder Signature', x: 75.5, y: 36.5, width: 18, height: 7.5, fontSize: 'clamp(22px, 2.8cqi, 36px)', renderingMode: 'signature' },
-      { id: 'mainName', bindKey: 'name', label: 'Account Holder Name', x: 76.0, y: 47.5, width: 18, fontSize: 'clamp(20px, 2.5cqi, 32px)', fontWeight: 900, renderingMode: 'text' }
+      { id: 'mainBranch', bindKey: 'branch', label: 'Branch Name', x: 10.0, y: 12.5, width: 22, fontSize: 'clamp(20px, 2.6cqi, 32px)', fontWeight: 900, renderingMode: 'text' },
+      { id: 'mainDate', bindKey: 'date', label: 'Date', x: 76.5, y: 16.5, width: 16, fontSize: 'clamp(20px, 2.5cqi, 30px)', fontWeight: 900, renderingMode: 'text' },
+      { id: 'mainWords', bindKey: 'amountInWords', label: 'Amount in Words', x: 44.5, y: 29.5, width: 30, fontSize: 'clamp(16px, 2.0cqi, 25px)', fontWeight: 900, renderingMode: 'amountInWords' },
+      { id: 'mainAmount', bindKey: 'amount', label: 'Numeric Amount', x: 76.8, y: 25.1, width: 17.5, height: 8.2, fontSize: 'clamp(26px, 3.2cqi, 40px)', fontWeight: 900, renderingMode: 'amount' },
+      { id: 'mainAccNo', bindKey: 'accountNumber', label: 'Account Number', x: 8.51, y: 44.5, width: 45.32, height: 6.5, boxCount: 17, fontSize: 'clamp(20px, 2.5cqi, 32px)', fontWeight: 900, renderingMode: 'characterBoxes' },
+      { id: 'mainSig', bindKey: 'signature', label: 'Account Holder Signature', x: 76.0, y: 35.5, width: 18, height: 7.0, fontSize: 'clamp(22px, 2.8cqi, 36px)', renderingMode: 'signature' },
+      { id: 'mainName', bindKey: 'name', label: 'Account Holder Name', x: 76.0, y: 47.8, width: 18, fontSize: 'clamp(18px, 2.2cqi, 28px)', fontWeight: 900, renderingMode: 'text' }
     ]
   },
 
@@ -171,9 +171,9 @@ export const BANK_TEMPLATES_CONFIG = {
     fields: [
       { id: 'mainDate', bindKey: 'date', label: 'Cheque Date', x: 77.34, y: 6.9, width: 18.27, height: 5.7, boxCount: 8, fontSize: 'clamp(20px, 2.5cqi, 32px)', fontWeight: 900, renderingMode: 'dateBoxes' },
       { id: 'mainPayee', bindKey: 'name', label: 'Payee Name', x: 8.0, y: 21.5, width: 67, height: 5.2, fontSize: 'clamp(22px, 2.8cqi, 36px)', fontWeight: 900, renderingMode: 'text' },
-      { id: 'mainWords', bindKey: 'amountInWords', label: 'Rupees in Words', x: 13.5, y: 30.5, width: 55, height: 5.2, fontSize: 'clamp(18px, 2.3cqi, 28px)', fontWeight: 900, renderingMode: 'amountInWords' },
+      { id: 'mainWords', bindKey: 'amountInWords', label: 'Rupees in Words', x: 13.5, y: 31.0, width: 55, height: 5.2, fontSize: 'clamp(18px, 2.3cqi, 28px)', fontWeight: 900, renderingMode: 'amountInWords' },
       { id: 'mainAmount', bindKey: 'amount', label: 'Numeric Amount', x: 77.2, y: 35.8, width: 20.8, height: 10.0, fontSize: 'clamp(28px, 3.5cqi, 48px)', fontWeight: 900, renderingMode: 'amount' },
-      { id: 'mainAccNo', bindKey: 'accountNumber', label: 'Account Number', x: 12.8, y: 47.5, width: 29.5, height: 6.8, fontSize: 'clamp(24px, 3.0cqi, 38px)', letterSpacing: '4px', fontWeight: 900, renderingMode: 'text' },
+      { id: 'mainAccNo', bindKey: 'accountNumber', label: 'Account Number', x: 9.8, y: 47.2, width: 32.5, height: 7.3, fontSize: 'clamp(24px, 3.0cqi, 38px)', letterSpacing: '4px', fontWeight: 900, renderingMode: 'text' },
       { id: 'mainSig', bindKey: 'signature', label: 'Sign Above Line', x: 78.0, y: 70.0, width: 19, height: 9.5, fontSize: 'clamp(22px, 2.8cqi, 36px)', renderingMode: 'signature' }
     ]
   },
