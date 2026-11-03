@@ -235,22 +235,22 @@ function PlayerCharacter3D({ characterId = 'luna', outfitTheme = null, charState
     groupRef.current.rotation.y += rotDiff * Math.min(1, dt * 14.0)
 
     if (cs.pose === 'walking') {
-      // Natural walking cadence: ~1.1 Hz gait cycle, subtle 0.028m bounce (no violent hopping)
-      const cycle = Math.sin(t * 6.8)
-      const targetY = cs.y + Math.abs(cycle) * 0.028
+      // Natural walking cadence: tuned to match normal 0.115 walking speed
+      const cycle = Math.sin(t * 7.0)
+      const targetY = cs.y + Math.abs(cycle) * 0.024
       groupRef.current.position.y = THREE.MathUtils.lerp(groupRef.current.position.y, targetY, Math.min(1, dt * 20.0))
       
       // Natural stride angles
-      if (leftLegRef.current) leftLegRef.current.rotation.x = cycle * 0.42
-      if (rightLegRef.current) rightLegRef.current.rotation.x = -cycle * 0.42
-      if (leftArmRef.current) leftArmRef.current.rotation.x = isLuna ? -0.32 + cycle * 0.12 : -cycle * 0.35
+      if (leftLegRef.current) leftLegRef.current.rotation.x = cycle * 0.38
+      if (rightLegRef.current) rightLegRef.current.rotation.x = -cycle * 0.38
+      if (leftArmRef.current) leftArmRef.current.rotation.x = isLuna ? -0.32 + cycle * 0.10 : -cycle * 0.30
       if (rightArmRef.current) {
         if (activeIceCream) {
           rightArmRef.current.rotation.x = -1.35
           rightArmRef.current.rotation.y = -0.22
           rightArmRef.current.rotation.z = -0.32
         } else {
-          rightArmRef.current.rotation.x = cycle * 0.35
+          rightArmRef.current.rotation.x = cycle * 0.30
         }
       }
       if (headRef.current) {
@@ -5634,12 +5634,12 @@ export default function Level1SchoolWorld({
 
           // Smooth 360-degree turning with Left / Right
           if (turnDir !== 0) {
-            cs.rotY -= turnDir * (0.055 * dtFactor)
+            cs.rotY -= turnDir * (0.048 * dtFactor)
           }
 
-          // Smooth acceleration and deceleration for walk speed
-          const targetSpeed = moveInput * (0.34 * dtFactor)
-          currentSpeedRef.current = THREE.MathUtils.lerp(currentSpeedRef.current, targetSpeed, 0.3)
+          // Balanced, natural walking speed (not too fast, not too slow)
+          const targetSpeed = moveInput * (0.115 * dtFactor)
+          currentSpeedRef.current = THREE.MathUtils.lerp(currentSpeedRef.current, targetSpeed, 0.22)
           const curSpeed = currentSpeedRef.current
 
           if (Math.abs(curSpeed) > 0.005) {
@@ -9365,7 +9365,7 @@ export default function Level1SchoolWorld({
                 pressedKeysRef.current.up = false
                 charStateRef.current.pose = 'idle'
               }}
-              onClick={() => stepCharacterManual(0, 1.4, false)}
+              onClick={() => stepCharacterManual(0, 0.65, false)}
               className="w-9 h-7 rounded-lg bg-slate-800 hover:bg-emerald-500 hover:text-slate-950 text-emerald-300 border border-white/20 text-xs font-black flex items-center justify-center cursor-pointer transition-colors"
               title="Walk Forward in Facing Direction (Up Arrow / W)"
             >
@@ -9404,7 +9404,7 @@ export default function Level1SchoolWorld({
                   pressedKeysRef.current.down = false
                   charStateRef.current.pose = 'idle'
                 }}
-                onClick={() => stepCharacterManual(0, 1.4, true)}
+                onClick={() => stepCharacterManual(0, 0.65, true)}
                 className="w-9 h-7 rounded-lg bg-slate-800 hover:bg-emerald-500 hover:text-slate-950 text-emerald-300 border border-white/20 text-xs font-black flex items-center justify-center cursor-pointer transition-colors"
                 title="Turn Around 180° & Walk Back with Automatic Camera Orbit (Down Arrow / S)"
               >
