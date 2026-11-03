@@ -2834,6 +2834,312 @@ function SchoolVeranda3D({ charStateRef }) {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 // ═══════════════════════════════════════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CLASSROOM LIBRARY CUPBOARD & BOOKSHELVES (With Real Books, Trophy, Globe & Plants)
+// ═══════════════════════════════════════════════════════════════════════════════
+function ClassroomLibraryCupboardWithBooks3D({ position = [-2.6, -2.45, -0.45] }) {
+  const bookColors = [
+    '#1e3a8a', '#991b1b', '#14532d', '#d97706', '#581c87',
+    '#0f766e', '#334155', '#b45309', '#0369a1', '#701a75',
+    '#1e293b', '#c2410c', '#15803d', '#1d4ed8', '#a21caf',
+  ]
+
+  return (
+    <group position={position}>
+      {/* ─── MAIN CUPBOARD WOODEN CARCASS ─── */}
+      <RoundedBox args={[6.4, 2.35, 0.75]} position={[0, 0, 0]} radius={0.03} castShadow receiveShadow>
+        <meshStandardMaterial color="#c08248" roughness={0.45} />
+      </RoundedBox>
+
+      {/* Top Overhanging Crown Countertop Ledge */}
+      <RoundedBox args={[6.55, 0.08, 0.82]} position={[0, 1.18, 0]} radius={0.02} castShadow receiveShadow>
+        <meshStandardMaterial color="#a16207" roughness={0.4} />
+      </RoundedBox>
+
+      {/* Plinth Base Skirting */}
+      <RoundedBox args={[6.48, 0.16, 0.78]} position={[0, -1.12, 0]} radius={0.02}>
+        <meshStandardMaterial color="#854d0e" roughness={0.5} />
+      </RoundedBox>
+
+      {/* Interior Backing Wall (Slightly Darker Teak Wood) */}
+      <mesh position={[0, 0.35, 0.02]} receiveShadow>
+        <planeGeometry args={[6.2, 1.45]} />
+        <meshStandardMaterial color="#78350f" roughness={0.65} />
+      </mesh>
+
+      {/* Vertical Dividers dividing cupboard into 3 shelf bays */}
+      {[-1.05, 1.05].map((vx, i) => (
+        <RoundedBox key={i} args={[0.07, 1.45, 0.7]} position={[vx, 0.35, -0.01]} radius={0.01}>
+          <meshStandardMaterial color="#a16207" roughness={0.45} />
+        </RoundedBox>
+      ))}
+
+      {/* Horizontal Middle Shelf Runner */}
+      <RoundedBox args={[6.25, 0.06, 0.7]} position={[0, 0.38, -0.01]} radius={0.01} castShadow receiveShadow>
+        <meshStandardMaterial color="#a16207" roughness={0.45} />
+      </RoundedBox>
+
+      {/* Lower Cupboard Divider Top (separates open shelves from cabinet doors below) */}
+      <RoundedBox args={[6.35, 0.08, 0.74]} position={[0, -0.38, 0]} radius={0.02} castShadow receiveShadow>
+        <meshStandardMaterial color="#854d0e" roughness={0.4} />
+      </RoundedBox>
+
+      {/* ─── LOWER CUPBOARD CABINET DOORS (6 DOORS WITH BRASS HANDLES) ─── */}
+      {[-2.55, -1.53, -0.51, 0.51, 1.53, 2.55].map((dx, dIdx) => (
+        <group key={dIdx} position={[dx, -0.75, -0.36]}>
+          {/* Outer Door Frame */}
+          <RoundedBox args={[0.96, 0.65, 0.04]} radius={0.02} castShadow receiveShadow>
+            <meshStandardMaterial color="#b45309" roughness={0.42} />
+          </RoundedBox>
+          {/* Recessed Inner Wood Inset Panel */}
+          <RoundedBox args={[0.82, 0.52, 0.02]} position={[0, 0, -0.015]} radius={0.01}>
+            <meshStandardMaterial color="#78350f" roughness={0.5} />
+          </RoundedBox>
+          {/* Polished Brass Knob / Pull Handle */}
+          <group position={[dIdx % 2 === 0 ? 0.35 : -0.35, 0.1, -0.035]}>
+            <mesh castShadow>
+              <sphereGeometry args={[0.025, 12, 12]} />
+              <meshStandardMaterial color="#fbbf24" metalness={0.92} roughness={0.12} />
+            </mesh>
+            <mesh position={[0, 0, 0.015]} rotation={[Math.PI / 2, 0, 0]}>
+              <cylinderGeometry args={[0.01, 0.01, 0.03, 8]} />
+              <meshStandardMaterial color="#d4af37" metalness={0.9} />
+            </mesh>
+          </group>
+        </group>
+      ))}
+
+      {/* ─── BOOKS ON SHELF 1 (LOWER OPEN SHELF, y = -0.35) ─── */}
+      {/* Bay 1: Left Bay (x = -2.1) - Heavy Investment Volumes & Reference Guides */}
+      <group position={[-2.1, -0.34, -0.15]}>
+        {Array.from({ length: 14 }).map((_, bIdx) => {
+          const w = 0.055 + (bIdx % 3) * 0.018
+          const h = 0.52 + ((bIdx * 7) % 5) * 0.035
+          const d = 0.42 + (bIdx % 2) * 0.04
+          const c = bookColors[bIdx % bookColors.length]
+          return (
+            <group key={bIdx} position={[-0.85 + bIdx * 0.082, h / 2, 0]}>
+              <RoundedBox args={[w, h, d]} radius={0.008} castShadow receiveShadow>
+                <meshStandardMaterial color={c} roughness={0.55} />
+              </RoundedBox>
+              {/* Gold foil decorative spine stripes */}
+              {[-0.14, 0.14].map((sy, sIdx) => (
+                <mesh key={sIdx} position={[0, sy, -d / 2 - 0.002]}>
+                  <planeGeometry args={[w * 0.85, 0.018]} />
+                  <meshStandardMaterial color="#fbbf24" metalness={0.9} roughness={0.15} />
+                </mesh>
+              ))}
+            </group>
+          )
+        })}
+        {/* Brass Bookend */}
+        <group position={[0.42, 0.22, 0]}>
+          <RoundedBox args={[0.05, 0.44, 0.42]} radius={0.02}>
+            <meshStandardMaterial color="#d4af37" metalness={0.88} roughness={0.2} />
+          </RoundedBox>
+        </group>
+      </group>
+
+      {/* Bay 2: Center Bay (x = 0.0) - Upright Books + Leaning Books */}
+      <group position={[0.0, -0.34, -0.15]}>
+        {Array.from({ length: 12 }).map((_, bIdx) => {
+          const w = 0.06 + (bIdx % 4) * 0.015
+          const h = 0.50 + ((bIdx * 3) % 4) * 0.04
+          const d = 0.44
+          const c = bookColors[(bIdx + 4) % bookColors.length]
+          return (
+            <group key={bIdx} position={[-0.75 + bIdx * 0.085, h / 2, 0]}>
+              <RoundedBox args={[w, h, d]} radius={0.008} castShadow>
+                <meshStandardMaterial color={c} roughness={0.5} />
+              </RoundedBox>
+              <mesh position={[0, 0, -d / 2 - 0.002]}>
+                <planeGeometry args={[w * 0.8, 0.02]} />
+                <meshStandardMaterial color="#fef08a" metalness={0.85} />
+              </mesh>
+            </group>
+          )
+        })}
+        {/* Two leaning books on the right */}
+        <group position={[0.45, 0.24, 0]} rotation={[0, 0, 0.28]}>
+          <RoundedBox args={[0.07, 0.52, 0.44]} radius={0.008} castShadow>
+            <meshStandardMaterial color="#991b1b" roughness={0.45} />
+          </RoundedBox>
+        </group>
+        <group position={[0.54, 0.22, 0]} rotation={[0, 0, 0.32]}>
+          <RoundedBox args={[0.06, 0.48, 0.42]} radius={0.008} castShadow>
+            <meshStandardMaterial color="#0284c7" roughness={0.45} />
+          </RoundedBox>
+        </group>
+      </group>
+
+      {/* Bay 3: Right Bay (x = 2.1) - Stacked Encyclopedias + Upright Texts */}
+      <group position={[2.1, -0.34, -0.15]}>
+        {/* Horizontal Stack of 3 Thick Books */}
+        <group position={[-0.55, 0, 0]}>
+          {[0, 1, 2].map((sIdx) => (
+            <RoundedBox
+              key={sIdx}
+              args={[0.42, 0.09, 0.44]}
+              position={[0, 0.045 + sIdx * 0.092, 0]}
+              radius={0.008}
+              castShadow
+            >
+              <meshStandardMaterial
+                color={sIdx === 0 ? '#1e3a8a' : sIdx === 1 ? '#065f46' : '#7c2d12'}
+                roughness={0.5}
+              />
+            </RoundedBox>
+          ))}
+        </group>
+        {/* Upright books next to stack */}
+        {Array.from({ length: 9 }).map((_, bIdx) => {
+          const w = 0.055 + (bIdx % 3) * 0.015
+          const h = 0.48 + ((bIdx * 5) % 4) * 0.04
+          const d = 0.42
+          const c = bookColors[(bIdx + 8) % bookColors.length]
+          return (
+            <group key={bIdx} position={[-0.15 + bIdx * 0.082, h / 2, 0]}>
+              <RoundedBox args={[w, h, d]} radius={0.008} castShadow>
+                <meshStandardMaterial color={c} roughness={0.55} />
+              </RoundedBox>
+            </group>
+          )
+        })}
+      </group>
+
+      {/* ─── BOOKS ON SHELF 2 (UPPER OPEN SHELF, y = 0.42) ─── */}
+      {/* Bay 1 Upper: Financial Market Analysis Series */}
+      <group position={[-2.1, 0.42, -0.15]}>
+        {Array.from({ length: 13 }).map((_, bIdx) => {
+          const w = 0.055 + (bIdx % 3) * 0.015
+          const h = 0.46 + ((bIdx * 4) % 5) * 0.035
+          const d = 0.40
+          const c = bookColors[(bIdx + 2) % bookColors.length]
+          return (
+            <group key={bIdx} position={[-0.82 + bIdx * 0.082, h / 2, 0]}>
+              <RoundedBox args={[w, h, d]} radius={0.008} castShadow>
+                <meshStandardMaterial color={c} roughness={0.5} />
+              </RoundedBox>
+            </group>
+          )
+        })}
+      </group>
+
+      {/* Bay 2 Upper: Compounding & Economics Series */}
+      <group position={[0.0, 0.42, -0.15]}>
+        {Array.from({ length: 14 }).map((_, bIdx) => {
+          const w = 0.055 + (bIdx % 2) * 0.02
+          const h = 0.48 + ((bIdx * 6) % 4) * 0.035
+          const d = 0.42
+          const c = bookColors[(bIdx + 5) % bookColors.length]
+          return (
+            <group key={bIdx} position={[-0.85 + bIdx * 0.082, h / 2, 0]}>
+              <RoundedBox args={[w, h, d]} radius={0.008} castShadow>
+                <meshStandardMaterial color={c} roughness={0.55} />
+              </RoundedBox>
+            </group>
+          )
+        })}
+      </group>
+
+      {/* Bay 3 Upper: Smart Savings Books + Golden Trophy */}
+      <group position={[2.1, 0.42, -0.15]}>
+        {Array.from({ length: 9 }).map((_, bIdx) => {
+          const w = 0.06 + (bIdx % 3) * 0.015
+          const h = 0.46 + ((bIdx * 3) % 4) * 0.035
+          const d = 0.40
+          const c = bookColors[(bIdx + 9) % bookColors.length]
+          return (
+            <group key={bIdx} position={[-0.8 + bIdx * 0.082, h / 2, 0]}>
+              <RoundedBox args={[w, h, d]} radius={0.008} castShadow>
+                <meshStandardMaterial color={c} roughness={0.5} />
+              </RoundedBox>
+            </group>
+          )
+        })}
+        {/* Golden Academic Excellence Trophy on Shelf */}
+        <group position={[0.42, 0.28, 0]}>
+          <mesh castShadow>
+            <cylinderGeometry args={[0.08, 0.12, 0.16, 16]} />
+            <meshStandardMaterial color="#1e293b" />
+          </mesh>
+          <mesh position={[0, 0.18, 0]} castShadow>
+            <cylinderGeometry args={[0.13, 0.04, 0.24, 16]} />
+            <meshStandardMaterial color="#fbbf24" metalness={0.92} roughness={0.12} />
+          </mesh>
+          {/* Trophy Handles */}
+          {[-0.14, 0.14].map((hx, i) => (
+            <mesh key={i} position={[hx, 0.18, 0]}>
+              <torusGeometry args={[0.06, 0.018, 8, 16]} />
+              <meshStandardMaterial color="#fbbf24" metalness={0.9} />
+            </mesh>
+          ))}
+        </group>
+      </group>
+
+      {/* ─── DÉCOR ON TOP COUNTERTOP OF CUPBOARD (y = 1.22) ─── */}
+      {/* 1. Miniature Vintage Desk Globe on Mahogany Stand (Left Side) */}
+      <group position={[-2.4, 1.22, 0]}>
+        <mesh position={[0, 0.04, 0]} castShadow>
+          <cylinderGeometry args={[0.16, 0.18, 0.08, 20]} />
+          <meshStandardMaterial color="#78350f" roughness={0.4} />
+        </mesh>
+        <mesh position={[0, 0.22, 0]}>
+          <cylinderGeometry args={[0.02, 0.02, 0.3, 10]} />
+          <meshStandardMaterial color="#d4af37" metalness={0.9} />
+        </mesh>
+        {/* Meridian Ring */}
+        <mesh position={[0, 0.36, 0]} rotation={[0, 0, 0.4]}>
+          <torusGeometry args={[0.22, 0.02, 10, 24]} />
+          <meshStandardMaterial color="#d4af37" metalness={0.92} />
+        </mesh>
+        {/* Earth Sphere */}
+        <mesh position={[0, 0.36, 0]} rotation={[0.4, 0.3, 0]} castShadow>
+          <sphereGeometry args={[0.18, 20, 20]} />
+          <meshStandardMaterial color="#0284c7" roughness={0.35} />
+        </mesh>
+      </group>
+
+      {/* 2. Cozy Potted Trailing Ivy Plant (Center) */}
+      <group position={[0.2, 1.22, 0]}>
+        <mesh position={[0, 0.14, 0]} castShadow>
+          <cylinderGeometry args={[0.18, 0.14, 0.28, 16]} />
+          <meshStandardMaterial color="#f8fafc" roughness={0.3} />
+        </mesh>
+        {/* Foliage */}
+        <mesh position={[0, 0.32, 0]} castShadow>
+          <sphereGeometry args={[0.26, 14, 14]} scale={[1.2, 0.85, 1.2]} />
+          <meshStandardMaterial color="#15803d" roughness={0.65} />
+        </mesh>
+        <mesh position={[-0.14, 0.25, 0.12]} castShadow>
+          <sphereGeometry args={[0.16, 12, 12]} />
+          <meshStandardMaterial color="#22c55e" roughness={0.65} />
+        </mesh>
+      </group>
+
+      {/* 3. Stack of Financial Portfolios and Documents (Right Side) */}
+      <group position={[2.2, 1.22, 0]}>
+        {[0, 1, 2, 3].map((fIdx) => (
+          <RoundedBox
+            key={fIdx}
+            args={[0.38, 0.04, 0.52]}
+            position={[0, 0.02 + fIdx * 0.045, 0]}
+            rotation={[0, (fIdx - 1.5) * 0.08, 0]}
+            radius={0.008}
+            castShadow
+          >
+            <meshStandardMaterial
+              color={fIdx === 0 ? '#3b82f6' : fIdx === 1 ? '#10b981' : fIdx === 2 ? '#f59e0b' : '#ef4444'}
+              roughness={0.4}
+            />
+          </RoundedBox>
+        ))}
+      </group>
+    </group>
+  )
+}
+
 // FUNCTIONAL CLASSROOM WALL CLOCK (Real-Time Moving Hands + Numeral Dial + Time Display)
 // ═══════════════════════════════════════════════════════════════════════════════
 function createClockFaceTexture() {
@@ -3767,21 +4073,21 @@ function Classroom101Scene3D({ projectorContent, isVideoFullscreen = false }) {
         </RoundedBox>
 
         {/* Large Classroom Cork Bulletin Board with Framing & Financial Literacy Charts */}
-        <group position={[-2.6, 0.35, -0.23]}>
-          <RoundedBox args={[6.8, 2.5, 0.08]} radius={0.03} castShadow>
+        <group position={[-2.6, 1.05, -0.23]}>
+          <RoundedBox args={[6.8, 2.0, 0.08]} radius={0.03} castShadow>
             <meshStandardMaterial color="#c88d54" roughness={0.5} />
           </RoundedBox>
-          <RoundedBox args={[6.5, 2.2, 0.05]} position={[0, 0, -0.02]} radius={0.02}>
+          <RoundedBox args={[6.5, 1.75, 0.05]} position={[0, 0, -0.02]} radius={0.02}>
             <meshStandardMaterial color="#b47b48" roughness={0.85} />
           </RoundedBox>
-          {/* Bulletin Board Educational Sheets */}
+          {/* Bulletin Board Educational Sheets & Student Honor Certificates */}
           {[
-            { x: -2.3, y: 0.3, w: 1.1, h: 1.3, c: '#fef08a' },
-            { x: -0.9, y: 0.45, w: 1.2, h: 0.9, c: '#bae6fd' },
-            { x: 0.5, y: 0.2, w: 1.1, h: 1.25, c: '#bbf7d0' },
-            { x: 2.0, y: 0.35, w: 1.2, h: 0.95, c: '#fed7aa' },
-            { x: -1.6, y: -0.5, w: 1.5, h: 0.65, c: '#ffffff' },
-            { x: 1.2, y: -0.5, w: 1.6, h: 0.65, c: '#ffffff' },
+            { x: -2.3, y: 0.2, w: 1.1, h: 1.1, c: '#fef08a' },
+            { x: -0.9, y: 0.25, w: 1.2, h: 0.9, c: '#bae6fd' },
+            { x: 0.5, y: 0.15, w: 1.1, h: 1.05, c: '#bbf7d0' },
+            { x: 2.0, y: 0.22, w: 1.2, h: 0.9, c: '#fed7aa' },
+            { x: -1.6, y: -0.42, w: 1.4, h: 0.55, c: '#ffffff' },
+            { x: 1.2, y: -0.42, w: 1.5, h: 0.55, c: '#ffffff' },
           ].map((note, nIdx) => (
             <mesh key={nIdx} position={[note.x, note.y, -0.06]}>
               <planeGeometry args={[note.w, note.h]} />
@@ -3789,6 +4095,9 @@ function Classroom101Scene3D({ projectorContent, isVideoFullscreen = false }) {
             </mesh>
           ))}
         </group>
+
+        {/* ─── CLASSROOM LIBRARY CUPBOARD & BOOKSHELVES PACKED WITH BOOKS ─── */}
+        <ClassroomLibraryCupboardWithBooks3D position={[-2.6, -2.45, -0.45]} />
 
         {/* Classroom Back Lockers & Student Cubbies */}
         <group position={[4.6, -2.45, -0.45]}>
@@ -4131,23 +4440,26 @@ function ExaminationCenter103Scene3D({ examProjectorContent }) {
           <meshStandardMaterial color="#d49963" roughness={0.45} />
         </RoundedBox>
         {/* Exam Rules & Guidelines Board */}
-        <group position={[-2.4, 0.4, -0.23]}>
-          <RoundedBox args={[5.8, 2.4, 0.08]} radius={0.03} castShadow>
+        <group position={[-2.4, 1.05, -0.23]}>
+          <RoundedBox args={[5.8, 1.9, 0.08]} radius={0.03} castShadow>
             <meshStandardMaterial color="#b87d46" roughness={0.5} />
           </RoundedBox>
           <mesh position={[0, 0, -0.05]}>
-            <planeGeometry args={[5.5, 2.1]} />
+            <planeGeometry args={[5.5, 1.65]} />
             <meshBasicMaterial color="#ffffff" />
           </mesh>
-          <mesh position={[-1.6, 0.3, -0.06]}>
-            <planeGeometry args={[1.6, 1.1]} />
+          <mesh position={[-1.6, 0.15, -0.06]}>
+            <planeGeometry args={[1.6, 0.95]} />
             <meshBasicMaterial color="#fef08a" />
           </mesh>
-          <mesh position={[1.2, 0.3, -0.06]}>
-            <planeGeometry args={[2.2, 1.1]} />
+          <mesh position={[1.2, 0.15, -0.06]}>
+            <planeGeometry args={[2.2, 0.95]} />
             <meshBasicMaterial color="#dbeafe" />
           </mesh>
         </group>
+
+        {/* ─── EXAMINATION CENTER REFERENCE CUPBOARD & BOOKS ─── */}
+        <ClassroomLibraryCupboardWithBooks3D position={[-2.4, -2.45, -0.45]} />
         {/* Exterior Red-Brick Facade */}
         <RoundedBox args={[17.4, 7.6, 0.24]} position={[0, 0, 0.12]} radius={0.03} castShadow receiveShadow>
           <meshStandardMaterial color="#b85d43" roughness={0.72} />
