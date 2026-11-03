@@ -8298,16 +8298,7 @@ export default function Level1SchoolWorld({
             </div>
           )}
 
-          {/* Subtle Stream Recovery Indicator if high-bitrate video buffers */}
-          {isVideoBuffering && isPlaying && !videoLoadError && !showLessonCompletedBanner && (
-            <div
-              style={{ fontSize: '1.35vh', padding: '0.7vh 1.8vh', top: '1.4vh', right: '1.4vh' }}
-              className="absolute z-20 rounded-full bg-slate-900/90 border border-cyan-400/70 text-cyan-200 font-extrabold flex items-center gap-[0.8vh] pointer-events-none shadow-lg"
-            >
-              <span className="animate-spin">⏳</span>
-              <span>Smoothing HD stream...</span>
-            </div>
-          )}
+
 
           {!isPlaying && !videoLoadError && !showLessonCompletedBanner && (
             <button
