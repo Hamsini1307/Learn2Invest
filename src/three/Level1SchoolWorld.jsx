@@ -9915,7 +9915,7 @@ export default function Level1SchoolWorld({
           </div>
 
           <div className="flex justify-end shrink-0">
-            {is85PercentReached && !(currentVideoIdx >= LEVEL1_VIDEOS.length - 1 && (showLessonCompletedBanner || completedVideos.includes(currentVideoIdx))) ? (
+            {is85PercentReached && !(currentVideoIdx >= LEVEL1_VIDEOS.length - 1 && (showLessonCompletedBanner || completedVideoIds.includes(currentVideo.id))) ? (
               <button
                 ref={nextVideoBtnRef}
                 onClick={() => {
