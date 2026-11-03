@@ -8193,24 +8193,13 @@ export default function Level1SchoolWorld({
                 <span>Full Screen</span>
               </button>
             ) : (
-              <>
-                <button
-                  onClick={closeVideoFullscreen}
-                  style={{ fontSize: '1.65vh', padding: '0.9vh 1.8vh', gap: '0.6vh' }}
-                  className="rounded-2xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-black cursor-pointer shadow-md flex items-center transition-transform hover:scale-105 whitespace-nowrap"
-                  title="Zoom Out back to Classroom Projector View"
-                >
-                  <span>🔍</span>
-                  <span>Zoom Out (Normal View)</span>
-                </button>
-                <button
-                  onClick={closeVideoFullscreen}
-                  style={{ fontSize: '1.65vh', padding: '0.9vh 1.8vh' }}
-                  className="rounded-2xl bg-rose-500 hover:bg-rose-400 text-white font-black cursor-pointer shadow-md transition-transform hover:scale-105 whitespace-nowrap"
-                >
-                  ✕ Exit Full Screen
-                </button>
-              </>
+              <button
+                onClick={closeVideoFullscreen}
+                style={{ fontSize: '1.65vh', padding: '0.9vh 1.8vh' }}
+                className="rounded-2xl bg-rose-500 hover:bg-rose-400 text-white font-black cursor-pointer shadow-md transition-transform hover:scale-105 whitespace-nowrap"
+              >
+                ✕ Exit Full Screen
+              </button>
             )}
 
             <div
@@ -8475,35 +8464,18 @@ export default function Level1SchoolWorld({
                   </button>
 
                   <button
-                    onClick={() => {
-                      soundEngine.playClick()
-                      setShowLessonCompletedBanner(false)
-                      setIsVideoFullscreen(false)
-                      beginWalkToExaminationCenter()
-                    }}
+                    onClick={handleProceedAfterTakeaways}
                     style={{
                       fontSize: isVideoFullscreen ? '1.85vh' : '1.52vh',
                       padding: isVideoFullscreen ? '1.15vh 2.6vh' : '0.9vh 2.2vh',
                       borderRadius: '1.1vh',
                     }}
-                    className="flex-1 bg-gradient-to-r from-emerald-500 via-teal-400 to-amber-400 hover:from-emerald-400 hover:to-amber-300 text-slate-950 font-black shadow-[0_0_25px_rgba(16,185,129,0.7)] hover:scale-[1.01] active:scale-95 transition-all cursor-pointer truncate"
+                    className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black hover:scale-[1.01] active:scale-95 transition-all cursor-pointer whitespace-nowrap shadow-md"
                   >
-                    🚶 Stand Up & Walk to Quiz Classroom 📝
+                    {currentVideoIdx < LEVEL1_VIDEOS.length - 1
+                      ? `Next Video (${currentVideoIdx + 2}/5) →`
+                      : 'Take Examination Quiz →'}
                   </button>
-
-                  {currentVideoIdx < LEVEL1_VIDEOS.length - 1 && (
-                    <button
-                      onClick={handleProceedAfterTakeaways}
-                      style={{
-                        fontSize: isVideoFullscreen ? '1.85vh' : '1.52vh',
-                        padding: isVideoFullscreen ? '1.15vh 2.4vh' : '0.9vh 2.0vh',
-                        borderRadius: '1.1vh',
-                      }}
-                      className="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-amber-300 font-black hover:scale-[1.01] active:scale-95 transition-all cursor-pointer whitespace-nowrap"
-                    >
-                      Next Video ({currentVideoIdx + 2}/5) →
-                    </button>
-                  )}
                 </div>
               </div>
             </div>
@@ -9593,18 +9565,7 @@ export default function Level1SchoolWorld({
               </div>
             </div>
 
-            <button
-              type="button"
-              onClick={() => {
-                soundEngine.playClick()
-                setIsComputerFullscreen(false)
-              }}
-              style={{ fontSize: 'max(14px, 1.7vh)', padding: '0.8vh 2.0vh', borderRadius: '1.2vh', gap: '0.8vh' }}
-              className="bg-amber-400 hover:bg-amber-300 text-slate-950 font-black shadow-md flex items-center cursor-pointer transition-transform hover:scale-105"
-            >
-              <span>🗗</span>
-              <span>Exit Full Screen (3D Desk View)</span>
-            </button>
+
           </div>
 
           {/* Full-Screen Active Computer Screen Container */}
@@ -9766,35 +9727,7 @@ export default function Level1SchoolWorld({
         </div>
       )}
 
-      {/* ═══════════════════════════════════════════════════════════════════
-          SCHOOL EXIT & ROAD TO BANK BANNER (Crisp Black Font on Frosted Blurred Card)
-      ═══════════════════════════════════════════════════════════════════ */}
-      {journeyStage === 'reached_exit' && (
-        <div className="absolute bottom-7 left-1/2 -translate-x-1/2 z-30 w-[min(94vw,840px)] px-7 py-5 rounded-3xl bg-white/92 backdrop-blur-xl border-2 border-emerald-500 shadow-[0_15px_55px_rgba(16,185,129,0.45)] text-black flex flex-col sm:flex-row items-center justify-between gap-5">
-          <div className="flex items-center gap-4">
-            <div className="text-4xl animate-bounce">🎓🛣️🏛️</div>
-            <div>
-              <div className="text-xs font-black uppercase tracking-widest text-emerald-800">
-                Exited School Front Doors • Walked Along Side Boulevard to the Bank
-              </div>
-              <div className="text-lg sm:text-xl font-black text-black">
-                {characterChoice === 'leo' || characterChoice === 'max' ? 'Leo' : 'Luna'} Walked Along the Campus Boulevard to the Side Bank & 24/7 ATM!
-              </div>
-              <div className="text-xs sm:text-sm text-black font-bold">
-                Next Stop: 🏛️ Learn2Invest Bank → Cabin 1: Banking Slip Writing, Cabin 2: Digital Safety & 24/7 ATM Queue
-              </div>
-            </div>
-          </div>
-          <div className="flex gap-3 shrink-0">
-            <button
-              onClick={beginWalkToBank}
-              className="px-6 py-3 rounded-2xl bg-gradient-to-r from-emerald-400 to-teal-400 text-black font-black text-sm shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer border border-black/15"
-            >
-              🏛️ Enter Level 3 Bank →
-            </button>
-          </div>
-        </div>
-      )}
+
 
       {/* ═══════════════════════════════════════════════════════════════════
           LEVEL 3 — BANK EMPLOYEE GUIDE INTERACTION PANEL (Maya — 2 Cabins + XP Deposit)
