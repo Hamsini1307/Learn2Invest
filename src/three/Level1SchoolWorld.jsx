@@ -6163,6 +6163,8 @@ export default function Level1SchoolWorld({
   const [characterChoice, setCharacterChoice] = useState(aiGuideAvatar === 'male' ? 'leo' : 'luna')
   const [outfitThemeId, setOutfitThemeId] = useState('classic')
   const [loginLevelChoice, setLoginLevelChoice] = useState('beginner') // 'beginner' | 'intermediate' ('advanced' is locked)
+  const [isIntermediatePlacementFailed, setIsIntermediatePlacementFailed] = useState(false)
+  const [returnCountdown, setReturnCountdown] = useState(8)
   const [isSceneLoading, setIsSceneLoading] = useState(true)
   const [showLoadingSplash, setShowLoadingSplash] = useState(true)
   const [isNightMode, setIsNightMode] = useState(false) // Daylight default, Night Mode toggle in top bar
@@ -6858,7 +6860,7 @@ export default function Level1SchoolWorld({
   // If Beginner level is chosen at login, sections ahead remain locked until each preceding section is completed.
   // If Intermediate level is chosen at login, Classroom videos are unlocked & completed and the user starts directly at the Quiz!
   const isQuizUnlocked =
-    loginLevelChoice === 'intermediate' ||
+    (loginLevelChoice === 'intermediate' && !isIntermediatePlacementFailed) ||
     completedVideoIds.length >= LEVEL1_VIDEOS.length ||
     quizCompletedFlag ||
     simCompleted ||
@@ -6866,7 +6868,6 @@ export default function Level1SchoolWorld({
     metricsCompleted ||
     completedBankSections.length > 0
   const isComputer1Unlocked =
-    loginLevelChoice === 'intermediate' ||
     (quizCompletedFlag && quizScoreSummary.score >= 60) ||
     (Number(state?.quizScore) >= 60 && Boolean(state?.level1Completed)) ||
     simCompleted ||
@@ -6983,6 +6984,28 @@ export default function Level1SchoolWorld({
     }
   }, [showLessonCompletedBanner])
 
+  // Auto-countdown effect when intermediate student scores < 60% on quiz
+  useEffect(() => {
+    if (quizSubStage !== 'completed') return
+    const isPassed = quizScoreSummary.score >= 60
+    const isInterFailed = isIntermediatePlacementFailed || (loginLevelChoice === 'intermediate' && !isPassed)
+    if (!isInterFailed) return
+
+    setReturnCountdown(8)
+    const interval = setInterval(() => {
+      setReturnCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval)
+          returnFailedIntermediateToClassroom()
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [quizSubStage, isIntermediatePlacementFailed, loginLevelChoice, quizScoreSummary.score])
+
   // GSAP animate the "Quiz Completed!" banner
   useEffect(() => {
     if (quizSubStage === 'completed' && quizCompleteBannerRef.current) {
@@ -7007,7 +7030,9 @@ export default function Level1SchoolWorld({
   // ───────────────────────────────────────────────────────────────────────────
   const jumpDirectlyToExaminationQuiz = () => {
     if (timelineRef.current) timelineRef.current.kill()
-    setCompletedVideoIds(LEVEL1_VIDEOS.map((v) => v.id))
+    // Intermediate placement test: videos remain unwatched until they score >= 60%
+    setIsIntermediatePlacementFailed(false)
+    setCompletedVideoIds([])
     setJourneyStage('walking_to_exam')
     soundEngine.startAmbientMusic('exploration', true)
 
@@ -7234,8 +7259,11 @@ export default function Level1SchoolWorld({
       setAuthError('')
 
       const savedProg = matchedAccount.progress || {}
+      const isQuizPassed = Boolean(
+        savedProg.quizCompletedFlag && (savedProg.quizAttempt?.score ?? 0) >= 60
+      )
       const restoredVideos =
-        loginLevelChoice === 'intermediate'
+        loginLevelChoice === 'intermediate' && isQuizPassed
           ? LEVEL1_VIDEOS.map((v) => v.id)
           : Array.isArray(savedProg.completedVideoIds)
             ? savedProg.completedVideoIds
@@ -7264,9 +7292,6 @@ export default function Level1SchoolWorld({
           restoredQuizAnswers[String(restoredQuizAttempt.currentQuestionIdx || 0)] ??
           null
       )
-      const isQuizPassed = Boolean(
-        savedProg.quizCompletedFlag && (savedProg.quizAttempt?.score ?? 0) >= 60
-      )
       setQuizCompletedFlag(isQuizPassed)
       setQuizSubStage('start_screen')
       setSimCompleted(Boolean(savedProg.simCompleted))
@@ -7293,7 +7318,7 @@ export default function Level1SchoolWorld({
           quizScore: restoredQuizAttempt.score || 0,
           quizAttempt: restoredQuizAttempt,
           level1Completed: isQuizPassed,
-          intermediateUnlocked: loginLevelChoice === 'intermediate' || isQuizPassed,
+          intermediateUnlocked: isQuizPassed,
           startingLevel: loginLevelChoice,
           user: {
             name: finalName,
@@ -7329,17 +7354,16 @@ export default function Level1SchoolWorld({
     const cleanName = rawUsername || rawEmail.split('@')[0] || (characterChoice === 'leo' ? 'Leo' : 'Luna')
     const cleanEmail = rawEmail || `${cleanName.toLowerCase().replace(/\s+/g, '')}@learn2invest.edu`
 
-    const initialVideos =
-      loginLevelChoice === 'intermediate' ? LEVEL1_VIDEOS.map((v) => v.id) : []
+    const initialVideos = []
     const freshQuizAttempt = getOrCreateQuizAttempt(quizAttempt, { forceNew: true })
 
     // Reset all in-memory progress for the newly created account so 0/5 videos are watched!
     setCompletedVideoIds(initialVideos)
     setCurrentVideoIdx(0)
-    watchPctRef.current = loginLevelChoice === 'intermediate' ? 100 : 0
+    watchPctRef.current = 0
     currentTimeRef.current = 0
     durationRef.current = 0
-    setWatchPct(loginLevelChoice === 'intermediate' ? 100 : 0)
+    setWatchPct(0)
     setCurrentTime(0)
     setDuration(0)
     setShowLessonCompletedBanner(false)
@@ -7956,6 +7980,142 @@ export default function Level1SchoolWorld({
   }
 
   // ───────────────────────────────────────────────────────────────────────────
+  // INTERMEDIATE PLACEMENT FAIL -> RETURN TO CLASSROOM 101 TO WATCH VIDEOS
+  // ───────────────────────────────────────────────────────────────────────────
+  const returnFailedIntermediateToClassroom = () => {
+    if (timelineRef.current) timelineRef.current.kill()
+    if (quizAdvanceTimerRef.current) clearTimeout(quizAdvanceTimerRef.current)
+    soundEngine.playClick()
+
+    setIsIntermediatePlacementFailed(true)
+    setLoginLevelChoice('beginner')
+    setQuizSubStage('start_screen')
+    setSelectedOption(null)
+    setCurrentQuestionIdx(0)
+    setCompletedVideoIds([])
+    setCurrentVideoIdx(0)
+    watchPctRef.current = 0
+    currentTimeRef.current = 0
+    durationRef.current = 0
+    setWatchPct(0)
+    setCurrentTime(0)
+    setDuration(0)
+    setShowLessonCompletedBanner(false)
+    setQuizCompletedFlag(false)
+
+    setJourneyStage('walking_to_classroom')
+    soundEngine.startAmbientMusic('exploration', true)
+
+    const cs = charStateRef.current
+    cs.visible = true
+    cs.x = -16.1
+    cs.y = 0.08
+    cs.z = -28.68
+    cs.rotY = 0 // Face forward along aisle towards +Z
+    cs.pose = 'walking'
+
+    const cam = camStateRef.current
+    cam.x = -16.1
+    cam.y = 2.4
+    cam.z = -32.0
+    cam.lookX = -16.1
+    cam.lookY = 1.6
+    cam.lookZ = -25.0
+
+    const tl = gsap.timeline({
+      onComplete: () => {
+        cs.x = -16.1
+        cs.y = 0.08
+        cs.z = -12.68
+        cs.pose = 'seated'
+        cs.rotY = Math.PI
+        setJourneyStage('classroom_projector')
+        soundEngine.startAmbientMusic('classroom', true)
+      },
+    })
+    timelineRef.current = tl
+
+    // Segment 1 (0s - 1.2s): Walk from exam desk to Door 103 aisle
+    tl.to(cs, { x: -16.1, y: 0, z: -23.5, rotY: 0, duration: 1.2, ease: 'none' }, 0)
+    tl.to(
+      cam,
+      { x: -16.1, y: 2.3, z: -27.5, lookX: -16.1, lookY: 1.6, lookZ: -20.5, duration: 1.2, ease: 'power1.inOut' },
+      0
+    )
+
+    // Segment 2 (1.2s - 2.2s): Walk through Door 103 into the Veranda
+    tl.to(cs, { x: -1.5, y: 0, z: -23.5, rotY: Math.PI / 2, duration: 1.0, ease: 'none' }, 1.2)
+    tl.to(
+      cam,
+      { x: -9.5, y: 2.2, z: -23.5, lookX: -2.0, lookY: 1.6, lookZ: -23.5, duration: 0.6, ease: 'power1.inOut' },
+      1.2
+    )
+    tl.to(
+      cam,
+      { x: -5.0, y: 2.2, z: -23.5, lookX: 2.0, lookY: 1.6, lookZ: -23.5, duration: 0.4, ease: 'power1.inOut' },
+      1.8
+    )
+
+    // Segment 3 (2.2s - 3.6s): Walk down Veranda toward Door 101
+    tl.to(cs, { x: -1.5, y: 0, z: -7.5, rotY: 0, duration: 1.4, ease: 'none' }, 2.2)
+    tl.to(
+      cam,
+      { x: -1.5, y: 2.2, z: -27.5, lookX: -1.5, lookY: 1.6, lookZ: -19.5, duration: 0.5, ease: 'power1.inOut' },
+      2.2
+    )
+    tl.to(
+      cam,
+      { x: -1.5, y: 2.2, z: -11.5, lookX: -1.5, lookY: 1.6, lookZ: -3.5, duration: 0.9, ease: 'power1.inOut' },
+      2.7
+    )
+
+    // Segment 4 (3.6s - 4.8s): Enter Door 101 into Classroom 101
+    tl.to(cs, { x: -16.1, y: 0, z: -7.5, rotY: -Math.PI / 2, duration: 1.2, ease: 'none' }, 3.6)
+    tl.to(
+      cam,
+      { x: -1.5, y: 2.2, z: -7.5, lookX: -6.0, lookY: 1.6, lookZ: -7.5, duration: 0.6, ease: 'power1.inOut' },
+      3.6
+    )
+    tl.to(
+      cam,
+      { x: -11.5, y: 2.2, z: -7.5, lookX: -17.0, lookY: 1.6, lookZ: -7.5, duration: 0.6, ease: 'power1.inOut' },
+      4.2
+    )
+
+    // Segment 5 (4.8s - 6.0s): Walk down aisle to student desk at (-16.1, 0.08, -12.68) and sit down
+    tl.to(
+      cs,
+      {
+        x: -16.1,
+        y: 0.08,
+        z: -12.68,
+        rotY: Math.PI,
+        duration: 1.0,
+        ease: 'power1.out',
+        onComplete: () => {
+          cs.pose = 'seated'
+          cs.rotY = Math.PI
+        },
+      },
+      4.8
+    )
+    tl.to(
+      cam,
+      {
+        x: -14.0,
+        y: 3.55,
+        z: -9.85,
+        lookX: -14.0,
+        lookY: 3.65,
+        lookZ: -16.85,
+        duration: 1.2,
+        ease: 'power2.inOut',
+      },
+      4.8
+    )
+  }
+
+  // ───────────────────────────────────────────────────────────────────────────
   // SECTIONS 4 - 9: EXAMINATION PROJECTOR QUIZ (Start Quiz -> 1/10 .. 10/10 -> Quiz Completed!)
   // ───────────────────────────────────────────────────────────────────────────
   const handleStartNewQuizAttempt = () => {
@@ -8030,11 +8190,22 @@ export default function Level1SchoolWorld({
         soundEngine.playLessonCompleteFanfare()
         if (addXP && !quizCompletedFlag) addXP(150)
         setQuizCompletedFlag(true)
+        setCompletedVideoIds(LEVEL1_VIDEOS.map((v) => v.id))
+        setIsIntermediatePlacementFailed(false)
       } else {
         soundEngine.playClick()
         setQuizCompletedFlag(false)
+        if (loginLevelChoice === 'intermediate') {
+          setIsIntermediatePlacementFailed(true)
+          setCompletedVideoIds([])
+          watchPctRef.current = 0
+          setWatchPct(0)
+          setCurrentVideoIdx(0)
+          setLoginLevelChoice('beginner')
+        }
       }
       setQuizSubStage('completed')
+      setReturnCountdown(8)
       const completedAttemptState = {
         ...quizAttempt,
         status: 'completed',
@@ -8054,8 +8225,37 @@ export default function Level1SchoolWorld({
           correctCount,
           quizTotal: totalQ,
           level1Completed: isPassed,
-          intermediateUnlocked: isPassed || loginLevelChoice === 'intermediate',
+          intermediateUnlocked: isPassed,
+          lessonsWatched: isPassed ? LEVEL1_VIDEOS.map((v) => v.id) : [],
+          startingLevel: isPassed ? loginLevelChoice : 'beginner',
         })
+      }
+      if (!isPassed && loginLevelChoice === 'intermediate') {
+        try {
+          const dbStr = localStorage.getItem('l2i_accounts_db')
+          if (dbStr) {
+            const accounts = JSON.parse(dbStr)
+            const updated = accounts.map((acc) => {
+              if (
+                acc.username?.toLowerCase() === (state?.user?.name || '').toLowerCase() ||
+                acc.email?.toLowerCase() === (state?.user?.email || '').toLowerCase()
+              ) {
+                return {
+                  ...acc,
+                  level: 'beginner',
+                  progress: {
+                    ...acc.progress,
+                    completedVideoIds: [],
+                    quizCompletedFlag: false,
+                    quizAttempt: completedAttemptState,
+                  },
+                }
+              }
+              return acc
+            })
+            localStorage.setItem('l2i_accounts_db', JSON.stringify(updated))
+          }
+        } catch {}
       }
     }
   }
@@ -9245,6 +9445,24 @@ export default function Level1SchoolWorld({
         style={{ WebkitFontSmoothing: 'antialiased', textRendering: 'optimizeLegibility' }}
         className="w-full h-full bg-slate-950 text-white flex flex-col justify-between overflow-hidden relative font-sans select-none"
       >
+        {/* Placement Quiz Alert Banner */}
+        {isIntermediatePlacementFailed && (
+          <div className="bg-amber-500/25 border-b-2 border-amber-400 px-4 py-2 flex items-center justify-between gap-3 text-amber-200 text-xs sm:text-sm font-bold shrink-0 shadow-md">
+            <div className="flex items-center gap-2">
+              <span className="text-base sm:text-lg">🏫💡</span>
+              <span>
+                <strong>Placement Quiz Score &lt; 60%:</strong> Welcome to Classroom 101! Please watch all 5 video lessons here to master the concepts and unlock the examination.
+              </span>
+            </div>
+            <button
+              onClick={() => setIsIntermediatePlacementFailed(false)}
+              className="px-2.5 py-0.5 rounded bg-amber-400/20 hover:bg-amber-400/40 text-amber-300 text-xs font-black cursor-pointer transition-all"
+            >
+              ✕ Dismiss
+            </button>
+          </div>
+        )}
+
         {/* Top Integrated Projector Header Bar (Scales Up Automatically in Full Screen Mode) */}
         <div
           style={{
@@ -9890,6 +10108,7 @@ export default function Level1SchoolWorld({
           /* Section 9: Quiz Completed Screen (Pass >= 60% vs. Needs Improvement < 60%) */
           (() => {
             const isPassed = quizScoreSummary.score >= 60
+            const isInterFailed = isIntermediatePlacementFailed || (loginLevelChoice === 'intermediate' && !isPassed)
             return (
               <div className="w-full h-full bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 text-white flex flex-col items-center justify-center p-8 text-center">
                 <div
@@ -9897,58 +10116,98 @@ export default function Level1SchoolWorld({
                   className={`px-10 py-7 rounded-3xl bg-slate-900/90 border-2 shadow-2xl max-w-xl w-full ${
                     isPassed
                       ? 'border-amber-400 shadow-[0_0_55px_rgba(251,191,36,0.45)]'
-                      : 'border-rose-400 shadow-[0_0_55px_rgba(244,63,94,0.35)]'
+                      : isInterFailed
+                        ? 'border-amber-400 shadow-[0_0_55px_rgba(251,191,36,0.35)]'
+                        : 'border-rose-400 shadow-[0_0_55px_rgba(244,63,94,0.35)]'
                   }`}
                 >
                   <div className="text-5xl mb-2 animate-bounce">
-                    {isPassed ? '🏆🎉⭐' : '📝💡⚠️'}
+                    {isPassed ? '🏆🎉⭐' : isInterFailed ? '🏫📚💡' : '📝💡⚠️'}
                   </div>
 
                   <div
                     className={`inline-block px-5 py-1.5 rounded-full font-black text-sm uppercase tracking-wider mb-2.5 ${
                       isPassed
                         ? 'bg-amber-400 text-slate-950'
-                        : 'bg-rose-500/25 border border-rose-400 text-rose-200'
+                        : isInterFailed
+                          ? 'bg-amber-400/20 border border-amber-400 text-amber-300'
+                          : 'bg-rose-500/25 border border-rose-400 text-rose-200'
                     }`}
                   >
                     {isPassed
                       ? '⭐ +150 XP Examination Reward Claimed!'
-                      : '⚠️ Minimum 60% Score Required to Pass & Unlock Floor 2'}
+                      : isInterFailed
+                        ? '🏫 Placement Quiz: Minimum 60% Required to Skip'
+                        : '⚠️ Minimum 60% Score Required to Pass & Unlock Floor 2'}
                   </div>
 
                   <h2 className="text-3xl font-black text-white mb-2">
-                    {isPassed ? 'Quiz Passed!' : 'Needs Improvement!'} Score: {quizScoreSummary.correctCount} / {activeQuizQuestions.length} ({quizScoreSummary.score}%)
+                    {isPassed
+                      ? 'Quiz Passed!'
+                      : isInterFailed
+                        ? 'Return to Classroom 101'
+                        : 'Needs Improvement!'} Score: {quizScoreSummary.correctCount} / {activeQuizQuestions.length} ({quizScoreSummary.score}%)
                   </h2>
 
                   <p className="text-sm text-slate-300 max-w-md mx-auto font-bold mb-5 leading-relaxed">
                     {isPassed
                       ? `Congratulations! You scored ${quizScoreSummary.score}%, passing the 60% threshold. You can now proceed to Floor 2 Computer Lab.`
-                      : `You scored ${quizScoreSummary.score}%. A minimum score of 60% (at least 6/10 correct) is required to pass the Level 1 Examination and proceed to Floor 2.`}
+                      : isInterFailed
+                        ? `You chose Intermediate and scored ${quizScoreSummary.score}%. Because you did not achieve the required 60% passing mark, you must go back to Classroom 101 and watch all 5 video lessons to learn the material before attempting the exam again.`
+                        : `You scored ${quizScoreSummary.score}%. A minimum score of 60% (at least 6/10 correct) is required to pass the Level 1 Examination and proceed to Floor 2.`}
                   </p>
 
                   <div className="flex items-center justify-center gap-3 flex-wrap">
-                    <button
-                      onClick={handleStartNewQuizAttempt}
-                      className={`px-6 py-3 rounded-xl font-black text-xs sm:text-sm cursor-pointer transition-transform hover:scale-105 active:scale-95 shadow-md ${
-                        isPassed
-                          ? 'bg-white/15 hover:bg-white/25 border border-amber-300 text-amber-200'
-                          : 'bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950'
-                      }`}
-                    >
-                      🔄 Retake Quiz {isPassed ? '' : '(Try Again)'}
-                    </button>
-
                     {isPassed ? (
-                      <button
-                        onClick={beginWalkToFloor2AndComputerLab}
-                        className="px-6 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs sm:text-sm cursor-pointer shadow-md transition-transform hover:scale-105"
-                      >
-                        Continue to Floor 2 →
-                      </button>
-                    ) : (
-                      <div className="px-5 py-3 rounded-xl bg-slate-800 border border-slate-600 text-slate-400 font-extrabold text-xs sm:text-sm">
-                        🔒 Floor 2 Locked (Score 60%+ to Unlock)
+                      <>
+                        <button
+                          onClick={handleStartNewQuizAttempt}
+                          className="px-6 py-3 rounded-xl font-black text-xs sm:text-sm cursor-pointer transition-transform hover:scale-105 active:scale-95 shadow-md bg-white/15 hover:bg-white/25 border border-amber-300 text-amber-200"
+                        >
+                          🔄 Retake Quiz
+                        </button>
+                        <button
+                          onClick={beginWalkToFloor2AndComputerLab}
+                          className="px-6 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs sm:text-sm cursor-pointer shadow-md transition-transform hover:scale-105"
+                        >
+                          Continue to Floor 2 →
+                        </button>
+                      </>
+                    ) : isInterFailed ? (
+                      <div className="flex flex-col items-center gap-3 w-full">
+                        <button
+                          onClick={returnFailedIntermediateToClassroom}
+                          className="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-black text-sm sm:text-base cursor-pointer shadow-[0_0_25px_rgba(16,185,129,0.5)] transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2.5 animate-pulse"
+                        >
+                          <span className="text-xl">🏫</span>
+                          <span>Go to Classroom 101 & Watch Videos Now →</span>
+                        </button>
+                        <div className="text-xs font-bold text-amber-300/90">
+                          Auto-returning to Classroom 101 in {returnCountdown}s...
+                        </div>
+                        <div className="px-5 py-2.5 rounded-xl bg-slate-800/90 border border-slate-700 text-slate-400 font-extrabold text-xs flex items-center gap-2">
+                          <span>🔒</span>
+                          <span>Floor 2 & Exam Retake Locked Until 5 Videos Watched</span>
+                        </div>
                       </div>
+                    ) : (
+                      <>
+                        <button
+                          onClick={handleStartNewQuizAttempt}
+                          className="px-6 py-3 rounded-xl font-black text-xs sm:text-sm cursor-pointer transition-transform hover:scale-105 active:scale-95 shadow-md bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950"
+                        >
+                          🔄 Retake Quiz (Try Again)
+                        </button>
+                        <button
+                          onClick={returnFailedIntermediateToClassroom}
+                          className="px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 border border-slate-500 text-slate-200 font-black text-xs sm:text-sm cursor-pointer shadow-md transition-transform hover:scale-105"
+                        >
+                          🏫 Review Classroom Videos
+                        </button>
+                        <div className="px-5 py-3 rounded-xl bg-slate-800 border border-slate-600 text-slate-400 font-extrabold text-xs sm:text-sm">
+                          🔒 Floor 2 Locked (Score 60%+ to Unlock)
+                        </div>
+                      </>
                     )}
                   </div>
                 </div>
