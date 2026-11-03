@@ -3251,23 +3251,29 @@ function FunctionalClassroomWallClock3D({ position = [0, 0, 0], scale = 1, rimCo
 
   return (
     <group position={position} scale={scale}>
-      {/* Wooden / Charcoal Clock Outer Frame Ring */}
-      <mesh position={[0, 0, 0.04]}>
-        <torusGeometry args={[0.46, 0.045, 16, 36]} />
-        <meshStandardMaterial color={rimColor} roughness={0.4} />
+      {/* Clock Casing Body (Cylinder back in wall) */}
+      <mesh position={[0, 0, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.46, 0.46, 0.06, 36]} />
+        <meshStandardMaterial color="#1c1917" roughness={0.6} />
       </mesh>
 
-      {/* Polished Inner Gold Bezel */}
-      <mesh position={[0, 0, 0.038]}>
-        <torusGeometry args={[0.44, 0.015, 12, 36]} />
+      {/* Wooden Outer Bezel Rim */}
+      <mesh position={[0, 0, 0.04]}>
+        <torusGeometry args={[0.45, 0.045, 16, 48]} />
+        <meshStandardMaterial color={rimColor} roughness={0.35} />
+      </mesh>
+
+      {/* Polished Inner Gold Bezel Accent Ring */}
+      <mesh position={[0, 0, 0.042]}>
+        <torusGeometry args={[0.435, 0.015, 12, 48]} />
         <meshStandardMaterial color="#fbbf24" metalness={0.88} roughness={0.15} />
       </mesh>
 
-      {/* Clock Face Dial Disk with Canvas Numbers and Ticks */}
-      <mesh rotation={[Math.PI / 2, 0, 0]}>
-        <cylinderGeometry args={[0.46, 0.46, 0.06, 32]} />
+      {/* Clock Face Dial (Flat circle facing straight out in XY plane - 12 at top, 3 at right, 6 at bottom, 9 at left) */}
+      <mesh position={[0, 0, 0.036]}>
+        <circleGeometry args={[0.432, 64]} />
         {dialTexture ? (
-          <meshStandardMaterial map={dialTexture} roughness={0.2} metalness={0.05} />
+          <meshStandardMaterial map={dialTexture} roughness={0.15} metalness={0.05} />
         ) : (
           <meshStandardMaterial color="#ffffff" />
         )}
