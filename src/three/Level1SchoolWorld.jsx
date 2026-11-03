@@ -214,68 +214,78 @@ function PlayerCharacter3D({ characterId = 'luna', outfitTheme = null, charState
   const bagColor = outfitTheme?.bag || (isLuna ? '#d98a9c' : '#272422')
   const ringColor = outfitTheme?.ring || (isLuna ? '#f472b6' : '#38bdf8')
 
-  useFrame(({ clock }) => {
+  useFrame(({ clock }, delta) => {
     if (!groupRef.current || !charStateRef.current) return
+    const dt = Math.min(0.05, delta || 0.016)
     const t = clock.getElapsedTime()
     const cs = charStateRef.current
 
     groupRef.current.visible = cs.visible
     if (!cs.visible) return
 
-    groupRef.current.position.set(cs.x, cs.y, cs.z)
-    // Smooth 360-degree shortest-angle rotation interpolation
+    // Smooth position interpolation to eliminate micro-jitter
+    groupRef.current.position.x = THREE.MathUtils.lerp(groupRef.current.position.x, cs.x, Math.min(1, dt * 25.0))
+    groupRef.current.position.z = THREE.MathUtils.lerp(groupRef.current.position.z, cs.z, Math.min(1, dt * 25.0))
+
+    // Smooth 360-degree shortest-angle rotation interpolation (dt-independent)
     const rotDiff = Math.atan2(
       Math.sin(cs.rotY - groupRef.current.rotation.y),
       Math.cos(cs.rotY - groupRef.current.rotation.y)
     )
-    groupRef.current.rotation.y += rotDiff * 0.32
+    groupRef.current.rotation.y += rotDiff * Math.min(1, dt * 14.0)
 
     if (cs.pose === 'walking') {
-      const cycle = Math.sin(t * 10.5)
-      groupRef.current.position.y = cs.y + Math.abs(cycle) * 0.1
-      if (leftLegRef.current) leftLegRef.current.rotation.x = cycle * 0.65
-      if (rightLegRef.current) rightLegRef.current.rotation.x = -cycle * 0.65
-      if (leftArmRef.current) leftArmRef.current.rotation.x = isLuna ? -0.35 + cycle * 0.15 : -cycle * 0.55
+      // Natural walking cadence: ~1.1 Hz gait cycle, subtle 0.028m bounce (no violent hopping)
+      const cycle = Math.sin(t * 6.8)
+      const targetY = cs.y + Math.abs(cycle) * 0.028
+      groupRef.current.position.y = THREE.MathUtils.lerp(groupRef.current.position.y, targetY, Math.min(1, dt * 20.0))
+      
+      // Natural stride angles
+      if (leftLegRef.current) leftLegRef.current.rotation.x = cycle * 0.42
+      if (rightLegRef.current) rightLegRef.current.rotation.x = -cycle * 0.42
+      if (leftArmRef.current) leftArmRef.current.rotation.x = isLuna ? -0.32 + cycle * 0.12 : -cycle * 0.35
       if (rightArmRef.current) {
         if (activeIceCream) {
           rightArmRef.current.rotation.x = -1.35
           rightArmRef.current.rotation.y = -0.22
           rightArmRef.current.rotation.z = -0.32
         } else {
-          rightArmRef.current.rotation.x = cycle * 0.55
+          rightArmRef.current.rotation.x = cycle * 0.35
         }
       }
       if (headRef.current) {
-        headRef.current.rotation.z = Math.sin(t * 5.2) * 0.04
-        headRef.current.rotation.y = Math.sin(t * 2.6) * 0.06
+        headRef.current.rotation.z = Math.sin(t * 3.4) * 0.02
+        headRef.current.rotation.y = Math.sin(t * 1.7) * 0.04
       }
     } else if (cs.pose === 'seated') {
-      groupRef.current.position.y = cs.y - 0.18
-      if (leftLegRef.current) leftLegRef.current.rotation.x = THREE.MathUtils.lerp(leftLegRef.current.rotation.x, -1.25, 0.15)
-      if (rightLegRef.current) rightLegRef.current.rotation.x = THREE.MathUtils.lerp(rightLegRef.current.rotation.x, -1.25, 0.15)
-      if (leftArmRef.current) leftArmRef.current.rotation.x = THREE.MathUtils.lerp(leftArmRef.current.rotation.x, -0.45, 0.15)
-      if (rightArmRef.current) rightArmRef.current.rotation.x = THREE.MathUtils.lerp(rightArmRef.current.rotation.x, -0.45, 0.15)
+      const targetY = cs.y - 0.18
+      groupRef.current.position.y = THREE.MathUtils.lerp(groupRef.current.position.y, targetY, Math.min(1, dt * 15.0))
+      if (leftLegRef.current) leftLegRef.current.rotation.x = THREE.MathUtils.lerp(leftLegRef.current.rotation.x, -1.25, Math.min(1, dt * 10.0))
+      if (rightLegRef.current) rightLegRef.current.rotation.x = THREE.MathUtils.lerp(rightLegRef.current.rotation.x, -1.25, Math.min(1, dt * 10.0))
+      if (leftArmRef.current) leftArmRef.current.rotation.x = THREE.MathUtils.lerp(leftArmRef.current.rotation.x, -0.45, Math.min(1, dt * 10.0))
+      if (rightArmRef.current) rightArmRef.current.rotation.x = THREE.MathUtils.lerp(rightArmRef.current.rotation.x, -0.45, Math.min(1, dt * 10.0))
       if (headRef.current) {
         headRef.current.rotation.z = Math.sin(t * 1.5) * 0.02
         headRef.current.rotation.y = Math.sin(t * 1.2) * 0.05
       }
     } else {
-      // Idle / Waving
-      groupRef.current.position.y = cs.y + Math.sin(t * 2.4) * 0.03
-      if (leftLegRef.current) leftLegRef.current.rotation.x = THREE.MathUtils.lerp(leftLegRef.current.rotation.x, 0, 0.15)
-      if (rightLegRef.current) rightLegRef.current.rotation.x = THREE.MathUtils.lerp(rightLegRef.current.rotation.x, 0, 0.15)
-      if (leftArmRef.current) leftArmRef.current.rotation.x = THREE.MathUtils.lerp(leftArmRef.current.rotation.x, isLuna ? -0.4 : 0, 0.15)
+      // Idle / Standing
+      const targetY = cs.y + Math.sin(t * 2.4) * 0.015
+      groupRef.current.position.y = THREE.MathUtils.lerp(groupRef.current.position.y, targetY, Math.min(1, dt * 15.0))
+      if (leftLegRef.current) leftLegRef.current.rotation.x = THREE.MathUtils.lerp(leftLegRef.current.rotation.x, 0, Math.min(1, dt * 12.0))
+      if (rightLegRef.current) rightLegRef.current.rotation.x = THREE.MathUtils.lerp(rightLegRef.current.rotation.x, 0, Math.min(1, dt * 12.0))
+      if (leftArmRef.current) leftArmRef.current.rotation.x = THREE.MathUtils.lerp(leftArmRef.current.rotation.x, isLuna ? -0.35 : 0, Math.min(1, dt * 12.0))
       if (rightArmRef.current) {
         if (activeIceCream) {
           rightArmRef.current.rotation.x = -1.35
           rightArmRef.current.rotation.y = -0.22
           rightArmRef.current.rotation.z = -0.32
         } else {
-          rightArmRef.current.rotation.x = THREE.MathUtils.lerp(rightArmRef.current.rotation.x, 0, 0.15)
+          rightArmRef.current.rotation.x = THREE.MathUtils.lerp(rightArmRef.current.rotation.x, 0, Math.min(1, dt * 12.0))
         }
       }
       if (headRef.current) {
-        headRef.current.rotation.y = Math.sin(t * 1.8) * 0.08
+        headRef.current.rotation.y = Math.sin(t * 1.8) * 0.05
       }
     }
   })
@@ -701,20 +711,21 @@ function AnimatedNPCStudent3D({ student }) {
     const y = currWp[1] + dy * Math.min(1, Math.max(0, st.tSeg))
     const z = currWp[2] + dz * Math.min(1, Math.max(0, st.tSeg))
 
-    const cycle = Math.sin(t * 9.5)
-    groupRef.current.position.set(x, y + Math.abs(cycle) * 0.07, z)
+    // Smooth natural cadence: 6.0 rad/s (~1.9 steps/s)
+    const cycle = Math.sin(t * 6.0)
+    groupRef.current.position.set(x, y + Math.abs(cycle) * 0.024, z)
 
     const targetRotY = Math.atan2(dx, dz)
     const rotDiff = ((targetRotY - groupRef.current.rotation.y + Math.PI * 3) % (Math.PI * 2)) - Math.PI
-    groupRef.current.rotation.y += rotDiff * 0.22
+    groupRef.current.rotation.y += rotDiff * Math.min(1, dt * 7.0)
 
-    if (leftLegRef.current) leftLegRef.current.rotation.x = cycle * 0.62
-    if (rightLegRef.current) rightLegRef.current.rotation.x = -cycle * 0.62
-    if (leftArmRef.current) leftArmRef.current.rotation.x = -cycle * 0.5
-    if (rightArmRef.current) rightArmRef.current.rotation.x = cycle * 0.5
+    if (leftLegRef.current) leftLegRef.current.rotation.x = cycle * 0.38
+    if (rightLegRef.current) rightLegRef.current.rotation.x = -cycle * 0.38
+    if (leftArmRef.current) leftArmRef.current.rotation.x = -cycle * 0.28
+    if (rightArmRef.current) rightArmRef.current.rotation.x = cycle * 0.28
     if (headRef.current) {
-      headRef.current.rotation.y = Math.sin(t * 2.2) * 0.12
-      headRef.current.rotation.z = Math.sin(t * 4.5) * 0.03
+      headRef.current.rotation.y = Math.sin(t * 1.8) * 0.08
+      headRef.current.rotation.z = Math.sin(t * 3.6) * 0.02
     }
   })
 
@@ -1748,8 +1759,8 @@ function SchoolYardAndFacade3D({ frontDoorOpenRef, charStateRef, isNightMode = f
         {[0, 1, 2, 3, 4].map((sIdx) => (
           <RoundedBox
             key={sIdx}
-            args={[7.4, 0.11, 2.9 - sIdx * 0.42]}
-            position={[0, 0.055 + sIdx * 0.11, 2.1 - sIdx * 0.21]}
+            args={[7.4, 0.04, 2.9 - sIdx * 0.42]}
+            position={[0, 0.02 + sIdx * 0.012, 2.1 - sIdx * 0.21]}
             radius={0.02}
             receiveShadow
             castShadow
@@ -2232,13 +2243,12 @@ function SchoolVeranda3D({ charStateRef }) {
                 <group key={cIdx} position={[cx, -0.25, cz]}>
                   <mesh>
                     <cylinderGeometry args={[0.035, 0.005, 0.42, 6]} />
-                    <meshPhysicalMaterial
+                    <meshStandardMaterial
                       color="#ffffff"
                       transparent
                       opacity={0.88}
                       roughness={0.05}
                       metalness={0.1}
-                      transmission={0.82}
                     />
                   </mesh>
                 </group>
@@ -2260,12 +2270,11 @@ function SchoolVeranda3D({ charStateRef }) {
                 <group key={cIdx} position={[cx, -0.2, cz]}>
                   <mesh>
                     <cylinderGeometry args={[0.03, 0.005, 0.35, 6]} />
-                    <meshPhysicalMaterial
+                    <meshStandardMaterial
                       color="#ffffff"
                       transparent
                       opacity={0.88}
                       roughness={0.05}
-                      transmission={0.82}
                     />
                   </mesh>
                 </group>
@@ -2282,12 +2291,11 @@ function SchoolVeranda3D({ charStateRef }) {
             {/* Center Crystal Pendant Drop */}
             <mesh position={[0, -0.32, 0]}>
               <octahedronGeometry args={[0.22, 0]} />
-              <meshPhysicalMaterial
+              <meshStandardMaterial
                 color="#ffffff"
                 transparent
                 opacity={0.92}
                 roughness={0.05}
-                transmission={0.85}
               />
             </mesh>
           </group>
@@ -2625,7 +2633,7 @@ function SchoolVeranda3D({ charStateRef }) {
               {/* Narrow Clean Glass Viewing Pane */}
               <mesh position={[0, 0.72, -0.36]}>
                 <boxGeometry args={[0.08, 1.55, 0.32]} />
-                <meshPhysicalMaterial
+                <meshStandardMaterial
                   color="#bae6fd"
                   transparent
                   opacity={0.35}
@@ -2690,7 +2698,7 @@ function SchoolVeranda3D({ charStateRef }) {
               {/* Narrow Clean Glass Viewing Pane */}
               <mesh position={[0, 0.72, 0.36]}>
                 <boxGeometry args={[0.08, 1.55, 0.32]} />
-                <meshPhysicalMaterial
+                <meshStandardMaterial
                   color="#bae6fd"
                   transparent
                   opacity={0.35}
@@ -3639,13 +3647,12 @@ function GrandAtriumCeilingAndChandeliers3D({ isNightMode = false }) {
               <group key={i} position={[cx, -0.38, cz]}>
                 <mesh>
                   <cylinderGeometry args={[0.045, 0.005, 0.65, 6]} />
-                  <meshPhysicalMaterial
+                  <meshStandardMaterial
                     color="#ffffff"
                     transparent
                     opacity={0.9}
                     roughness={0.04}
                     metalness={0.12}
-                    transmission={0.88}
                   />
                 </mesh>
               </group>
@@ -3667,7 +3674,7 @@ function GrandAtriumCeilingAndChandeliers3D({ isNightMode = false }) {
               <group key={i} position={[cx, -0.32, cz]}>
                 <mesh>
                   <cylinderGeometry args={[0.04, 0.005, 0.52, 6]} />
-                  <meshPhysicalMaterial color="#ffffff" transparent opacity={0.9} transmission={0.88} />
+                  <meshStandardMaterial color="#ffffff" transparent opacity={0.9} />
                 </mesh>
               </group>
             )
@@ -3688,7 +3695,7 @@ function GrandAtriumCeilingAndChandeliers3D({ isNightMode = false }) {
               <group key={i} position={[cx, -0.26, cz]}>
                 <mesh>
                   <cylinderGeometry args={[0.035, 0.005, 0.42, 6]} />
-                  <meshPhysicalMaterial color="#ffffff" transparent opacity={0.9} transmission={0.88} />
+                  <meshStandardMaterial color="#ffffff" transparent opacity={0.9} />
                 </mesh>
               </group>
             )
@@ -3699,7 +3706,7 @@ function GrandAtriumCeilingAndChandeliers3D({ isNightMode = false }) {
         <group position={[0, -5.9, 0]}>
           <mesh>
             <octahedronGeometry args={[0.34, 0]} />
-            <meshPhysicalMaterial color="#ffffff" transparent opacity={0.95} transmission={0.92} />
+            <meshStandardMaterial color="#ffffff" transparent opacity={0.95} />
           </mesh>
         </group>
 
@@ -3739,7 +3746,7 @@ function GrandAtriumCeilingAndChandeliers3D({ isNightMode = false }) {
               <group key={i} position={[cx, -0.32, cz]}>
                 <mesh>
                   <cylinderGeometry args={[0.04, 0.005, 0.55, 6]} />
-                  <meshPhysicalMaterial color="#ffffff" transparent opacity={0.9} transmission={0.88} />
+                  <meshStandardMaterial color="#ffffff" transparent opacity={0.9} />
                 </mesh>
               </group>
             )
@@ -3760,7 +3767,7 @@ function GrandAtriumCeilingAndChandeliers3D({ isNightMode = false }) {
               <group key={i} position={[cx, -0.28, cz]}>
                 <mesh>
                   <cylinderGeometry args={[0.035, 0.005, 0.45, 6]} />
-                  <meshPhysicalMaterial color="#ffffff" transparent opacity={0.9} transmission={0.88} />
+                  <meshStandardMaterial color="#ffffff" transparent opacity={0.9} />
                 </mesh>
               </group>
             )
@@ -3775,7 +3782,7 @@ function GrandAtriumCeilingAndChandeliers3D({ isNightMode = false }) {
           </mesh>
           <mesh position={[0, -0.25, 0]}>
             <octahedronGeometry args={[0.26, 0]} />
-            <meshPhysicalMaterial color="#ffffff" transparent opacity={0.95} transmission={0.92} />
+            <meshStandardMaterial color="#ffffff" transparent opacity={0.95} />
           </mesh>
         </group>
 
@@ -3803,7 +3810,7 @@ function GrandAtriumCeilingAndChandeliers3D({ isNightMode = false }) {
             </mesh>
             <mesh position={[0, -0.15, 0]}>
               <octahedronGeometry args={[0.18, 0]} />
-              <meshPhysicalMaterial color="#ffffff" transparent opacity={0.9} transmission={0.85} />
+              <meshStandardMaterial color="#ffffff" transparent opacity={0.9} />
             </mesh>
             <pointLight color="#fef08a" intensity={1.8} distance={14} decay={1.8} />
           </group>
@@ -3865,7 +3872,7 @@ function StaircaseAndFloor2Veranda3D() {
           </RoundedBox>
           <mesh position={[rx, 3.6, -31.8]} rotation={[0.49, 0, 0]}>
             <boxGeometry args={[0.05, 0.95, 11.8]} />
-            <meshPhysicalMaterial color="#e0f2fe" transparent opacity={0.36} roughness={0.1} />
+            <meshStandardMaterial color="#e0f2fe" transparent opacity={0.36} roughness={0.1} />
           </mesh>
 
           {[0, 1, 2, 3].map((pIdx) => {
@@ -3984,13 +3991,12 @@ function StaircaseAndFloor2Veranda3D() {
             {/* Translucent Double-Glazed Window Glass */}
             <mesh position={[-0.02, 0, 0]} rotation={[0, Math.PI / 2, 0]}>
               <planeGeometry args={[2.1, 3.5]} />
-              <meshPhysicalMaterial
+              <meshStandardMaterial
                 color="#bae6fd"
                 transparent
                 opacity={0.35}
                 roughness={0.08}
                 metalness={0.2}
-                transmission={0.8}
               />
             </mesh>
             {/* Brass Window Grille Mullions */}
@@ -4067,13 +4073,12 @@ function StaircaseAndFloor2Veranda3D() {
             </RoundedBox>
             <mesh position={[0.02, 0, 0]} rotation={[0, -Math.PI / 2, 0]}>
               <planeGeometry args={[2.1, 3.5]} />
-              <meshPhysicalMaterial
+              <meshStandardMaterial
                 color="#bae6fd"
                 transparent
                 opacity={0.35}
                 roughness={0.08}
                 metalness={0.2}
-                transmission={0.8}
               />
             </mesh>
             <mesh position={[0.03, 0, 0]}>
@@ -4177,7 +4182,7 @@ function StaircaseAndFloor2Veranda3D() {
           {/* Tempered Safety Glass Balustrade */}
           <mesh position={[mIdx === 0 ? mx + 1.8 : mx - 1.8, 6.55, -33.2]}>
             <boxGeometry args={[0.04, 0.72, 6.3]} />
-            <meshPhysicalMaterial color="#e0f2fe" transparent opacity={0.38} roughness={0.1} />
+            <meshStandardMaterial color="#e0f2fe" transparent opacity={0.38} roughness={0.1} />
           </mesh>
         </group>
       ))}
@@ -4624,7 +4629,7 @@ function SchoolExitCorridorAndExterior3D({ isNightMode = false }) {
             {/* Narrow Vertical Glass Vision Panel in Door */}
             <mesh position={[0, 2.0, 0.08]}>
               <planeGeometry args={[0.26, 1.65]} />
-              <meshPhysicalMaterial color="#bae6fd" transparent opacity={0.55} roughness={0.1} />
+              <meshStandardMaterial color="#bae6fd" transparent opacity={0.55} roughness={0.1} />
             </mesh>
             {/* Silver Door Handle */}
             <RoundedBox args={[0.04, 0.18, 0.06]} position={[0.52, 1.55, 0.09]} radius={0.01}>
@@ -4633,7 +4638,7 @@ function SchoolExitCorridorAndExterior3D({ isNightMode = false }) {
             {/* Upper Transom Glass Above Door */}
             <mesh position={[0, 3.9, 0.05]}>
               <planeGeometry args={[1.38, 0.85]} />
-              <meshPhysicalMaterial color="#bae6fd" transparent opacity={0.45} roughness={0.1} />
+              <meshStandardMaterial color="#bae6fd" transparent opacity={0.45} roughness={0.1} />
             </mesh>
           </group>
         ))}
@@ -4668,7 +4673,7 @@ function SchoolExitCorridorAndExterior3D({ isNightMode = false }) {
           </RoundedBox>
           <mesh position={[0, 0, 0.05]}>
             <planeGeometry args={[1.48, 2.18]} />
-            <meshPhysicalMaterial color="#bae6fd" transparent opacity={0.45} roughness={0.15} />
+            <meshStandardMaterial color="#bae6fd" transparent opacity={0.45} roughness={0.15} />
           </mesh>
         </group>
       </group>
@@ -4770,7 +4775,7 @@ function SchoolExitCorridorAndExterior3D({ isNightMode = false }) {
             </RoundedBox>
             <mesh position={[idx === 0 ? 0.72 : -0.72, 0, 0]}>
               <boxGeometry args={[1.25, 3.3, 0.1]} />
-              <meshPhysicalMaterial color="#e0f2fe" transparent opacity={0.32} roughness={0.1} />
+              <meshStandardMaterial color="#e0f2fe" transparent opacity={0.32} roughness={0.1} />
             </mesh>
           </group>
         ))}
@@ -4929,7 +4934,9 @@ function Level1CinematicCameraRig({ camStateRef, journeyStage }) {
       return
     }
 
-    const lerpRate = [
+    const isPlayerControlling = [
+      'school_yard',
+      'login',
       'walking_to_classroom',
       'walking_to_exam',
       'walking_to_floor2_lab',
@@ -4938,8 +4945,8 @@ function Level1CinematicCameraRig({ camStateRef, journeyStage }) {
       'walking_bank_section',
       'walking_bank_exit',
     ].includes(journeyStage)
-      ? 0.32
-      : 0.22
+
+    const lerpRate = isPlayerControlling ? 0.45 : 0.22
     camera.position.lerp(targetPosRef.current, lerpRate)
     lookAtVec.current.lerp(targetLookRef.current, lerpRate)
     camera.lookAt(lookAtVec.current)
@@ -5408,16 +5415,18 @@ export default function Level1SchoolWorld({
       return
     }
 
-    // 5 Classical Entrance Steps leading up to portico (z between 2.0 and 4.2)
-    if (cs.z >= 2.0 && cs.z <= 4.2 && Math.abs(cs.x) < 3.8) {
-      const stepProg = Math.max(0, Math.min(1, (4.2 - cs.z) / 2.2))
-      cs.y = stepProg * 0.45
+    // Ground floor yard, entrance steps, veranda, and classrooms:
+    // Smooth, continuous elevation transition across entrance steps (z between 1.0 and 4.2)
+    if (cs.z >= 1.0 && cs.z <= 4.2 && Math.abs(cs.x) < 3.8) {
+      const stepProg = Math.max(0, Math.min(1, (4.2 - cs.z) / 3.2))
+      // Subtle 0.035m elevation so character walks completely smoothly without popping or falling
+      cs.y = stepProg * 0.035
       return
     }
 
     // Ground floor veranda and classrooms (z > -26.5)
     if (cs.z > -26.5) {
-      cs.y = 0
+      cs.y = 0.02
       return
     }
 
@@ -5426,16 +5435,16 @@ export default function Level1SchoolWorld({
     if (Math.abs(cs.x) < 3.2) {
       if (cs.z >= -37.5) {
         const tStair = (-26.5 - cs.z) / 11.0
-        cs.y = tStair * 6.2
+        cs.y = 0.02 + tStair * (6.2 - 0.02)
       } else {
         cs.y = 6.2
       }
     } else {
-      cs.y = 0
+      cs.y = 0.02
     }
   }
 
-  const updateCameraBehindCharacter = (cs, lerpFactor = 0.14) => {
+  const updateCameraBehindCharacter = (cs, lerpFactor = 0.38) => {
     if (
       ![
         'school_yard',
@@ -5454,40 +5463,41 @@ export default function Level1SchoolWorld({
       return
     }
 
-    // Smooth shortest-angle rotation interpolation for camera yaw
+    // Responsive shortest-angle rotation interpolation for camera yaw (snappy 0.38 follow)
     const angleDiff = Math.atan2(
       Math.sin(cs.rotY - camYawRef.current),
       Math.cos(cs.rotY - camYawRef.current)
     )
-    camYawRef.current += angleDiff * lerpFactor
+    camYawRef.current += angleDiff * Math.max(0.32, Math.min(0.65, lerpFactor * 2.2))
 
     const cam = camStateRef.current
-    const isInsideSchool = cs.z <= 2.2 && cs.x > -19
-    const isInsideClassroom = cs.x < -5.0 && cs.z <= 2.0
+    
+    // Smooth continuous factor transitioning between open yard and indoor corridor
+    const insideT = cs.x > -19 ? THREE.MathUtils.clamp((3.8 - cs.z) / 2.6, 0, 1) : 0
+    const isInsideClassroom = cs.x < -5.0 && cs.z <= 1.5
 
-    // In open yard: distance 6.2m, height 2.85m
-    // Inside school: closer distance (3.4m) and lower height (1.85m) so camera never clips through ceiling/portico
-    const dist = isInsideSchool ? 3.4 : 6.2
-    const camH = isInsideSchool ? 1.85 : 2.85
-    const lookH = isInsideSchool ? 1.25 : 1.55
+    // Smooth distance & height curves
+    const dist = THREE.MathUtils.lerp(5.8, 3.4, insideT)
+    const camH = THREE.MathUtils.lerp(2.6, 1.85, insideT)
+    const lookH = THREE.MathUtils.lerp(1.5, 1.25, insideT)
+    const lookAheadDist = THREE.MathUtils.lerp(5.0, 3.2, insideT)
 
     let targetCamX = cs.x - Math.sin(camYawRef.current) * dist
     let targetCamZ = cs.z - Math.cos(camYawRef.current) * dist
     const targetCamY = cs.y + camH
 
-    const targetLookX = cs.x + Math.sin(camYawRef.current) * (isInsideSchool ? 3.5 : 5.8)
-    const targetLookZ = cs.z + Math.cos(camYawRef.current) * (isInsideSchool ? 3.5 : 5.8)
+    const targetLookX = cs.x + Math.sin(camYawRef.current) * lookAheadDist
+    const targetLookZ = cs.z + Math.cos(camYawRef.current) * lookAheadDist
     const targetLookY = cs.y + lookH
 
     // WALL-CLIPPING SAFEGUARDS:
-    if (isInsideSchool) {
-      // 1. When character is inside the school, NEVER allow the camera to remain outside in the school yard!
-      if (cs.z <= 1.5) {
-        targetCamZ = Math.min(1.5, targetCamZ)
-      }
-      // 2. In the veranda corridor, clamp camera inside corridor walls (-3.8 to 3.8)
+    if (insideT > 0.3) {
+      // 1. Inside veranda corridor, clamp camera inside corridor walls
       if (!isInsideClassroom) {
         targetCamX = Math.max(-3.8, Math.min(3.8, targetCamX))
+        if (cs.z <= 1.5) {
+          targetCamZ = Math.min(2.1, targetCamZ)
+        }
       } else {
         // Inside classroom: clamp inside room boundaries
         targetCamX = Math.max(-21.5, Math.min(-5.2, targetCamX))
@@ -5495,12 +5505,13 @@ export default function Level1SchoolWorld({
       }
     }
 
-    cam.x = THREE.MathUtils.lerp(cam.x, targetCamX, 0.22)
-    cam.y = THREE.MathUtils.lerp(cam.y, targetCamY, 0.22)
-    cam.z = THREE.MathUtils.lerp(cam.z, targetCamZ, 0.22)
-    cam.lookX = THREE.MathUtils.lerp(cam.lookX, targetLookX, 0.24)
-    cam.lookY = THREE.MathUtils.lerp(cam.lookY, targetLookY, 0.24)
-    cam.lookZ = THREE.MathUtils.lerp(cam.lookZ, targetLookZ, 0.24)
+    // Snappy, responsive camera state tracking
+    cam.x = THREE.MathUtils.lerp(cam.x, targetCamX, 0.45)
+    cam.y = THREE.MathUtils.lerp(cam.y, targetCamY, 0.45)
+    cam.z = THREE.MathUtils.lerp(cam.z, targetCamZ, 0.45)
+    cam.lookX = THREE.MathUtils.lerp(cam.lookX, targetLookX, 0.48)
+    cam.lookY = THREE.MathUtils.lerp(cam.lookY, targetLookY, 0.48)
+    cam.lookZ = THREE.MathUtils.lerp(cam.lookZ, targetLookZ, 0.48)
   }
 
   // On-screen button helper for single click/tap steps & 360° turns
@@ -5530,7 +5541,7 @@ export default function Level1SchoolWorld({
     }
 
     manualCamFollowUntilRef.current = performance.now() + 2200
-    updateCameraBehindCharacter(cs, 0.16)
+    updateCameraBehindCharacter(cs, 0.38)
     setTimeout(() => {
       const pk = pressedKeysRef.current
       if (!pk.up && !pk.down && !pk.left && !pk.right) {
@@ -5644,7 +5655,7 @@ export default function Level1SchoolWorld({
           }
 
           manualCamFollowUntilRef.current = performance.now() + 2000
-          updateCameraBehindCharacter(cs, 0.13)
+          updateCameraBehindCharacter(cs, 0.38)
         } else {
           currentSpeedRef.current = 0
           if (
@@ -5667,7 +5678,7 @@ export default function Level1SchoolWorld({
               }
             }
             if (performance.now() < manualCamFollowUntilRef.current) {
-              updateCameraBehindCharacter(charStateRef.current, 0.11)
+              updateCameraBehindCharacter(charStateRef.current, 0.35)
             }
           }
         }
@@ -9092,7 +9103,7 @@ export default function Level1SchoolWorld({
           />
 
           {journeyStage !== 'classroom_projector' && (
-            <ContactShadows position={[0, 0.02, 12]} opacity={0.3} scale={55} blur={2.2} far={15} />
+            <ContactShadows frames={1} position={[0, 0.02, 12]} opacity={0.3} scale={55} blur={2.2} far={15} />
           )}
         </Suspense>
       </Canvas>
