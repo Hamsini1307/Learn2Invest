@@ -2832,6 +2832,418 @@ function SchoolVeranda3D({ charStateRef }) {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 // ═══════════════════════════════════════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// FUNCTIONAL CLASSROOM WALL CLOCK (Real-Time Moving Hands + Numeral Dial + Time Display)
+// ═══════════════════════════════════════════════════════════════════════════════
+function createClockFaceTexture() {
+  if (typeof document === 'undefined') return null
+  const canvas = document.createElement('canvas')
+  canvas.width = 512
+  canvas.height = 512
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return null
+
+  // Dial background
+  const bg = ctx.createRadialGradient(256, 256, 50, 256, 256, 250)
+  bg.addColorStop(0, '#ffffff')
+  bg.addColorStop(0.85, '#fafaf9')
+  bg.addColorStop(1, '#e7e5e4')
+  ctx.fillStyle = bg
+  ctx.beginPath()
+  ctx.arc(256, 256, 246, 0, Math.PI * 2)
+  ctx.fill()
+
+  // Outer gold rim inside dial
+  ctx.strokeStyle = '#d4af37'
+  ctx.lineWidth = 6
+  ctx.beginPath()
+  ctx.arc(256, 256, 240, 0, Math.PI * 2)
+  ctx.stroke()
+
+  ctx.strokeStyle = '#1c1917'
+  ctx.lineWidth = 2
+  ctx.beginPath()
+  ctx.arc(256, 256, 230, 0, Math.PI * 2)
+  ctx.stroke()
+
+  // 60 Minute & 12 Hour Ticks
+  for (let i = 0; i < 60; i++) {
+    const angle = (i / 60) * Math.PI * 2
+    const isHour = i % 5 === 0
+    const rInner = isHour ? 198 : 216
+    const rOuter = 230
+    ctx.lineWidth = isHour ? 6 : 2.5
+    ctx.strokeStyle = isHour ? '#0f172a' : '#78716c'
+    ctx.beginPath()
+    ctx.moveTo(256 + Math.cos(angle) * rInner, 256 + Math.sin(angle) * rInner)
+    ctx.lineTo(256 + Math.cos(angle) * rOuter, 256 + Math.sin(angle) * rOuter)
+    ctx.stroke()
+  }
+
+  // 12 Numbers
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  ctx.font = '900 44px "Trebuchet MS", Montserrat, sans-serif'
+  ctx.fillStyle = '#0f172a'
+
+  const numbers = [
+    { num: '12', a: -Math.PI / 2 },
+    { num: '1', a: -Math.PI / 3 },
+    { num: '2', a: -Math.PI / 6 },
+    { num: '3', a: 0 },
+    { num: '4', a: Math.PI / 6 },
+    { num: '5', a: Math.PI / 3 },
+    { num: '6', a: Math.PI / 2 },
+    { num: '7', a: (2 * Math.PI) / 3 },
+    { num: '8', a: (5 * Math.PI) / 6 },
+    { num: '9', a: Math.PI },
+    { num: '10', a: (-5 * Math.PI) / 6 },
+    { num: '11', a: (-2 * Math.PI) / 3 },
+  ]
+
+  numbers.forEach((item) => {
+    const x = 256 + Math.cos(item.a) * 162
+    const y = 256 + Math.sin(item.a) * 162
+    ctx.fillText(item.num, x, y)
+  })
+
+  // Brand Name
+  ctx.font = 'bold 20px "Trebuchet MS", sans-serif'
+  ctx.fillStyle = '#0f766e'
+  ctx.fillText('LEARN2INVEST', 256, 315)
+
+  ctx.font = 'bold 13px sans-serif'
+  ctx.fillStyle = '#94a3b8'
+  ctx.fillText('AUTOMATIC • CLASSROOM CHRONO', 256, 335)
+
+  const texture = new THREE.CanvasTexture(canvas)
+  texture.generateMipmaps = true
+  texture.minFilter = THREE.LinearMipmapLinearFilter
+  texture.magFilter = THREE.LinearFilter
+  texture.needsUpdate = true
+  return texture
+}
+
+function FunctionalClassroomWallClock3D({ position = [0, 0, 0], scale = 1, rimColor = '#78350f' }) {
+  const dialTexture = useMemo(() => createClockFaceTexture(), [])
+  const hourHandRef = useRef()
+  const minHandRef = useRef()
+  const secHandRef = useRef()
+
+  useFrame(() => {
+    const d = new Date()
+    const ms = d.getMilliseconds()
+    const sec = d.getSeconds() + ms / 1000
+    const min = d.getMinutes() + sec / 60
+    const hr = (d.getHours() % 12) + min / 60
+
+    if (hourHandRef.current) hourHandRef.current.rotation.z = -(hr / 12) * Math.PI * 2
+    if (minHandRef.current) minHandRef.current.rotation.z = -(min / 60) * Math.PI * 2
+    if (secHandRef.current) secHandRef.current.rotation.z = -(sec / 60) * Math.PI * 2
+  })
+
+  return (
+    <group position={position} scale={scale}>
+      {/* Wooden / Charcoal Clock Outer Frame Ring */}
+      <mesh position={[0, 0, 0.04]}>
+        <torusGeometry args={[0.46, 0.045, 16, 36]} />
+        <meshStandardMaterial color={rimColor} roughness={0.4} />
+      </mesh>
+
+      {/* Polished Inner Gold Bezel */}
+      <mesh position={[0, 0, 0.038]}>
+        <torusGeometry args={[0.44, 0.015, 12, 36]} />
+        <meshStandardMaterial color="#fbbf24" metalness={0.88} roughness={0.15} />
+      </mesh>
+
+      {/* Clock Face Dial Disk with Canvas Numbers and Ticks */}
+      <mesh rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.46, 0.46, 0.06, 32]} />
+        {dialTexture ? (
+          <meshStandardMaterial map={dialTexture} roughness={0.2} metalness={0.05} />
+        ) : (
+          <meshStandardMaterial color="#ffffff" />
+        )}
+      </mesh>
+
+      {/* ─── REAL-TIME CLOCK HANDS ─── */}
+      {/* Hour Hand (Black Tapered Hand with Bevel) */}
+      <group ref={hourHandRef} position={[0, 0, 0.045]}>
+        <mesh position={[0, 0.12, 0]} castShadow>
+          <boxGeometry args={[0.034, 0.22, 0.008]} />
+          <meshStandardMaterial color="#0f172a" roughness={0.3} />
+        </mesh>
+        <mesh position={[0, 0.23, 0]}>
+          <coneGeometry args={[0.026, 0.05, 3]} />
+          <meshStandardMaterial color="#0f172a" />
+        </mesh>
+      </group>
+
+      {/* Minute Hand (Slender Black Pointer) */}
+      <group ref={minHandRef} position={[0, 0, 0.052]}>
+        <mesh position={[0, 0.17, 0]} castShadow>
+          <boxGeometry args={[0.024, 0.32, 0.008]} />
+          <meshStandardMaterial color="#1e293b" roughness={0.3} />
+        </mesh>
+        <mesh position={[0, 0.33, 0]}>
+          <coneGeometry args={[0.02, 0.05, 3]} />
+          <meshStandardMaterial color="#1e293b" />
+        </mesh>
+      </group>
+
+      {/* Second Hand (Vibrant Red Sweeping Hand with Counterweight) */}
+      <group ref={secHandRef} position={[0, 0, 0.058]}>
+        <mesh position={[0, 0.18, 0]}>
+          <boxGeometry args={[0.008, 0.36, 0.006]} />
+          <meshBasicMaterial color="#ef4444" />
+        </mesh>
+        {/* Tail Counterweight */}
+        <mesh position={[0, -0.06, 0]}>
+          <boxGeometry args={[0.016, 0.12, 0.006]} />
+          <meshBasicMaterial color="#ef4444" />
+        </mesh>
+      </group>
+
+      {/* Center Golden Pin Cap */}
+      <mesh position={[0, 0, 0.065]}>
+        <cylinderGeometry args={[0.024, 0.024, 0.02, 16]} rotation={[Math.PI / 2, 0, 0]} />
+        <meshStandardMaterial color="#fbbf24" metalness={0.92} roughness={0.12} />
+      </mesh>
+    </group>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CHALKBOARD PINNED PICTURES (Rich Infographic Chart + Smart Money Equation)
+// ═══════════════════════════════════════════════════════════════════════════════
+function createChalkboardPictureTextures() {
+  if (typeof document === 'undefined') return [null, null]
+
+  // Top Picture: Wealth Allocation & Growth Chart
+  const c1 = document.createElement('canvas')
+  c1.width = 512
+  c1.height = 640
+  const ctx1 = c1.getContext('2d')
+  if (ctx1) {
+    // Pale cream note paper background with grid lines
+    ctx1.fillStyle = '#fef9c3'
+    ctx1.fillRect(0, 0, 512, 640)
+
+    // Subtle grid lines
+    ctx1.strokeStyle = 'rgba(217, 119, 6, 0.12)'
+    ctx1.lineWidth = 1
+    for (let y = 30; y < 640; y += 30) {
+      ctx1.beginPath()
+      ctx1.moveTo(0, y)
+      ctx1.lineTo(512, y)
+      ctx1.stroke()
+    }
+
+    // Top Header Banner
+    ctx1.fillStyle = '#0f766e'
+    ctx1.fillRect(20, 20, 472, 54)
+    ctx1.font = 'bold 24px "Trebuchet MS", sans-serif'
+    ctx1.fillStyle = '#ffffff'
+    ctx1.textAlign = 'center'
+    ctx1.textBaseline = 'middle'
+    ctx1.fillText('📊 PORTFOLIO ALLOCATION', 256, 47)
+
+    // Colorful Donut Chart
+    const segments = [
+      { p: 0.4, c: '#0ea5e9', label: 'Stocks 40%' },
+      { p: 0.3, c: '#10b981', label: 'Mutual Funds 30%' },
+      { p: 0.2, c: '#f59e0b', label: 'FDs 20%' },
+      { p: 0.1, c: '#eab308', label: 'Gold 10%' },
+    ]
+    let startAngle = -Math.PI / 2
+    segments.forEach((seg) => {
+      const slice = seg.p * Math.PI * 2
+      ctx1.fillStyle = seg.c
+      ctx1.beginPath()
+      ctx1.moveTo(256, 210)
+      ctx1.arc(256, 210, 105, startAngle, startAngle + slice)
+      ctx1.closePath()
+      ctx1.fill()
+      startAngle += slice
+    })
+
+    // Donut hole
+    ctx1.fillStyle = '#fef9c3'
+    ctx1.beginPath()
+    ctx1.arc(256, 210, 52, 0, Math.PI * 2)
+    ctx1.fill()
+    ctx1.font = 'bold 22px sans-serif'
+    ctx1.fillStyle = '#0f172a'
+    ctx1.fillText('₹ 100%', 256, 210)
+
+    // Legend
+    const lx = [70, 270, 70, 270]
+    const ly = [345, 345, 385, 385]
+    segments.forEach((seg, i) => {
+      ctx1.fillStyle = seg.c
+      ctx1.fillRect(lx[i], ly[i] - 10, 18, 18)
+      ctx1.font = 'bold 17px sans-serif'
+      ctx1.fillStyle = '#0f172a'
+      ctx1.textAlign = 'left'
+      ctx1.fillText(seg.label, lx[i] + 28, ly[i])
+    })
+
+    // Growth Bar Chart in bottom half
+    ctx1.fillStyle = 'rgba(255, 255, 255, 0.7)'
+    ctx1.fillRect(40, 425, 432, 175)
+    ctx1.strokeStyle = '#d97706'
+    ctx1.strokeRect(40, 425, 432, 175)
+
+    ctx1.font = 'bold 18px sans-serif'
+    ctx1.fillStyle = '#1e3a8a'
+    ctx1.textAlign = 'center'
+    ctx1.fillText('📈 5-YEAR COMPOUNDING RETURN (+24.8%)', 256, 450)
+
+    const bars = [
+      { yr: 'Yr 1', h: 40, c: '#38bdf8' },
+      { yr: 'Yr 2', h: 65, c: '#34d399' },
+      { yr: 'Yr 3', h: 95, c: '#facc15' },
+      { yr: 'Yr 4', h: 125, c: '#f472b6' },
+      { yr: 'Yr 5', h: 155, c: '#10b981' },
+    ]
+    bars.forEach((b, idx) => {
+      const bx = 95 + idx * 72
+      ctx1.fillStyle = b.c
+      ctx1.fillRect(bx - 18, 575 - b.h, 36, b.h)
+      ctx1.font = 'bold 15px sans-serif'
+      ctx1.fillStyle = '#0f172a'
+      ctx1.fillText(b.yr, bx, 590)
+    })
+  }
+
+  // Bottom Picture: The Smart Money Equation
+  const c2 = document.createElement('canvas')
+  c2.width = 512
+  c2.height = 384
+  const ctx2 = c2.getContext('2d')
+  if (ctx2) {
+    ctx2.fillStyle = '#ffffff'
+    ctx2.fillRect(0, 0, 512, 384)
+
+    // Border
+    ctx2.strokeStyle = '#0284c7'
+    ctx2.lineWidth = 6
+    ctx2.strokeRect(8, 8, 496, 368)
+
+    // Header
+    ctx2.fillStyle = '#0284c7'
+    ctx2.fillRect(12, 12, 488, 50)
+    ctx2.font = 'bold 24px "Trebuchet MS", sans-serif'
+    ctx2.fillStyle = '#ffffff'
+    ctx2.textAlign = 'center'
+    ctx2.textBaseline = 'middle'
+    ctx2.fillText('💡 SMART WEALTH EQUATION', 256, 37)
+
+    // Equation
+    ctx2.font = '900 28px "Trebuchet MS", sans-serif'
+    ctx2.fillStyle = '#0f172a'
+    ctx2.fillText('INCOME  —  SAVINGS  =  EXPENSES', 256, 110)
+
+    // 3 Visual Flow Cards
+    const cards = [
+      { icon: '💼', title: 'Income', sub: 'Earn', bg: '#e0f2fe' },
+      { icon: '🛡️', title: 'Save (20%)', sub: 'First!', bg: '#dcfce7' },
+      { icon: '🚀', title: 'Invest', sub: 'Compound', bg: '#fef3c7' },
+    ]
+    cards.forEach((card, idx) => {
+      const cx = 85 + idx * 170
+      ctx2.fillStyle = card.bg
+      ctx2.fillRect(cx - 65, 160, 130, 120)
+      ctx2.strokeStyle = '#64748b'
+      ctx2.lineWidth = 2
+      ctx2.strokeRect(cx - 65, 160, 130, 120)
+
+      ctx2.font = '40px sans-serif'
+      ctx2.fillText(card.icon, cx, 195)
+      ctx2.font = 'bold 18px sans-serif'
+      ctx2.fillStyle = '#0f172a'
+      ctx2.fillText(card.title, cx, 240)
+      ctx2.font = 'italic 15px sans-serif'
+      ctx2.fillStyle = '#059669'
+      ctx2.fillText(card.sub, cx, 262)
+    })
+
+    // Footer rule
+    ctx2.font = 'bold 19px "Trebuchet MS", sans-serif'
+    ctx2.fillStyle = '#0f766e'
+    ctx2.fillText('🎯 Always pay your future self first!', 256, 330)
+  }
+
+  const t1 = new THREE.CanvasTexture(c1)
+  t1.generateMipmaps = true
+  t1.minFilter = THREE.LinearMipmapLinearFilter
+  t1.needsUpdate = true
+
+  const t2 = new THREE.CanvasTexture(c2)
+  t2.generateMipmaps = true
+  t2.minFilter = THREE.LinearMipmapLinearFilter
+  t2.needsUpdate = true
+
+  return [t1, t2]
+}
+
+function ChalkboardPinnedPictures3D({ position = [4.45, 0, 0.08] }) {
+  const [topTexture, bottomTexture] = useMemo(() => createChalkboardPictureTextures(), [])
+
+  return (
+    <group position={position}>
+      {/* ─── TOP PICTURE: PORTFOLIO ALLOCATION INFOGRAPHIC ─── */}
+      <group position={[0, 0.35, 0]}>
+        <mesh position={[0, 0, 0]} castShadow>
+          <planeGeometry args={[1.05, 1.25]} />
+          {topTexture ? (
+            <meshStandardMaterial map={topTexture} roughness={0.3} metalness={0.05} />
+          ) : (
+            <meshBasicMaterial color="#fef9c3" />
+          )}
+        </mesh>
+        {/* Red & Blue Pushpins Holding Top Sheet */}
+        {[-0.42, 0.42].map((px, idx) => (
+          <group key={idx} position={[px, 0.54, 0.02]}>
+            <mesh rotation={[Math.PI / 2, 0, 0]}>
+              <cylinderGeometry args={[0.02, 0.015, 0.035, 12]} />
+              <meshStandardMaterial color={idx === 0 ? '#ef4444' : '#3b82f6'} />
+            </mesh>
+            <mesh position={[0, 0, 0.02]}>
+              <sphereGeometry args={[0.022, 10, 10]} />
+              <meshStandardMaterial color={idx === 0 ? '#b91c1c' : '#1d4ed8'} />
+            </mesh>
+          </group>
+        ))}
+      </group>
+
+      {/* ─── BOTTOM PICTURE: SMART MONEY EQUATION ─── */}
+      <group position={[0, -0.92, 0]}>
+        <mesh position={[0, 0, 0]} castShadow>
+          <planeGeometry args={[1.05, 0.78]} />
+          {bottomTexture ? (
+            <meshStandardMaterial map={bottomTexture} roughness={0.3} metalness={0.05} />
+          ) : (
+            <meshBasicMaterial color="#ffffff" />
+          )}
+        </mesh>
+        {/* Golden Brass Pushpin */}
+        <group position={[0, 0.32, 0.02]}>
+          <mesh rotation={[Math.PI / 2, 0, 0]}>
+            <cylinderGeometry args={[0.02, 0.015, 0.035, 12]} />
+            <meshStandardMaterial color="#fbbf24" metalness={0.9} />
+          </mesh>
+          <mesh position={[0, 0, 0.02]}>
+            <sphereGeometry args={[0.022, 10, 10]} />
+            <meshStandardMaterial color="#d97706" metalness={0.9} />
+          </mesh>
+        </group>
+      </group>
+    </group>
+  )
+}
+
 // FINANCIAL WISDOM FRAMED POSTERS (High-Resolution Illustrated Pictures & Quotes)
 // ═══════════════════════════════════════════════════════════════════════════════
 function createPosterTexture(idx) {
@@ -3503,15 +3915,8 @@ function Classroom101Scene3D({ projectorContent, isVideoFullscreen = false }) {
           </RoundedBox>
         ))}
 
-        {/* Pinned Study Notes on Right Green Board (Image 5) */}
-        <mesh position={[4.45, 0.25, 0.08]}>
-          <planeGeometry args={[0.85, 1.05]} />
-          <meshBasicMaterial color="#fef9c3" />
-        </mesh>
-        <mesh position={[4.45, -0.85, 0.08]}>
-          <planeGeometry args={[0.85, 0.65]} />
-          <meshBasicMaterial color="#ffffff" />
-        </mesh>
+        {/* Pinned Study Pictures on Right Green Board (Image 5) */}
+        <ChalkboardPinnedPictures3D position={[4.45, -0.22, 0.08]} />
 
         {/* ─── LARGE PHYSICAL PROJECTOR SCREEN IN CENTER (Image 5) ─── */}
         <group position={[0, 0.05, 0.14]}>
@@ -3609,17 +4014,8 @@ function Classroom101Scene3D({ projectorContent, isVideoFullscreen = false }) {
           <meshStandardMaterial color="#cbd5e1" metalness={0.6} roughness={0.3} />
         </RoundedBox>
       </group>
-      {/* Round Wall Clock on Right Wall Pillar (Image 5) */}
-      <group position={[6.95, 4.95, -6.8]}>
-        <mesh rotation={[Math.PI / 2, 0, 0]}>
-          <cylinderGeometry args={[0.46, 0.46, 0.06, 28]} />
-          <meshStandardMaterial color="#ffffff" />
-        </mesh>
-        <mesh position={[0, 0, 0.04]}>
-          <torusGeometry args={[0.46, 0.04, 10, 28]} />
-          <meshStandardMaterial color="#78350f" />
-        </mesh>
-      </group>
+      {/* Round Wall Clock on Right Wall Pillar with Real-Time Hands & Time Dial (Image 5) */}
+      <FunctionalClassroomWallClock3D position={[6.95, 4.95, -6.8]} rimColor="#78350f" />
 
       {/* ─── LEFT WALL: FINANCIAL WISDOM QUOTES & ILLUSTRATED POSTERS (Image 5) ─── */}
       <FinancialWisdomPosterWall3D />
@@ -3886,17 +4282,8 @@ function ExaminationCenter103Scene3D({ examProjectorContent }) {
         isFemale={false}
       />
 
-      {/* Round Wall Clock on Right Wall */}
-      <group position={[6.55, 4.55, -6.8]}>
-        <mesh rotation={[Math.PI / 2, 0, 0]}>
-          <cylinderGeometry args={[0.48, 0.48, 0.06, 28]} />
-          <meshStandardMaterial color="#ffffff" />
-        </mesh>
-        <mesh position={[0, 0, 0.04]}>
-          <torusGeometry args={[0.48, 0.04, 10, 28]} />
-          <meshStandardMaterial color="#78350f" />
-        </mesh>
-      </group>
+      {/* Round Wall Clock on Right Wall with Real-Time Hands & Time Dial */}
+      <FunctionalClassroomWallClock3D position={[6.55, 4.55, -6.8]} rimColor="#78350f" scale={1.05} />
 
       {/* Left Wall: Financial Wisdom Quotes & Illustrated Posters */}
       <FinancialWisdomPosterWall3D />
