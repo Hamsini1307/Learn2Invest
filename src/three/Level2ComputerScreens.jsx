@@ -1554,7 +1554,6 @@ export function Computer2SavingsMixerScreen({
                 />
               </div>
               <div>
-                <div style={{ fontSize: '11px', color: '#CBD5E1', fontWeight: 700, marginBottom: '2px' }}>Matched</div>
                 <select
                   value={newGoalScheme}
                   onChange={(e) => setNewGoalScheme(e.target.value)}
