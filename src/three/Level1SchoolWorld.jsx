@@ -10037,49 +10037,52 @@ export default function Level1SchoolWorld({
       {(journeyStage === 'school_yard' || (journeyStage === 'login' && hasLoggedIn)) &&
         !hasMovedInYard &&
         !isPlayerInAtmQueue && (
-          <div className="absolute bottom-7 left-1/2 -translate-x-1/2 z-20 w-[min(95vw,1020px)] px-6 py-4 rounded-3xl bg-white/90 backdrop-blur-xl border-2 border-emerald-500 shadow-[0_20px_60px_rgba(0,0,0,0.45)] text-black flex flex-col lg:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-3xl shadow-lg shrink-0 text-white">
+          <div className="absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 z-20 w-[min(96vw,1440px)] px-7 sm:px-10 py-5 sm:py-7 rounded-[2.5rem] bg-white/95 backdrop-blur-2xl border-4 border-emerald-500 shadow-[0_25px_80px_rgba(0,0,0,0.55)] text-black flex flex-col xl:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-5 sm:gap-6 w-full xl:w-auto">
+              <div className="w-18 h-18 sm:w-24 sm:h-24 rounded-3xl bg-gradient-to-br from-emerald-500 via-teal-500 to-teal-700 flex items-center justify-center text-4xl sm:text-5xl shadow-xl shrink-0 text-white border-2 border-emerald-300">
                 🏫
               </div>
-              <div>
-                <div className="text-xs font-black uppercase tracking-widest text-emerald-900">
+              <div className="flex-1 min-w-0">
+                <div className="text-sm sm:text-base md:text-lg font-black uppercase tracking-wider text-emerald-800">
                   Logged In as {state?.user?.name || (characterChoice === 'leo' || characterChoice === 'max' ? 'Leo' : 'Luna')} • School Yard Courtyard
                 </div>
-                <div className="text-lg sm:text-xl font-black text-black">
+                <div className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-950 tracking-tight leading-tight py-0.5">
                   Welcome to Learn2Invest 3D Financial Campus!
                 </div>
-                <div className="text-xs sm:text-sm font-bold text-black">
+                <div className="text-base sm:text-lg md:text-xl font-bold text-slate-800 leading-snug">
                   Use Arrow Keys (↑ ↓ ← →) to walk around (this box disappears once you move!), visit the Stalls, or enter the School:
                 </div>
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-2 shrink-0 justify-center">
+            <div className="flex flex-wrap gap-3 sm:gap-4 shrink-0 justify-center items-center w-full xl:w-auto">
               <button
                 onClick={beginSchoolEntrySequence}
-                className="px-5 py-3 rounded-2xl bg-gradient-to-r from-emerald-400 to-teal-400 text-black border-2 border-black/20 font-black text-xs sm:text-sm shadow-lg hover:scale-105 transition-transform cursor-pointer"
+                className="px-7 sm:px-8 py-4 sm:py-5 rounded-2xl bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-500 text-slate-950 border-3 border-emerald-600/50 font-black text-base sm:text-lg md:text-xl shadow-xl hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center gap-2"
               >
-                🚶‍♀️ Enter School (Level 1) →
+                <span>🚶‍♀️</span>
+                <span>Enter School (Level 1) →</span>
               </button>
               <button
                 onClick={() => {
                   soundEngine.playClick()
                   setActiveGardenStall(1)
                 }}
-                className="px-3.5 py-3 rounded-2xl bg-pink-200 hover:bg-pink-300 border-2 border-pink-500 text-black font-black text-xs sm:text-sm transition-all cursor-pointer"
+                className="px-6 sm:px-7 py-4 sm:py-5 rounded-2xl bg-pink-200 hover:bg-pink-300 border-3 border-pink-500 text-slate-950 font-black text-base sm:text-lg md:text-xl shadow-md hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center gap-2"
                 title="Visit Garden Stall 1 (Clothes), Stall 2 (Ice Cream) & Stall 3 (Spin the Finance Wheel)"
               >
-                🎪 Garden Stalls (Clothes / Ice Cream / Spin)
+                <span>🎪</span>
+                <span>Garden Stalls (Clothes / Ice Cream / Spin)</span>
               </button>
               <button
                 onClick={() => {
                   soundEngine.playClick()
                   startAtmQueueExperience()
                 }}
-                className="px-3.5 py-3 rounded-2xl bg-cyan-200 hover:bg-cyan-300 border-2 border-cyan-600 text-black font-black text-xs sm:text-sm transition-all cursor-pointer"
+                className="px-6 sm:px-7 py-4 sm:py-5 rounded-2xl bg-cyan-200 hover:bg-cyan-300 border-3 border-cyan-600 text-slate-950 font-black text-base sm:text-lg md:text-xl shadow-md hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center gap-2"
               >
-                🏧 Bank ATM Queue
+                <span>🏧</span>
+                <span>Bank ATM Queue</span>
               </button>
               <button
                 disabled={!isComputer1Unlocked}
@@ -10089,13 +10092,14 @@ export default function Level1SchoolWorld({
                   soundEngine.startAmbientMusic('computer_lab', true)
                   focusCameraOnComputer(1, false)
                 }}
-                className={`px-4 py-3 rounded-2xl border-2 font-black text-xs sm:text-sm transition-all ${
+                className={`px-6 sm:px-7 py-4 sm:py-5 rounded-2xl border-3 font-black text-base sm:text-lg md:text-xl shadow-md transition-all flex items-center gap-2 ${
                   isComputer1Unlocked
-                    ? 'bg-amber-200 border-amber-600 text-black hover:bg-amber-300 cursor-pointer'
-                    : 'bg-slate-200 border-slate-400 text-slate-600 cursor-not-allowed'
+                    ? 'bg-amber-200 border-amber-600 text-slate-950 hover:bg-amber-300 hover:scale-105 active:scale-95 cursor-pointer'
+                    : 'bg-slate-200 border-slate-400 text-slate-500 cursor-not-allowed opacity-80'
                 }`}
               >
-                {isComputer1Unlocked ? '💻 Level 2 Lab' : '🔒 Level 2 Lab'}
+                <span>{isComputer1Unlocked ? '💻' : '🔒'}</span>
+                <span>Level 2 Lab</span>
               </button>
               <button
                 disabled={!isLevel3Unlocked}
@@ -10103,13 +10107,14 @@ export default function Level1SchoolWorld({
                   if (!isLevel3Unlocked) return
                   focusCameraOnBankSection(1, false)
                 }}
-                className={`px-4 py-3 rounded-2xl border-2 font-black text-xs sm:text-sm transition-all ${
+                className={`px-6 sm:px-7 py-4 sm:py-5 rounded-2xl border-3 font-black text-base sm:text-lg md:text-xl shadow-md transition-all flex items-center gap-2 ${
                   isLevel3Unlocked
-                    ? 'bg-emerald-200 border-emerald-600 text-black hover:bg-emerald-300 cursor-pointer'
-                    : 'bg-slate-200 border-slate-400 text-slate-600 cursor-not-allowed'
+                    ? 'bg-emerald-200 border-emerald-600 text-slate-950 hover:bg-emerald-300 hover:scale-105 active:scale-95 cursor-pointer'
+                    : 'bg-slate-200 border-slate-400 text-slate-500 cursor-not-allowed opacity-80'
                 }`}
               >
-                {isLevel3Unlocked ? '🏛️ Level 3 Bank' : '🔒 Level 3 Bank'}
+                <span>{isLevel3Unlocked ? '🏛️' : '🔒'}</span>
+                <span>Level 3 Bank</span>
               </button>
             </div>
           </div>
