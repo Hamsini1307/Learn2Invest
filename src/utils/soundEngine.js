@@ -248,179 +248,276 @@ class SoundEngine {
 
       this.stopMusic()
 
+      // Energetic, uplifting melodic chord progressions (C major / D minor / G / Am / F)
       const progressions = {
         garden: [
-          [261.63, 329.63, 392.00, 523.25],
-          [293.66, 369.99, 440.00, 587.33],
-          [329.63, 415.30, 493.88, 659.25],
-          [261.63, 349.23, 440.00, 523.25],
+          { root: 261.63, notes: [261.63, 329.63, 392.00, 523.25], violin: [523.25, 659.25, 783.99, 659.25] },
+          { root: 220.00, notes: [220.00, 261.63, 329.63, 440.00], violin: [440.00, 523.25, 659.25, 523.25] },
+          { root: 174.61, notes: [174.61, 220.00, 261.63, 349.23], violin: [698.46, 659.25, 523.25, 440.00] },
+          { root: 196.00, notes: [196.00, 246.94, 293.66, 392.00], violin: [587.33, 659.25, 783.99, 880.00] },
         ],
         exploration: [
-          [261.63, 329.63, 392.00, 523.25],
-          [293.66, 369.99, 440.00, 587.33],
-          [349.23, 440.00, 523.25, 659.25],
-          [392.00, 493.88, 587.33, 783.99],
+          { root: 261.63, notes: [261.63, 329.63, 392.00, 523.25], violin: [523.25, 587.33, 659.25, 783.99] },
+          { root: 196.00, notes: [196.00, 246.94, 293.66, 392.00], violin: [783.99, 659.25, 587.33, 523.25] },
+          { root: 220.00, notes: [220.00, 261.63, 329.63, 440.00], violin: [659.25, 698.46, 783.99, 880.00] },
+          { root: 174.61, notes: [174.61, 220.00, 261.63, 349.23], violin: [880.00, 783.99, 659.25, 587.33] },
         ],
         classroom: [
-          [293.66, 369.99, 440.00, 554.37],
-          [246.94, 293.66, 369.99, 440.00],
-          [196.00, 246.94, 293.66, 369.99],
-          [220.00, 277.18, 329.63, 440.00],
-        ],
-        examination: [
-          [220.00, 277.18, 329.63, 440.00],
-          [246.94, 329.63, 392.00, 493.88],
-          [261.63, 329.63, 392.00, 523.25],
-          [293.66, 369.99, 440.00, 587.33],
+          { root: 261.63, notes: [261.63, 329.63, 392.00, 523.25], violin: [659.25, 587.33, 523.25, 440.00] },
+          { root: 174.61, notes: [174.61, 220.00, 261.63, 349.23], violin: [523.25, 587.33, 659.25, 783.99] },
+          { root: 220.00, notes: [220.00, 261.63, 329.63, 440.00], violin: [659.25, 783.99, 880.00, 783.99] },
+          { root: 196.00, notes: [196.00, 246.94, 293.66, 392.00], violin: [783.99, 659.25, 587.33, 523.25] },
         ],
         level2: [
-          [293.66, 369.99, 440.00, 587.33],
-          [329.63, 415.30, 493.88, 659.25],
-          [261.63, 349.23, 440.00, 523.25],
-          [392.00, 493.88, 587.33, 783.99],
-        ],
-        computer_lab: [
-          [329.63, 440.00, 523.25, 659.25],
-          [293.66, 392.00, 493.88, 587.33],
-          [261.63, 349.23, 440.00, 523.25],
-          [392.00, 493.88, 587.33, 783.99],
-        ],
-        exit: [
-          [261.63, 329.63, 392.00, 523.25],
-          [349.23, 440.00, 523.25, 698.46],
-          [392.00, 493.88, 587.33, 783.99],
-          [523.25, 659.25, 783.99, 1046.50],
-        ],
-        bank_exterior: [
-          [293.66, 440.00, 554.37, 659.25],
-          [329.63, 493.88, 659.25, 783.99],
-          [369.99, 554.37, 659.25, 880.00],
-          [293.66, 440.00, 587.33, 739.99],
+          { root: 293.66, notes: [293.66, 369.99, 440.00, 587.33], violin: [587.33, 659.25, 739.99, 880.00] },
+          { root: 246.94, notes: [246.94, 311.13, 369.99, 493.88], violin: [739.99, 659.25, 587.33, 493.88] },
+          { root: 196.00, notes: [196.00, 246.94, 293.66, 392.00], violin: [587.33, 739.99, 880.00, 987.77] },
+          { root: 220.00, notes: [220.00, 277.18, 329.63, 440.00], violin: [880.00, 739.99, 659.25, 587.33] },
         ],
         bank_interior: [
-          [329.63, 415.30, 493.88, 659.25],
-          [369.99, 440.00, 554.37, 739.99],
-          [293.66, 369.99, 440.00, 659.25],
-          [440.00, 554.37, 659.25, 880.00],
-        ],
-        final_victory: [
-          [261.63, 392.00, 523.25, 659.25],
-          [349.23, 440.00, 523.25, 698.46],
-          [392.00, 493.88, 587.33, 783.99],
-          [523.25, 659.25, 783.99, 1046.50],
-        ],
-        government: [
-          [196.00, 293.66, 392.00, 493.88],
-          [261.63, 329.63, 392.00, 523.25],
-          [220.00, 261.63, 329.63, 440.00],
-          [146.83, 220.00, 293.66, 369.99],
-        ],
-        futuristic: [
-          [130.81, 196.00, 246.94, 311.13],
-          [103.83, 155.56, 196.00, 261.63],
-          [116.54, 174.61, 220.00, 293.66],
-          [98.00, 146.83, 196.00, 246.94],
+          { root: 261.63, notes: [261.63, 329.63, 392.00, 523.25], violin: [523.25, 659.25, 783.99, 1046.50] },
+          { root: 174.61, notes: [174.61, 220.00, 261.63, 349.23], violin: [880.00, 783.99, 659.25, 523.25] },
+          { root: 196.00, notes: [196.00, 246.94, 293.66, 392.00], violin: [783.99, 880.00, 987.77, 1046.50] },
+          { root: 220.00, notes: [220.00, 261.63, 329.63, 440.00], violin: [880.00, 783.99, 659.25, 587.33] },
         ],
       }
 
-      const chords = progressions[zone] || progressions.garden
-      let step = 0
+      const song = progressions[zone] || progressions.garden
+      let barIndex = 0
 
-      const playChordPad = () => {
+      // BPM: 124 BPM -> 1 beat = 0.484s, 4 beats (1 bar) = 1.935s
+      const beatDur = 0.484
+      const barDur = beatDur * 4
+
+      // ── Synthesizer Sub-routines ──
+
+      // 1. Snappy Acoustic Piano Strike (fundamental + 2nd harmonic with crisp attack and natural decay)
+      const playPianoNote = (freq, time, vel = 0.038, dur = 0.45) => {
+        if (!this.ctx || this.muted || this.volume <= 0) return
+        const osc = this.ctx.createOscillator()
+        const oscHarm = this.ctx.createOscillator()
+        const filter = this.ctx.createBiquadFilter()
+        const gain = this.ctx.createGain()
+
+        osc.type = 'triangle'
+        osc.frequency.setValueAtTime(freq, time)
+
+        oscHarm.type = 'sine'
+        oscHarm.frequency.setValueAtTime(freq * 2, time)
+
+        filter.type = 'lowpass'
+        filter.frequency.setValueAtTime(1800, time)
+        filter.frequency.exponentialRampToValueAtTime(700, time + dur)
+
+        gain.gain.setValueAtTime(0.0001, time)
+        gain.gain.linearRampToValueAtTime(vel, time + 0.005) // Crisp percussive hammer strike
+        gain.gain.exponentialRampToValueAtTime(0.0001, time + dur)
+
+        osc.connect(filter)
+        oscHarm.connect(filter)
+        filter.connect(gain)
+        gain.connect(this.masterGain)
+
+        osc.start(time)
+        oscHarm.start(time)
+        osc.stop(time + dur + 0.02)
+        oscHarm.stop(time + dur + 0.02)
+        this.musicNodes.push(osc, oscHarm)
+      }
+
+      // 2. Singing Bowed Violin with Warm Vibrato (Sawtooth through lowpass + LFO pitch vibrato)
+      const playViolinNote = (freq, time, dur = 0.85, vel = 0.028) => {
+        if (!this.ctx || this.muted || this.volume <= 0) return
+        const osc = this.ctx.createOscillator()
+        const filter = this.ctx.createBiquadFilter()
+        const gain = this.ctx.createGain()
+
+        // Vibrato LFO: 5.5 Hz modulation for singing expression
+        const lfo = this.ctx.createOscillator()
+        const lfoGain = this.ctx.createGain()
+        lfo.frequency.setValueAtTime(5.5, time)
+        lfoGain.gain.setValueAtTime(freq * 0.015, time) // ~1.5% pitch vibrato
+        lfo.connect(osc.frequency)
+
+        osc.type = 'sawtooth'
+        osc.frequency.setValueAtTime(freq, time)
+
+        filter.type = 'lowpass'
+        filter.frequency.setValueAtTime(1400, time)
+        filter.Q.setValueAtTime(3.2, time) // Warm body resonance
+
+        gain.gain.setValueAtTime(0.0001, time)
+        gain.gain.linearRampToValueAtTime(vel, time + 0.06) // Smooth bowing swell
+        gain.gain.setValueAtTime(vel, time + dur * 0.7)
+        gain.gain.exponentialRampToValueAtTime(0.0001, time + dur)
+
+        osc.connect(filter)
+        filter.connect(gain)
+        gain.connect(this.masterGain)
+
+        lfo.start(time)
+        osc.start(time)
+        lfo.stop(time + dur + 0.05)
+        osc.stop(time + dur + 0.05)
+        this.musicNodes.push(osc, lfo)
+      }
+
+      // 3. Punchy Kick Drum
+      const playKickDrum = (time) => {
+        if (!this.ctx || this.muted || this.volume <= 0) return
+        const osc = this.ctx.createOscillator()
+        const gain = this.ctx.createGain()
+
+        osc.type = 'sine'
+        osc.frequency.setValueAtTime(135, time)
+        osc.frequency.exponentialRampToValueAtTime(42, time + 0.09) // Fast pitch drop
+
+        gain.gain.setValueAtTime(0.08, time)
+        gain.gain.exponentialRampToValueAtTime(0.001, time + 0.16)
+
+        osc.connect(gain)
+        gain.connect(this.masterGain)
+
+        osc.start(time)
+        osc.stop(time + 0.18)
+        this.musicNodes.push(osc)
+      }
+
+      // 4. Snappy Snare Drum (White Noise + Body tone)
+      const playSnareDrum = (time) => {
+        if (!this.ctx || this.muted || this.volume <= 0) return
+        // Noise buffer
+        const bufferSize = Math.floor(this.ctx.sampleRate * 0.15)
+        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate)
+        const data = buffer.getChannelData(0)
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.28))
+        }
+
+        const noise = this.ctx.createBufferSource()
+        noise.buffer = buffer
+
+        const filter = this.ctx.createBiquadFilter()
+        filter.type = 'bandpass'
+        filter.frequency.setValueAtTime(1600, time)
+        filter.Q.setValueAtTime(1.4, time)
+
+        const nGain = this.ctx.createGain()
+        nGain.gain.setValueAtTime(0.045, time)
+        nGain.gain.exponentialRampToValueAtTime(0.001, time + 0.14)
+
+        // Snare body tone
+        const osc = this.ctx.createOscillator()
+        const oGain = this.ctx.createGain()
+        osc.frequency.setValueAtTime(185, time)
+        osc.frequency.exponentialRampToValueAtTime(90, time + 0.08)
+        oGain.gain.setValueAtTime(0.035, time)
+        oGain.gain.exponentialRampToValueAtTime(0.001, time + 0.09)
+
+        noise.connect(filter)
+        filter.connect(nGain)
+        nGain.connect(this.masterGain)
+
+        osc.connect(oGain)
+        oGain.connect(this.masterGain)
+
+        noise.start(time)
+        osc.start(time)
+        noise.stop(time + 0.15)
+        osc.stop(time + 0.12)
+        this.musicNodes.push(noise, osc)
+      }
+
+      // 5. Crisp Hi-Hat Tick
+      const playHiHat = (time, accent = false) => {
+        if (!this.ctx || this.muted || this.volume <= 0) return
+        const bufferSize = Math.floor(this.ctx.sampleRate * 0.045)
+        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate)
+        const data = buffer.getChannelData(0)
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = (Math.random() * 2 - 1)
+        }
+
+        const source = this.ctx.createBufferSource()
+        source.buffer = buffer
+
+        const filter = this.ctx.createBiquadFilter()
+        filter.type = 'highpass'
+        filter.frequency.setValueAtTime(7500, time)
+
+        const gain = this.ctx.createGain()
+        const hatVol = accent ? 0.024 : 0.014
+        gain.gain.setValueAtTime(hatVol, time)
+        gain.gain.exponentialRampToValueAtTime(0.0005, time + (accent ? 0.05 : 0.035))
+
+        source.connect(filter)
+        filter.connect(gain)
+        gain.connect(this.masterGain)
+
+        source.start(time)
+        source.stop(time + 0.055)
+        this.musicNodes.push(source)
+      }
+
+      // Main Loop: schedule each upbeat 4-beat bar of piano chords, violin lead, and energetic drum beat
+      const playEnergeticBar = () => {
         if (this.muted || this.volume <= 0 || !this.ctx || this.ctx.state !== 'running') return
         try {
-          const now = this.ctx.currentTime
-          const chord = chords[step % chords.length]
-          step++
+          const now = this.ctx.currentTime + 0.04
+          const currentChord = song[barIndex % song.length]
+          barIndex++
 
-          chord.forEach((freq, i) => {
-            const osc = this.ctx.createOscillator()
-            const filter = this.ctx.createBiquadFilter()
-            const gain = this.ctx.createGain()
+          // Clean up old nodes
+          if (this.musicNodes.length > 80) {
+            this.musicNodes = this.musicNodes.slice(-40)
+          }
 
-            osc.type =
-              zone === 'exploration' || zone === 'garden' || zone === 'exit' || zone === 'final_victory'
-                ? 'triangle'
-                : zone === 'computer_lab' || zone === 'level2' || zone === 'bank_exterior' || zone === 'bank_interior'
-                  ? 'sawtooth'
-                  : zone === 'futuristic'
-                    ? 'sawtooth'
-                    : 'sine'
-            osc.frequency.setValueAtTime(freq, now)
+          // A. DRUMS (Upbeat Driving Rhythm: Kick on 1 & 3; Snare on 2 & 4; Hi-hats on all 8ths)
+          playKickDrum(now + 0 * beatDur)
+          playKickDrum(now + 2 * beatDur)
+          if (barIndex % 2 === 0) {
+            playKickDrum(now + 2.5 * beatDur) // Syncopated energetic push
+          }
 
-            filter.type = 'lowpass'
-            filter.frequency.setValueAtTime(
-              zone === 'bank_interior' || zone === 'bank_exterior'
-                ? 920
-                : zone === 'computer_lab' || zone === 'level2'
-                  ? 860
-                  : zone === 'exploration' || zone === 'exit' || zone === 'final_victory'
-                    ? 1050
-                    : zone === 'futuristic'
-                      ? 520
-                      : 720,
-              now
-            )
+          playSnareDrum(now + 1 * beatDur)
+          playSnareDrum(now + 3 * beatDur)
 
-            const peakGain = zone === 'classroom' ? 0.014 : zone === 'final_victory' ? 0.024 : 0.019
-            gain.gain.setValueAtTime(0.0001, now)
-            gain.gain.linearRampToValueAtTime(peakGain, now + 1.4)
-            gain.gain.setValueAtTime(peakGain, now + 2.8)
-            gain.gain.exponentialRampToValueAtTime(0.0001, now + 4.6)
+          // 8th-note Hi-Hats
+          for (let beat = 0; beat < 4; beat += 0.5) {
+            playHiHat(now + beat * beatDur, beat % 1 === 0)
+          }
 
-            osc.connect(filter)
-            filter.connect(gain)
-            gain.connect(this.masterGain)
+          // B. PIANO (Energetic Rhythmic Chords & Arpeggio Bounces)
+          // Beat 0: Root chord strike
+          currentChord.notes.forEach((freq, idx) => {
+            playPianoNote(freq, now + 0 * beatDur + idx * 0.015, 0.032, 0.42)
+          })
+          // Beat 1.5: Upbeat piano tap
+          playPianoNote(currentChord.notes[1], now + 1.5 * beatDur, 0.026, 0.28)
+          playPianoNote(currentChord.notes[3], now + 1.5 * beatDur + 0.01, 0.026, 0.28)
 
-            osc.start(now + i * 0.14)
-            osc.stop(now + 4.8)
+          // Beat 2.5: Melody arpeggio ping
+          playPianoNote(currentChord.notes[2] * 1.5, now + 2.5 * beatDur, 0.030, 0.32)
+
+          // Beat 3: Second inversion chord punch
+          currentChord.notes.forEach((freq, idx) => {
+            playPianoNote(freq, now + 3 * beatDur + idx * 0.012, 0.028, 0.35)
           })
 
-          // Light adventurous / modern financial pulse arpeggio notes
-          if (
-            [
-              'exploration',
-              'garden',
-              'examination',
-              'level2',
-              'computer_lab',
-              'exit',
-              'bank_exterior',
-              'bank_interior',
-              'final_victory',
-            ].includes(zone)
-          ) {
-            const intervalStep =
-              zone === 'bank_interior' || zone === 'bank_exterior'
-                ? 0.24
-                : zone === 'computer_lab' || zone === 'level2'
-                  ? 0.28
-                  : 0.42
-            chord.forEach((freq, idx) => {
-              const pluck = this.ctx.createOscillator()
-              const pGain = this.ctx.createGain()
-              pluck.type =
-                zone === 'bank_interior' || zone === 'bank_exterior' || zone === 'computer_lab'
-                  ? 'triangle'
-                  : 'sine'
-              pluck.frequency.setValueAtTime(freq * 2, now + idx * intervalStep)
-              pGain.gain.setValueAtTime(0.024, now + idx * intervalStep)
-              pGain.gain.exponentialRampToValueAtTime(0.0001, now + idx * intervalStep + 0.36)
-              pluck.connect(pGain)
-              pGain.connect(this.masterGain)
-              pluck.start(now + idx * intervalStep)
-              pluck.stop(now + idx * intervalStep + 0.38)
-            })
-          }
+          // C. VIOLIN (Expressive, Singing Melodic Motif Soaring Above)
+          const violinNotes = currentChord.violin || [currentChord.notes[2] * 2, currentChord.notes[3] * 2]
+          const noteDur = beatDur * 1.95 // Sustained singing notes
+          playViolinNote(violinNotes[0], now + 0 * beatDur, noteDur, 0.026)
+          playViolinNote(violinNotes[1], now + 2 * beatDur, noteDur, 0.028)
         } catch {}
       }
 
-      playChordPad()
-      this.musicInterval = setInterval(playChordPad, 4500)
+      playEnergeticBar()
+      this.musicInterval = setInterval(playEnergeticBar, Math.floor(barDur * 1000))
     } catch {}
   }
 
-  playEmployeeGreeting() {
+    playEmployeeGreeting() {
     if (this.muted || this.volume <= 0) return
     try {
       this.init()

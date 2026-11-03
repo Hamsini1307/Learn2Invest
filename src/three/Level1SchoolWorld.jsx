@@ -9915,7 +9915,7 @@ export default function Level1SchoolWorld({
           </div>
 
           <div className="flex justify-end shrink-0">
-            {is85PercentReached ? (
+            {is85PercentReached && !(currentVideoIdx >= LEVEL1_VIDEOS.length - 1 && (showLessonCompletedBanner || completedVideos.includes(currentVideoIdx))) ? (
               <button
                 ref={nextVideoBtnRef}
                 onClick={() => {
@@ -9935,7 +9935,7 @@ export default function Level1SchoolWorld({
                 {showLessonCompletedBanner ? 'Next Video →' : '🌟 Key Takeaways & Next →'}
               </button>
             ) : (
-              isVideoFullscreen && (
+              !is85PercentReached && isVideoFullscreen && (
                 <div
                   style={{ fontSize: '1.58vh', padding: '1.0vh 1.8vh', borderRadius: '1.2vh' }}
                   className="bg-slate-800/90 border border-slate-600 text-slate-300 font-extrabold whitespace-nowrap"

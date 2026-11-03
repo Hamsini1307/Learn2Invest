@@ -1953,9 +1953,9 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
             <p
               style={{
                 color: isLight ? '#334155' : '#e2e8f0',
-                fontSize: 'clamp(22px, 2.4vw, 30px)',
+                fontSize: 'clamp(34px, 3.4vw, 50px)',
                 fontWeight: 800,
-                maxWidth: 1300,
+                maxWidth: 1400,
                 margin: 0,
                 lineHeight: 1.55,
               }}
@@ -1986,7 +1986,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
               boxShadow: isLight ? '0 8px 24px rgba(234, 88, 12, 0.14)' : 'none',
             }}>
               <h3 style={{
-                fontSize: 'clamp(32px, 3.4vw, 46px)',
+                fontSize: 'clamp(44px, 4.2vw, 64px)',
                 fontWeight: 900,
                 color: isLight ? '#0f172a' : '#ffffff',
                 margin: 0,
@@ -1996,13 +1996,13 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
                 gap: 18,
                 letterSpacing: '-0.01em',
               }}>
-                <span style={{ fontSize: 50, filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.2))' }}>🎬</span>
+                <span style={{ fontSize: 68, filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.2))' }}>🎬</span>
                 <span>STEP 1: WATCH DIGITAL BANKING YOUTUBE TUTORIAL FIRST</span>
               </h3>
               <span style={{
-                fontSize: 22,
+                fontSize: 34,
                 fontWeight: 900,
-                padding: '14px 32px',
+                padding: '18px 40px',
                 borderRadius: 999,
                 background: digitalVideoWatched ? (isLight ? '#ecfdf5' : 'rgba(16,185,129,0.25)') : (isLight ? '#fff7ed' : 'rgba(245,158,11,0.25)'),
                 border: `3.5px solid ${digitalVideoWatched ? '#10b981' : '#ea580c'}`,
@@ -2012,7 +2012,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
                 alignItems: 'center',
                 gap: 12,
               }}>
-                <span style={{ fontSize: 26 }}>{digitalVideoWatched ? '✓' : '🔒'}</span>
+                <span style={{ fontSize: 38 }}>{digitalVideoWatched ? '✓' : '🔒'}</span>
                 <span>{digitalVideoWatched ? 'Video Watched ✓ • Activities Unlocked' : 'Watch Video to Unlock Activities Below'}</span>
               </span>
             </div>
@@ -2034,9 +2034,9 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
                     type="button"
                     onClick={() => setSelectedVideo(vKey)}
                     style={{
-                      fontSize: 28,
-                      padding: '28px 36px',
-                      minHeight: 110,
+                      fontSize: 38,
+                      padding: '32px 42px',
+                      minHeight: 130,
                       fontWeight: 900,
                       borderRadius: 24,
                       cursor: 'pointer',
@@ -2062,10 +2062,10 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
                     }}
                     className="hover:scale-[1.02] active:scale-[0.98]"
                   >
-                    <span style={{ fontSize: 40, filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.2))' }}>
+                    <span style={{ fontSize: 56, filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.2))' }}>
                       {icon}
                     </span>
-                    <span style={{ fontSize: 28, fontWeight: 900, letterSpacing: '-0.01em' }}>
+                    <span style={{ fontSize: 38, fontWeight: 900, letterSpacing: '-0.01em' }}>
                       {cleanLabel}
                     </span>
                   </button>
@@ -2088,13 +2088,13 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
                 onClick={() => setDigitalVideoWatched(true)}
                 style={{
                   width: '100%',
-                  minHeight: 110,
-                  padding: '30px 44px',
-                  borderRadius: 26,
-                  border: '4px solid #6ee7b7',
+                  minHeight: 130,
+                  padding: '36px 50px',
+                  borderRadius: 28,
+                  border: '4.5px solid #6ee7b7',
                   background: 'linear-gradient(135deg, #059669 0%, #10b981 50%, #0d9488 100%)',
                   color: '#ffffff',
-                  fontSize: 28,
+                  fontSize: 42,
                   fontWeight: 900,
                   cursor: 'pointer',
                   boxShadow: '0 20px 50px rgba(16, 185, 129, 0.65), 0 0 35px rgba(52, 211, 153, 0.5)',
@@ -2108,18 +2108,18 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
                 }}
                 className="hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
               >
-                <span style={{ fontSize: 42, filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.3))' }}>✅</span>
+                <span style={{ fontSize: 58, filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.3))' }}>✅</span>
                 <span>I Have Watched the YouTube Video — Display Digital Banking Safety Challenges & SMS Analyzer →</span>
               </button>
             ) : (
               <div style={{
-                minHeight: 96,
-                padding: '26px 40px',
-                borderRadius: 24,
+                minHeight: 120,
+                padding: '32px 46px',
+                borderRadius: 26,
                 background: isLight ? '#ecfdf5' : 'rgba(16, 185, 129, 0.22)',
-                border: '3.5px solid #10b981',
+                border: '4.5px solid #10b981',
                 color: isLight ? '#047857' : '#34d399',
-                fontSize: 26,
+                fontSize: 40,
                 fontWeight: 900,
                 textAlign: 'center',
                 display: 'flex',
@@ -2128,7 +2128,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
                 gap: 16,
                 boxShadow: isLight ? '0 8px 24px rgba(16, 185, 129, 0.2)' : 'none'
               }}>
-                <span style={{ fontSize: 38 }}>✓</span>
+                <span style={{ fontSize: 52 }}>✓</span>
                 <span>Video Completed! Complete the Cyber Safety Scenarios & SMS Phishing Analyzer below.</span>
               </div>
             )}
@@ -2148,7 +2148,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
                 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28, flexWrap: 'wrap', gap: 16 }}>
                     <span style={{
-                      fontSize: 28, fontWeight: 900,
+                      fontSize: 42, fontWeight: 900,
                       color: isLight ? '#c2410c' : '#fbbf24',
                       background: isLight ? '#fff7ed' : 'rgba(234, 88, 12, 0.2)',
                       padding: '16px 36px', borderRadius: 999,
@@ -2159,7 +2159,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
                       🎯 SCENARIO {digitalScenarioIdx + 1} OF {CYBER_SCENARIOS.length}
                     </span>
                     <div style={{
-                      fontSize: 28, fontWeight: 900,
+                      fontSize: 42, fontWeight: 900,
                       background: 'linear-gradient(135deg, #059669, #10b981)',
                       color: '#ffffff',
                       padding: '16px 36px', borderRadius: 999,
@@ -2176,10 +2176,10 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
                     border: '4px solid #ea580c', marginBottom: 28,
                     boxShadow: isLight ? '0 10px 28px rgba(234, 88, 12, 0.15)' : 'none'
                   }}>
-                    <h3 style={{ fontWeight: 900, fontSize: 40, color: isLight ? '#9a3412' : '#fbbf24', marginBottom: 18, display: 'flex', alignItems: 'center', gap: 14 }}>
+                    <h3 style={{ fontWeight: 900, fontSize: 58, color: isLight ? '#9a3412' : '#fbbf24', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 16 }}>
                       {CYBER_SCENARIOS[digitalScenarioIdx].title}
                     </h3>
-                    <p style={{ fontSize: 30, color: isLight ? '#0f172a' : '#f3f4f6', lineHeight: 1.6, fontWeight: 800, margin: 0 }}>
+                    <p style={{ fontSize: 46, color: isLight ? '#0f172a' : '#f3f4f6', lineHeight: 1.55, fontWeight: 800, margin: 0 }}>
                       {CYBER_SCENARIOS[digitalScenarioIdx].scenario}
                     </p>
                   </div>
@@ -2203,8 +2203,8 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
                           key={i}
                           onClick={() => handleCyberAnswer(i)}
                           style={{
-                            textAlign: 'left', fontSize: 30, padding: '30px 42px', width: '100%',
-                            minHeight: 110,
+                            textAlign: 'left', fontSize: 44, padding: '36px 48px', width: '100%',
+                            minHeight: 130,
                             fontWeight: 900, borderRadius: 24, cursor: 'pointer',
                             background: btnBg,
                             color: btnColor,
@@ -2225,14 +2225,14 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
                   {digitalFeedback && (
                     <div className="anim-fade" style={{
                       background: isLight ? '#ffedd5' : 'rgba(245,158,11,0.12)', border: '3px solid #f59e0b',
-                      borderRadius: 22, padding: '24px 32px', marginBottom: 28, color: isLight ? '#7c2d12' : '#fef3c7', fontSize: 26, lineHeight: 1.55, fontWeight: 800
+                      borderRadius: 22, padding: '30px 42px', marginBottom: 28, color: isLight ? '#7c2d12' : '#fef3c7', fontSize: 40, lineHeight: 1.55, fontWeight: 800
                     }}>
                       💡 {digitalFeedback}
                     </div>
                   )}
 
                   {selectedOpt !== null && (
-                    <button className="btn-primary" onClick={handleNextScenario} style={{ width: '100%', minHeight: 100, fontSize: 30, fontWeight: 900, padding: '28px 44px', borderRadius: 24 }}>
+                    <button className="btn-primary" onClick={handleNextScenario} style={{ width: '100%', minHeight: 120, fontSize: 44, fontWeight: 900, padding: '34px 50px', borderRadius: 26 }}>
                       {digitalScenarioIdx < CYBER_SCENARIOS.length - 1 ? 'NEXT SCENARIO →' : '🏆 FINISH CHALLENGE (+50 XP)'}
                     </button>
                   )}
@@ -2240,10 +2240,10 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
               ) : (
                 <div style={{ textAlign: 'center', padding: '40px 32px', background: isLight ? '#ffffff' : 'var(--bg-card-deep, #12100c)', border: '3px solid #ea580c', borderRadius: 26, marginBottom: 28 }} className="glass-card">
                   <div style={{ fontSize: 68, marginBottom: 16 }}>🛡️</div>
-                  <h3 className="font-display" style={{ fontSize: 40, fontWeight: 900, color: isLight ? '#ea580c' : '#fbbf24', marginBottom: 12 }}>
+                  <h3 className="font-display" style={{ fontSize: 58, fontWeight: 900, color: isLight ? '#ea580c' : '#fbbf24', marginBottom: 16 }}>
                     CHALLENGE PASSED!
                   </h3>
-                  <p style={{ color: isLight ? '#334155' : '#d1d5db', fontSize: 22, fontWeight: 700, marginBottom: 24 }}>
+                  <p style={{ color: isLight ? '#334155' : '#d1d5db', fontSize: 36, fontWeight: 800, marginBottom: 24 }}>
                     Shield Health: {shieldScore}% • You earned +50 XP and mastered digital bank safety!
                   </p>
                 </div>

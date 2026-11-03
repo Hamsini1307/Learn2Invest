@@ -862,8 +862,8 @@ export function Computer2SavingsMixerScreen({
   const [mixerYears, setMixerYears] = useState(10)
 
   // Sub-feature view switcher inside Computer 2 so all 7 required items are manually explored
-  const [activeSection, setActiveSection] = useState('mixer')
-  const [exploredTabs, setExploredTabs] = useState(['mixer'])
+  const [activeSection, setActiveSection] = useState('notes')
+  const [exploredTabs, setExploredTabs] = useState(['notes'])
   const [showCompletedPage, setShowCompletedPage] = useState(false)
 
   // Challenge state
@@ -881,9 +881,9 @@ export function Computer2SavingsMixerScreen({
   const [newGoalScheme, setNewGoalScheme] = useState('ppf')
 
   const SECTION_TABS = [
-    { id: 'mixer', label: '🎛️ Simultaneous Mixer', badge: `${activeSchemeIds.length}/6` },
     { id: 'notes', label: '📚 Educational Notes' },
     { id: 'comparison', label: '📊 Comparison Metric' },
+    { id: 'mixer', label: '🎛️ Simultaneous Mixer', badge: `${activeSchemeIds.length}/6` },
     { id: 'know', label: '💡 What Should You Know' },
     { id: 'challenges', label: '🎯 Learning Challenges' },
     { id: 'projector', label: '🔮 Growth Projector' },
@@ -1522,7 +1522,7 @@ export function Computer2SavingsMixerScreen({
 
         {activeSection === 'planner' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <div style={{ background: 'rgba(15,23,42,0.9)', border: '1px solid rgba(56,189,248,0.25)', borderRadius: '9px', padding: '8px 10px', display: 'grid', gridTemplateColumns: '1.6fr 1.2fr 1fr auto', gap: '7px', alignItems: 'end' }}>
+            <div style={{ background: 'rgba(15,23,42,0.9)', border: '1px solid rgba(56,189,248,0.25)', borderRadius: '9px', padding: '8px 10px', display: 'grid', gridTemplateColumns: '1.3fr 1fr 0.8fr 1.1fr auto', gap: '7px', alignItems: 'end' }}>
               <div>
                 <div style={{ fontSize: '11px', color: '#CBD5E1', fontWeight: 700, marginBottom: '2px' }}>Goal Name</div>
                 <input
@@ -1553,6 +1553,20 @@ export function Computer2SavingsMixerScreen({
                   style={{ width: '100%', background: '#1E293B', border: '1px solid #334155', borderRadius: '5px', padding: '5px 7px', color: '#FBBF24', fontSize: '12px', fontWeight: 800, boxSizing: 'border-box' }}
                 />
               </div>
+              <div>
+                <div style={{ fontSize: '11px', color: '#CBD5E1', fontWeight: 700, marginBottom: '2px' }}>Matched</div>
+                <select
+                  value={newGoalScheme}
+                  onChange={(e) => setNewGoalScheme(e.target.value)}
+                  style={{ width: '100%', background: '#1E293B', border: '1px solid #334155', borderRadius: '5px', padding: '5px 7px', color: '#FFF', fontSize: '12px', fontWeight: 700 }}
+                >
+                  {SIX_CORE_SCHEMES.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.name} ({s.rate}%)
+                    </option>
+                  ))}
+                </select>
+              </div>
               <button
                 onClick={handleAddGoal}
                 style={{
@@ -1581,7 +1595,7 @@ export function Computer2SavingsMixerScreen({
                     key={g.id}
                     style={{
                       background: 'rgba(15,23,42,0.92)',
-                      border: '1.5px solid rgba(56,189,248,0.35)',
+                      border: `1.5px solid ${sch.color}66`,
                       borderRadius: '8px',
                       padding: '9px 11px',
                     }}
@@ -1597,6 +1611,9 @@ export function Computer2SavingsMixerScreen({
                     </div>
                     <div style={{ fontSize: '11.5px', color: '#CBD5E1', marginBottom: '4px' }}>
                       Target: <strong style={{ color: '#F8FAFC' }}>{fmtINR(g.targetCost)}</strong> in <strong>{g.years} yrs</strong>
+                    </div>
+                    <div style={{ fontSize: '11.5px', color: sch.color, fontWeight: 800, marginBottom: '5px' }}>
+                      {sch.icon} {sch.name} ({sch.rate}%)
                     </div>
                     <div style={{ background: 'rgba(16,185,129,0.16)', border: '1px solid rgba(16,185,129,0.4)', borderRadius: '6px', padding: '5px 8px', fontSize: '12.5px', color: '#34D399', fontWeight: 900 }}>
                       Save {fmtINR(monthlyRequired)} / month
