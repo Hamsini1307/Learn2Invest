@@ -2830,6 +2830,481 @@ function SchoolVeranda3D({ charStateRef }) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// FINANCIAL WISDOM FRAMED POSTERS (High-Resolution Illustrated Pictures & Quotes)
+// ═══════════════════════════════════════════════════════════════════════════════
+function createPosterTexture(idx) {
+  if (typeof document === 'undefined') return null
+  const canvas = document.createElement('canvas')
+  canvas.width = 1024
+  canvas.height = 1280
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return null
+
+  // 1. Background gradient
+  const bg = ctx.createLinearGradient(0, 0, 1024, 1280)
+  if (idx === 0) {
+    bg.addColorStop(0, '#09152e')
+    bg.addColorStop(0.5, '#1e295d')
+    bg.addColorStop(1, '#080d1a')
+  } else if (idx === 1) {
+    bg.addColorStop(0, '#022c22')
+    bg.addColorStop(0.5, '#064e3b')
+    bg.addColorStop(1, '#022c22')
+  } else {
+    bg.addColorStop(0, '#1e1b4b')
+    bg.addColorStop(0.5, '#312e81')
+    bg.addColorStop(1, '#0f172a')
+  }
+  ctx.fillStyle = bg
+  ctx.fillRect(0, 0, 1024, 1280)
+
+  // 2. Ornate Double Gold Border
+  ctx.lineWidth = 14
+  ctx.strokeStyle = idx === 1 ? '#34d399' : '#fbbf24'
+  ctx.strokeRect(36, 36, 1024 - 72, 1280 - 72)
+
+  ctx.lineWidth = 4
+  ctx.strokeStyle = idx === 1 ? '#a7f3d0' : '#fde68a'
+  ctx.strokeRect(52, 52, 1024 - 104, 1280 - 104)
+
+  // Corner Ornaments
+  const corners = [
+    [52, 52],
+    [1024 - 52, 52],
+    [52, 1280 - 52],
+    [1024 - 52, 1280 - 52],
+  ]
+  corners.forEach(([cx, cy]) => {
+    ctx.fillStyle = '#fbbf24'
+    ctx.beginPath()
+    ctx.arc(cx, cy, 12, 0, Math.PI * 2)
+    ctx.fill()
+  })
+
+  // 3. Top Header Badge
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.45)'
+  if (ctx.roundRect) {
+    ctx.beginPath()
+    ctx.roundRect(112, 75, 800, 68, 34)
+    ctx.fill()
+    ctx.strokeStyle = idx === 1 ? '#10b981' : '#f59e0b'
+    ctx.lineWidth = 3
+    ctx.stroke()
+  }
+
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  ctx.font = 'bold 30px "Trebuchet MS", Montserrat, sans-serif'
+  ctx.fillStyle = idx === 1 ? '#6ee7b7' : '#fde047'
+  const badges = [
+    '🎓 LEARN2INVEST ACADEMY • GOLDEN PRINCIPLE #1',
+    '📈 THE 8TH WONDER OF THE WORLD • PRINCIPLE #2',
+    '🛡️ THE GOLDEN RULE OF WEALTH • PRINCIPLE #3',
+  ]
+  ctx.fillText(badges[idx], 512, 109)
+
+  // Big Section Title
+  ctx.font = '900 48px "Trebuchet MS", Montserrat, sans-serif'
+  ctx.fillStyle = '#ffffff'
+  ctx.shadowColor = 'rgba(0,0,0,0.8)'
+  ctx.shadowBlur = 12
+  const titles = [
+    'INVEST IN YOUR MIND',
+    'THE POWER OF COMPOUNDING',
+    'PAY YOURSELF FIRST',
+  ]
+  ctx.fillText(titles[idx], 512, 195)
+  ctx.shadowBlur = 0
+
+  // 4. Picture / Graphic Illustration (Y: 250 to 600)
+  const radGlow = ctx.createRadialGradient(512, 420, 20, 512, 420, 190)
+  radGlow.addColorStop(
+    0,
+    idx === 1
+      ? 'rgba(52, 211, 153, 0.45)'
+      : idx === 2
+      ? 'rgba(96, 165, 250, 0.45)'
+      : 'rgba(251, 191, 36, 0.45)'
+  )
+  radGlow.addColorStop(1, 'rgba(0,0,0,0)')
+  ctx.fillStyle = radGlow
+  ctx.beginPath()
+  ctx.arc(512, 420, 190, 0, Math.PI * 2)
+  ctx.fill()
+
+  if (idx === 0) {
+    // ─── POSTER 1 GRAPHIC: WISDOM BOOK + GRADUATION CAP + COINS ───
+    // Open Book
+    ctx.fillStyle = '#f8fafc'
+    ctx.beginPath()
+    ctx.moveTo(512, 490)
+    ctx.quadraticCurveTo(420, 470, 340, 490)
+    ctx.lineTo(340, 400)
+    ctx.quadraticCurveTo(420, 380, 512, 400)
+    ctx.fill()
+
+    ctx.beginPath()
+    ctx.moveTo(512, 490)
+    ctx.quadraticCurveTo(604, 470, 684, 490)
+    ctx.lineTo(684, 400)
+    ctx.quadraticCurveTo(604, 380, 512, 400)
+    ctx.fill()
+
+    // Book spine
+    ctx.lineWidth = 6
+    ctx.strokeStyle = '#c08248'
+    ctx.beginPath()
+    ctx.moveTo(512, 395)
+    ctx.lineTo(512, 495)
+    ctx.stroke()
+
+    // Bookmark Ribbon
+    ctx.fillStyle = '#ef4444'
+    ctx.fillRect(507, 400, 10, 75)
+
+    // Graduation Cap
+    ctx.fillStyle = '#1e1b4b'
+    ctx.beginPath()
+    ctx.moveTo(512, 280)
+    ctx.lineTo(650, 325)
+    ctx.lineTo(512, 370)
+    ctx.lineTo(374, 325)
+    ctx.closePath()
+    ctx.fill()
+    ctx.strokeStyle = '#fbbf24'
+    ctx.lineWidth = 4
+    ctx.stroke()
+
+    // Cap base
+    ctx.fillStyle = '#1e293b'
+    ctx.beginPath()
+    ctx.ellipse(512, 355, 60, 22, 0, 0, Math.PI * 2)
+    ctx.fill()
+
+    // Golden Tassel
+    ctx.strokeStyle = '#fbbf24'
+    ctx.lineWidth = 4
+    ctx.beginPath()
+    ctx.moveTo(512, 325)
+    ctx.quadraticCurveTo(580, 335, 610, 380)
+    ctx.stroke()
+    ctx.fillStyle = '#fbbf24'
+    ctx.beginPath()
+    ctx.arc(610, 385, 10, 0, Math.PI * 2)
+    ctx.fill()
+
+    // Gold Coins with ₹ symbol
+    const drawCoin = (x, y, r) => {
+      ctx.fillStyle = '#fbbf24'
+      ctx.beginPath()
+      ctx.arc(x, y, r, 0, Math.PI * 2)
+      ctx.fill()
+      ctx.strokeStyle = '#d97706'
+      ctx.lineWidth = 3
+      ctx.stroke()
+      ctx.fillStyle = '#78350f'
+      ctx.font = `bold ${Math.round(r * 1.2)}px sans-serif`
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+      ctx.fillText('₹', x, y)
+    }
+    drawCoin(320, 380, 32)
+    drawCoin(700, 385, 32)
+    drawCoin(360, 480, 26)
+    drawCoin(660, 485, 26)
+
+  } else if (idx === 1) {
+    // ─── POSTER 2 GRAPHIC: COMPOUNDING EXPONENTIAL CHART + WEALTH BARS ───
+    const bars = [
+      { x: 330, h: 55, val: '1x' },
+      { x: 410, h: 105, val: '2x' },
+      { x: 490, h: 165, val: '4x' },
+      { x: 570, h: 235, val: '8x' },
+      { x: 650, h: 320, val: '16x' },
+    ]
+
+    bars.forEach((b) => {
+      const grad = ctx.createLinearGradient(0, 560 - b.h, 0, 560)
+      grad.addColorStop(0, '#34d399')
+      grad.addColorStop(1, '#059669')
+      ctx.fillStyle = grad
+      if (ctx.roundRect) {
+        ctx.beginPath()
+        ctx.roundRect(b.x - 28, 560 - b.h, 56, b.h, [8, 8, 0, 0])
+        ctx.fill()
+      } else {
+        ctx.fillRect(b.x - 28, 560 - b.h, 56, b.h)
+      }
+      ctx.fillStyle = '#ffffff'
+      ctx.font = 'bold 22px sans-serif'
+      ctx.textAlign = 'center'
+      ctx.fillText(b.val, b.x, 560 - b.h - 18)
+    })
+
+    // Exponential Curve Line
+    ctx.beginPath()
+    ctx.moveTo(310, 520)
+    ctx.bezierCurveTo(430, 510, 550, 420, 690, 230)
+    ctx.strokeStyle = '#fde047'
+    ctx.lineWidth = 8
+    ctx.stroke()
+
+    // Upward Arrow Head
+    ctx.fillStyle = '#fde047'
+    ctx.beginPath()
+    ctx.moveTo(715, 205)
+    ctx.lineTo(670, 225)
+    ctx.lineTo(695, 255)
+    ctx.closePath()
+    ctx.fill()
+
+    // Sparkling stars
+    const drawStar = (x, y, r) => {
+      ctx.fillStyle = '#ffffff'
+      ctx.beginPath()
+      ctx.arc(x, y, r, 0, Math.PI * 2)
+      ctx.fill()
+    }
+    drawStar(380, 420, 6)
+    drawStar(460, 350, 7)
+    drawStar(540, 280, 8)
+    drawStar(630, 210, 9)
+
+  } else {
+    // ─── POSTER 3 GRAPHIC: 50-30-20 BUDGET SHIELD + WEALTH VAULT ───
+    // Golden Shield
+    ctx.fillStyle = '#fbbf24'
+    ctx.beginPath()
+    ctx.moveTo(512, 260)
+    ctx.lineTo(650, 310)
+    ctx.quadraticCurveTo(650, 470, 512, 540)
+    ctx.quadraticCurveTo(374, 470, 374, 310)
+    ctx.closePath()
+    ctx.fill()
+    ctx.strokeStyle = '#d97706'
+    ctx.lineWidth = 6
+    ctx.stroke()
+
+    // Inner Navy Core
+    ctx.fillStyle = '#0f172a'
+    ctx.beginPath()
+    ctx.moveTo(512, 280)
+    ctx.lineTo(630, 325)
+    ctx.quadraticCurveTo(630, 455, 512, 515)
+    ctx.quadraticCurveTo(394, 455, 394, 325)
+    ctx.closePath()
+    ctx.fill()
+
+    // Digital Vault Dial
+    ctx.fillStyle = '#e2e8f0'
+    ctx.beginPath()
+    ctx.arc(512, 410, 75, 0, Math.PI * 2)
+    ctx.fill()
+    ctx.fillStyle = '#334155'
+    ctx.beginPath()
+    ctx.arc(512, 410, 52, 0, Math.PI * 2)
+    ctx.fill()
+
+    // Dial spoke handle
+    ctx.fillStyle = '#fbbf24'
+    ctx.beginPath()
+    ctx.arc(512, 410, 24, 0, Math.PI * 2)
+    ctx.fill()
+    ctx.fillStyle = '#0f172a'
+    ctx.font = 'bold 30px sans-serif'
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.fillText('₹', 512, 410)
+
+    // Three Rule Badges around shield
+    ctx.font = 'bold 20px sans-serif'
+    ctx.fillStyle = '#38bdf8'
+    ctx.fillText('50% NEEDS', 280, 380)
+    ctx.fillStyle = '#f472b6'
+    ctx.fillText('30% WANTS', 280, 430)
+    ctx.fillStyle = '#34d399'
+    ctx.fillText('20% INVEST', 740, 405)
+  }
+
+  // 5. Quote Box & Decorative Quotation Marks (Y: 620 to 1050)
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.4)'
+  if (ctx.roundRect) {
+    ctx.beginPath()
+    ctx.roundRect(80, 615, 864, 460, 28)
+    ctx.fill()
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)'
+    ctx.lineWidth = 2
+    ctx.stroke()
+  }
+
+  // Giant Quotation Mark
+  ctx.fillStyle = 'rgba(251, 191, 36, 0.25)'
+  ctx.font = 'bold 180px Georgia, serif'
+  ctx.textAlign = 'center'
+  ctx.fillText('“', 512, 700)
+
+  // Quote Text Lines (Crisp, High-Contrast, Large Font)
+  ctx.fillStyle = '#ffffff'
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.95)'
+  ctx.shadowBlur = 10
+
+  if (idx === 0) {
+    ctx.font = '900 48px "Trebuchet MS", Montserrat, sans-serif'
+    ctx.fillText('"An investment', 512, 730)
+    ctx.fillText('in knowledge pays', 512, 795)
+    ctx.fillText('the best interest."', 512, 860)
+
+    ctx.font = 'bold 36px Georgia, serif'
+    ctx.fillStyle = '#fbbf24'
+    ctx.fillText('— Benjamin Franklin', 512, 955)
+    ctx.font = 'italic 24px Georgia, serif'
+    ctx.fillStyle = '#cbd5e1'
+    ctx.fillText('Founding Father & Polymath', 512, 1005)
+
+  } else if (idx === 1) {
+    ctx.font = '900 42px "Trebuchet MS", Montserrat, sans-serif'
+    ctx.fillText('"Compound interest is the', 512, 715)
+    ctx.fillText('eighth wonder of the world.', 512, 775)
+    ctx.fillText('He who understands it, earns it;', 512, 835)
+    ctx.fillText('he who doesn\'t, pays it."', 512, 895)
+
+    ctx.font = 'bold 36px Georgia, serif'
+    ctx.fillStyle = '#34d399'
+    ctx.fillText('— Albert Einstein', 512, 970)
+    ctx.font = 'italic 24px Georgia, serif'
+    ctx.fillStyle = '#cbd5e1'
+    ctx.fillText('Nobel Laureate in Physics', 512, 1018)
+
+  } else {
+    ctx.font = '900 46px "Trebuchet MS", Montserrat, sans-serif'
+    ctx.fillText('"Do not save what is', 512, 725)
+    ctx.fillText('left after spending,', 512, 790)
+    ctx.fillText('but spend what is', 512, 855)
+    ctx.fillText('left after saving."', 512, 920)
+
+    ctx.font = 'bold 36px Georgia, serif'
+    ctx.fillStyle = '#38bdf8'
+    ctx.fillText('— Warren Buffett', 512, 990)
+    ctx.font = 'italic 24px Georgia, serif'
+    ctx.fillStyle = '#cbd5e1'
+    ctx.fillText('Chairman, Berkshire Hathaway', 512, 1038)
+  }
+  ctx.shadowBlur = 0
+
+  // 6. Bottom Tagline Pill (Y: 1110)
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.6)'
+  if (ctx.roundRect) {
+    ctx.beginPath()
+    ctx.roundRect(112, 1105, 800, 72, 36)
+    ctx.fill()
+    ctx.strokeStyle = idx === 1 ? '#059669' : idx === 2 ? '#2563eb' : '#d97706'
+    ctx.lineWidth = 3
+    ctx.stroke()
+  }
+
+  ctx.font = 'bold 28px "Trebuchet MS", Montserrat, sans-serif'
+  ctx.fillStyle = idx === 1 ? '#a7f3d0' : idx === 2 ? '#bae6fd' : '#fef08a'
+  const taglines = [
+    '🌱 Learn Daily • Invest Early • Compound Forever',
+    '⏳ Consistency + Time = Unstoppable Wealth',
+    '🎯 Budget Wisely • Save First • Financial Freedom',
+  ]
+  ctx.fillText(taglines[idx], 512, 1141)
+
+  const texture = new THREE.CanvasTexture(canvas)
+  texture.generateMipmaps = true
+  texture.minFilter = THREE.LinearMipmapLinearFilter
+  texture.magFilter = THREE.LinearFilter
+  texture.needsUpdate = true
+  return texture
+}
+
+function FinancialWisdomPosterWall3D({ position = [0, 0, 0] }) {
+  const textures = useMemo(() => {
+    return [0, 1, 2].map((idx) => createPosterTexture(idx))
+  }, [])
+
+  const posters = [
+    { wz: -4.2, title: 'B. Franklin' },
+    { wz: -0.5, title: 'A. Einstein' },
+    { wz: 3.2, title: 'W. Buffett' },
+  ]
+
+  return (
+    <group position={position}>
+      {posters.map((p, idx) => (
+        <group key={idx} position={[-7.85, 3.8, p.wz]}>
+          {/* Deep Charcoal Outer Wooden Picture Frame */}
+          <RoundedBox args={[0.16, 3.82, 3.12]} radius={0.03} castShadow receiveShadow>
+            <meshStandardMaterial color="#1e293b" roughness={0.35} metalness={0.25} />
+          </RoundedBox>
+
+          {/* Inner Polished Golden Bevel Trim */}
+          <RoundedBox args={[0.17, 3.66, 2.96]} radius={0.02}>
+            <meshStandardMaterial color="#d4af37" metalness={0.85} roughness={0.2} />
+          </RoundedBox>
+
+          {/* The High-Resolution Poster Canvas (Facing +X Into Classroom) */}
+          <mesh position={[0.09, 0, 0]} rotation={[0, Math.PI / 2, 0]}>
+            <planeGeometry args={[2.85, 3.5]} />
+            {textures[idx] ? (
+              <meshStandardMaterial
+                map={textures[idx]}
+                roughness={0.25}
+                metalness={0.05}
+              />
+            ) : (
+              <meshBasicMaterial color="#0f172a" />
+            )}
+          </mesh>
+
+          {/* Overhead Brass Gallery Picture Light */}
+          <group position={[0.22, 2.02, 0]}>
+            <mesh castShadow>
+              <boxGeometry args={[0.22, 0.08, 0.9]} />
+              <meshStandardMaterial color="#d4af37" metalness={0.9} roughness={0.15} />
+            </mesh>
+            <mesh position={[-0.1, -0.06, 0]}>
+              <cylinderGeometry args={[0.02, 0.02, 0.16, 8]} />
+              <meshStandardMaterial color="#d4af37" metalness={0.9} />
+            </mesh>
+            {/* Gallery Warm Spotlight */}
+            <pointLight
+              color="#fffbeb"
+              intensity={0.65}
+              distance={3.5}
+              decay={2}
+              position={[0.12, -0.15, 0]}
+            />
+          </group>
+
+          {/* Polished Brass Nameplate Plaque Under Frame */}
+          <group position={[0.1, -2.04, 0]}>
+            <RoundedBox args={[0.05, 0.24, 1.45]} radius={0.02}>
+              <meshStandardMaterial color="#d4af37" metalness={0.92} roughness={0.15} />
+            </RoundedBox>
+            <Text
+              position={[0.035, 0, 0]}
+              rotation={[0, Math.PI / 2, 0]}
+              fontSize={0.09}
+              color="#0f172a"
+              anchorX="center"
+              anchorY="middle"
+            >
+              {p.title}
+            </Text>
+          </group>
+        </group>
+      ))}
+    </group>
+  )
+}
+
+
 // 4. ZONE 3: 3D CLASSROOM "101" WITH PHYSICAL PROJECTOR SCREEN (Matching Image 5)
 //    Centered at x = -14, z = -10, facing -Z (Projector Screen at z = -16.85)
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -3146,23 +3621,8 @@ function Classroom101Scene3D({ projectorContent, isVideoFullscreen = false }) {
         </mesh>
       </group>
 
-      {/* ─── LEFT SUNLIT WINDOWS, POTTED PLANTS & DIAGONAL SUNBEAM RAYS (Image 5) ─── */}
-      {[-4.2, -0.5, 3.2].map((wz, idx) => (
-        <group key={idx} position={[-7.85, 3.8, wz]}>
-          <RoundedBox args={[0.15, 3.8, 3.1]} radius={0.02}>
-            <meshStandardMaterial color="#334155" />
-          </RoundedBox>
-          <mesh position={[0.09, 0, 0]} rotation={[0, Math.PI / 2, 0]}>
-            <planeGeometry args={[2.85, 3.5]} />
-            <meshBasicMaterial color="#dcfce7" />
-          </mesh>
-          {/* Warm Diagonal Sunlight Beam */}
-          <mesh position={[2.8, -1.2, 0]} rotation={[0, 0, -0.52]}>
-            <cylinderGeometry args={[1.0, 2.1, 5.8, 16, 1, true]} />
-            <meshBasicMaterial color="#fef08a" transparent opacity={0.08} side={THREE.DoubleSide} depthWrite={false} />
-          </mesh>
-        </group>
-      ))}
+      {/* ─── LEFT WALL: FINANCIAL WISDOM QUOTES & ILLUSTRATED POSTERS (Image 5) ─── */}
+      <FinancialWisdomPosterWall3D />
 
       {/* ─── 3D CLASSROOM TEACHER STANDING AT FRONT OF CLASSROOM 101 ─── */}
       <ClassroomTeacher3D
@@ -3438,25 +3898,8 @@ function ExaminationCenter103Scene3D({ examProjectorContent }) {
         </mesh>
       </group>
 
-      {/* Left Windows & Potted Windowsill Plants */}
-      {[-4.2, -0.5, 3.2].map((wz, idx) => (
-        <group key={idx} position={[-7.88, 3.8, wz]}>
-          <mesh rotation={[0, Math.PI / 2, 0]}>
-            <planeGeometry args={[2.8, 3.6]} />
-            <meshBasicMaterial color="#dcfce7" />
-          </mesh>
-          <group position={[0.25, -1.65, 0]}>
-            <mesh>
-              <cylinderGeometry args={[0.16, 0.13, 0.28, 12]} />
-              <meshStandardMaterial color="#f8fafc" />
-            </mesh>
-            <mesh position={[0, 0.24, 0]}>
-              <sphereGeometry args={[0.26, 12, 12]} />
-              <meshStandardMaterial color="#15803d" />
-            </mesh>
-          </group>
-        </group>
-      ))}
+      {/* Left Wall: Financial Wisdom Quotes & Illustrated Posters */}
+      <FinancialWisdomPosterWall3D />
 
       {/* ─── INDIVIDUAL WOODEN EXAMINATION DESKS WITH SEATED STUDENTS & PLAYER CHAIR AT [-2.1, -3.4] ─── */}
       {[
