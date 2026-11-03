@@ -1522,7 +1522,7 @@ export function Computer2SavingsMixerScreen({
 
         {activeSection === 'planner' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <div style={{ background: 'rgba(15,23,42,0.9)', border: '1px solid rgba(56,189,248,0.25)', borderRadius: '9px', padding: '8px 10px', display: 'grid', gridTemplateColumns: '1.3fr 1fr 0.8fr 1.1fr auto', gap: '7px', alignItems: 'end' }}>
+            <div style={{ background: 'rgba(15,23,42,0.9)', border: '1px solid rgba(56,189,248,0.25)', borderRadius: '9px', padding: '8px 10px', display: 'grid', gridTemplateColumns: '1.6fr 1.2fr 1fr auto', gap: '7px', alignItems: 'end' }}>
               <div>
                 <div style={{ fontSize: '11px', color: '#CBD5E1', fontWeight: 700, marginBottom: '2px' }}>Goal Name</div>
                 <input
@@ -1552,19 +1552,6 @@ export function Computer2SavingsMixerScreen({
                   onChange={(e) => setNewGoalYears(Number(e.target.value))}
                   style={{ width: '100%', background: '#1E293B', border: '1px solid #334155', borderRadius: '5px', padding: '5px 7px', color: '#FBBF24', fontSize: '12px', fontWeight: 800, boxSizing: 'border-box' }}
                 />
-              </div>
-              <div>
-                <select
-                  value={newGoalScheme}
-                  onChange={(e) => setNewGoalScheme(e.target.value)}
-                  style={{ width: '100%', background: '#1E293B', border: '1px solid #334155', borderRadius: '5px', padding: '5px 7px', color: '#FFF', fontSize: '12px', fontWeight: 700 }}
-                >
-                  {SIX_CORE_SCHEMES.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.name} ({s.rate}%)
-                    </option>
-                  ))}
-                </select>
               </div>
               <button
                 onClick={handleAddGoal}
