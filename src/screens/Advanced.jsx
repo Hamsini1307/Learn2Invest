@@ -985,6 +985,8 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
         }
       }
       const hasPercentWidth = field.width !== undefined
+      const totalBoxes = field.boxCount || 8
+      const boxSlotWidth = hasPercentWidth ? `${100 / totalBoxes}%` : (field.boxWidth || '14px')
       return (
         <div key={field.id} style={{
           position: 'absolute',
@@ -992,11 +994,12 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
           left: field.x ? `${field.x}%` : 'auto',
           right: field.right ? `${field.right}%` : 'auto',
           width: hasPercentWidth ? `${field.width}%` : 'auto',
+          height: field.height ? `${field.height}%` : 'auto',
           display: 'flex',
-          justifyContent: hasPercentWidth ? 'space-between' : 'flex-start',
+          justifyContent: 'flex-start',
           alignItems: 'center',
           gap: hasPercentWidth ? 0 : `${field.gap || 6}px`,
-          fontSize: field.fontSize || '1.20rem',
+          fontSize: field.fontSize || '1.45rem',
           color: field.color || '#1d4ed8',
           fontWeight: field.fontWeight || 900,
           fontFamily: "'Courier New', monospace"
@@ -1008,9 +1011,10 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                flex: hasPercentWidth ? '1 1 0' : 'none',
-                width: hasPercentWidth ? 'auto' : (field.boxWidth || '14px'),
-                textAlign: 'center'
+                width: boxSlotWidth,
+                height: '100%',
+                textAlign: 'center',
+                flexShrink: 0
               }}
             >
               {d}
@@ -1037,7 +1041,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
           position: 'absolute',
           top: `${field.y}%`,
           left: `${field.x}%`,
-          fontSize: field.fontSize || '0.92rem',
+          fontSize: field.fontSize || '1.20rem',
           color: field.color || '#1d4ed8',
           fontWeight: field.fontWeight || 900,
           fontFamily: "'Courier New', monospace",
@@ -1052,18 +1056,21 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
     if (field.renderingMode === 'characterBoxes') {
       const chars = String(value || '').split('')
       const hasPercentWidth = field.width !== undefined
+      const totalBoxes = field.boxCount || chars.length || 1
+      const boxSlotWidth = hasPercentWidth ? `${100 / totalBoxes}%` : (field.boxWidth || '14px')
       return (
         <div key={field.id} style={{
           position: 'absolute',
           top: `${field.y}%`,
           left: `${field.x}%`,
           width: hasPercentWidth ? `${field.width}%` : 'auto',
+          height: field.height ? `${field.height}%` : 'auto',
           display: 'flex',
-          justifyContent: hasPercentWidth ? 'space-between' : 'flex-start',
+          justifyContent: 'flex-start',
           alignItems: 'center',
           gap: hasPercentWidth ? 0 : `${field.gap || 6}px`,
           letterSpacing: field.letterSpacing || 'normal',
-          fontSize: field.fontSize || '1.30rem',
+          fontSize: field.fontSize || '1.60rem',
           color: field.color || '#1d4ed8',
           fontWeight: field.fontWeight || 900,
           fontFamily: "'Courier New', monospace"
@@ -1075,9 +1082,10 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                flex: hasPercentWidth ? '1 1 0' : 'none',
-                width: hasPercentWidth ? 'auto' : (field.boxWidth || '14px'),
-                textAlign: 'center'
+                width: boxSlotWidth,
+                height: '100%',
+                textAlign: 'center',
+                flexShrink: 0
               }}
             >
               {ch}
@@ -1122,7 +1130,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
           {userData.signature ? (
             <img src={userData.signature} alt="User Signature" style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }} />
           ) : (
-            <div style={{ fontSize: '1.05rem', color: '#1d4ed8', fontWeight: 800, fontFamily: "'Caveat', 'Brush Script MT', 'Dancing Script', cursive", transform: 'rotate(-2deg)' }}>
+            <div style={{ fontSize: field.fontSize || '1.60rem', color: '#1d4ed8', fontWeight: 900, fontFamily: "'Caveat', 'Brush Script MT', 'Dancing Script', cursive", transform: 'rotate(-2deg)' }}>
               {userData.name ? userData.name : ''}
             </div>
           )}
@@ -1141,7 +1149,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
         height: field.height ? `${field.height}%` : 'auto',
         maxWidth: field.width ? `${field.width}%` : 'none',
         maxHeight: field.height ? `${field.height}%` : 'none',
-        fontSize: field.fontSize || '0.98rem',
+        fontSize: field.fontSize || '1.40rem',
         letterSpacing: field.letterSpacing || 'normal',
         color: field.color || '#1d4ed8',
         fontWeight: field.fontWeight || 900,
