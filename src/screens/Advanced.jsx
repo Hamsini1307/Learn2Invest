@@ -1165,6 +1165,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
         textOverflow: 'ellipsis',
         display: field.height ? 'flex' : 'block',
         alignItems: field.height ? 'center' : 'initial',
+        justifyContent: field.renderingMode === 'amount' ? 'center' : 'initial',
         ...(calibrationMode ? { border: '1px dashed #dc2626', background: 'rgba(220, 38, 38, 0.12)' } : {})
       }}>
         {value}
