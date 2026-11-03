@@ -2020,17 +2020,8 @@ function SchoolYardAndFacade3D({ frontDoorOpenRef, charStateRef, isNightMode = f
         </Text>
 
         {/* Animated Warm Glass Double Entrance Doors (Click to Enter School) */}
-        <group
-          onClick={(e) => {
-            e.stopPropagation()
-            if (onEnterSchool) onEnterSchool()
-          }}
-        >
-          <mesh position={[0, 1.8, 1.6]}>
-            <boxGeometry args={[5.2, 3.8, 3.4]} />
-            <meshBasicMaterial transparent opacity={0} depthWrite={false} />
-          </mesh>
-          <Html position={[0, 3.4, 2.0]} center distanceFactor={14} zIndexRange={[20, 0]}>
+        {(charStateRef?.current?.z ?? 99) > 1.8 && (
+          <Html position={[0, 3.2, 2.0]} center distanceFactor={14} zIndexRange={[20, 0]}>
             <button
               type="button"
               onClick={(e) => {
@@ -2057,7 +2048,7 @@ function SchoolYardAndFacade3D({ frontDoorOpenRef, charStateRef, isNightMode = f
               <span>Click to Enter School (Level 1) →</span>
             </button>
           </Html>
-        </group>
+        )}
         <group ref={leftDoorRef} position={[-1.88, 0.28, 0.2]}>
           <RoundedBox args={[1.86, 3.56, 0.1]} position={[0.93, 1.78, 0]} radius={0.02}>
             <meshStandardMaterial
@@ -5329,13 +5320,86 @@ export default function Level1SchoolWorld({
   })
 
   // ───────────────────────────────────────────────────────────────────────────
-  // 360° CHARACTER ROTATION + AUTOMATIC CAMERA FOLLOW CONTROLLER
-  // (Strictly locked until user is Signed In / Logged In!)
+  // 360° SMOOTH CHARACTER MOVEMENT + COLLISION + WALL-CLIPPING FREE CAMERA
   // ───────────────────────────────────────────────────────────────────────────
   const pressedKeysRef = useRef({ up: false, down: false, left: false, right: false })
-  const wasDownPressedRef = useRef(false)
   const camYawRef = useRef(Math.PI)
   const manualCamFollowUntilRef = useRef(0)
+  const currentSpeedRef = useRef(0)
+
+  // Environment collision check: returns true if (x, z) is walkable without penetrating solid walls or obstacles
+  const isWalkable = (x, z) => {
+    // 1. Outer campus boundary
+    if (x < -52.0 || x > 26.0 || z > 28.0 || z < -68.0) return false
+
+    // 2. School Exterior Facade Wall (at z = 2.0)
+    // Left & right wings extend from z = 2.0 to z = 0.5. The main entrance double doors are at |x| <= 2.2
+    if (z <= 2.05 && z >= 0.3) {
+      if (Math.abs(x) > 2.2 && x > -19.0) {
+        return false // Solid red brick facade wall
+      }
+    }
+
+    // 3. Flower planter boxes flanking entrance steps (z between 1.5 and 3.8, |x| between 3.6 and 5.8)
+    if (z >= 1.5 && z <= 3.8 && Math.abs(x) >= 3.6 && Math.abs(x) <= 5.8) {
+      return false
+    }
+
+    // 4. Veranda Corridor Walls (z between 0.3 and -26.5)
+    if (z < 0.3 && z >= -26.5) {
+      // Right-side continuous wall with windows
+      if (x > 4.75) return false
+
+      // Left-side corridor wall (x = -4.8) has door openings into Classroom 101 and Exam Center 103:
+      // Doorway 101: z between -8.8 and -6.2
+      // Doorway 103: z between -24.8 and -22.2
+      if (x < -4.75) {
+        const inDoor101 = z >= -8.8 && z <= -6.2
+        const inDoor103 = z >= -24.8 && z <= -22.2
+        const insideClassroom101 = x >= -22.0 && z >= -15.5 && z <= -4.5
+        const insideClassroom103 = x >= -22.0 && z >= -31.5 && z <= -20.5
+
+        if (!inDoor101 && !inDoor103 && !insideClassroom101 && !insideClassroom103) {
+          return false // Solid corridor wall or closed Door 102
+        }
+      }
+
+      // Veranda Centerpiece Circular Planter Bench (center at x = 0.9, z = -12.8, radius 2.05)
+      const distToPlanter = Math.hypot(x - 0.9, z - (-12.8))
+      if (distToPlanter < 2.05) {
+        return false // Prevent walking into indoor tree / bench
+      }
+    }
+
+    // 5. Stairs up to Level 2 (z between -26.5 and -37.5)
+    // The central staircase is at |x| <= 2.8. Walls block side voids.
+    if (z < -26.5 && z >= -37.5) {
+      if (x > -4.75 && Math.abs(x) > 2.8) {
+        return false // Side railings / walls of central stairs
+      }
+    }
+
+    return true
+  }
+
+  // Smooth wall-sliding collision resolution: if diagonal movement is blocked, slide along the free axis
+  const resolveMovement = (oldX, oldZ, dx, dz) => {
+    const targetX = oldX + dx
+    const targetZ = oldZ + dz
+    // Free movement
+    if (isWalkable(targetX, targetZ)) {
+      return { x: targetX, z: targetZ }
+    }
+    // Slide along X only
+    if (Math.abs(dx) > 0.0001 && isWalkable(targetX, oldZ)) {
+      return { x: targetX, z: oldZ }
+    }
+    // Slide along Z only
+    if (Math.abs(dz) > 0.0001 && isWalkable(oldX, targetZ)) {
+      return { x: oldX, z: targetZ }
+    }
+    return { x: oldX, z: oldZ }
+  }
 
   const syncElevationFromZ = (cs) => {
     // Left-side Bank & 24/7 ATM Zone (x < -19) sits at ground level y = 0 outside and y = 0.64 inside Bank Lobby
@@ -5343,17 +5407,35 @@ export default function Level1SchoolWorld({
       cs.y = cs.z < -0.5 ? 0.64 : 0
       return
     }
+
+    // 5 Classical Entrance Steps leading up to portico (z between 2.0 and 4.2)
+    if (cs.z >= 2.0 && cs.z <= 4.2 && Math.abs(cs.x) < 3.8) {
+      const stepProg = Math.max(0, Math.min(1, (4.2 - cs.z) / 2.2))
+      cs.y = stepProg * 0.45
+      return
+    }
+
+    // Ground floor veranda and classrooms (z > -26.5)
     if (cs.z > -26.5) {
       cs.y = 0
-    } else if (cs.z >= -37.5) {
-      const tStair = (-26.5 - cs.z) / 11.0
-      cs.y = tStair * 6.2
+      return
+    }
+
+    // Only central staircase (|x| < 3.2) climbs up to Level 2 Computer Lab (y = 6.2)
+    // Ground floor classrooms (Classroom 103 / Exam Center) at x < -4.0 stay at ground level y = 0!
+    if (Math.abs(cs.x) < 3.2) {
+      if (cs.z >= -37.5) {
+        const tStair = (-26.5 - cs.z) / 11.0
+        cs.y = tStair * 6.2
+      } else {
+        cs.y = 6.2
+      }
     } else {
-      cs.y = 6.2
+      cs.y = 0
     }
   }
 
-  const updateCameraBehindCharacter = (cs, lerpFactor = 0.12) => {
+  const updateCameraBehindCharacter = (cs, lerpFactor = 0.14) => {
     if (
       ![
         'school_yard',
@@ -5371,6 +5453,8 @@ export default function Level1SchoolWorld({
     ) {
       return
     }
+
+    // Smooth shortest-angle rotation interpolation for camera yaw
     const angleDiff = Math.atan2(
       Math.sin(cs.rotY - camYawRef.current),
       Math.cos(cs.rotY - camYawRef.current)
@@ -5378,12 +5462,38 @@ export default function Level1SchoolWorld({
     camYawRef.current += angleDiff * lerpFactor
 
     const cam = camStateRef.current
-    const targetCamX = cs.x - Math.sin(camYawRef.current) * 6.8
-    const targetCamZ = cs.z - Math.cos(camYawRef.current) * 6.8
-    const targetCamY = cs.y + 3.05
-    const targetLookX = cs.x + Math.sin(camYawRef.current) * 6.2
-    const targetLookZ = cs.z + Math.cos(camYawRef.current) * 6.2
-    const targetLookY = cs.y + 1.55
+    const isInsideSchool = cs.z <= 2.2 && cs.x > -19
+    const isInsideClassroom = cs.x < -5.0 && cs.z <= 2.0
+
+    // In open yard: distance 6.2m, height 2.85m
+    // Inside school: closer distance (3.4m) and lower height (1.85m) so camera never clips through ceiling/portico
+    const dist = isInsideSchool ? 3.4 : 6.2
+    const camH = isInsideSchool ? 1.85 : 2.85
+    const lookH = isInsideSchool ? 1.25 : 1.55
+
+    let targetCamX = cs.x - Math.sin(camYawRef.current) * dist
+    let targetCamZ = cs.z - Math.cos(camYawRef.current) * dist
+    const targetCamY = cs.y + camH
+
+    const targetLookX = cs.x + Math.sin(camYawRef.current) * (isInsideSchool ? 3.5 : 5.8)
+    const targetLookZ = cs.z + Math.cos(camYawRef.current) * (isInsideSchool ? 3.5 : 5.8)
+    const targetLookY = cs.y + lookH
+
+    // WALL-CLIPPING SAFEGUARDS:
+    if (isInsideSchool) {
+      // 1. When character is inside the school, NEVER allow the camera to remain outside in the school yard!
+      if (cs.z <= 1.5) {
+        targetCamZ = Math.min(1.5, targetCamZ)
+      }
+      // 2. In the veranda corridor, clamp camera inside corridor walls (-3.8 to 3.8)
+      if (!isInsideClassroom) {
+        targetCamX = Math.max(-3.8, Math.min(3.8, targetCamX))
+      } else {
+        // Inside classroom: clamp inside room boundaries
+        targetCamX = Math.max(-21.5, Math.min(-5.2, targetCamX))
+        targetCamZ = Math.max(-30.0, Math.min(-4.0, targetCamZ))
+      }
+    }
 
     cam.x = THREE.MathUtils.lerp(cam.x, targetCamX, 0.22)
     cam.y = THREE.MathUtils.lerp(cam.y, targetCamY, 0.22)
@@ -5411,10 +5521,11 @@ export default function Level1SchoolWorld({
     }
 
     if (forwardStep !== 0) {
-      const fX = Math.sin(cs.rotY)
-      const fZ = Math.cos(cs.rotY)
-      cs.x = Math.max(-52, Math.min(26, cs.x + fX * forwardStep))
-      cs.z = Math.max(-68, Math.min(28, cs.z + fZ * forwardStep))
+      const fX = Math.sin(cs.rotY) * forwardStep
+      const fZ = Math.cos(cs.rotY) * forwardStep
+      const resolved = resolveMovement(cs.x, cs.z, fX, fZ)
+      cs.x = resolved.x
+      cs.z = resolved.z
       syncElevationFromZ(cs)
     }
 
@@ -5443,11 +5554,6 @@ export default function Level1SchoolWorld({
         pressedKeysRef.current.up = true
       } else if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') {
         e.preventDefault()
-        if (!pressedKeysRef.current.down && !wasDownPressedRef.current) {
-          wasDownPressedRef.current = true
-          // Turn character 180° around to go back so camera automatically turns behind character!
-          charStateRef.current.rotY += Math.PI
-        }
         pressedKeysRef.current.down = true
       } else if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
         e.preventDefault()
@@ -5460,10 +5566,7 @@ export default function Level1SchoolWorld({
 
     const handleKeyUp = (e) => {
       if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') pressedKeysRef.current.up = false
-      if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') {
-        pressedKeysRef.current.down = false
-        wasDownPressedRef.current = false
-      }
+      if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') pressedKeysRef.current.down = false
       if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') pressedKeysRef.current.left = false
       if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') pressedKeysRef.current.right = false
 
@@ -5487,9 +5590,10 @@ export default function Level1SchoolWorld({
 
         const pk = pressedKeysRef.current
         const turnDir = (pk.right ? 1 : 0) - (pk.left ? 1 : 0)
+        let moveInput = (pk.up ? 1 : 0) - (pk.down ? 0.75 : 0)
         const moveActive = pk.up || pk.down || pk.left || pk.right
 
-        // Proximity-based automatic sitting at nearby chairs
+        // Nearby chairs for sitting
         const nearbyChairs = [
           // Classroom 101 seat
           { x: -16.1, z: -12.68, y: 0.08, rotY: Math.PI, level: 1 },
@@ -5516,44 +5620,55 @@ export default function Level1SchoolWorld({
           }
           const cs = charStateRef.current
           cs.visible = true
-          cs.pose = 'walking'
 
-          // Smooth 360-degree continuous turning with Left / Right
+          // Smooth 360-degree turning with Left / Right
           if (turnDir !== 0) {
-            cs.rotY -= turnDir * (0.062 * dtFactor)
+            cs.rotY -= turnDir * (0.055 * dtFactor)
           }
 
-          // Walk forward along the character's current 360° facing angle (Normal responsive walking speed)
-          const walkSpeed = (pk.up || pk.down ? 0.36 : 0.15) * dtFactor
-          const fX = Math.sin(cs.rotY)
-          const fZ = Math.cos(cs.rotY)
-          cs.x = Math.max(-52, Math.min(26, cs.x + fX * walkSpeed))
-          cs.z = Math.max(-68, Math.min(28, cs.z + fZ * walkSpeed))
-          syncElevationFromZ(cs)
+          // Smooth acceleration and deceleration for walk speed
+          const targetSpeed = moveInput * (0.34 * dtFactor)
+          currentSpeedRef.current = THREE.MathUtils.lerp(currentSpeedRef.current, targetSpeed, 0.3)
+          const curSpeed = currentSpeedRef.current
+
+          if (Math.abs(curSpeed) > 0.005) {
+            cs.pose = 'walking'
+            const fX = Math.sin(cs.rotY) * curSpeed
+            const fZ = Math.cos(cs.rotY) * curSpeed
+            const resolved = resolveMovement(cs.x, cs.z, fX, fZ)
+            cs.x = resolved.x
+            cs.z = resolved.z
+            syncElevationFromZ(cs)
+          } else if (turnDir !== 0) {
+            cs.pose = 'idle' // Turning in place
+          }
 
           manualCamFollowUntilRef.current = performance.now() + 2000
           updateCameraBehindCharacter(cs, 0.13)
-        } else if (
-          journeyStage !== 'classroom_projector' &&
-          journeyStage !== 'exam_projector' &&
-          journeyStage !== 'computer_lab'
-        ) {
-          // When standing still outside fixed projector/lab stages, automatically sit down if near any chair!
-          const cs = charStateRef.current
-          const closeChair = nearbyChairs.find(
-            (ch) => Math.hypot(cs.x - ch.x, cs.z - ch.z) < 1.35 && Math.abs(cs.y - ch.y) < 0.8
-          )
-          if (closeChair) {
-            cs.x = THREE.MathUtils.lerp(cs.x, closeChair.x, 0.1)
-            cs.z = THREE.MathUtils.lerp(cs.z, closeChair.z, 0.1)
-            cs.rotY = THREE.MathUtils.lerp(cs.rotY, closeChair.rotY, 0.15)
-            cs.pose = 'seated'
-            if (closeChair.level === 1 && journeyStage === 'walking_to_classroom') {
-              setJourneyStage('classroom_projector')
+        } else {
+          currentSpeedRef.current = 0
+          if (
+            journeyStage !== 'classroom_projector' &&
+            journeyStage !== 'exam_projector' &&
+            journeyStage !== 'computer_lab'
+          ) {
+            const cs = charStateRef.current
+            // Only seat character when very close to their desk (threshold < 0.65m) and moving towards classroom tutorial
+            const closeChair = nearbyChairs.find(
+              (ch) => Math.hypot(cs.x - ch.x, cs.z - ch.z) < 0.65 && Math.abs(cs.y - ch.y) < 0.5
+            )
+            if (closeChair) {
+              cs.x = THREE.MathUtils.lerp(cs.x, closeChair.x, 0.1)
+              cs.z = THREE.MathUtils.lerp(cs.z, closeChair.z, 0.1)
+              cs.rotY = THREE.MathUtils.lerp(cs.rotY, closeChair.rotY, 0.15)
+              cs.pose = 'seated'
+              if (closeChair.level === 1 && journeyStage === 'walking_to_classroom') {
+                setJourneyStage('classroom_projector')
+              }
             }
-          }
-          if (performance.now() < manualCamFollowUntilRef.current) {
-            updateCameraBehindCharacter(charStateRef.current, 0.11)
+            if (performance.now() < manualCamFollowUntilRef.current) {
+              updateCameraBehindCharacter(charStateRef.current, 0.11)
+            }
           }
         }
       }
@@ -8867,7 +8982,7 @@ export default function Level1SchoolWorld({
           {/* Cull out-of-room 3D campus zones while watching HD videos inside enclosed Classroom 101 so GPU video decoder gets 100% bandwidth */}
           <group visible={journeyStage !== 'classroom_projector'}>
             {/* 1. 3D School Yard & Neoclassical Facade with 6 Animated Student Balconies & Stylized Learn2Invest Crest */}
-            <SchoolYardAndFacade3D frontDoorOpenRef={frontDoorOpenRef} charStateRef={charStateRef} isNightMode={isNightMode} />
+            <SchoolYardAndFacade3D frontDoorOpenRef={frontDoorOpenRef} charStateRef={charStateRef} isNightMode={isNightMode} onEnterSchool={beginSchoolEntrySequence} />
 
             {/* 1B. Right-Side Garden 3 Interactive Stalls (Stall 1: Clothes >= 20 XP, Stall 2: Ice Cream < 10 XP, Stall 3: Spin the Finance Wheel) */}
             <SchoolGardenStalls3D
