@@ -10037,30 +10037,32 @@ export default function Level1SchoolWorld({
       {(journeyStage === 'school_yard' || (journeyStage === 'login' && hasLoggedIn)) &&
         !hasMovedInYard &&
         !isPlayerInAtmQueue && (
-          <div className="absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 z-20 w-[min(96vw,1440px)] px-7 sm:px-10 py-5 sm:py-7 rounded-[2.5rem] bg-white/95 backdrop-blur-2xl border-4 border-emerald-500 shadow-[0_25px_80px_rgba(0,0,0,0.55)] text-black flex flex-col xl:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-5 sm:gap-6 w-full xl:w-auto">
-              <div className="w-18 h-18 sm:w-24 sm:h-24 rounded-3xl bg-gradient-to-br from-emerald-500 via-teal-500 to-teal-700 flex items-center justify-center text-4xl sm:text-5xl shadow-xl shrink-0 text-white border-2 border-emerald-300">
+          <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-20 w-[min(96vw,1420px)] max-w-[96vw] px-6 sm:px-9 py-5 sm:py-6 rounded-[2.5rem] bg-white/95 backdrop-blur-2xl border-4 border-emerald-500 shadow-[0_25px_80px_rgba(0,0,0,0.55)] text-black flex flex-col gap-4 sm:gap-5 box-border overflow-hidden">
+            {/* Top row: School Icon + Welcome & Instruction text */}
+            <div className="flex items-center gap-4 sm:gap-6 w-full">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-emerald-500 via-teal-500 to-teal-700 flex items-center justify-center text-3xl sm:text-4xl shadow-xl shrink-0 text-white border-2 border-emerald-300">
                 🏫
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-sm sm:text-base md:text-lg font-black uppercase tracking-wider text-emerald-800">
+                <div className="text-xs sm:text-sm md:text-base font-black uppercase tracking-wider text-emerald-800">
                   Logged In as {state?.user?.name || (characterChoice === 'leo' || characterChoice === 'max' ? 'Leo' : 'Luna')} • School Yard Courtyard
                 </div>
-                <div className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-950 tracking-tight leading-tight py-0.5">
+                <div className="text-xl sm:text-2xl md:text-3xl font-black text-slate-950 tracking-tight leading-tight py-0.5">
                   Welcome to Learn2Invest 3D Financial Campus!
                 </div>
-                <div className="text-base sm:text-lg md:text-xl font-bold text-slate-800 leading-snug">
+                <div className="text-sm sm:text-base md:text-lg font-bold text-slate-800 leading-snug">
                   Use Arrow Keys (↑ ↓ ← →) to walk around (this box disappears once you move!), visit the Stalls, or enter the School:
                 </div>
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-3 sm:gap-4 shrink-0 justify-center items-center w-full xl:w-auto">
+            {/* Bottom row: All 5 action buttons enclosed neatly within the section */}
+            <div className="w-full flex flex-wrap gap-2.5 sm:gap-3.5 justify-center items-center pt-3 border-t border-slate-200/90">
               <button
                 onClick={beginSchoolEntrySequence}
-                className="px-7 sm:px-8 py-4 sm:py-5 rounded-2xl bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-500 text-slate-950 border-3 border-emerald-600/50 font-black text-base sm:text-lg md:text-xl shadow-xl hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center gap-2"
+                className="flex-1 min-w-[200px] sm:min-w-[220px] max-w-full px-5 sm:px-7 py-3.5 sm:py-4 rounded-2xl bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-500 text-slate-950 border-3 border-emerald-600/50 font-black text-sm sm:text-base md:text-lg shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2"
               >
-                <span>🚶‍♀️</span>
+                <span className="text-lg sm:text-xl">🚶‍♀️</span>
                 <span>Enter School (Level 1) →</span>
               </button>
               <button
@@ -10068,10 +10070,10 @@ export default function Level1SchoolWorld({
                   soundEngine.playClick()
                   setActiveGardenStall(1)
                 }}
-                className="px-6 sm:px-7 py-4 sm:py-5 rounded-2xl bg-pink-200 hover:bg-pink-300 border-3 border-pink-500 text-slate-950 font-black text-base sm:text-lg md:text-xl shadow-md hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center gap-2"
+                className="flex-1 min-w-[230px] sm:min-w-[260px] max-w-full px-5 sm:px-6 py-3.5 sm:py-4 rounded-2xl bg-pink-200 hover:bg-pink-300 border-3 border-pink-500 text-slate-950 font-black text-sm sm:text-base md:text-lg shadow-md hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2"
                 title="Visit Garden Stall 1 (Clothes), Stall 2 (Ice Cream) & Stall 3 (Spin the Finance Wheel)"
               >
-                <span>🎪</span>
+                <span className="text-lg sm:text-xl">🎪</span>
                 <span>Garden Stalls (Clothes / Ice Cream / Spin)</span>
               </button>
               <button
@@ -10079,9 +10081,9 @@ export default function Level1SchoolWorld({
                   soundEngine.playClick()
                   startAtmQueueExperience()
                 }}
-                className="px-6 sm:px-7 py-4 sm:py-5 rounded-2xl bg-cyan-200 hover:bg-cyan-300 border-3 border-cyan-600 text-slate-950 font-black text-base sm:text-lg md:text-xl shadow-md hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center gap-2"
+                className="flex-1 min-w-[170px] sm:min-w-[190px] max-w-full px-5 sm:px-6 py-3.5 sm:py-4 rounded-2xl bg-cyan-200 hover:bg-cyan-300 border-3 border-cyan-600 text-slate-950 font-black text-sm sm:text-base md:text-lg shadow-md hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2"
               >
-                <span>🏧</span>
+                <span className="text-lg sm:text-xl">🏧</span>
                 <span>Bank ATM Queue</span>
               </button>
               <button
@@ -10092,13 +10094,13 @@ export default function Level1SchoolWorld({
                   soundEngine.startAmbientMusic('computer_lab', true)
                   focusCameraOnComputer(1, false)
                 }}
-                className={`px-6 sm:px-7 py-4 sm:py-5 rounded-2xl border-3 font-black text-base sm:text-lg md:text-xl shadow-md transition-all flex items-center gap-2 ${
+                className={`flex-1 min-w-[150px] sm:min-w-[170px] max-w-full px-5 sm:px-6 py-3.5 sm:py-4 rounded-2xl border-3 font-black text-sm sm:text-base md:text-lg shadow-md transition-all flex items-center justify-center gap-2 ${
                   isComputer1Unlocked
                     ? 'bg-amber-200 border-amber-600 text-slate-950 hover:bg-amber-300 hover:scale-105 active:scale-95 cursor-pointer'
                     : 'bg-slate-200 border-slate-400 text-slate-500 cursor-not-allowed opacity-80'
                 }`}
               >
-                <span>{isComputer1Unlocked ? '💻' : '🔒'}</span>
+                <span className="text-lg sm:text-xl">{isComputer1Unlocked ? '💻' : '🔒'}</span>
                 <span>Level 2 Lab</span>
               </button>
               <button
@@ -10107,13 +10109,13 @@ export default function Level1SchoolWorld({
                   if (!isLevel3Unlocked) return
                   focusCameraOnBankSection(1, false)
                 }}
-                className={`px-6 sm:px-7 py-4 sm:py-5 rounded-2xl border-3 font-black text-base sm:text-lg md:text-xl shadow-md transition-all flex items-center gap-2 ${
+                className={`flex-1 min-w-[150px] sm:min-w-[170px] max-w-full px-5 sm:px-6 py-3.5 sm:py-4 rounded-2xl border-3 font-black text-sm sm:text-base md:text-lg shadow-md transition-all flex items-center justify-center gap-2 ${
                   isLevel3Unlocked
                     ? 'bg-emerald-200 border-emerald-600 text-slate-950 hover:bg-emerald-300 hover:scale-105 active:scale-95 cursor-pointer'
                     : 'bg-slate-200 border-slate-400 text-slate-500 cursor-not-allowed opacity-80'
                 }`}
               >
-                <span>{isLevel3Unlocked ? '🏛️' : '🔒'}</span>
+                <span className="text-lg sm:text-xl">{isLevel3Unlocked ? '🏛️' : '🔒'}</span>
                 <span>Level 3 Bank</span>
               </button>
             </div>
