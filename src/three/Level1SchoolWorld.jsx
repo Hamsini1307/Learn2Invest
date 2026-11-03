@@ -9881,12 +9881,12 @@ export default function Level1SchoolWorld({
                   setShowCampusMapModal(false)
                   handleGlobalHome()
                 }}
-                className="absolute top-[12%] left-[4%] sm:left-[8%] px-4 py-2.5 sm:px-5 sm:py-3 rounded-2xl bg-slate-950/95 border-2 border-emerald-400 text-white shadow-2xl cursor-pointer hover:scale-105 transition-transform"
+                className="absolute top-[8%] left-[3%] sm:left-[6%] px-6 py-3.5 sm:px-7 sm:py-4 rounded-3xl bg-slate-950/95 border-3 sm:border-4 border-emerald-400 text-white shadow-[0_10px_35px_rgba(16,185,129,0.5)] cursor-pointer hover:scale-105 active:scale-95 transition-all"
               >
-                <div className="text-[11px] sm:text-xs font-black uppercase tracking-wider text-emerald-400">
+                <div className="text-xs sm:text-sm lg:text-base font-black uppercase tracking-wider text-emerald-400 mb-0.5">
                   📍 LEVEL 1 & LEVEL 2
                 </div>
-                <div className="text-xs sm:text-base font-black">🏫 Learn2Invest School & Lab</div>
+                <div className="text-sm sm:text-lg lg:text-2xl font-black flex items-center gap-2">🏫 Learn2Invest School & Lab</div>
               </div>
 
               {/* Interactive Badge Over Right-Side Garden Stalls */}
@@ -9895,12 +9895,12 @@ export default function Level1SchoolWorld({
                   setShowCampusMapModal(false)
                   setActiveGardenStall(3)
                 }}
-                className="absolute bottom-[16%] left-[10%] sm:left-[14%] px-4 py-2.5 sm:px-5 sm:py-3 rounded-2xl bg-slate-950/95 border-2 border-pink-400 text-white shadow-2xl cursor-pointer hover:scale-105 transition-transform"
+                className="absolute bottom-[10%] left-[8%] sm:left-[12%] px-6 py-3.5 sm:px-7 sm:py-4 rounded-3xl bg-slate-950/95 border-3 sm:border-4 border-pink-400 text-white shadow-[0_10px_35px_rgba(244,114,182,0.5)] cursor-pointer hover:scale-105 active:scale-95 transition-all"
               >
-                <div className="text-[11px] sm:text-xs font-black uppercase tracking-wider text-pink-300">
+                <div className="text-xs sm:text-sm lg:text-base font-black uppercase tracking-wider text-pink-300 mb-0.5">
                   📍 SCHOOL YARD RIGHT GARDEN
                 </div>
-                <div className="text-xs sm:text-base font-black">🎡 3 Garden Stalls (Clothes • Ice Cream • Spin Wheel)</div>
+                <div className="text-sm sm:text-lg lg:text-2xl font-black flex items-center gap-2">🎡 3 Garden Stalls (Clothes • Ice Cream • Spin Wheel)</div>
               </div>
 
               {/* Animated Student Marker Travelling Along the Dashed Red Route */}
@@ -9920,12 +9920,12 @@ export default function Level1SchoolWorld({
                   setShowCampusMapModal(false)
                   focusCameraOnBankSection(1, false)
                 }}
-                className="absolute top-[24%] right-[4%] sm:right-[6%] px-4 py-2.5 sm:px-5 sm:py-3 rounded-2xl bg-slate-950/95 border-2 border-amber-400 text-white shadow-2xl cursor-pointer hover:scale-105 transition-transform"
+                className="absolute top-[18%] right-[3%] sm:right-[5%] px-6 py-3.5 sm:px-7 sm:py-4 rounded-3xl bg-slate-950/95 border-3 sm:border-4 border-amber-400 text-white shadow-[0_10px_35px_rgba(251,191,36,0.5)] cursor-pointer hover:scale-105 active:scale-95 transition-all"
               >
-                <div className="text-[11px] sm:text-xs font-black uppercase tracking-wider text-amber-400">
+                <div className="text-xs sm:text-sm lg:text-base font-black uppercase tracking-wider text-amber-400 mb-0.5">
                   📍 LEVEL 3 FINANCIAL CENTER (SIDE OF SCHOOL)
                 </div>
-                <div className="text-xs sm:text-base font-black">🏛️ Learn2Invest Bank • Click to Enter →</div>
+                <div className="text-sm sm:text-lg lg:text-2xl font-black flex items-center gap-2">🏛️ Learn2Invest Bank • Click to Enter →</div>
               </div>
 
               {/* Interactive Badge Over 24/7 ATM Machine Location (Beside the Bank!) */}
@@ -9934,12 +9934,12 @@ export default function Level1SchoolWorld({
                   setShowCampusMapModal(false)
                   startAtmQueueExperience()
                 }}
-                className="absolute bottom-[16%] right-[5%] sm:right-[7%] px-5 py-3 rounded-2xl bg-cyan-950/95 border-2 border-cyan-400 text-white shadow-[0_0_30px_rgba(34,211,238,0.7)] cursor-pointer hover:scale-105 transition-transform"
+                className="absolute bottom-[10%] right-[3%] sm:right-[5%] px-6 py-3.5 sm:px-7 sm:py-4 rounded-3xl bg-cyan-950/95 border-3 sm:border-4 border-cyan-400 text-white shadow-[0_0_40px_rgba(34,211,238,0.85)] cursor-pointer hover:scale-105 active:scale-95 transition-all"
               >
-                <div className="text-[11px] sm:text-xs font-black uppercase tracking-wider text-cyan-300">
+                <div className="text-xs sm:text-sm lg:text-base font-black uppercase tracking-wider text-cyan-300 mb-0.5">
                   📍 BESIDE LEVEL 3 BANK • 24/7 KIOSK & QUEUE
                 </div>
-                <div className="text-xs sm:text-base font-black">🏧 Learn2Invest ATM Machine (Join Queue)</div>
+                <div className="text-sm sm:text-lg lg:text-2xl font-black flex items-center gap-2">🏧 Learn2Invest ATM Machine (Join Queue)</div>
               </div>
 
               <style>{`
@@ -9954,23 +9954,23 @@ export default function Level1SchoolWorld({
             </div>
 
             {/* 4-Card Summary + Action Buttons */}
-            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="p-4 sm:p-5 rounded-2xl border-2 border-emerald-400/50 bg-emerald-950/40 flex items-center justify-between shadow-sm">
+            <div className="mt-7 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              <div className="p-6 sm:p-7 rounded-3xl border-3 border-emerald-400/70 bg-emerald-950/60 flex items-center justify-between shadow-lg hover:scale-[1.02] transition-transform">
                 <div>
-                  <div className="text-xs sm:text-sm font-black text-emerald-300 uppercase">LEVEL 1</div>
-                  <div className="text-base sm:text-lg font-black text-white">School & Garden Stalls</div>
-                  <div className="text-xs sm:text-sm text-slate-300">5 Videos • 10-Q Quiz • 3 Stalls</div>
+                  <div className="text-sm sm:text-base font-black text-emerald-300 uppercase tracking-wider">LEVEL 1</div>
+                  <div className="text-xl sm:text-2xl font-black text-white mt-1 mb-1">School & Garden Stalls</div>
+                  <div className="text-sm sm:text-base text-slate-200 font-semibold">5 Videos • 10-Q Quiz • 3 Stalls</div>
                 </div>
-                <span className="text-3xl sm:text-4xl">🏫</span>
+                <span className="text-5xl sm:text-6xl shrink-0 ml-3">🏫</span>
               </div>
 
-              <div className="p-4 sm:p-5 rounded-2xl border-2 border-cyan-400/50 bg-cyan-950/40 flex items-center justify-between shadow-sm">
+              <div className="p-6 sm:p-7 rounded-3xl border-3 border-cyan-400/70 bg-cyan-950/60 flex items-center justify-between shadow-lg hover:scale-[1.02] transition-transform">
                 <div>
-                  <div className="text-xs sm:text-sm font-black text-cyan-300 uppercase">LEVEL 2</div>
-                  <div className="text-base sm:text-lg font-black text-white">Floor 2 Simulation Lab</div>
-                  <div className="text-xs sm:text-sm text-slate-300">3 Interactive Workstations</div>
+                  <div className="text-sm sm:text-base font-black text-cyan-300 uppercase tracking-wider">LEVEL 2</div>
+                  <div className="text-xl sm:text-2xl font-black text-white mt-1 mb-1">Floor 2 Simulation Lab</div>
+                  <div className="text-sm sm:text-base text-slate-200 font-semibold">3 Interactive Workstations</div>
                 </div>
-                <span className="text-3xl sm:text-4xl">💻</span>
+                <span className="text-5xl sm:text-6xl shrink-0 ml-3">💻</span>
               </div>
 
               <div
@@ -9978,14 +9978,14 @@ export default function Level1SchoolWorld({
                   setShowCampusMapModal(false)
                   focusCameraOnBankSection(1, false)
                 }}
-                className="p-4 sm:p-5 rounded-2xl border-2 border-amber-400 bg-amber-950/70 flex items-center justify-between cursor-pointer hover:bg-amber-900/70 transition-all shadow-lg hover:scale-105"
+                className="p-6 sm:p-7 rounded-3xl border-3 sm:border-4 border-amber-400 bg-amber-950/85 flex items-center justify-between cursor-pointer hover:bg-amber-900/90 transition-all shadow-[0_10px_35px_rgba(251,191,36,0.4)] hover:scale-105 active:scale-95"
               >
                 <div>
-                  <div className="text-xs sm:text-sm font-black text-amber-300 uppercase">LEVEL 3 • CLICK TO ENTER</div>
-                  <div className="text-base sm:text-lg font-black text-white">Side Bank & Maya Vault</div>
-                  <div className="text-xs sm:text-sm text-amber-200">2 Cabins • Deposit XP with Maya (Click to Enter →)</div>
+                  <div className="text-sm sm:text-base font-black text-amber-300 uppercase tracking-wider">LEVEL 3 • CLICK TO ENTER</div>
+                  <div className="text-xl sm:text-2xl font-black text-white mt-1 mb-1">Side Bank & Maya Vault</div>
+                  <div className="text-sm sm:text-base text-amber-200 font-semibold">2 Cabins • Deposit XP with Maya (Click to Enter →)</div>
                 </div>
-                <span className="text-3xl sm:text-4xl">🏛️</span>
+                <span className="text-5xl sm:text-6xl shrink-0 ml-3">🏛️</span>
               </div>
 
               <div
@@ -9993,44 +9993,47 @@ export default function Level1SchoolWorld({
                   setShowCampusMapModal(false)
                   startAtmQueueExperience()
                 }}
-                className="p-4 sm:p-5 rounded-2xl border-2 border-cyan-400 bg-cyan-900/40 flex items-center justify-between cursor-pointer hover:bg-cyan-900/60 shadow-sm transition-colors"
+                className="p-6 sm:p-7 rounded-3xl border-3 sm:border-4 border-cyan-400 bg-cyan-950/85 flex items-center justify-between cursor-pointer hover:bg-cyan-900/90 shadow-[0_10px_35px_rgba(34,211,238,0.4)] transition-all hover:scale-105 active:scale-95"
               >
                 <div>
-                  <div className="text-xs sm:text-sm font-black text-cyan-300 uppercase">BESIDE BANK • 24/7</div>
-                  <div className="text-base sm:text-lg font-black text-white">ATM Machine & Live Queue</div>
-                  <div className="text-xs sm:text-sm text-cyan-200">Click to Walk to ATM Queue</div>
+                  <div className="text-sm sm:text-base font-black text-cyan-300 uppercase tracking-wider">BESIDE BANK • 24/7</div>
+                  <div className="text-xl sm:text-2xl font-black text-white mt-1 mb-1">ATM Machine & Live Queue</div>
+                  <div className="text-sm sm:text-base text-cyan-200 font-semibold">Click to Walk to ATM Queue</div>
                 </div>
-                <span className="text-3xl sm:text-4xl">🏧</span>
+                <span className="text-5xl sm:text-6xl shrink-0 ml-3">🏧</span>
               </div>
             </div>
 
-            <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="mt-7 grid grid-cols-1 sm:grid-cols-3 gap-5">
               <button
                 onClick={() => {
                   setShowCampusMapModal(false)
                   handleGlobalHome()
                 }}
-                className="py-4 sm:py-5 px-6 rounded-2xl bg-slate-800 hover:bg-slate-700 border-2 border-white/25 text-white font-black text-base sm:text-lg transition-all cursor-pointer hover:scale-105 active:scale-95"
+                className="py-5 sm:py-6 px-8 rounded-3xl bg-slate-800 hover:bg-slate-700 border-3 border-white/30 text-white font-black text-lg sm:text-2xl shadow-xl transition-all cursor-pointer hover:scale-105 active:scale-95 flex items-center justify-center gap-3"
               >
-                🏠 Return to School Yard
+                <span className="text-2xl sm:text-3xl">🏠</span>
+                <span>Return to School Yard</span>
               </button>
               <button
                 onClick={() => {
                   setShowCampusMapModal(false)
                   startAtmQueueExperience()
                 }}
-                className="py-4 sm:py-5 px-6 rounded-2xl bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950 font-black text-base sm:text-lg shadow-xl transition-all cursor-pointer hover:scale-105 active:scale-95"
+                className="py-5 sm:py-6 px-8 rounded-3xl bg-gradient-to-r from-cyan-400 via-teal-300 to-blue-500 text-slate-950 font-black text-lg sm:text-2xl shadow-[0_10px_35px_rgba(34,211,238,0.5)] transition-all cursor-pointer hover:scale-105 active:scale-95 border-3 border-cyan-100 flex items-center justify-center gap-3"
               >
-                🏧 Walk to 24/7 Bank ATM Queue
+                <span className="text-2xl sm:text-3xl">🏧</span>
+                <span>Walk to 24/7 Bank ATM Queue</span>
               </button>
               <button
                 onClick={() => {
                   setShowCampusMapModal(false)
                   handleReplayJourney()
                 }}
-                className="py-4 sm:py-5 px-6 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 font-black text-base sm:text-lg shadow-xl transition-all cursor-pointer hover:scale-105 active:scale-95"
+                className="py-5 sm:py-6 px-8 rounded-3xl bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-500 text-slate-950 font-black text-lg sm:text-2xl shadow-[0_10px_35px_rgba(16,185,129,0.5)] transition-all cursor-pointer hover:scale-105 active:scale-95 border-3 border-emerald-100 flex items-center justify-center gap-3"
               >
-                🔄 Replay Full 3D Journey
+                <span className="text-2xl sm:text-3xl">🔄</span>
+                <span>Replay Full 3D Journey</span>
               </button>
             </div>
           </div>
