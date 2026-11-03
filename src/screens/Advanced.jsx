@@ -1013,6 +1013,8 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
                 justifyContent: 'center',
                 width: boxSlotWidth,
                 height: '100%',
+                fontSize: 'inherit',
+                fontWeight: 'inherit',
                 textAlign: 'center',
                 flexShrink: 0
               }}
@@ -1084,6 +1086,8 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
                 justifyContent: 'center',
                 width: boxSlotWidth,
                 height: '100%',
+                fontSize: 'inherit',
+                fontWeight: 'inherit',
                 textAlign: 'center',
                 flexShrink: 0
               }}
@@ -1848,7 +1852,8 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
                 overflow: 'hidden',
                 border: '4px solid #d97706',
                 boxShadow: '0 16px 45px rgba(0,0,0,0.4)',
-                background: '#ffffff'
+                background: '#ffffff',
+                containerType: 'inline-size'
               }}>
                 {/* Authentic Untouched Original Background Image */}
                 <img

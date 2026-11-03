@@ -126,26 +126,26 @@ export const BANK_TEMPLATES_CONFIG = {
     image: '/slips/canara_deposit.jpg',
     fields: [
       // Left Counterfoil (Customer Copy)
-      { id: 'cfBranch', bindKey: 'branch', label: 'Branch Name (Left)', x: 10.5, y: 11.5, fontSize: '1.40rem', fontWeight: 900, renderingMode: 'text' },
-      { id: 'cfDate', bindKey: 'date', label: 'Date (Left)', x: 13.48, y: 17.2, width: 14.26, height: 5.5, boxCount: 8, fontSize: '1.40rem', fontWeight: 900, renderingMode: 'dateBoxes' },
-      { id: 'cfAccNo', bindKey: 'accountNumber', label: 'Account Number (Left)', x: 4.88, y: 30.5, width: 22.85, height: 5.5, boxCount: 14, fontSize: '1.40rem', fontWeight: 900, renderingMode: 'characterBoxes' },
-      { id: 'cfName', bindKey: 'name', label: 'Depositor Name (Left)', x: 10.0, y: 35.5, width: 22, fontSize: '1.40rem', fontWeight: 900, renderingMode: 'text' },
-      { id: 'cfMobile', bindKey: 'mobileNumber', label: 'Mobile Number (Left)', x: 13.5, y: 40.5, fontSize: '1.35rem', fontWeight: 900, renderingMode: 'text' },
-      { id: 'cfAmount', bindKey: 'amount', label: 'Amount Figures (Left)', x: 14.0, y: 46.5, fontSize: '1.50rem', fontWeight: 900, renderingMode: 'amount' },
-      { id: 'cfWords', bindKey: 'amountInWords', label: 'Amount Words (Left)', x: 9.5, y: 52.0, width: 24, fontSize: '1.25rem', fontWeight: 900, renderingMode: 'amountInWords' },
-      { id: 'panNo', bindKey: 'pan', label: 'PAN Number (Center)', x: 37.5, y: 20.8, width: 14.0, height: 5.0, boxCount: 10, fontSize: '1.25rem', fontWeight: 900, renderingMode: 'characterBoxes' },
-      { id: 'denom500', bindKey: 'notes500', label: '500 Notes Row', x: 41.5, y: 39.5, fontSize: '1.30rem', fontWeight: 900, renderingMode: 'text' },
-      { id: 'denomTotal', bindKey: 'amount', label: 'Total Denomination', x: 44.5, y: 64.5, fontSize: '1.45rem', fontWeight: 900, renderingMode: 'amount' },
+      { id: 'cfBranch', bindKey: 'branch', label: 'Branch Name (Left)', x: 10.5, y: 11.5, fontSize: 'clamp(18px, 2.2cqi, 28px)', fontWeight: 900, renderingMode: 'text' },
+      { id: 'cfDate', bindKey: 'date', label: 'Date (Left)', x: 13.48, y: 17.2, width: 14.26, height: 5.5, boxCount: 8, fontSize: 'clamp(18px, 2.2cqi, 28px)', fontWeight: 900, renderingMode: 'dateBoxes' },
+      { id: 'cfAccNo', bindKey: 'accountNumber', label: 'Account Number (Left)', x: 4.88, y: 30.5, width: 22.85, height: 5.5, boxCount: 14, fontSize: 'clamp(18px, 2.2cqi, 28px)', fontWeight: 900, renderingMode: 'characterBoxes' },
+      { id: 'cfName', bindKey: 'name', label: 'Depositor Name (Left)', x: 10.0, y: 35.5, width: 22, fontSize: 'clamp(18px, 2.2cqi, 28px)', fontWeight: 900, renderingMode: 'text' },
+      { id: 'cfMobile', bindKey: 'mobileNumber', label: 'Mobile Number (Left)', x: 13.5, y: 40.5, fontSize: 'clamp(18px, 2.2cqi, 28px)', fontWeight: 900, renderingMode: 'text' },
+      { id: 'cfAmount', bindKey: 'amount', label: 'Amount Figures (Left)', x: 14.0, y: 46.5, fontSize: 'clamp(20px, 2.5cqi, 32px)', fontWeight: 900, renderingMode: 'amount' },
+      { id: 'cfWords', bindKey: 'amountInWords', label: 'Amount Words (Left)', x: 9.5, y: 52.0, width: 24, fontSize: 'clamp(16px, 2.0cqi, 24px)', fontWeight: 900, renderingMode: 'amountInWords' },
+      { id: 'panNo', bindKey: 'pan', label: 'PAN Number (Center)', x: 37.5, y: 20.8, width: 14.0, height: 5.0, boxCount: 10, fontSize: 'clamp(16px, 2.0cqi, 24px)', fontWeight: 900, renderingMode: 'characterBoxes' },
+      { id: 'denom500', bindKey: 'notes500', label: '500 Notes Row', x: 41.5, y: 39.5, fontSize: 'clamp(18px, 2.2cqi, 28px)', fontWeight: 900, renderingMode: 'text' },
+      { id: 'denomTotal', bindKey: 'amount', label: 'Total Denomination', x: 44.5, y: 64.5, fontSize: 'clamp(20px, 2.5cqi, 32px)', fontWeight: 900, renderingMode: 'amount' },
       // Right Main Foil (Bank Copy)
-      { id: 'mainDate', bindKey: 'date', label: 'Date Digits (Right)', x: 81.64, y: 9.5, width: 13.18, height: 5.0, boxCount: 8, fontSize: '1.45rem', fontWeight: 900, renderingMode: 'dateBoxes' },
-      { id: 'mainBranch', bindKey: 'branch', label: 'Branch Name (Right)', x: 57.5, y: 15.0, fontSize: '1.40rem', fontWeight: 900, renderingMode: 'text' },
-      { id: 'mainAccNo', bindKey: 'accountNumber', label: 'Account Number (Right)', x: 51.86, y: 26.8, width: 35.45, height: 5.5, boxCount: 14, fontSize: '1.60rem', fontWeight: 900, renderingMode: 'characterBoxes' },
-      { id: 'mainName', bindKey: 'name', label: 'Depositor Name (Right)', x: 57.0, y: 32.5, width: 36, fontSize: '1.45rem', fontWeight: 900, renderingMode: 'text' },
-      { id: 'mainMobile', bindKey: 'mobileNumber', label: 'Mobile Number (Right)', x: 69.5, y: 37.0, fontSize: '1.35rem', fontWeight: 900, renderingMode: 'text' },
-      { id: 'mainEmail', bindKey: 'email', label: 'Email ID (Right)', x: 63.0, y: 41.5, fontSize: '1.30rem', fontWeight: 900, renderingMode: 'text' },
-      { id: 'mainWords', bindKey: 'amountInWords', label: 'Amount Words (Right)', x: 63.0, y: 46.5, width: 34, fontSize: '1.30rem', fontWeight: 900, renderingMode: 'amountInWords' },
-      { id: 'mainAmount', bindKey: 'amount', label: 'Amount Figures (Right)', x: 81.5, y: 52.0, fontSize: '1.60rem', fontWeight: 900, renderingMode: 'amount' },
-      { id: 'mainSig', bindKey: 'signature', label: 'Depositor Signature', x: 82.0, y: 80.0, width: 16, height: 9, fontSize: '1.50rem', renderingMode: 'signature' }
+      { id: 'mainDate', bindKey: 'date', label: 'Date Digits (Right)', x: 81.64, y: 9.5, width: 13.18, height: 5.0, boxCount: 8, fontSize: 'clamp(20px, 2.5cqi, 32px)', fontWeight: 900, renderingMode: 'dateBoxes' },
+      { id: 'mainBranch', bindKey: 'branch', label: 'Branch Name (Right)', x: 57.5, y: 15.0, fontSize: 'clamp(18px, 2.4cqi, 30px)', fontWeight: 900, renderingMode: 'text' },
+      { id: 'mainAccNo', bindKey: 'accountNumber', label: 'Account Number (Right)', x: 51.86, y: 26.8, width: 35.45, height: 5.5, boxCount: 14, fontSize: 'clamp(22px, 2.8cqi, 36px)', fontWeight: 900, renderingMode: 'characterBoxes' },
+      { id: 'mainName', bindKey: 'name', label: 'Depositor Name (Right)', x: 57.0, y: 32.5, width: 36, fontSize: 'clamp(20px, 2.5cqi, 32px)', fontWeight: 900, renderingMode: 'text' },
+      { id: 'mainMobile', bindKey: 'mobileNumber', label: 'Mobile Number (Right)', x: 69.5, y: 37.0, fontSize: 'clamp(18px, 2.3cqi, 28px)', fontWeight: 900, renderingMode: 'text' },
+      { id: 'mainEmail', bindKey: 'email', label: 'Email ID (Right)', x: 63.0, y: 41.5, fontSize: 'clamp(16px, 2.1cqi, 26px)', fontWeight: 900, renderingMode: 'text' },
+      { id: 'mainWords', bindKey: 'amountInWords', label: 'Amount Words (Right)', x: 63.0, y: 46.5, width: 34, fontSize: 'clamp(18px, 2.3cqi, 28px)', fontWeight: 900, renderingMode: 'amountInWords' },
+      { id: 'mainAmount', bindKey: 'amount', label: 'Amount Figures (Right)', x: 81.5, y: 52.0, fontSize: 'clamp(22px, 2.8cqi, 36px)', fontWeight: 900, renderingMode: 'amount' },
+      { id: 'mainSig', bindKey: 'signature', label: 'Depositor Signature', x: 82.0, y: 79.0, width: 16, height: 9, fontSize: 'clamp(22px, 2.8cqi, 36px)', renderingMode: 'signature' }
     ]
   },
 
@@ -154,13 +154,13 @@ export const BANK_TEMPLATES_CONFIG = {
     formType: 'withdrawal',
     image: '/slips/canara_withdrawal.jpg',
     fields: [
-      { id: 'mainBranch', bindKey: 'branch', label: 'Branch Name', x: 6.5, y: 12.8, width: 27, fontSize: '1.60rem', fontWeight: 900, renderingMode: 'text' },
-      { id: 'mainDate', bindKey: 'date', label: 'Date', x: 76.0, y: 19.5, width: 19, fontSize: '1.55rem', fontWeight: 900, renderingMode: 'text' },
-      { id: 'mainWords', bindKey: 'amountInWords', label: 'Amount in Words', x: 25.0, y: 28.2, width: 47, fontSize: '1.45rem', fontWeight: 900, renderingMode: 'amountInWords' },
-      { id: 'mainAmount', bindKey: 'amount', label: 'Numeric Amount', x: 77.0, y: 25.2, width: 18, height: 8.0, fontSize: '1.95rem', fontWeight: 900, renderingMode: 'amount' },
-      { id: 'mainAccNo', bindKey: 'accountNumber', label: 'Account Number', x: 8.51, y: 44.6, width: 45.32, height: 6.5, boxCount: 14, fontSize: '1.65rem', fontWeight: 900, renderingMode: 'characterBoxes' },
-      { id: 'mainSig', bindKey: 'signature', label: 'Account Holder Signature', x: 64.0, y: 45.0, width: 26, height: 8.5, fontSize: '1.60rem', renderingMode: 'signature' },
-      { id: 'mainName', bindKey: 'name', label: 'Account Holder Name', x: 64.0, y: 59.5, width: 30, fontSize: '1.55rem', fontWeight: 900, renderingMode: 'text' }
+      { id: 'mainBranch', bindKey: 'branch', label: 'Branch Name', x: 14.65, y: 13.0, width: 20, fontSize: 'clamp(20px, 2.6cqi, 32px)', fontWeight: 900, renderingMode: 'text' },
+      { id: 'mainDate', bindKey: 'date', label: 'Date', x: 82.0, y: 18.0, width: 14, fontSize: 'clamp(20px, 2.5cqi, 30px)', fontWeight: 900, renderingMode: 'text' },
+      { id: 'mainWords', bindKey: 'amountInWords', label: 'Amount in Words', x: 35.0, y: 24.5, width: 38, fontSize: 'clamp(18px, 2.3cqi, 28px)', fontWeight: 900, renderingMode: 'amountInWords' },
+      { id: 'mainAmount', bindKey: 'amount', label: 'Numeric Amount', x: 75.0, y: 23.5, width: 18, height: 8.5, fontSize: 'clamp(28px, 3.5cqi, 44px)', fontWeight: 900, renderingMode: 'amount' },
+      { id: 'mainAccNo', bindKey: 'accountNumber', label: 'Account Number', x: 8.51, y: 44.6, width: 45.32, height: 6.5, boxCount: 14, fontSize: 'clamp(22px, 2.8cqi, 36px)', fontWeight: 900, renderingMode: 'characterBoxes' },
+      { id: 'mainSig', bindKey: 'signature', label: 'Account Holder Signature', x: 75.5, y: 36.5, width: 18, height: 7.5, fontSize: 'clamp(22px, 2.8cqi, 36px)', renderingMode: 'signature' },
+      { id: 'mainName', bindKey: 'name', label: 'Account Holder Name', x: 76.0, y: 47.5, width: 18, fontSize: 'clamp(20px, 2.5cqi, 32px)', fontWeight: 900, renderingMode: 'text' }
     ]
   },
 
@@ -169,12 +169,12 @@ export const BANK_TEMPLATES_CONFIG = {
     formType: 'cheque',
     image: '/slips/canara_cheque.jpg',
     fields: [
-      { id: 'mainDate', bindKey: 'date', label: 'Cheque Date', x: 77.34, y: 6.9, width: 18.27, height: 5.7, boxCount: 8, fontSize: '1.55rem', fontWeight: 900, renderingMode: 'dateBoxes' },
-      { id: 'mainPayee', bindKey: 'name', label: 'Payee Name', x: 8.0, y: 21.5, width: 67, height: 5.2, fontSize: '1.75rem', fontWeight: 900, renderingMode: 'text' },
-      { id: 'mainWords', bindKey: 'amountInWords', label: 'Rupees in Words', x: 13.5, y: 30.5, width: 55, height: 5.2, fontSize: '1.50rem', fontWeight: 900, renderingMode: 'amountInWords' },
-      { id: 'mainAmount', bindKey: 'amount', label: 'Numeric Amount', x: 76.5, y: 47.5, width: 20.0, height: 11.5, fontSize: '2.30rem', fontWeight: 900, renderingMode: 'amount' },
-      { id: 'mainAccNo', bindKey: 'accountNumber', label: 'Account Number', x: 12.8, y: 47.5, width: 29.5, height: 6.8, fontSize: '1.85rem', letterSpacing: '4px', fontWeight: 900, renderingMode: 'text' },
-      { id: 'mainSig', bindKey: 'signature', label: 'Sign Above Line', x: 78.0, y: 72.0, width: 19, height: 9.5, fontSize: '1.60rem', renderingMode: 'signature' }
+      { id: 'mainDate', bindKey: 'date', label: 'Cheque Date', x: 77.34, y: 6.9, width: 18.27, height: 5.7, boxCount: 8, fontSize: 'clamp(20px, 2.5cqi, 32px)', fontWeight: 900, renderingMode: 'dateBoxes' },
+      { id: 'mainPayee', bindKey: 'name', label: 'Payee Name', x: 8.0, y: 21.5, width: 67, height: 5.2, fontSize: 'clamp(22px, 2.8cqi, 36px)', fontWeight: 900, renderingMode: 'text' },
+      { id: 'mainWords', bindKey: 'amountInWords', label: 'Rupees in Words', x: 13.5, y: 30.5, width: 55, height: 5.2, fontSize: 'clamp(18px, 2.3cqi, 28px)', fontWeight: 900, renderingMode: 'amountInWords' },
+      { id: 'mainAmount', bindKey: 'amount', label: 'Numeric Amount', x: 75.0, y: 45.0, width: 22.0, height: 13.0, fontSize: 'clamp(36px, 4.5cqi, 58px)', fontWeight: 900, renderingMode: 'amount' },
+      { id: 'mainAccNo', bindKey: 'accountNumber', label: 'Account Number', x: 12.8, y: 47.5, width: 29.5, height: 6.8, fontSize: 'clamp(24px, 3.0cqi, 38px)', letterSpacing: '4px', fontWeight: 900, renderingMode: 'text' },
+      { id: 'mainSig', bindKey: 'signature', label: 'Sign Above Line', x: 78.0, y: 70.0, width: 19, height: 9.5, fontSize: 'clamp(22px, 2.8cqi, 36px)', renderingMode: 'signature' }
     ]
   },
 
