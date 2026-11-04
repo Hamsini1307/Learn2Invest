@@ -1598,9 +1598,6 @@ export function Computer2SavingsMixerScreen({
                     <div style={{ fontSize: '11.5px', color: '#CBD5E1', marginBottom: '4px' }}>
                       Target: <strong style={{ color: '#F8FAFC' }}>{fmtINR(g.targetCost)}</strong> in <strong>{g.years} yrs</strong>
                     </div>
-                    <div style={{ fontSize: '11.5px', color: sch.color, fontWeight: 800, marginBottom: '5px' }}>
-                      {sch.icon} {sch.name} ({sch.rate}%)
-                    </div>
                     <div style={{ background: 'rgba(16,185,129,0.16)', border: '1px solid rgba(16,185,129,0.4)', borderRadius: '6px', padding: '5px 8px', fontSize: '12.5px', color: '#34D399', fontWeight: 900 }}>
                       Save {fmtINR(monthlyRequired)} / month
                     </div>
