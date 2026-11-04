@@ -64,6 +64,11 @@ function authenticateToken(req, res, next) {
   })
 }
 
+// Health-check endpoint
+app.get('/', (req, res) => {
+  res.json({ status: 'success', message: 'Learn2Invest API is running' })
+})
+
 // 1. Auth: Register
 app.post('/api/register', async (req, res) => {
   const { name, email, password, startLevel } = req.body
