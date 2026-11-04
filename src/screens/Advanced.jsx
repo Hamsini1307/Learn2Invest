@@ -986,6 +986,7 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
       }
       const hasPercentWidth = field.width !== undefined
       const totalBoxes = field.boxCount || 8
+      const displayDigits = field.boxCount ? digits.slice(0, field.boxCount) : digits
       const boxSlotWidth = hasPercentWidth ? `${100 / totalBoxes}%` : (field.boxWidth || '14px')
       return (
         <div key={field.id} style={{
@@ -999,12 +1000,12 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
           justifyContent: 'flex-start',
           alignItems: 'center',
           gap: hasPercentWidth ? 0 : `${field.gap || 6}px`,
-          fontSize: field.fontSize || '1.45rem',
+          fontSize: field.fontSize || 'clamp(20px, 2.5cqi, 32px)',
           color: field.color || '#1d4ed8',
           fontWeight: field.fontWeight || 900,
           fontFamily: "'Courier New', monospace"
         }}>
-          {digits.map((d, i) => (
+          {displayDigits.map((d, i) => (
             <span
               key={i}
               style={{
@@ -1057,8 +1058,9 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
     // 2. CHARACTER BOXES RENDERING (Account Number / PAN per printed box)
     if (field.renderingMode === 'characterBoxes') {
       const chars = String(value || '').split('')
-      const hasPercentWidth = field.width !== undefined
       const totalBoxes = field.boxCount || chars.length || 1
+      const displayChars = field.boxCount ? chars.slice(0, field.boxCount) : chars
+      const hasPercentWidth = field.width !== undefined
       const boxSlotWidth = hasPercentWidth ? `${100 / totalBoxes}%` : (field.boxWidth || '14px')
       return (
         <div key={field.id} style={{
@@ -1072,12 +1074,12 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
           alignItems: 'center',
           gap: hasPercentWidth ? 0 : `${field.gap || 6}px`,
           letterSpacing: field.letterSpacing || 'normal',
-          fontSize: field.fontSize || '1.60rem',
+          fontSize: field.fontSize || 'clamp(22px, 2.8cqi, 36px)',
           color: field.color || '#1d4ed8',
           fontWeight: field.fontWeight || 900,
           fontFamily: "'Courier New', monospace"
         }}>
-          {chars.map((ch, i) => (
+          {displayChars.map((ch, i) => (
             <span
               key={i}
               style={{
@@ -2375,7 +2377,8 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
                   overflow: 'hidden',
                   border: '3.5px solid #ea580c',
                   boxShadow: '0 16px 45px rgba(0,0,0,0.35)',
-                  background: '#ffffff'
+                  background: '#ffffff',
+                  containerType: 'inline-size'
                 }}
               >
                 <img
