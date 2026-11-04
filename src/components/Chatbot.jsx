@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
+import { API_BASE } from '../api.js'
 import soundEngine from '../utils/soundEngine.js'
 import { getFinancialKnowledgeAnswer } from '../data/financialKnowledge.js'
 import {
@@ -233,7 +234,7 @@ async function fetchDynamicBotAnswer(
 
   // 1. Try Backend /api/chat Proxy First
   try {
-    const res = await fetch('/api/chat', {
+    const res = await fetch(`${API_BASE}/api/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

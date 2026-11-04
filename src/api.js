@@ -1,4 +1,4 @@
-const API_BASE = '' // Handled by Vite proxy during dev (proxying to http://localhost:5000)
+export const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '')
 
 export async function apiRequest(endpoint, method = 'GET', body = null, timeoutMs = 8000) {
   const token = localStorage.getItem('l2i_token')

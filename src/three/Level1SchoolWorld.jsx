@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo, Suspense } from 'react'
+import { API_BASE } from '../api.js'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { Text as DreiText, RoundedBox, Float, Sparkles, Sky, ContactShadows, Html } from '@react-three/drei'
 import * as THREE from 'three'
@@ -6379,7 +6380,7 @@ export default function Level1SchoolWorld({
   })
 
   useEffect(() => {
-    fetch('/api/leaderboard')
+    fetch(`${API_BASE}/api/leaderboard`)
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (data && Array.isArray(data.leaderboard) && data.leaderboard.length > 0) {
