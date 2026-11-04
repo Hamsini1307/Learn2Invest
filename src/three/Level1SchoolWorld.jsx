@@ -7696,11 +7696,10 @@ export default function Level1SchoolWorld({
 
   const handleVideoWaitingOrStalled = (e) => {
     const vid = e?.target || videoElemRef.current
-    if (!vid || vid.paused || vid.ended || showLessonCompletedBanner) return
-    if (!bufferingTimerRef.current) {
-      bufferingTimerRef.current = setTimeout(() => {
-        setIsVideoBuffering(true)
-      }, 650)
+    if (!vid || vid.ended || showLessonCompletedBanner) return
+    // Auto-resume playback immediately without triggering heavy 3D scene re-renders
+    if (shouldAutoResumeRef.current && vid.paused) {
+      vid.play().catch(() => {})
     }
   }
 
@@ -7792,6 +7791,9 @@ export default function Level1SchoolWorld({
     const vid = videoElemRef.current
     if (!vid) return
     soundEngine.playClick()
+    if (vid.muted) {
+      vid.muted = false
+    }
     if (vid.paused) {
       if (soundEngine && typeof soundEngine.stopMusic === 'function') {
         soundEngine.stopMusic()
@@ -7807,6 +7809,22 @@ export default function Level1SchoolWorld({
       setIsPlaying(false)
     }
   }
+
+  // Automatic video playback watchdog: ensures videos play continuously without unexpected pauses or freezes
+  useEffect(() => {
+    if (journeyStage !== 'classroom_projector') return
+    const watchdog = setInterval(() => {
+      const vid = videoElemRef.current
+      if (!vid || vid.ended || showLessonCompletedBanner) return
+      if (shouldAutoResumeRef.current && vid.paused) {
+        vid.play().catch(() => {
+          vid.muted = true
+          vid.play().catch(() => {})
+        })
+      }
+    }, 1000)
+    return () => clearInterval(watchdog)
+  }, [journeyStage, showLessonCompletedBanner])
 
   const handleSeekBarClick = (e) => {
     const vid = videoElemRef.current
@@ -9626,7 +9644,14 @@ export default function Level1SchoolWorld({
                 }
                 syncVideoProgressDom(currentTimeRef.current || 0, dur, watchPctRef.current)
                 if (shouldAutoResumeRef.current && !showLessonCompletedBanner) {
-                  e.target.play().catch(() => {})
+                  const p = e.target.play()
+                  if (p !== undefined) {
+                    p.catch(() => {
+                      // Autoplay policy fallback: start muted to guarantee continuous playback without any pauses
+                      e.target.muted = true
+                      e.target.play().catch(() => {})
+                    })
+                  }
                 } else {
                   try {
                     e.target.pause()
@@ -9636,7 +9661,22 @@ export default function Level1SchoolWorld({
               }}
               onError={() => setVideoLoadError(true)}
               onEnded={() => {
-                markCurrentVideoCompletedAndShowTakeaways(true)
+                // Seamlessly advance to the next video without pauses
+                if (currentVideoIdx < LEVEL1_VIDEOS.length - 1) {
+                  if (!completedVideoIds.includes(currentVideo.id)) {
+                    const updatedCompleted = [...completedVideoIds, currentVideo.id]
+                    setCompletedVideoIds(updatedCompleted)
+                    if (addXP) addXP(30)
+                    if (update) {
+                      const mergedWatched = Array.from(new Set([...(state?.lessonsWatched || []), ...updatedCompleted]))
+                      update({ lessonsWatched: mergedWatched })
+                    }
+                  }
+                  soundEngine.playLessonCompleteFanfare()
+                  switchClassroomVideo(currentVideoIdx + 1)
+                } else {
+                  markCurrentVideoCompletedAndShowTakeaways(true)
+                }
               }}
               onClick={togglePlayPause}
               className="w-full h-full max-w-full max-h-full object-contain cursor-pointer rounded-lg"

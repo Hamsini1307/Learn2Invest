@@ -21,6 +21,7 @@ dotenv.config({ override: true })
 const app = express()
 app.use(cors())
 app.use(express.json())
+app.use('/videos', express.static(path.join(__dirname, '../public/videos'), { maxAge: '1d', acceptRanges: true }))
 
 process.on('uncaughtException', (err) => {
   if (err?.name === 'MongooseServerSelectionError' || err?.message?.includes('MongoDB') || err?.name === 'MongoNetworkError') {
