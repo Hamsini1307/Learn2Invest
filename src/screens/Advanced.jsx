@@ -2256,44 +2256,45 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
         </div>
       )}
 
-      {/* ─── FINAL VERIFICATION MODAL ─── */}
+      {/* ─── FINAL VERIFICATION MODAL (EXPANDED TO LARGE SCREEN FORMAT) ─── */}
       {showVerifyModal && (
         <div style={{
           position: 'fixed', inset: 0, zIndex: 9999,
-          background: 'rgba(8, 7, 5, 0.88)', backdropFilter: 'blur(16px)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20
+          background: 'rgba(8, 7, 5, 0.92)', backdropFilter: 'blur(20px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '14px 20px'
         }} className="anim-fade" onClick={() => setShowVerifyModal(false)}>
           
           <div style={{
             background: isLight ? '#ffffff' : '#12100c',
-            border: '3px solid #ea580c',
-            borderRadius: 24, padding: 24,
-            maxWidth: 780, width: '100%',
-            maxHeight: '90vh', overflowY: 'auto',
+            border: '4.5px solid #ea580c',
+            borderRadius: 32, padding: '28px 36px',
+            maxWidth: 'min(98vw, 1720px)', width: '96vw',
+            maxHeight: '96vh', overflowY: 'auto',
             textAlign: 'center', color: isLight ? '#0f172a' : '#ffffff',
-            position: 'relative'
+            position: 'relative',
+            boxShadow: '0 30px 100px rgba(0,0,0,0.75)'
           }} className="anim-scale" onClick={e => e.stopPropagation()}>
             
-            <button onClick={() => setShowVerifyModal(false)} style={{ position: 'absolute', top: 16, right: 16, background: 'none', border: 'none', color: '#ea580c', fontSize: 22, cursor: 'pointer', fontWeight: 900 }}>✕</button>
+            <button onClick={() => setShowVerifyModal(false)} style={{ position: 'absolute', top: 20, right: 24, background: 'none', border: 'none', color: '#ea580c', fontSize: 36, cursor: 'pointer', fontWeight: 900 }}>✕</button>
 
-            <div style={{ fontSize: 36, marginBottom: 4 }}>📋</div>
-            <h3 className="font-display" style={{ fontSize: 22, margin: '0 0 4px' }}>
+            <div style={{ fontSize: 52, marginBottom: 6 }}>📋</div>
+            <h3 className="font-display" style={{ fontSize: 34, fontWeight: 900, margin: '0 0 6px', letterSpacing: '-0.01em' }}>
               FINAL REVIEW OF FILLED SLIP
             </h3>
-            <p style={{ fontSize: 12, color: isLight ? '#475569' : '#d1d5db', marginBottom: 16 }}>
+            <p style={{ fontSize: 19, fontWeight: 700, color: isLight ? '#475569' : '#d1d5db', marginBottom: 22, maxWidth: 1200, margin: '0 auto 22px' }}>
               Review your completed {currentTemplate.institution} ({docType.toUpperCase()}) slip below before downloading or printing.
             </p>
 
-            {/* Exact Filled Slip Visual Card Preview */}
+            {/* Exact Filled Slip Visual Card Preview (Large & Clear) */}
             <div className="printable-slip-area" style={{
               position: 'relative',
               width: '100%',
-              borderRadius: 14,
+              borderRadius: 20,
               overflow: 'hidden',
-              border: '2px solid #ea580c',
-              boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
+              border: '3.5px solid #ea580c',
+              boxShadow: '0 16px 45px rgba(0,0,0,0.35)',
               background: '#ffffff',
-              marginBottom: 20
+              marginBottom: 26
             }}>
               <img
                 src={currentTemplate.image}
@@ -2305,17 +2306,27 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: 10 }}>
+            <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
               <button
                 onClick={() => setShowVerifyModal(false)}
-                style={{ flex: 1, padding: 12, borderRadius: 12, background: isLight ? '#e2e8f0' : 'rgba(255,255,255,0.1)', color: isLight ? '#0f172a' : '#ffffff', border: 'none', fontWeight: 900, cursor: 'pointer' }}
+                style={{
+                  flex: 1, minWidth: 240, padding: '18px 36px', borderRadius: 18,
+                  background: isLight ? '#e2e8f0' : 'rgba(255,255,255,0.1)',
+                  color: isLight ? '#0f172a' : '#ffffff',
+                  border: isLight ? '2.5px solid #cbd5e1' : '2.5px solid rgba(255,255,255,0.2)',
+                  fontSize: 20, fontWeight: 900, cursor: 'pointer'
+                }}
               >
                 ✏️ EDIT DETAILS
               </button>
               <button
                 onClick={() => { setShowVerifyModal(false); window.print(); }}
                 className="btn-primary"
-                style={{ flex: 1, padding: 12, fontSize: 13, fontWeight: 900 }}
+                style={{
+                  flex: 1.6, minWidth: 280, padding: '18px 40px',
+                  fontSize: 20, fontWeight: 900, borderRadius: 18,
+                  boxShadow: '0 10px 30px rgba(234, 88, 12, 0.45)'
+                }}
               >
                 🖨️ PRINT / DOWNLOAD FILLED SLIP PDF
               </button>
