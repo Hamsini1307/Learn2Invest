@@ -2256,75 +2256,179 @@ export default function Advanced({ go, goBack, state, update, addXP, themeMode =
         </div>
       )}
 
-      {/* ─── FINAL VERIFICATION MODAL (EXPANDED TO LARGE SCREEN FORMAT) ─── */}
+      {/* ─── FINAL VERIFICATION MODAL (MAXIMUM VIEWPORT SIZE) ─── */}
       {showVerifyModal && (
-        <div style={{
-          position: 'fixed', inset: 0, zIndex: 9999,
-          background: 'rgba(8, 7, 5, 0.92)', backdropFilter: 'blur(20px)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '14px 20px'
-        }} className="anim-fade" onClick={() => setShowVerifyModal(false)}>
-          
-          <div style={{
-            background: isLight ? '#ffffff' : '#12100c',
-            border: '4.5px solid #ea580c',
-            borderRadius: 32, padding: '28px 36px',
-            maxWidth: 'min(98vw, 1720px)', width: '96vw',
-            maxHeight: '96vh', overflowY: 'auto',
-            textAlign: 'center', color: isLight ? '#0f172a' : '#ffffff',
-            position: 'relative',
-            boxShadow: '0 30px 100px rgba(0,0,0,0.75)'
-          }} className="anim-scale" onClick={e => e.stopPropagation()}>
-            
-            <button onClick={() => setShowVerifyModal(false)} style={{ position: 'absolute', top: 20, right: 24, background: 'none', border: 'none', color: '#ea580c', fontSize: 36, cursor: 'pointer', fontWeight: 900 }}>✕</button>
-
-            <div style={{ fontSize: 52, marginBottom: 6 }}>📋</div>
-            <h3 className="font-display" style={{ fontSize: 34, fontWeight: 900, margin: '0 0 6px', letterSpacing: '-0.01em' }}>
-              FINAL REVIEW OF FILLED SLIP
-            </h3>
-            <p style={{ fontSize: 19, fontWeight: 700, color: isLight ? '#475569' : '#d1d5db', marginBottom: 22, maxWidth: 1200, margin: '0 auto 22px' }}>
-              Review your completed {currentTemplate.institution} ({docType.toUpperCase()}) slip below before downloading or printing.
-            </p>
-
-            {/* Exact Filled Slip Visual Card Preview (Large & Clear) */}
-            <div className="printable-slip-area" style={{
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 999999,
+            background: 'rgba(8, 7, 5, 0.94)',
+            backdropFilter: 'blur(20px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '8px 12px',
+            boxSizing: 'border-box'
+          }}
+          className="anim-fade"
+          onClick={() => setShowVerifyModal(false)}
+        >
+          <div
+            style={{
+              background: isLight ? '#ffffff' : '#12100c',
+              border: '5px solid #ea580c',
+              borderRadius: 24,
+              padding: '16px 24px',
+              width: '98vw',
+              maxWidth: '98vw',
+              height: '96vh',
+              maxHeight: '96vh',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              textAlign: 'center',
+              color: isLight ? '#0f172a' : '#ffffff',
               position: 'relative',
-              width: '100%',
-              borderRadius: 20,
-              overflow: 'hidden',
-              border: '3.5px solid #ea580c',
-              boxShadow: '0 16px 45px rgba(0,0,0,0.35)',
-              background: '#ffffff',
-              marginBottom: 26
-            }}>
-              <img
-                src={currentTemplate.image}
-                alt={`${currentTemplate.institution} ${docType}`}
-                style={{ width: '100%', height: 'auto', display: 'block' }}
-              />
-              <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
-                {currentTemplate.fields.map(field => renderFieldValue(field))}
+              boxShadow: '0 30px 120px rgba(0,0,0,0.85)',
+              boxSizing: 'border-box',
+              overflow: 'hidden'
+            }}
+            className="anim-scale"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Top Close Button */}
+            <button
+              onClick={() => setShowVerifyModal(false)}
+              style={{
+                position: 'absolute',
+                top: 14,
+                right: 18,
+                background: 'rgba(234, 88, 12, 0.12)',
+                border: '2px solid #ea580c',
+                borderRadius: '50%',
+                width: 44,
+                height: 44,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#ea580c',
+                fontSize: 26,
+                cursor: 'pointer',
+                fontWeight: 900,
+                zIndex: 20
+              }}
+              title="Close Preview"
+            >
+              ✕
+            </button>
+
+            {/* Header section (shrink-0) */}
+            <div style={{ flexShrink: 0, paddingBottom: 6 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+                <span style={{ fontSize: 36 }}>📋</span>
+                <h3
+                  className="font-display"
+                  style={{
+                    fontSize: 28,
+                    fontWeight: 900,
+                    margin: 0,
+                    letterSpacing: '-0.01em',
+                    color: isLight ? '#0f172a' : '#ffffff'
+                  }}
+                >
+                  FINAL REVIEW OF FILLED SLIP
+                </h3>
+              </div>
+              <p
+                style={{
+                  fontSize: 16,
+                  fontWeight: 700,
+                  color: isLight ? '#475569' : '#d1d5db',
+                  margin: '4px 0 0'
+                }}
+              >
+                Review your completed {currentTemplate.institution} ({docType.toUpperCase()}) slip below before downloading or printing.
+              </p>
+            </div>
+
+            {/* Exact Filled Slip Visual Card Preview (Fills Maximum Center Space) */}
+            <div
+              style={{
+                flex: 1,
+                minHeight: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                overflowY: 'auto',
+                margin: '8px 0',
+                padding: '4px 0'
+              }}
+            >
+              <div
+                className="printable-slip-area"
+                style={{
+                  position: 'relative',
+                  width: '100%',
+                  maxWidth: '100%',
+                  borderRadius: 18,
+                  overflow: 'hidden',
+                  border: '3.5px solid #ea580c',
+                  boxShadow: '0 16px 45px rgba(0,0,0,0.35)',
+                  background: '#ffffff'
+                }}
+              >
+                <img
+                  src={currentTemplate.image}
+                  alt={`${currentTemplate.institution} ${docType}`}
+                  style={{ width: '100%', height: 'auto', display: 'block' }}
+                />
+                <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+                  {currentTemplate.fields.map((field) => renderFieldValue(field))}
+                </div>
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
+            {/* Bottom Actions Bar (shrink-0) */}
+            <div
+              style={{
+                flexShrink: 0,
+                display: 'flex',
+                gap: 16,
+                paddingTop: 8,
+                flexWrap: 'wrap'
+              }}
+            >
               <button
                 onClick={() => setShowVerifyModal(false)}
                 style={{
-                  flex: 1, minWidth: 240, padding: '18px 36px', borderRadius: 18,
+                  flex: 1,
+                  minWidth: 220,
+                  padding: '16px 30px',
+                  borderRadius: 16,
                   background: isLight ? '#e2e8f0' : 'rgba(255,255,255,0.1)',
                   color: isLight ? '#0f172a' : '#ffffff',
                   border: isLight ? '2.5px solid #cbd5e1' : '2.5px solid rgba(255,255,255,0.2)',
-                  fontSize: 20, fontWeight: 900, cursor: 'pointer'
+                  fontSize: 19,
+                  fontWeight: 900,
+                  cursor: 'pointer'
                 }}
               >
                 ✏️ EDIT DETAILS
               </button>
               <button
-                onClick={() => { setShowVerifyModal(false); window.print(); }}
+                onClick={() => {
+                  setShowVerifyModal(false)
+                  window.print()
+                }}
                 className="btn-primary"
                 style={{
-                  flex: 1.6, minWidth: 280, padding: '18px 40px',
-                  fontSize: 20, fontWeight: 900, borderRadius: 18,
+                  flex: 1.6,
+                  minWidth: 280,
+                  padding: '16px 36px',
+                  fontSize: 19,
+                  fontWeight: 900,
+                  borderRadius: 16,
                   boxShadow: '0 10px 30px rgba(234, 88, 12, 0.45)'
                 }}
               >
