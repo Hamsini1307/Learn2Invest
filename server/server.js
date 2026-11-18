@@ -21,6 +21,7 @@ dotenv.config({ override: true })
 const app = express()
 app.use(cors())
 app.use(express.json())
+app.use('/videos', express.static(path.join(__dirname, '../public/videos'), { maxAge: '1d', acceptRanges: true }))
 
 process.on('uncaughtException', (err) => {
   if (err?.name === 'MongooseServerSelectionError' || err?.message?.includes('MongoDB') || err?.name === 'MongoNetworkError') {
@@ -62,6 +63,11 @@ function authenticateToken(req, res, next) {
     next()
   })
 }
+
+// Health-check endpoint
+app.get('/', (req, res) => {
+  res.json({ status: 'success', message: 'Learn2Invest API is running' })
+})
 
 // 1. Auth: Register
 app.post('/api/register', async (req, res) => {

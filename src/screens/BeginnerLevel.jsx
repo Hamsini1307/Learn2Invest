@@ -243,17 +243,11 @@ function VideoCard({ v, watched, onWatch, delay = 1, activeAvatar, guideName }) 
 
   const handleVideoStallRecover = (e) => {
     const vid = e?.target
-    if (!vid || vid.paused || vid.ended) return
-    setTimeout(() => {
-      if (vid && !vid.paused && !vid.ended && vid.readyState < 3) {
-        try {
-          if (vid.duration && vid.currentTime < vid.duration - 0.15) {
-            vid.currentTime += 0.06
-          }
-          vid.play().catch(() => {})
-        } catch {}
-      }
-    }, 1200)
+    if (!vid || vid.ended) return
+    // Auto-resume cleanly without seeking or pausing
+    if (vid.paused) {
+      vid.play().catch(() => {})
+    }
   }
 
   const handleVideoEnd = () => {

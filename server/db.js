@@ -1,10 +1,14 @@
 import mongoose from 'mongoose'
 
 export async function initDb(uri) {
+  const timeoutMs = process.env.MONGODB_TIMEOUT_MS
+    ? parseInt(process.env.MONGODB_TIMEOUT_MS, 10)
+    : (process.env.NODE_ENV === 'production' ? 15000 : 5000)
+
   try {
     await mongoose.connect(uri, {
-      serverSelectionTimeoutMS: 800,
-      connectTimeoutMS: 800,
+      serverSelectionTimeoutMS: timeoutMs,
+      connectTimeoutMS: timeoutMs,
     })
     console.log('Successfully connected to MongoDB Atlas.')
   } catch (err) {
@@ -15,5 +19,3 @@ export async function initDb(uri) {
     throw err
   }
 }
-
-
