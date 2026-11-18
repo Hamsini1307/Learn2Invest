@@ -6273,6 +6273,7 @@ export default function Level1SchoolWorld({
   const shouldAutoResumeRef = useRef(true)
   const lastMediaAdvanceRef = useRef({ mediaTime: 0, wallTime: 0, stallCount: 0 })
   const bufferingTimerRef = useRef(null)
+  const stallRecoveryTimerRef = useRef(null)
 
   // Examination Center Projector State (Persisted Attempt: 7 Common Q1–Q7 + 3 Varied Q8–Q20)
   const [quizAttempt, setQuizAttempt] = useState(() =>
@@ -7697,10 +7698,32 @@ export default function Level1SchoolWorld({
 
   const handleVideoWaitingOrStalled = (e) => {
     const vid = e?.target || videoElemRef.current
+<<<<<<< Updated upstream
     if (!vid || vid.ended || showLessonCompletedBanner) return
     // Auto-resume playback immediately without triggering heavy 3D scene re-renders
     if (shouldAutoResumeRef.current && vid.paused) {
       vid.play().catch(() => {})
+=======
+    if (!vid || vid.paused || vid.ended || showLessonCompletedBanner) return
+    // Show buffering spinner after 650ms
+    if (!bufferingTimerRef.current) {
+      bufferingTimerRef.current = setTimeout(() => {
+        setIsVideoBuffering(true)
+      }, 650)
+>>>>>>> Stashed changes
+    }
+    // Auto-recovery: if still frozen after 3s, call play() to unblock the browser
+    if (!stallRecoveryTimerRef.current) {
+      stallRecoveryTimerRef.current = setTimeout(() => {
+        stallRecoveryTimerRef.current = null
+        const v = videoElemRef.current
+        if (v && !v.paused && !v.ended && shouldAutoResumeRef.current && !showLessonCompletedBanner) {
+          v.play().catch(() => {})
+        } else if (v && v.paused && shouldAutoResumeRef.current && !v.ended && !showLessonCompletedBanner) {
+          // Browser may have paused the element during stall — restart
+          v.play().catch(() => {})
+        }
+      }, 3000)
     }
   }
 
@@ -7708,6 +7731,10 @@ export default function Level1SchoolWorld({
     if (bufferingTimerRef.current) {
       clearTimeout(bufferingTimerRef.current)
       bufferingTimerRef.current = null
+    }
+    if (stallRecoveryTimerRef.current) {
+      clearTimeout(stallRecoveryTimerRef.current)
+      stallRecoveryTimerRef.current = null
     }
     setIsVideoBuffering(false)
     setVideoLoadError(false)
@@ -7770,6 +7797,10 @@ export default function Level1SchoolWorld({
     if (bufferingTimerRef.current) {
       clearTimeout(bufferingTimerRef.current)
       bufferingTimerRef.current = null
+    }
+    if (stallRecoveryTimerRef.current) {
+      clearTimeout(stallRecoveryTimerRef.current)
+      stallRecoveryTimerRef.current = null
     }
     const alreadyDone = completedVideoIds.includes(LEVEL1_VIDEOS[safeIdx].id)
     const initialPct = alreadyDone ? 100 : 0
